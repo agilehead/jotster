@@ -164,9 +164,207 @@ Request arrives
 | Multi-tenancy      | All entity tables have `tenant_id` FK                     |
 | Soft deletes       | Where needed, `deleted_at` integer column (nullable)      |
 
-All migrations live in `database/jotster/sqlite/migrations/` and are applied at startup.
+## 6. Migrations (Knex on Node.js)
 
-## 6. Coding Standards
+Migrations are managed by **Knex.js** running on Node.js — they are NOT part of the Tsonic build. This follows the same pattern as Lesser and Clickmeter.
+
+### Directory structure
+
+```
+database/
+└── jotster/
+    └── sqlite/
+        └── migrations/
+            ├── 20260217000000_initial_schema.js
+            ├── 20260217000001_initial_data.js
+            └── ...
+knexfile.jotster.js
+```
+
+### Knexfile configuration
+
+```javascript
+// knexfile.jotster.js
+export default {
+  development: {
+    client: "better-sqlite3",
+    connection: { filename: process.env.JOTSTER_DATA_DIR + "/jotster.db" },
+    useNullAsDefault: true,
+    migrations: {
+      directory: "./database/jotster/sqlite/migrations",
+    },
+  },
+  test: {
+    client: "better-sqlite3",
+    connection: { filename: ":memory:" },
+    useNullAsDefault: true,
+    migrations: {
+      directory: "./database/jotster/sqlite/migrations",
+    },
+  },
+  production: {
+    client: "better-sqlite3",
+    connection: { filename: process.env.JOTSTER_DATA_DIR + "/jotster.db" },
+    useNullAsDefault: true,
+    pool: { min: 2, max: 10 },
+    migrations: {
+      directory: "./database/jotster/sqlite/migrations",
+    },
+  },
+};
+```
+
+### Migration file pattern
+
+Each migration follows the standard Knex ES module pattern:
+
+```javascript
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex) {
+  await knex.schema.createTable("channel", (table) => {
+    table.string("id").primary();
+    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.string("name").notNullable();
+    // ...
+    table.bigInteger("created_at").notNullable();
+  });
+}
+
+export async function down(knex) {
+  await knex.schema.dropTableIfExists("channel");
+}
+```
+
+### Commands
+
+```bash
+npm run migrate                    # Run all pending migrations
+npm run migrate:rollback           # Rollback last batch
+npm run migrate:make <name>        # Create new migration file
+npm run migrate:status             # Check migration status
+```
+
+### SQLite FK constraint workarounds
+
+SQLite cannot `ALTER TABLE` to modify FK constraints. When needed, use the rename-and-swap pattern:
+
+1. `PRAGMA foreign_keys = OFF`
+2. Create new table with desired constraints
+3. `INSERT INTO new_table SELECT * FROM old_table`
+4. `DROP TABLE old_table`
+5. `ALTER TABLE new_table RENAME TO old_table`
+6. Recreate indexes
+7. `PRAGMA foreign_keys = ON`
+
+### SQLite pragmas
+
+Applied at connection time:
+
+- `PRAGMA foreign_keys = ON` — enforce FK constraints
+- `PRAGMA journal_mode = WAL` — write-ahead logging for concurrent reads
+
+## 7. Testing (Node.js / Mocha)
+
+Tests run on **Node.js** using Mocha + Chai — they are NOT compiled through Tsonic. This follows the same pattern as Lesser.
+
+### Test structure
+
+```
+tests/
+├── index.ts                       # Main entry point, imports all tests
+├── test-setup.ts                  # Global before/after hooks, DB + server setup
+├── utils/
+│   ├── test-db.ts                 # TestDatabase class — setup, teardown, helpers
+│   ├── test-server.ts             # Starts the Jotster binary for integration tests
+│   └── api-client.ts              # HTTP client for calling Zulip API endpoints
+└── tests/
+    ├── auth/
+    │   ├── test-setup.ts          # Feature-specific test context
+    │   ├── fetch-api-key.test.ts
+    │   └── server-settings.test.ts
+    ├── messages/
+    │   ├── send-message.test.ts
+    │   ├── get-messages.test.ts
+    │   └── edit-message.test.ts
+    ├── channels/
+    ├── users/
+    ├── subscriptions/
+    └── ...
+```
+
+### Test execution flow
+
+1. **Global setup** (`before`): create test database, run migrations, start Jotster binary
+2. **Feature setup** (`beforeEach`): truncate all tables, insert test data
+3. **Test**: call Zulip API endpoints via HTTP client, assert responses
+4. **Global teardown** (`after`): stop server, delete test database
+
+### Test database management
+
+- Each test run gets a fresh SQLite database (file-based or `:memory:`)
+- Migrations applied via Knex at setup
+- `truncateAllTables()` between tests for isolation (disable FK checks, delete all rows, re-enable)
+- Foreign key constraints and WAL mode enabled
+
+### Test commands
+
+```bash
+npm run test                       # Run all tests
+npm run test -- --grep "pattern"   # Run tests matching pattern
+npm run test:integration           # Run integration tests against running server
+```
+
+### API client for tests
+
+Tests use a lightweight HTTP client that speaks the Zulip API:
+
+```typescript
+// Authenticate as a test user
+const client = createApiClient(baseUrl, testUserEmail, testApiKey);
+
+// Make Zulip API calls
+const result = await client.post("/api/v1/messages", {
+  type: "stream",
+  to: channelId,
+  topic: "test topic",
+  content: "Hello, world!",
+});
+
+expect(result.status).to.equal(200);
+expect(result.body.id).to.be.a("number");
+```
+
+### Key dependencies (devDependencies)
+
+```json
+{
+  "knex": "^3.1.0",
+  "better-sqlite3": "^11.0.0",
+  "mocha": "^10.0.0",
+  "chai": "^5.0.0",
+  "tsx": "^4.0.0"
+}
+```
+
+Tests run via tsx loader: `NODE_OPTIONS='--import tsx' mocha tests/index.ts --timeout 60000`
+
+## 8. Build vs. Runtime Split
+
+The project has a clear split between what runs on Tsonic/.NET and what runs on Node.js:
+
+| Concern         | Runtime     | Tool/Framework                |
+| --------------- | ----------- | ----------------------------- |
+| Server code     | .NET (AOT)  | Tsonic, ASP.NET Core, EF Core |
+| Migrations      | Node.js     | Knex.js, better-sqlite3       |
+| Tests           | Node.js     | Mocha, Chai, tsx              |
+| Dev tooling     | Node.js     | npm scripts                   |
+
+`package.json` at root manages the Node.js side (migrations, tests, dev scripts). `tsonic.workspace.json` manages the Tsonic build side (packages, .NET dependencies).
+
+## 9. Coding Standards
 
 Following the clickmeter and lesser patterns:
 
@@ -181,7 +379,7 @@ Following the clickmeter and lesser patterns:
 | Error handling     | Result types, not exceptions, for domain errors         |
 | Data               | Immutable -- no mutation of shared objects              |
 
-## 7. Configuration
+## 10. Configuration
 
 ### jotster.config.json
 
@@ -209,13 +407,13 @@ Environment variables take precedence over `jotster.config.json`.
 
 Resolution order: environment variable > config file > default value.
 
-## 8. Module List
+## 11. Module List
 
 Jotster has 24 modules. Each module has a corresponding spec file.
 
 | #  | Module                 | Package              | Spec file                      |
 | -- | ---------------------- | -------------------- | ------------------------------ |
-| 01 | Server & Auth          | server, auth         | `01-server-auth.md`            |
+| 01 | Server & Auth          | server, auth         | `01-server-and-auth.md`        |
 | 02 | Event Queue            | event-queue          | `02-event-queue.md`            |
 | 03 | Messages               | messages             | `03-messages.md`               |
 | 04 | Emoji Reactions        | emoji                | `04-emoji-reactions.md`        |
@@ -237,7 +435,7 @@ Jotster has 24 modules. Each module has a corresponding spec file.
 | 20 | Invitations            | organization         | `20-invitations.md`            |
 | 21 | Push Notifications     | notifications        | `21-push-notifications.md`     |
 | 22 | Webhooks               | webhooks             | `22-webhooks.md`               |
-| 23 | Roles & Permissions    | permissions          | `23-roles-permissions.md`      |
+| 23 | Roles & Permissions    | permissions          | `23-roles-and-permissions.md`  |
 | 24 | Data Export            | organization         | `24-data-export.md`            |
 
 ### Module-to-package mapping summary

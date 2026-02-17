@@ -70,7 +70,7 @@ Stores explicit membership for custom groups only. System group membership is ne
 | `user_group_id` | TEXT | The group                          |
 | `user_id`     | TEXT | The member                           |
 
-#### `tenant` (defined in `01-server-and-auth.md`)
+#### `tenant` (defined in `01-server-and-auth.md`, settings in `19-organization-settings.md`)
 
 Organization-level permission settings are stored in `settings_json`.
 
@@ -81,14 +81,13 @@ Organization-level permission settings are stored in `settings_json`.
 
 #### `subscription` (defined in `07-subscriptions.md`)
 
-Channel access checks require subscription data.
+Channel access checks require subscription data. Subscriptions use hard-delete semantics -- a row's existence means the user is subscribed.
 
 | Column       | Type | Relevance                              |
 | ------------ | ---- | -------------------------------------- |
 | `tenant_id`  | TEXT | Tenant scope                           |
 | `user_id`    | TEXT | Subscribed user                        |
 | `channel_id` | TEXT | Subscribed channel                     |
-| `is_active`  | INTEGER | Whether the subscription is active  |
 
 #### `channel` (defined in `05-channels.md`)
 
