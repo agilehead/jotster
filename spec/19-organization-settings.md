@@ -142,6 +142,7 @@ The core organization table. Most organization settings are stored in the `setti
 | icon_url      | string | nullable                             | Organization icon URL                    |
 | logo_url      | string | nullable                             | Organization logo URL                    |
 | settings_json | text   | NOT NULL, default "{}"               | JSON blob of all organization settings   |
+| active        | int    | NOT NULL, default 1                  | Boolean 0/1, whether tenant is live      |
 | created_at    | int    | NOT NULL                             | Unix milliseconds                        |
 | updated_at    | int    | NOT NULL                             | Unix milliseconds                        |
 

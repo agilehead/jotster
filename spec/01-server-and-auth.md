@@ -231,14 +231,16 @@ Stores tenant (realm/organization) records.
 
 | Column        | Type    | Constraints          | Description                          |
 | ------------- | ------- | -------------------- | ------------------------------------ |
-| `id`          | TEXT    | PK                   | System-generated nanoid              |
-| `subdomain`   | TEXT    | NOT NULL, UNIQUE     | Subdomain identifier for the tenant  |
-| `name`        | TEXT    | NOT NULL             | Display name (realm_name)            |
-| `description` | TEXT    | NOT NULL DEFAULT ''  | Realm description                    |
-| `icon_url`    | TEXT    | NULL                 | Realm icon URL                       |
-| `active`      | INTEGER | NOT NULL DEFAULT 1   | Boolean 0/1, whether tenant is live  |
-| `created_at`  | INTEGER | NOT NULL             | Unix milliseconds                    |
-| `updated_at`  | INTEGER | NOT NULL             | Unix milliseconds                    |
+| `id`            | TEXT    | PK                   | System-generated nanoid              |
+| `subdomain`     | TEXT    | NOT NULL, UNIQUE     | Subdomain identifier for the tenant  |
+| `name`          | TEXT    | NOT NULL             | Display name (realm_name)            |
+| `description`   | TEXT    | NOT NULL DEFAULT ''  | Realm description                    |
+| `icon_url`      | TEXT    | NULL                 | Realm icon URL                       |
+| `logo_url`      | TEXT    | NULL                 | Realm logo URL                       |
+| `settings_json` | TEXT    | NOT NULL DEFAULT '{}' | JSON blob of all org settings (see `19-organization-settings.md`) |
+| `active`        | INTEGER | NOT NULL DEFAULT 1   | Boolean 0/1, whether tenant is live  |
+| `created_at`    | INTEGER | NOT NULL             | Unix milliseconds                    |
+| `updated_at`    | INTEGER | NOT NULL             | Unix milliseconds                    |
 
 ### api_key
 
@@ -260,7 +262,7 @@ Stores hashed API keys for authenticated users. A user may have multiple active 
 
 ### Notes on the user table
 
-The `user` table is defined in the users module (`03-users.md`). This module references it for:
+The `user` table is defined in the users module (`08-users.md`). This module references it for:
 
 - Looking up users by email during `fetch_api_key`.
 - Verifying passwords (password hash stored on the user record).

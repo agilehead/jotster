@@ -111,6 +111,32 @@ type Result<T, E = Error> =
 - All queries must be scoped to the tenant. Never leak data across tenants.
 - Subdomain routing in multi-tenant mode; fixed tenant ID in single-tenant mode.
 
+## Migrations (Knex on Node.js)
+
+Migrations run on Node.js via Knex — they are separate from the Tsonic build.
+
+- Migration files live in `database/jotster/sqlite/migrations/`.
+- File naming: `YYYYMMDDHHMMSS_description.js` (e.g. `20260217000000_initial_schema.js`).
+- Use ES module syntax (`export async function up/down`).
+- Each migration must have both `up` and `down` functions.
+- Use `knex.schema.createTable`, `alterTable`, etc. — no raw SQL except for SQLite FK workarounds.
+- Configuration in `knexfile.jotster.js` at project root.
+- SQLite pragmas (`foreign_keys = ON`, `journal_mode = WAL`) applied at connection time.
+
+## Testing (Node.js / Mocha)
+
+Tests run on Node.js via Mocha + Chai — they are separate from the Tsonic build.
+
+- Tests live in `tests/` at project root.
+- One test file per feature/endpoint (e.g. `send-message.test.ts`).
+- Feature-specific `test-setup.ts` files create test context (users, channels, etc.).
+- `truncateAllTables()` between tests for isolation.
+- API tests call the Zulip REST API via HTTP client with Basic Auth.
+- Use `tsx` loader for TypeScript — no build step for tests.
+- Arrange/Act/Assert pattern.
+- 60-second timeout for integration tests.
+- No `console.log` — use test logger.
+
 ## Code Review Checklist
 
 - [ ] All functions use Result types for error handling
@@ -125,3 +151,7 @@ type Result<T, E = Error> =
 - [ ] All queries scoped to `tenant_id`
 - [ ] Kebab-case file names, camelCase function names
 - [ ] Database tables singular lowercase, columns snake_case
+- [ ] Migrations have both `up` and `down` functions
+- [ ] Tests use Arrange/Act/Assert pattern
+- [ ] Test isolation via `truncateAllTables()` in `beforeEach`
+- [ ] No `console.log` in tests or production code
