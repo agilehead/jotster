@@ -1,0 +1,21 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "rootNamespace": "Jotster.Emoji",
+  "entryPoint": "src/index.ts",
+  "sourceRoot": "src",
+  "outputDirectory": "generated",
+  "outputName": "Jotster.Emoji",
+  "output": {
+    "type": "library"
+  },
+  "references": {
+    "libraries": [
+      "../core/dist/net10.0/Jotster.Core.dll",
+      "../event-queue/dist/net10.0/Jotster.EventQueue.dll"
+    ]
+  },
+  "buildOptions": {
+    "stripSymbols": true,
+    "invariantGlobalization": true
+  }
+}

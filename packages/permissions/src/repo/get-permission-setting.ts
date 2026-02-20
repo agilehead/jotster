@@ -1,0 +1,79 @@
+import type { int } from "@tsonic/core/types.js";
+import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
+import type { Result } from "@jotster/core/Jotster.Core.js";
+import { ok, err } from "@jotster/core/Jotster.Core.js";
+
+const PERMISSION_DEFAULTS: Record<string, string> = {
+  create_public_stream_policy: "role:members",
+  create_private_stream_policy: "role:members",
+  create_web_public_stream_policy: "role:owners",
+  invite_to_realm_policy: "role:members",
+  invite_to_stream_policy: "role:members",
+  move_messages_between_streams_policy: "role:members",
+  edit_topic_policy: "role:everyone",
+  wildcard_mention_policy: "role:members",
+  user_group_edit_policy: "role:members",
+  can_create_groups: "role:members",
+  can_manage_all_groups: "role:administrators",
+  can_add_custom_emoji: "role:members",
+  can_delete_any_message: "role:administrators",
+  can_delete_own_message: "role:everyone",
+  can_access_all_users_group: "role:everyone",
+  direct_message_permission_group: "role:everyone",
+};
+
+export const getPermissionSetting = async (
+  options: DbContextOptions,
+  tenantId: string,
+  settingName: string
+): Promise<Result<string, string>> => {
+  const db = new JotsterDbContext(options);
+  try {
+    const db0 = db;
+    const tenantId0 = tenantId;
+
+    const tenant = await db0.Tenants
+      .Where((t) => t.Id === tenantId0)
+      .FirstOrDefaultAsync();
+
+    if (tenant === undefined) {
+      return err("Tenant not found");
+    }
+
+    const settings = JSON.parse(tenant.SettingsJson) as Record<string, string>;
+    const value = settings[settingName];
+
+    if (value !== undefined) {
+      return ok(value);
+    }
+
+    // Setting not found — resolve from defaults
+    const defaultGroupName = PERMISSION_DEFAULTS[settingName];
+
+    if (defaultGroupName === undefined) {
+      return err("Unknown permission setting: " + settingName);
+    }
+
+    // Resolve the default group name to a group ID
+    const tenantId1 = tenantId;
+    const one = 1 as int;
+
+    const systemGroup = await db0.UserGroups
+      .Where(
+        (g) =>
+          g.TenantId === tenantId1 &&
+          g.IsSystemGroup === one &&
+          g.Name === defaultGroupName
+      )
+      .FirstOrDefaultAsync();
+
+    if (systemGroup === undefined) {
+      return err("System group not found: " + defaultGroupName);
+    }
+
+    return ok(systemGroup.Id);
+  } finally {
+    db.Dispose();
+  }
+};

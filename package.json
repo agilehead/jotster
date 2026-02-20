@@ -1,0 +1,37 @@
+{
+  "name": "jotster",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "restore": "tsonic restore",
+    "build": "${TSONIC_BIN:-tsonic} restore && npm run -w @jotster/core build && npm run -w @jotster/auth -w @jotster/channels -w @jotster/emoji -w @jotster/event-queue -w @jotster/messages -w @jotster/uploads -w @jotster/users build && npm run -w @jotster/drafts -w @jotster/notifications -w @jotster/organization -w @jotster/permissions -w @jotster/presence -w @jotster/subscriptions -w @jotster/webhooks build && npm run -w @jotster/server build",
+    "typecheck": "npm -ws --if-present run typecheck",
+    "migrate": "npx knex --knexfile knexfile.jotster.js migrate:latest",
+    "migrate:rollback": "npx knex --knexfile knexfile.jotster.js migrate:rollback",
+    "migrate:make": "npx knex --knexfile knexfile.jotster.js migrate:make",
+    "migrate:status": "npx knex --knexfile knexfile.jotster.js migrate:status",
+    "test": "NODE_OPTIONS='--import tsx' mocha tests/index.ts --timeout 60000"
+  },
+  "devDependencies": {
+    "@tsonic/aspnetcore": "10.0.34",
+    "@tsonic/core": "10.0.34",
+    "@tsonic/dotnet": "10.0.34",
+    "@tsonic/efcore": "10.0.34",
+    "@tsonic/efcore-sqlite": "10.0.34",
+    "@tsonic/express": "10.0.34",
+    "@tsonic/globals": "10.0.34",
+    "@tsonic/microsoft-extensions": "10.0.34",
+    "@tsonic/nodejs": "10.0.34",
+    "@tsonic/tsbindgen": "0.7.44",
+    "better-sqlite3": "^11.0.0",
+    "chai": "^5.0.0",
+    "knex": "^3.1.0",
+    "mocha": "^10.0.0",
+    "tsonic": "0.0.60",
+    "tsx": "^4.0.0",
+    "typescript": "5.9.2"
+  }
+}

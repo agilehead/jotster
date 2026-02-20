@@ -1,0 +1,22 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "rootNamespace": "Jotster.Drafts",
+  "entryPoint": "src/index.ts",
+  "sourceRoot": "src",
+  "outputDirectory": "generated",
+  "outputName": "Jotster.Drafts",
+  "output": {
+    "type": "library"
+  },
+  "references": {
+    "libraries": [
+      "../core/dist/net10.0/Jotster.Core.dll",
+      "../messages/dist/net10.0/Jotster.Messages.dll",
+      "../event-queue/dist/net10.0/Jotster.EventQueue.dll"
+    ]
+  },
+  "buildOptions": {
+    "stripSymbols": true,
+    "invariantGlobalization": true
+  }
+}

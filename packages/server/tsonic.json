@@ -1,0 +1,37 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "rootNamespace": "Jotster.Server",
+  "entryPoint": "src/app.ts",
+  "sourceRoot": "src",
+  "outputDirectory": "generated",
+  "outputName": "jotster",
+  "optimize": "speed",
+  "output": {
+    "nativeAot": true,
+    "trimmed": true,
+    "singleFile": true
+  },
+  "buildOptions": {
+    "stripSymbols": true,
+    "invariantGlobalization": true
+  },
+  "references": {
+    "libraries": [
+      "../core/dist/net10.0/Jotster.Core.dll",
+      "../auth/dist/net10.0/Jotster.Auth.dll",
+      "../channels/dist/net10.0/Jotster.Channels.dll",
+      "../drafts/dist/net10.0/Jotster.Drafts.dll",
+      "../emoji/dist/net10.0/Jotster.Emoji.dll",
+      "../event-queue/dist/net10.0/Jotster.EventQueue.dll",
+      "../messages/dist/net10.0/Jotster.Messages.dll",
+      "../notifications/dist/net10.0/Jotster.Notifications.dll",
+      "../organization/dist/net10.0/Jotster.Organization.dll",
+      "../permissions/dist/net10.0/Jotster.Permissions.dll",
+      "../presence/dist/net10.0/Jotster.Presence.dll",
+      "../subscriptions/dist/net10.0/Jotster.Subscriptions.dll",
+      "../uploads/dist/net10.0/Jotster.Uploads.dll",
+      "../users/dist/net10.0/Jotster.Users.dll",
+      "../webhooks/dist/net10.0/Jotster.Webhooks.dll"
+    ]
+  }
+}

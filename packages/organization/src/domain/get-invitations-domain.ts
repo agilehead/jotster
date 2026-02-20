@@ -1,0 +1,43 @@
+import type { int } from "@tsonic/core/types.js";
+import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
+import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { getInvitations } from "../repo/get-invitations.ts";
+
+export const getInvitationsDomain = async (
+  options: DbContextOptions,
+  user: AuthenticatedUser
+): Promise<Result<Record<string, unknown>[], string>> => {
+  // Admin can see all, others can only list their own
+  const allInvitations = await getInvitations(options, user.tenantId);
+
+  const result = new List<Record<string, unknown>>();
+  for (let i = 0; i < allInvitations.length; i++) {
+    const inv = allInvitations[i];
+
+    // Non-admins can only see their own invitations
+    if (user.role > 200 && inv.InviterId !== user.userId) {
+      continue;
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj["id"] = inv.Id;
+    obj["invited_by_user_id"] = inv.InviterId;
+    obj["email"] = inv.Email ?? "";
+    obj["is_multiuse"] = inv.IsMultiuse === (1 as int);
+    obj["link_token"] = inv.LinkToken;
+    obj["channel_ids"] = inv.ChannelIdsJson.Length > 0
+      ? JSON.parse(inv.ChannelIdsJson) as string[]
+      : [];
+    obj["invited_as"] = inv.InvitedAsRole;
+    obj["status"] = inv.Status;
+    obj["timestamp"] = Number(inv.CreatedAt) / 1000;
+    if (inv.ExpiresAt !== undefined) {
+      obj["expiry_date"] = Number(inv.ExpiresAt) / 1000;
+    }
+    result.Add(obj);
+  }
+
+  return ok(result.ToArray());
+};

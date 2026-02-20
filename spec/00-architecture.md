@@ -1,12 +1,12 @@
 # Jotster Architecture Overview
 
-Jotster is a Zulip 11.x compatible team chat server (API feature level ~320). It is a drop-in replacement for Zulip -- existing Zulip clients (web, mobile, terminal) connect to it unchanged. Built with Tsonic (TypeScript compiled to C# via NativeAOT), ASP.NET Core, EF Core, and SQLite. Ships as a single native binary.
+Jotster is a Zulip 11.x compatible team chat server (API feature level ~320). It is a drop-in replacement for Zulip -- existing Zulip clients (web, mobile, terminal) connect to it unchanged. Built with Tsonic (TypeScript compiled to C# via NativeAOT), `@tsonic/express` for HTTP, EF Core + SQLite for data access. Ships as a single native binary.
 
 ## 1. Project Overview
 
 - **Zulip 11.x API compatible** -- feature level ~320, full REST + event system
 - **Tsonic** -- TypeScript source compiled to C# and then to native code via .NET NativeAOT
-- **ASP.NET Core** -- HTTP layer, middleware, routing
+- **`@tsonic/express`** -- HTTP layer, middleware, routing (Express-style API compiled to native via Tsonic)
 - **EF Core + SQLite** -- data access, migrations, single-file database
 - **Single native binary** -- no runtime dependencies, one file to deploy
 - **Multi-tenant** by default, with a single-tenant mode option
@@ -357,7 +357,7 @@ The project has a clear split between what runs on Tsonic/.NET and what runs on 
 
 | Concern         | Runtime     | Tool/Framework                |
 | --------------- | ----------- | ----------------------------- |
-| Server code     | .NET (AOT)  | Tsonic, ASP.NET Core, EF Core |
+| Server code     | .NET (AOT)  | Tsonic, @tsonic/express, EF Core |
 | Migrations      | Node.js     | Knex.js, better-sqlite3       |
 | Tests           | Node.js     | Mocha, Chai, tsx              |
 | Dev tooling     | Node.js     | npm scripts                   |
