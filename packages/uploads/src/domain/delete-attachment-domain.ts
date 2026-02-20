@@ -1,0 +1,53 @@
+import { fs, path } from "@tsonic/nodejs/index.js";
+import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
+import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { getAttachmentById } from "../repo/get-attachment-by-id.ts";
+import { deleteAttachment } from "../repo/delete-attachment.ts";
+
+export const deleteAttachmentDomain = async (
+  options: DbContextOptions,
+  user: AuthenticatedUser,
+  uploadsDir: string,
+  attachmentId: string
+): Promise<Result<void, string>> => {
+  const attachment = await getAttachmentById(options, user.tenantId, attachmentId);
+  if (attachment === undefined) {
+    return err("Attachment not found");
+  }
+
+  const isOwner = attachment.UserId === user.userId;
+  const isAdmin = user.role <= 200;
+
+  if (!isOwner && !isAdmin) {
+    return err("You do not have permission to delete this attachment");
+  }
+
+  // Delete file from disk
+  const filePath = path.join(uploadsDir, user.tenantId, attachment.PathId);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+
+  // Delete DB record
+  const deleted = await deleteAttachment(options, user.tenantId, attachmentId);
+  if (!deleted) {
+    return err("Failed to delete attachment");
+  }
+
+  dispatchEventToTenant(user.tenantId, {
+    type: "attachment",
+    op: "remove",
+    data: {
+      attachment: {
+        id: attachment.Id,
+        name: attachment.FileName,
+        path_id: attachment.PathId,
+        size: attachment.Size,
+      },
+    },
+  });
+
+  return ok(undefined);
+};

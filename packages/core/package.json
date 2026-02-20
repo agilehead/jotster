@@ -1,0 +1,16 @@
+{
+  "name": "@jotster/core",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./*.js": {
+      "types": "./dist/tsonic/bindings/*.d.ts",
+      "default": "./dist/tsonic/bindings/*.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "cd ../.. && ${TSONIC_BIN:-tsonic} restore --project core && cd packages/core && tsc -p tsconfig.json",
+    "build": "cd ../.. && ${TSONIC_BIN:-tsonic} build --project core"
+  }
+}

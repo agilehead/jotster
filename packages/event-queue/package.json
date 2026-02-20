@@ -1,0 +1,16 @@
+{
+  "name": "@jotster/event-queue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./*.js": {
+      "types": "./dist/tsonic/bindings/*.d.ts",
+      "default": "./dist/tsonic/bindings/*.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "cd ../.. && ${TSONIC_BIN:-tsonic} restore --project event-queue && cd packages/event-queue && tsc -p tsconfig.json",
+    "build": "cd ../.. && ${TSONIC_BIN:-tsonic} build --project event-queue"
+  }
+}

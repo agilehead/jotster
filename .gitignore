@@ -137,3 +137,12 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Tsonic build output
+.tsonic/
+generated/
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal

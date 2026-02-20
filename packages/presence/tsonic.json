@@ -1,0 +1,22 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "rootNamespace": "Jotster.Presence",
+  "entryPoint": "src/index.ts",
+  "sourceRoot": "src",
+  "outputDirectory": "generated",
+  "outputName": "Jotster.Presence",
+  "output": {
+    "type": "library"
+  },
+  "buildOptions": {
+    "stripSymbols": true,
+    "invariantGlobalization": true
+  },
+  "references": {
+    "libraries": [
+      "../core/dist/net10.0/Jotster.Core.dll",
+      "../users/dist/net10.0/Jotster.Users.dll",
+      "../event-queue/dist/net10.0/Jotster.EventQueue.dll"
+    ]
+  }
+}
