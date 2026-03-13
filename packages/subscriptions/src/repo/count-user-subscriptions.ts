@@ -14,7 +14,7 @@ export const countUserSubscriptions = async (
     const result = await db0.Subscriptions
       .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
       .ToArrayAsync();
-    return result.Length;
+    return result.length;
   } finally {
     db.Dispose();
   }

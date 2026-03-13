@@ -18,7 +18,7 @@ export const getUserGroupsDomain = async (
   const groups = await getUserGroups(options, user.tenantId);
 
   const result = new List<UserGroupWithDetails>();
-  for (let i = 0; i < groups.Length; i++) {
+  for (let i = 0; i < groups.length; i++) {
     const group = groups[i];
     const members = await getUserGroupMembers(options, group.Id);
     const subgroups = await getUserGroupSubgroups(options, group.Id);

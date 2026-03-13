@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createDraftsDomain } from "@jotster/drafts/Jotster.Drafts.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
@@ -16,8 +17,9 @@ export const handleCreateDrafts = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const drafts = req.body["drafts"] as { type: string; to: string; topic?: string; content: string }[];
+  const drafts = body["drafts"] as { type: string; to: string; topic?: string; content: string }[];
 
   if (drafts === undefined || drafts === null) {
     res.status(400).json({ result: "error", msg: "Missing 'drafts' field" });
@@ -30,7 +32,11 @@ export const handleCreateDrafts = async (
     inputs.Add({ type: d.type, to: d.to, topic: d.topic, content: d.content });
   }
 
-  const result = await createDraftsDomain(app.options, user, inputs.ToArray());
+  const result = await createDraftsDomain(
+    app.options,
+    user,
+    inputs.ToArray()
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

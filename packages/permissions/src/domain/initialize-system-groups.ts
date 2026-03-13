@@ -33,7 +33,7 @@ export const initializeSystemGroups = async (
 
     // Build a set of existing group names
     const existingNames: Record<string, boolean> = {};
-    for (let i = 0; i < existing.Length; i++) {
+    for (let i = 0; i < existing.length; i++) {
       existingNames[existing[i].Name] = true;
     }
 

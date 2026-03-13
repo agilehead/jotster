@@ -17,11 +17,11 @@ export const resolveTenant = async (
     return ok(tenant);
   }
 
-  const colonIdx = host.IndexOf(":");
-  const hostname = colonIdx >= 0 ? host.Substring(0, colonIdx) : host;
+  const colonIdx = host.indexOf(":");
+  const hostname = colonIdx >= 0 ? host.substring(0, colonIdx) : host;
 
-  const parts = hostname.Split(".");
-  if (parts.Length <= 2) {
+  const parts = hostname.split(".");
+  if (parts.length <= 2) {
     return err("No subdomain found");
   }
 

@@ -1,4 +1,5 @@
 import type { int } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -17,7 +18,7 @@ export const setTopicVisibilityDomain = async (
   user: AuthenticatedUser,
   params: SetTopicVisibilityParams
 ): Promise<Result<void, string>> => {
-  const policy = Number(params.visibilityPolicy);
+  const policy = Convert.ToInt32(params.visibilityPolicy);
 
   // Validate policy is 0-3
   if (policy < 0 || policy > 3) {

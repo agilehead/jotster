@@ -11,20 +11,20 @@ export const authenticateRequest = async (
   options: DbContextOptions,
   authHeader: string
 ): Promise<Result<AuthenticatedUser, string>> => {
-  if (!authHeader.StartsWith("Basic ")) {
+  if (!authHeader.startsWith("Basic ")) {
     return err("Authentication required");
   }
 
-  const encoded = authHeader.Substring(6).Trim();
+  const encoded = authHeader.substring(6).trim();
   const decoded = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
 
-  const colonIdx = decoded.IndexOf(":");
+  const colonIdx = decoded.indexOf(":");
   if (colonIdx < 0) {
     return err("Authentication required");
   }
 
-  const email = decoded.Substring(0, colonIdx);
-  const apiKey = decoded.Substring(colonIdx + 1);
+  const email = decoded.substring(0, colonIdx);
+  const apiKey = decoded.substring(colonIdx + 1);
 
   const keyHash = hashApiKey(apiKey);
   const apiKeyRecord = await getApiKeyByHash(options, keyHash);

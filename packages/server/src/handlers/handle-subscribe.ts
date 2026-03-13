@@ -1,4 +1,6 @@
+import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject, toOptionalFlagInt, toOptionalInt } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { subscribeDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
@@ -16,8 +18,9 @@ export const handleSubscribe = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const subscriptionsRaw = req.body["subscriptions"] as string;
+  const subscriptionsRaw = body["subscriptions"] as string;
   if (!subscriptionsRaw) {
     res.status(400).json({ result: "error", msg: "Missing required field: subscriptions" });
     return;
@@ -25,15 +28,20 @@ export const handleSubscribe = async (
 
   const subscriptions = JSON.parse(subscriptionsRaw) as { name: string; description?: string }[];
 
-  const principalsRaw = req.body["principals"] as string | undefined;
+  const principalsRaw = body["principals"] as string | undefined;
   const principals = principalsRaw ? JSON.parse(principalsRaw) as string[] : undefined;
 
-  const inviteOnly = req.body["invite_only"] as boolean | undefined;
-  const isWebPublic = req.body["is_web_public"] as boolean | undefined;
-  const historyPublicToSubscribers = req.body["history_public_to_subscribers"] as boolean | undefined;
-  const messageRetentionDays = req.body["message_retention_days"] as number | undefined;
+  const inviteOnly = toOptionalFlagInt(body["invite_only"]);
+  const isWebPublic = toOptionalFlagInt(body["is_web_public"]);
+  const historyPublicToSubscribers = toOptionalFlagInt(body["history_public_to_subscribers"]);
+  const messageRetentionDays = toOptionalInt(body["message_retention_days"]);
 
-  const createParams = {
+  const createParams: {
+    isPrivate?: int;
+    isWebPublic?: int;
+    historyPublicToSubscribers?: int;
+    messageRetentionDays?: int;
+  } = {
     isPrivate: inviteOnly,
     isWebPublic,
     historyPublicToSubscribers,

@@ -40,14 +40,14 @@ export const updateChannelDomain = async (
   let renderedDescription: string | undefined = undefined;
 
   if (updates.name !== undefined) {
-    const name = updates.name.Trim();
-    if (name.Length === 0) {
+    const name = updates.name.trim();
+    if (name.length === 0) {
       return err("Channel name must not be empty");
     }
-    if (name.Length > MAX_CHANNEL_NAME_LENGTH) {
+    if (name.length > MAX_CHANNEL_NAME_LENGTH) {
       return err("Channel name too long");
     }
-    if (name.Contains("\n")) {
+    if (name.includes("\n")) {
       return err("Channel name must not contain newlines");
     }
     if (name !== channel.Name) {
@@ -64,7 +64,7 @@ export const updateChannelDomain = async (
   }
 
   const updated = await updateChannel(options, channelId, {
-    name: updates.name !== undefined ? updates.name.Trim() : undefined,
+    name: updates.name !== undefined ? updates.name.trim() : undefined,
     description: updates.description,
     renderedDescription,
     isPrivate: updates.isPrivate,

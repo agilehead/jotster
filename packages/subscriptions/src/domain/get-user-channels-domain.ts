@@ -35,7 +35,7 @@ export const getUserChannelsDomain = async (
     const subscriptions = await getSubscriptionsForUser(options, actingUser.tenantId, targetUserId);
     const result = new List<Record<string, unknown>>();
 
-    for (let i = 0; i < subscriptions.Length; i++) {
+    for (let i = 0; i < subscriptions.length; i++) {
       const sub = subscriptions[i];
       const channelId0 = sub.ChannelId;
 
@@ -69,11 +69,11 @@ export const getUserChannelsDomain = async (
 
       if (includeSubscribers) {
         const channelSubs = await getSubscriptionsForChannel(options, actingUser.tenantId, channel.Id);
-        const subscribers = new List<string>();
-        for (let j = 0; j < channelSubs.Length; j++) {
-          subscribers.Add(channelSubs[j].UserId);
+        const subscriberList = new List<string>();
+        for (let j = 0; j < channelSubs.length; j++) {
+          subscriberList.Add(channelSubs[j].UserId);
         }
-        entry.subscribers = subscribers.ToArray();
+        entry["subscribers"] = subscriberList.ToArray();
       }
 
       result.Add(entry);

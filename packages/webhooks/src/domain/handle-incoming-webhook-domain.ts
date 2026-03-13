@@ -51,33 +51,33 @@ export const handleIncomingWebhookDomain = async (
 
   if (input.integrationName === "generic" || input.integrationName === undefined) {
     // Generic format: read topic + content from body or params
-    topic = (input.topic ?? input.body["topic"] as string ?? "").Trim();
-    content = (input.content ?? input.body["content"] as string ?? "").Trim();
-    stream = (input.stream ?? input.body["stream"] as string ?? "").Trim();
+    topic = (input.topic ?? input.body["topic"] as string ?? "").trim();
+    content = (input.content ?? input.body["content"] as string ?? "").trim();
+    stream = (input.stream ?? input.body["stream"] as string ?? "").trim();
   } else {
     // For other integrations, fall back to generic format for MVP
-    topic = (input.topic ?? input.body["topic"] as string ?? input.integrationName).Trim();
-    content = (input.content ?? input.body["content"] as string ?? "").Trim();
-    stream = (input.stream ?? input.body["stream"] as string ?? "").Trim();
+    topic = (input.topic ?? input.body["topic"] as string ?? input.integrationName).trim();
+    content = (input.content ?? input.body["content"] as string ?? "").trim();
+    stream = (input.stream ?? input.body["stream"] as string ?? "").trim();
 
     // If content is still empty, try to extract a reasonable default
-    if (content.Length === 0) {
+    if (content.length === 0) {
       const text = input.body["text"] as string | undefined;
       if (text !== undefined) {
-        content = text.Trim();
+        content = text.trim();
       }
     }
   }
 
-  if (content.Length === 0) {
+  if (content.length === 0) {
     return err("Message content must not be empty");
   }
 
-  if (stream.Length === 0) {
+  if (stream.length === 0) {
     return err("Stream/channel must be specified");
   }
 
-  if (topic.Length === 0) {
+  if (topic.length === 0) {
     topic = "(no topic)";
   }
 

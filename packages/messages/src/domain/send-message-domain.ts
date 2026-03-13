@@ -8,6 +8,8 @@ import {
   MAX_MESSAGE_LENGTH,
   MAX_TOPIC_LENGTH,
 } from "@jotster/core/Jotster.Core.js";
+import { Convert } from "@tsonic/dotnet/System.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { sendMessage } from "../repo/send-message.ts";
@@ -27,12 +29,12 @@ export const sendMessageDomain = async (
   params: SendMessageDomainInput
 ): Promise<Result<{ id: string }, string>> => {
   // Validate content
-  const content = params.content.Trim();
-  if (content.Length === 0) {
+  const content = params.content.trim();
+  if (content.length === 0) {
     return err("Message must not be empty");
   }
 
-  if (content.Length > MAX_MESSAGE_LENGTH) {
+  if (content.length > MAX_MESSAGE_LENGTH) {
     return err("Message too long");
   }
 
@@ -45,17 +47,17 @@ export const sendMessageDomain = async (
 
   if (params.type === "stream") {
     // Resolve channel by name or ID
-    const to = params.to.Trim();
-    if (to.Length === 0) {
+    const to = params.to.trim();
+    if (to.length === 0) {
       return err("Channel must be specified");
     }
 
     // Validate topic
-    const topic = params.topic !== undefined ? params.topic.Trim() : "";
-    if (topic.Length === 0) {
+    const topic = params.topic !== undefined ? params.topic.trim() : "";
+    if (topic.length === 0) {
       return err("Topic must not be empty for channel messages");
     }
-    if (topic.Length > MAX_TOPIC_LENGTH) {
+    if (topic.length > MAX_TOPIC_LENGTH) {
       return err("Topic too long");
     }
 
@@ -110,17 +112,17 @@ export const sendMessageDomain = async (
       });
 
       // Dispatch event
+      const eventData: Record<string, unknown> = {};
+      eventData["id"] = message.Id;
+      eventData["sender_id"] = user.userId;
+      eventData["type"] = "stream";
+      eventData["stream_id"] = channel.Id;
+      eventData["subject"] = topic;
+      eventData["content"] = renderedContent;
+      eventData["timestamp"] = Convert.ToDouble(message.CreatedAt) / 1000;
       dispatchEventToTenant(user.tenantId, {
         type: "message",
-        data: {
-          id: message.Id,
-          sender_id: user.userId,
-          type: "stream",
-          stream_id: channel.Id,
-          subject: topic,
-          content: renderedContent,
-          timestamp: Number(message.CreatedAt) / 1000,
-        },
+        data: eventData,
       });
 
       return ok({ id: message.Id });
@@ -131,12 +133,11 @@ export const sendMessageDomain = async (
 
   if (params.type === "direct" || params.type === "private") {
     // Parse `to` as JSON array of user IDs/emails
-    let userIds: string[];
-    try {
-      userIds = JSON.parse(params.to) as string[];
-    } catch (_e) {
+    const parsedTo = JsonSerializer.Deserialize<string[]>(params.to);
+    if (parsedTo === undefined) {
       return err("Invalid 'to' parameter: expected JSON array of user IDs");
     }
+    let userIds: string[] = parsedTo;
 
     if (userIds.length === 0) {
       return err("Recipient list must not be empty");
@@ -169,7 +170,7 @@ export const sendMessageDomain = async (
       for (let i = 0; i < userIds.length; i++) {
         const candidate = userIds[i];
         // If it contains @ it's an email, resolve to userId
-        if (candidate.Contains("@")) {
+        if (candidate.includes("@")) {
           const email0 = candidate;
           const u = await db0.Users
             .Where((usr) => usr.TenantId === tenantId0).Where((usr) => usr.Email === email0)
@@ -200,16 +201,16 @@ export const sendMessageDomain = async (
     });
 
     // Dispatch event
+    const dmEventData: Record<string, unknown> = {};
+    dmEventData["id"] = message.Id;
+    dmEventData["sender_id"] = user.userId;
+    dmEventData["type"] = "direct";
+    dmEventData["dm_group_id"] = dmGroup.Id;
+    dmEventData["content"] = renderedContent;
+    dmEventData["timestamp"] = Convert.ToDouble(message.CreatedAt) / 1000;
     dispatchEventToTenant(user.tenantId, {
       type: "message",
-      data: {
-        id: message.Id,
-        sender_id: user.userId,
-        type: "direct",
-        dm_group_id: dmGroup.Id,
-        content: renderedContent,
-        timestamp: Number(message.CreatedAt) / 1000,
-      },
+      data: dmEventData,
     });
 
     return ok({ id: message.Id });

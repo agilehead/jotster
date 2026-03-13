@@ -1,6 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { updateDraft } from "../repo/update-draft.ts";
 
@@ -42,7 +43,7 @@ export const updateDraftDomain = async (
   formatted["to"] = draft.Type === "stream" ? (draft.ChannelId ?? "") : (draft.RecipientIdsJson ?? "[]");
   formatted["topic"] = draft.Topic ?? "";
   formatted["content"] = draft.Content;
-  formatted["timestamp"] = Number(draft.UpdatedAt) / 1000;
+  formatted["timestamp"] = Convert.ToDouble(draft.UpdatedAt) / 1000;
 
   dispatchEventToUser(user.tenantId, user.userId, {
     type: "drafts",

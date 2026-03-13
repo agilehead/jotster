@@ -3,6 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getEventsFromQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { toOptionalInt } from "../helpers/body.ts";
 
 export const handleGetEvents = async (
   req: Request,
@@ -28,7 +29,11 @@ export const handleGetEvents = async (
     res.status(400).json({ result: "error", msg: "Missing required parameter: last_event_id" });
     return;
   }
-  const lastEventId = parseInt(lastEventIdRaw) as int;
+  const lastEventId = toOptionalInt(lastEventIdRaw);
+  if (lastEventId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid last_event_id" });
+    return;
+  }
 
   const dontBlock = req.query["dont_block"] === "true";
 

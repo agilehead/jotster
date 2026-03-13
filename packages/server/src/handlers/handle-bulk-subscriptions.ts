@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { bulkUpdateSubscriptionsDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,9 +16,10 @@ export const handleBulkSubscriptions = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const addRaw = req.body["add"] as string | undefined;
-  const deleteRaw = req.body["delete"] as string | undefined;
+  const addRaw = body["add"] as string | undefined;
+  const deleteRaw = body["delete"] as string | undefined;
 
   const addList = addRaw ? JSON.parse(addRaw) as { name: string; description?: string }[] : undefined;
   const removeList = deleteRaw ? JSON.parse(deleteRaw) as string[] : undefined;

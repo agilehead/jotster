@@ -1,5 +1,5 @@
 import type { int, long } from "@tsonic/core/types.js";
-import { DateTimeOffset } from "@tsonic/dotnet/System.js";
+import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Channel, Subscription, generateId, ok, err } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -73,13 +73,13 @@ export const subscribeDomain = async (
     // Determine target users
     const targetUsers = new List<{ id: string; email: string }>();
 
-    if (principals !== undefined && principals.Length > 0) {
+    if (principals !== undefined && principals.length > 0) {
       // For private channels: only admin or channel creator can subscribe others
       if (channel.IsPrivate === 1 && user.role > 200 && channel.CreatorId !== user.userId) {
         return err("Only admins or channel creator can subscribe others to private channels");
       }
 
-      for (let i = 0; i < principals.Length; i++) {
+      for (let i = 0; i < principals.length; i++) {
         const principal0 = principals[i];
         // Try looking up by Id first, then by Email
         let targetUser = await db0.Users
@@ -118,7 +118,9 @@ export const subscribeDomain = async (
       } else {
         // Assign color from palette using count % 24
         const count = await countUserSubscriptions(options, user.tenantId, target.id);
-        const color = SUBSCRIPTION_COLORS[count % 24];
+        const countInt = Convert.ToInt32(count);
+        const colorIndex = countInt % (24 as int);
+        const color = SUBSCRIPTION_COLORS[colorIndex];
 
         await createSubscription(options, {
           tenantId: user.tenantId,

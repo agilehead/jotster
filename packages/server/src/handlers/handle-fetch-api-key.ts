@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { resolveTenant, fetchApiKey } from "@jotster/auth/Jotster.Auth.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
@@ -13,8 +14,9 @@ export const handleFetchApiKey = async (
     return;
   }
 
-  const username = req.body["username"] as string | undefined;
-  const password = req.body["password"] as string | undefined;
+  const body = getBodyObject(req);
+  const username = body["username"] as string | undefined;
+  const password = body["password"] as string | undefined;
   if (!username || !password) {
     res.status(400).json({ result: "error", msg: "Missing username or password", code: "BAD_REQUEST" });
     return;

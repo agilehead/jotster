@@ -21,7 +21,7 @@ export const handleGetStreams = async (
   const channels = await getChannelsDomain(app.options, user, includeArchived);
 
   const streams = new List<Record<string, unknown>>();
-  for (let i = 0; i < channels.Length; i++) {
+  for (let i = 0; i < channels.length; i++) {
     const ch = channels[i];
     const s: Record<string, unknown> = {};
     s["stream_id"] = ch.Id;

@@ -353,7 +353,7 @@ const fetchAfter = async (
 
 const reverseArray = (arr: Message[]): Message[] => {
   const reversed = new List<Message>();
-  for (let i = arr.Length - 1; i >= 0; i--) {
+  for (let i = arr.length - 1; i >= 0; i--) {
     reversed.Add(arr[i]);
   }
   return reversed.ToArray();

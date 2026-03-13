@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { registerDeviceDomain } from "@jotster/notifications/Jotster.Notifications.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,8 +16,9 @@ export const handleRegisterAndroidToken = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const token = req.body["token"] as string;
+  const token = body["token"] as string;
   if (!token) {
     res.status(400).json({ result: "error", msg: "Missing required field: token" });
     return;

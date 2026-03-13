@@ -1,5 +1,7 @@
+import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { updateTenantAdmin } from "@jotster/auth/Jotster.Auth.js";
+import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateTenant = async (
@@ -8,7 +10,7 @@ export const handleUpdateTenant = async (
   app: AppContext
 ): Promise<void> => {
   const authHeader = req.get("authorization") ?? "";
-  const rootToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring(7).Trim() : "";
+  const rootToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7).trim() : "";
 
   const tenantId = req.params["tenant_id"] ?? "";
   if (!tenantId) {
@@ -16,11 +18,11 @@ export const handleUpdateTenant = async (
     return;
   }
 
-  const body = req.body as Record<string, unknown>;
-  const updates: { name?: string; description?: string; active?: number } = {};
+  const body = getBodyObject(req);
+  const updates: { name?: string; description?: string; active?: int } = {};
   if (body["name"] !== undefined) updates.name = body["name"] as string;
   if (body["description"] !== undefined) updates.description = body["description"] as string;
-  if (body["active"] !== undefined) updates.active = body["active"] as number;
+  if (body["active"] !== undefined) updates.active = toOptionalInt(body["active"]);
 
   const result = await updateTenantAdmin(app.options, app.config, rootToken, tenantId, updates);
   if (!result.success) {

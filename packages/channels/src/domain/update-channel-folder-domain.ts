@@ -31,14 +31,14 @@ export const updateChannelFolderDomain = async (
 
   // Validate name if changing
   if (updates.name !== undefined) {
-    const name = updates.name.Trim();
-    if (name.Length === 0) {
+    const name = updates.name.trim();
+    if (name.length === 0) {
       return err("Folder name must not be empty");
     }
   }
 
   const updated = await updateChannelFolder(options, folderId, {
-    name: updates.name !== undefined ? updates.name.Trim() : undefined,
+    name: updates.name !== undefined ? updates.name.trim() : undefined,
     channels: updates.channels,
     ordering: updates.ordering,
   });
@@ -56,17 +56,17 @@ export const updateChannelFolderDomain = async (
       channelIds.Add(folderWithItems.items[i].ChannelId);
     }
 
+    const folderObj: Record<string, unknown> = {};
+    folderObj["id"] = updated.Id;
+    folderObj["name"] = updated.Name;
+    folderObj["channels"] = channelIds.ToArray();
+    folderObj["ordering"] = updated.Ordering;
+    const eventData: Record<string, unknown> = {};
+    eventData["channel_folder"] = folderObj;
     dispatchEventToUser(user.tenantId, user.userId, {
       type: "channel_folder",
       op: "update",
-      data: {
-        channel_folder: {
-          id: updated.Id,
-          name: updated.Name,
-          channels: channelIds.ToArray(),
-          ordering: updated.Ordering,
-        },
-      },
+      data: eventData,
     });
   }
 

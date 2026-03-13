@@ -1,6 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getExports } from "@jotster/organization/Jotster.Organization.js";
+import { Convert, Math as ClrMath } from "@tsonic/dotnet/System.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetExports = async (
@@ -19,14 +20,14 @@ export const handleGetExports = async (
   const exports = await getExports(app.options, user.tenantId);
 
   const entries: Record<string, unknown>[] = [];
-  for (let i = 0; i < exports.Length; i++) {
+  for (let i = 0; i < exports.length; i++) {
     const e = exports[i];
     entries[entries.length] = {
       id: e.Id,
       acting_user_id: e.RequesterId,
-      export_time: Math.floor(Number(e.CreatedAt) / 1000),
+      export_time: ClrMath.Floor(Convert.ToDouble(e.CreatedAt) / 1000),
       deleted_timestamp: null,
-      failed_timestamp: e.FailedAt ? Math.floor(Number(e.FailedAt) / 1000) : null,
+      failed_timestamp: e.FailedAt ? ClrMath.Floor(Convert.ToDouble(e.FailedAt) / 1000) : null,
       export_url: e.Url ?? null,
       pending: e.Status === "pending" || e.Status === "in_progress",
       export_type: e.ExportType,

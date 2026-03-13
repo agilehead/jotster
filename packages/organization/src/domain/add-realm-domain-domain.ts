@@ -17,12 +17,12 @@ export const addRealmDomainDomain = async (
   }
 
   // Validate domain format - basic check for valid domain
-  const trimmed = domain.Trim().ToLower();
-  if (trimmed.Length === 0) {
+  const trimmed = domain.trim().toLowerCase();
+  if (trimmed.length === 0) {
     return err("Domain must not be empty");
   }
 
-  if (!trimmed.Contains(".")) {
+  if (!trimmed.includes(".")) {
     return err("Invalid domain format");
   }
 

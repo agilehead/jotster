@@ -25,12 +25,12 @@ export const deleteChannelFolderDomain = async (
     return err("Channel folder not found");
   }
 
+  const eventData: Record<string, unknown> = {};
+  eventData["channel_folder_id"] = folderId;
   dispatchEventToUser(user.tenantId, user.userId, {
     type: "channel_folder",
     op: "remove",
-    data: {
-      channel_folder_id: folderId,
-    },
+    data: eventData,
   });
 
   return ok(true);

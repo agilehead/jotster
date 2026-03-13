@@ -20,7 +20,7 @@ export const unmuteUserDomain = async (
   // Get full list and dispatch event
   const allMuted = await getMutedUsers(options, user.tenantId, user.userId);
   const mutedUserIds = new List<string>();
-  for (let i = 0; i < allMuted.Length; i++) {
+  for (let i = 0; i < allMuted.length; i++) {
     mutedUserIds.Add(allMuted[i].MutedUserId);
   }
 

@@ -27,16 +27,23 @@ export const getChannelsDomain = async (
       .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
       .ToArrayAsync();
 
-    const subscribedChannelIds = new Set<string>();
-    for (let i = 0; i < subs.Length; i++) {
-      subscribedChannelIds.add(subs[i].ChannelId);
+    const subscribedChannelIds = new List<string>();
+    for (let i = 0; i < subs.length; i++) {
+      subscribedChannelIds.Add(subs[i].ChannelId);
     }
 
     const zero = 0 as int;
     const filtered = new List<Channel>();
-    for (let i = 0; i < channels.Length; i++) {
+    for (let i = 0; i < channels.length; i++) {
       const ch = channels[i];
-      if (ch.IsPrivate === zero || subscribedChannelIds.has(ch.Id)) {
+      let found = false;
+      for (let j = 0; j < subscribedChannelIds.Count; j++) {
+        if (subscribedChannelIds[j] === ch.Id) {
+          found = true;
+          break;
+        }
+      }
+      if (ch.IsPrivate === zero || found) {
         filtered.Add(ch);
       }
     }

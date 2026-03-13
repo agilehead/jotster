@@ -11,7 +11,7 @@ export const getAlertWordsDomain = async (
   const alertWords = await getAlertWords(options, user.tenantId, user.userId);
 
   const words = new List<string>();
-  for (let i = 0; i < alertWords.Length; i++) {
+  for (let i = 0; i < alertWords.length; i++) {
     words.Add(alertWords[i].Word);
   }
 

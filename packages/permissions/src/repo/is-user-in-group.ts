@@ -1,5 +1,6 @@
 import type { int } from "@tsonic/core/types.js";
-import { DateTimeOffset } from "@tsonic/dotnet/System.js";
+import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
@@ -69,16 +70,20 @@ export const isUserInGroup = async (
           return ok(false);
         }
 
-        const settings = JSON.parse(tenant.SettingsJson) as Record<string, string>;
+        const settingsOrNull = JsonSerializer.Deserialize<Record<string, string>>(tenant.SettingsJson);
+        if (settingsOrNull === undefined) {
+          return ok(true);
+        }
+        const settings = settingsOrNull;
         const waitingPeriodStr = settings["waiting_period_threshold"];
 
         if (waitingPeriodStr === undefined || waitingPeriodStr === "0") {
           return ok(true);
         }
 
-        const days = Number(waitingPeriodStr);
+        const days = Convert.ToInt32(waitingPeriodStr);
         const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        const duration = now - Number(user.DateJoined);
+        const duration = now - Convert.ToDouble(user.DateJoined);
         return ok(duration >= days * 86400000);
       }
 

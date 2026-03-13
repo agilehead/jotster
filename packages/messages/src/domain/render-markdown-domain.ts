@@ -32,7 +32,7 @@ const renderInline = (text: string): string => {
         result = result + text[i];
         i = i + 1;
       } else {
-        const code = escapeHtml(text.substring(start, end));
+        const code = escapeHtml(text.substring(start, end - start));
         result = result + "<code>" + code + "</code>";
         i = end + 1;
       }
@@ -44,7 +44,7 @@ const renderInline = (text: string): string => {
         result = result + text[i];
         i = i + 1;
       } else {
-        const bold = escapeHtml(text.substring(start, end));
+        const bold = escapeHtml(text.substring(start, end - start));
         result = result + "<strong>" + bold + "</strong>";
         i = end + 2;
       }
@@ -62,7 +62,7 @@ const renderInline = (text: string): string => {
         result = result + text[i];
         i = i + 1;
       } else {
-        const italic = escapeHtml(text.substring(start, end));
+        const italic = escapeHtml(text.substring(start, end - start));
         result = result + "<em>" + italic + "</em>";
         i = end + 1;
       }
@@ -77,24 +77,24 @@ const renderInline = (text: string): string => {
 export const renderMarkdownDomain = (
   content: string
 ): Result<{ rendered: string }, string> => {
-  if (content.Length === 0) {
+  if (content.length === 0) {
     return ok({ rendered: "" });
   }
 
   // Split content into paragraphs by double newlines
-  const lines = content.Split("\n");
+  const lines = content.split("\n");
   let rendered = "";
   let currentParagraph = "";
 
-  for (let i = 0; i < lines.Length; i++) {
-    const line = lines[i].Trim();
-    if (line.Length === 0) {
-      if (currentParagraph.Length > 0) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.length === 0) {
+      if (currentParagraph.length > 0) {
         rendered = rendered + "<p>" + renderInline(currentParagraph) + "</p>\n";
         currentParagraph = "";
       }
     } else {
-      if (currentParagraph.Length > 0) {
+      if (currentParagraph.length > 0) {
         currentParagraph = currentParagraph + " " + line;
       } else {
         currentParagraph = line;
@@ -102,7 +102,7 @@ export const renderMarkdownDomain = (
     }
   }
 
-  if (currentParagraph.Length > 0) {
+  if (currentParagraph.length > 0) {
     rendered = rendered + "<p>" + renderInline(currentParagraph) + "</p>";
   }
 

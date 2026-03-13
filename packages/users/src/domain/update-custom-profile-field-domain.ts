@@ -26,13 +26,13 @@ export const updateCustomProfileFieldDomain = async (
     return err("Insufficient permission");
   }
 
-  if (input.name !== undefined && input.name.Trim().Length === 0) {
+  if (input.name !== undefined && input.name.trim().length === 0) {
     return err("Name must not be empty");
   }
 
   const updated = await updateCustomProfileField(options, actingUser.tenantId, fieldId, {
-    name: input.name !== undefined ? input.name.Trim() : undefined,
-    hint: input.hint !== undefined ? input.hint.Trim() : undefined,
+    name: input.name !== undefined ? input.name.trim() : undefined,
+    hint: input.hint !== undefined ? input.hint.trim() : undefined,
     fieldType: input.fieldType,
     fieldDataJson: input.fieldDataJson,
     displayInProfileSummary: input.displayInProfileSummary,
@@ -46,7 +46,7 @@ export const updateCustomProfileFieldDomain = async (
   // Re-fetch all fields to broadcast current state
   const allFields = await getCustomProfileFields(options, actingUser.tenantId);
   const fieldsData = new List<Record<string, unknown>>();
-  for (let i = 0; i < allFields.Length; i++) {
+  for (let i = 0; i < allFields.length; i++) {
     const f = allFields[i];
     const obj: Record<string, unknown> = {};
     obj["id"] = f.Id;
@@ -59,11 +59,11 @@ export const updateCustomProfileFieldDomain = async (
     fieldsData.Add(obj);
   }
 
+  const eventData: Record<string, unknown> = {};
+  eventData["fields"] = fieldsData.ToArray();
   dispatchEventToTenant(actingUser.tenantId, {
     type: "custom_profile_fields",
-    data: {
-      fields: fieldsData.ToArray(),
-    },
+    data: eventData,
   });
 
   return ok(updated);

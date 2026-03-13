@@ -1,4 +1,5 @@
 import type { int } from "@tsonic/core/types.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
@@ -41,7 +42,23 @@ export const getPermissionSetting = async (
       return err("Tenant not found");
     }
 
-    const settings = JSON.parse(tenant.SettingsJson) as Record<string, string>;
+    const settingsOrNull = JsonSerializer.Deserialize<Record<string, string>>(tenant.SettingsJson);
+    if (settingsOrNull === undefined) {
+      const defaultGroupName = PERMISSION_DEFAULTS[settingName];
+      if (defaultGroupName === undefined) {
+        return err("Unknown permission setting: " + settingName);
+      }
+      const tenantId2 = tenantId;
+      const one2 = 1 as int;
+      const sg2 = await db0.UserGroups
+        .Where((g) => g.TenantId === tenantId2 && g.IsSystemGroup === one2 && g.Name === defaultGroupName)
+        .FirstOrDefaultAsync();
+      if (sg2 === undefined) {
+        return err("System group not found: " + defaultGroupName);
+      }
+      return ok(sg2.Id);
+    }
+    const settings = settingsOrNull;
     const value = settings[settingName];
 
     if (value !== undefined) {

@@ -23,7 +23,7 @@ export const handleCreateUserGroup = async (
     return;
   }
 
-  const result = await createUserGroupDomain(app.options, user, {
+  const result = await createUserGroupDomain(app.options, user, ({
     name,
     description: body["description"] as string | undefined,
     canAddMembersGroupId: body["can_add_members_group"] as string | undefined,
@@ -31,7 +31,7 @@ export const handleCreateUserGroup = async (
     canLeaveGroupId: body["can_leave_group"] as string | undefined,
     canManageGroupId: body["can_manage_group"] as string | undefined,
     canMentionGroupId: body["can_mention_group"] as string | undefined,
-  });
+  }));
 
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });

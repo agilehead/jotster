@@ -14,11 +14,11 @@ export const removeChannelFromAllFolders = async (
       .Where((item) => item.ChannelId === channelId0)
       .ToArrayAsync();
 
-    for (let i = 0; i < items.Length; i++) {
+    for (let i = 0; i < items.length; i++) {
       db0.ChannelFolderItems.Remove(items[i]);
     }
 
-    if (items.Length > 0) {
+    if (items.length > 0) {
       await db0.SaveChangesAsync();
     }
   } finally {

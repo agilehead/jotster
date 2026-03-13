@@ -16,7 +16,7 @@ export const removeAlertWordsDomain = async (
   // Get full updated list
   const allAlertWords = await getAlertWords(options, user.tenantId, user.userId);
   const wordList = new List<string>();
-  for (let i = 0; i < allAlertWords.Length; i++) {
+  for (let i = 0; i < allAlertWords.length; i++) {
     wordList.Add(allAlertWords[i].Word);
   }
 

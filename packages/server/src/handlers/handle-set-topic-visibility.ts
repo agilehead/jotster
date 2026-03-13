@@ -1,8 +1,9 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import type { int } from "@tsonic/core/types.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { setTopicVisibilityDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { toOptionalInt } from "../helpers/body.ts";
 
 export const handleSetTopicVisibility = async (
   req: Request,
@@ -16,10 +17,15 @@ export const handleSetTopicVisibility = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const streamId = req.body["stream_id"] as string;
-  const topic = req.body["topic"] as string;
-  const visibilityPolicy = parseInt(req.body["visibility_policy"] as string) as int;
+  const streamId = body["stream_id"] as string;
+  const topic = body["topic"] as string;
+  const visibilityPolicy = toOptionalInt(body["visibility_policy"]);
+  if (visibilityPolicy === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid visibility_policy" });
+    return;
+  }
 
   const result = await setTopicVisibilityDomain(app.options, user, {
     channelId: streamId,

@@ -40,7 +40,7 @@ export const updatePresenceDomain = async (
   const allPresences = await getUserPresence(options, user.tenantId, user.userId);
   const presences: Record<string, { status: string; timestamp: long }> = {};
 
-  for (let i = 0; i < allPresences.Length; i++) {
+  for (let i = 0; i < allPresences.length; i++) {
     const p = allPresences[i];
     presences[p.ClientName] = {
       status: p.Status,

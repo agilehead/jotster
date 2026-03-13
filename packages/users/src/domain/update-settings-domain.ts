@@ -58,22 +58,26 @@ const KNOWN_SETTING_KEYS: Record<string, boolean> = {
 export const updateSettingsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  updates: Record<string, unknown>
+  updates: Record<string, unknown>,
+  updateKeys: List<string>
 ): Promise<Result<Record<string, unknown>[], string>> => {
   const validUpdates: Record<string, unknown> = {};
+  const validUpdateKeys = new List<string>();
   const ignoredParams = new List<Record<string, unknown>>();
 
-  const keys = Object.keys(updates);
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
+  for (let i = 0; i < updateKeys.Count; i++) {
+    const key = updateKeys[i];
     if (KNOWN_SETTING_KEYS[key] === true) {
       validUpdates[key] = updates[key];
+      validUpdateKeys.Add(key);
     } else {
-      ignoredParams.Add({ [key]: updates[key] });
+      const ignoredEntry: Record<string, unknown> = {};
+      ignoredEntry[key] = updates[key];
+      ignoredParams.Add(ignoredEntry);
     }
   }
 
-  const setting = await updateUserSetting(options, user.userId, validUpdates);
+  const setting = await updateUserSetting(options, user.userId, validUpdates, validUpdateKeys);
   if (setting === undefined) {
     return err("User settings not found");
   }

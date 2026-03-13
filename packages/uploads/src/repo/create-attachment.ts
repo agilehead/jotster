@@ -8,7 +8,7 @@ interface CreateAttachmentInput {
   userId: string;
   fileName: string;
   pathId: string;
-  size: int;
+  size: long;
   contentType: string;
 }
 

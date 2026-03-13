@@ -1,4 +1,6 @@
+import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject, toOptionalFlagInt, toOptionalInt } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createChannelDomain } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,8 +17,9 @@ export const handleCreateChannel = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const subscriptions = req.body["subscriptions"] as { name: string; description?: string }[];
+  const subscriptions = body["subscriptions"] as { name: string; description?: string }[];
   if (!subscriptions || subscriptions.length === 0) {
     res.status(400).json({ result: "error", msg: "Missing required field: subscriptions" });
     return;
@@ -25,19 +28,28 @@ export const handleCreateChannel = async (
   const entry = subscriptions[0];
   const name = entry.name;
   const description = entry.description;
-  const isPrivate = req.body["invite_only"] as boolean | undefined;
-  const isWebPublic = req.body["is_web_public"] as boolean | undefined;
-  const historyPublicToSubscribers = req.body["history_public_to_subscribers"] as boolean | undefined;
-  const messageRetentionDays = req.body["message_retention_days"] as number | undefined;
+  const isPrivate = toOptionalFlagInt(body["invite_only"]);
+  const isWebPublic = toOptionalFlagInt(body["is_web_public"]);
+  const historyPublicToSubscribers = toOptionalFlagInt(body["history_public_to_subscribers"]);
+  const messageRetentionDays = toOptionalInt(body["message_retention_days"]);
 
-  const result = await createChannelDomain(app.options, user, {
+  const input: {
+    name: string;
+    description?: string;
+    isPrivate?: int;
+    isWebPublic?: int;
+    historyPublicToSubscribers?: int;
+    messageRetentionDays?: int;
+  } = {
     name,
     description,
     isPrivate,
     isWebPublic,
     historyPublicToSubscribers,
     messageRetentionDays,
-  });
+  };
+
+  const result = await createChannelDomain(app.options, user, input);
 
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });

@@ -12,7 +12,7 @@ export const getCustomProfileFieldsDomain = async (
   const dbFields = await getCustomProfileFields(options, user.tenantId);
 
   const fields = new List<Record<string, unknown>>();
-  for (let i = 0; i < dbFields.Length; i++) {
+  for (let i = 0; i < dbFields.length; i++) {
     const f = dbFields[i];
     const field: Record<string, unknown> = {};
     field["id"] = f.Id;

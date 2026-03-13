@@ -38,16 +38,16 @@ export const removeReactionDomain = async (
   }
 
   // Dispatch event
+  const eventData: Record<string, unknown> = {};
+  eventData["message_id"] = messageId;
+  eventData["user_id"] = user.userId;
+  eventData["emoji_name"] = params.emojiName;
+  eventData["emoji_code"] = params.emojiCode;
+  eventData["reaction_type"] = params.reactionType;
   dispatchEventToTenant(user.tenantId, {
     type: "reaction",
     op: "remove",
-    data: {
-      message_id: messageId,
-      user_id: user.userId,
-      emoji_name: params.emojiName,
-      emoji_code: params.emojiCode,
-      reaction_type: params.reactionType,
-    },
+    data: eventData,
   });
 
   return ok(undefined);

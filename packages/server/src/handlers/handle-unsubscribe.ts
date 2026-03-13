@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { unsubscribeDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,8 +16,9 @@ export const handleUnsubscribe = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const subscriptionsRaw = req.body["subscriptions"] as string;
+  const subscriptionsRaw = body["subscriptions"] as string;
   if (!subscriptionsRaw) {
     res.status(400).json({ result: "error", msg: "Missing required field: subscriptions" });
     return;

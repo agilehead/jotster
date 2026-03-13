@@ -1,7 +1,7 @@
 import type { int } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
-import { List, Dictionary } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 interface ChannelUnread {
   channelId: string;
@@ -39,9 +39,9 @@ export const getUnreadCounts = async (
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
       .ToArrayAsync();
 
-    const readMessageIds = new Set<string>();
-    for (let i = 0; i < readFlags.Length; i++) {
-      readMessageIds.add(readFlags[i].MessageId);
+    const readMessageIds = new List<string>();
+    for (let i = 0; i < readFlags.length; i++) {
+      readMessageIds.Add(readFlags[i].MessageId);
     }
 
     // Get subscribed channel IDs for this user
@@ -50,24 +50,41 @@ export const getUnreadCounts = async (
       .ToArrayAsync();
 
     // Collect unread channel messages
-    const channelUnreadMap = new Dictionary<string, ChannelUnread>();
-    for (let i = 0; i < subscriptions.Length; i++) {
+    const channelUnreadMap: Record<string, ChannelUnread> = {};
+    const channelUnreadMapKeys = new List<string>();
+    for (let i = 0; i < subscriptions.length; i++) {
       const channelId0 = subscriptions[i].ChannelId;
       const streamType = "stream";
       const channelMessages = await db0.Messages
         .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Type === streamType)
         .ToArrayAsync();
 
-      for (let j = 0; j < channelMessages.Length; j++) {
+      for (let j = 0; j < channelMessages.length; j++) {
         const msg = channelMessages[j];
-        if (!readMessageIds.has(msg.Id)) {
+        let isRead = false;
+        for (let ri = 0; ri < readMessageIds.Count; ri++) {
+          if (readMessageIds[ri] === msg.Id) {
+            isRead = true;
+            break;
+          }
+        }
+        if (!isRead) {
           const key = msg.ChannelId! + ":" + (msg.Topic ?? "");
-          if (!channelUnreadMap.ContainsKey(key)) {
+          let keyExists = false;
+          for (let ki = 0; ki < channelUnreadMapKeys.Count; ki++) {
+            if (channelUnreadMapKeys[ki] === key) {
+              keyExists = true;
+              break;
+            }
+          }
+          if (!keyExists) {
+            const emptyIds: string[] = [];
             channelUnreadMap[key] = {
               channelId: msg.ChannelId!,
               topic: msg.Topic ?? "",
-              unreadMessageIds: [],
+              unreadMessageIds: emptyIds,
             };
+            channelUnreadMapKeys.Add(key);
           }
           const chUnreadList = new List<string>();
           for (let ci = 0; ci < channelUnreadMap[key].unreadMessageIds.length; ci++) {
@@ -85,22 +102,39 @@ export const getUnreadCounts = async (
       .ToArrayAsync();
 
     // Collect unread DM messages
-    const dmUnreadMap = new Dictionary<string, DmUnread>();
-    for (let i = 0; i < dmMemberships.Length; i++) {
+    const dmUnreadMap: Record<string, DmUnread> = {};
+    const dmUnreadMapKeys = new List<string>();
+    for (let i = 0; i < dmMemberships.length; i++) {
       const dmGroupId0 = dmMemberships[i].DmGroupId;
       const directType = "direct";
       const dmMessages = await db0.Messages
         .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.Type === directType)
         .ToArrayAsync();
 
-      for (let j = 0; j < dmMessages.Length; j++) {
+      for (let j = 0; j < dmMessages.length; j++) {
         const msg = dmMessages[j];
-        if (!readMessageIds.has(msg.Id)) {
-          if (!dmUnreadMap.ContainsKey(msg.DmGroupId!)) {
+        let isRead = false;
+        for (let ri = 0; ri < readMessageIds.Count; ri++) {
+          if (readMessageIds[ri] === msg.Id) {
+            isRead = true;
+            break;
+          }
+        }
+        if (!isRead) {
+          let dmKeyExists = false;
+          for (let ki = 0; ki < dmUnreadMapKeys.Count; ki++) {
+            if (dmUnreadMapKeys[ki] === msg.DmGroupId!) {
+              dmKeyExists = true;
+              break;
+            }
+          }
+          if (!dmKeyExists) {
+            const emptyIds: string[] = [];
             dmUnreadMap[msg.DmGroupId!] = {
               dmGroupId: msg.DmGroupId!,
-              unreadMessageIds: [],
+              unreadMessageIds: emptyIds,
             };
+            dmUnreadMapKeys.Add(msg.DmGroupId!);
           }
           const dmUnreadList = new List<string>();
           for (let di = 0; di < dmUnreadMap[msg.DmGroupId!].unreadMessageIds.length; di++) {
@@ -118,24 +152,29 @@ export const getUnreadCounts = async (
       .ToArrayAsync();
 
     const mentions = new List<string>();
-    for (let i = 0; i < mentionFlags.Length; i++) {
+    for (let i = 0; i < mentionFlags.length; i++) {
       const mentionMsgId = mentionFlags[i].MessageId;
-      if (!readMessageIds.has(mentionMsgId)) {
+      let isMentionRead = false;
+      for (let ri = 0; ri < readMessageIds.Count; ri++) {
+        if (readMessageIds[ri] === mentionMsgId) {
+          isMentionRead = true;
+          break;
+        }
+      }
+      if (!isMentionRead) {
         mentions.Add(mentionMsgId);
       }
     }
 
     // Build result arrays from maps
     const channelUnreads = new List<ChannelUnread>();
-    const channelKeys = channelUnreadMap.Keys;
-    for (let i = 0; i < channelKeys.Length; i++) {
-      channelUnreads.Add(channelUnreadMap[channelKeys[i]]);
+    for (let i = 0; i < channelUnreadMapKeys.Count; i++) {
+      channelUnreads.Add(channelUnreadMap[channelUnreadMapKeys[i]]);
     }
 
     const dmUnreads = new List<DmUnread>();
-    const dmKeys = dmUnreadMap.Keys;
-    for (let i = 0; i < dmKeys.Length; i++) {
-      dmUnreads.Add(dmUnreadMap[dmKeys[i]]);
+    for (let i = 0; i < dmUnreadMapKeys.Count; i++) {
+      dmUnreads.Add(dmUnreadMap[dmUnreadMapKeys[i]]);
     }
 
     // Count total unread

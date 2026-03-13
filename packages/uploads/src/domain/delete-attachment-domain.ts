@@ -36,17 +36,17 @@ export const deleteAttachmentDomain = async (
     return err("Failed to delete attachment");
   }
 
+  const attObj: Record<string, unknown> = {};
+  attObj["id"] = attachment.Id;
+  attObj["name"] = attachment.FileName;
+  attObj["path_id"] = attachment.PathId;
+  attObj["size"] = attachment.Size;
+  const eventData: Record<string, unknown> = {};
+  eventData["attachment"] = attObj;
   dispatchEventToTenant(user.tenantId, {
     type: "attachment",
     op: "remove",
-    data: {
-      attachment: {
-        id: attachment.Id,
-        name: attachment.FileName,
-        path_id: attachment.PathId,
-        size: attachment.Size,
-      },
-    },
+    data: eventData,
   });
 
   return ok(undefined);

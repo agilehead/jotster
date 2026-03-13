@@ -11,7 +11,7 @@ export const updateTenantAdmin = async (
   tenantId: string,
   updates: { name?: string; description?: string; active?: int }
 ): Promise<Result<Tenant, string>> => {
-  if (config.rootToken.Length === 0 || rootToken !== config.rootToken) {
+  if (config.rootToken.length === 0 || rootToken !== config.rootToken) {
     return err("Unauthorized");
   }
 

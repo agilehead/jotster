@@ -16,7 +16,11 @@ export const findOrCreateDmGroup = async (
   }
   sorted.Sort();
   const sortedArr = sorted.ToArray();
-  const groupHash = sortedArr.join(",");
+  let groupHash = "";
+  for (let i = 0; i < sortedArr.length; i++) {
+    if (i > 0) { groupHash = groupHash + ","; }
+    groupHash = groupHash + sortedArr[i];
+  }
 
   const db = new JotsterDbContext(options);
   try {

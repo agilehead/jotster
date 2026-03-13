@@ -1,5 +1,5 @@
 import type { int, long } from "@tsonic/core/types.js";
-import { DateTimeOffset } from "@tsonic/dotnet/System.js";
+import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Channel, generateId, ok, err } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -83,7 +83,9 @@ export const bulkUpdateSubscriptionsDomain = async (
         } else {
           // Assign color from palette using count % 24
           const count = await countUserSubscriptions(options, user.tenantId, user.userId);
-          const color = SUBSCRIPTION_COLORS[count % 24];
+          const countInt = Convert.ToInt32(count);
+          const colorIndex = countInt % (24 as int);
+          const color = SUBSCRIPTION_COLORS[colorIndex];
 
           await createSubscription(options, {
             tenantId: user.tenantId,

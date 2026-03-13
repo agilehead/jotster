@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { addDefaultChannelDomain } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,7 +16,8 @@ export const handleAddDefaultStream = async (
   }
 
   const user = authResult.data;
-  const streamId = req.body["stream_id"] as string;
+  const body = getBodyObject(req);
+  const streamId = body["stream_id"] as string;
 
   if (!streamId) {
     res.status(400).json({ result: "error", msg: "Missing required field: stream_id" });

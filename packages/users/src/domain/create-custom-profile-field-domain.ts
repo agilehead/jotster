@@ -24,14 +24,14 @@ export const createCustomProfileFieldDomain = async (
     return err("Insufficient permission");
   }
 
-  if (input.name.Trim().Length === 0) {
+  if (input.name.trim().length === 0) {
     return err("Name is required");
   }
 
   // Determine ordering: place at end
   const existing = await getCustomProfileFields(options, actingUser.tenantId);
   let maxOrdering = 0 as int;
-  for (let i = 0; i < existing.Length; i++) {
+  for (let i = 0; i < existing.length; i++) {
     if (existing[i].Ordering > maxOrdering) {
       maxOrdering = existing[i].Ordering;
     }
@@ -40,8 +40,8 @@ export const createCustomProfileFieldDomain = async (
 
   const field = await createCustomProfileField(options, {
     tenantId: actingUser.tenantId,
-    name: input.name.Trim(),
-    hint: input.hint !== undefined ? input.hint.Trim() : "",
+    name: input.name.trim(),
+    hint: input.hint !== undefined ? input.hint.trim() : "",
     fieldType: input.fieldType,
     fieldDataJson: input.fieldDataJson ?? "",
     displayInProfileSummary: input.displayInProfileSummary ?? (0 as int),
@@ -51,7 +51,7 @@ export const createCustomProfileFieldDomain = async (
   // Re-fetch all fields to broadcast current state
   const allFields = await getCustomProfileFields(options, actingUser.tenantId);
   const fieldsData = new List<Record<string, unknown>>();
-  for (let i = 0; i < allFields.Length; i++) {
+  for (let i = 0; i < allFields.length; i++) {
     const f = allFields[i];
     const obj: Record<string, unknown> = {};
     obj["id"] = f.Id;
@@ -64,11 +64,11 @@ export const createCustomProfileFieldDomain = async (
     fieldsData.Add(obj);
   }
 
+  const eventData: Record<string, unknown> = {};
+  eventData["fields"] = fieldsData.ToArray();
   dispatchEventToTenant(actingUser.tenantId, {
     type: "custom_profile_fields",
-    data: {
-      fields: fieldsData.ToArray(),
-    },
+    data: eventData,
   });
 
   return ok(field);

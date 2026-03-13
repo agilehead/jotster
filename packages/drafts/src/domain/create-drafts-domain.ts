@@ -2,10 +2,11 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { createDraft } from "../repo/create-draft.ts";
 
-interface CreateDraftInput {
+interface CreateDraftApiInput {
   type: string;
   to: string;
   topic?: string;
@@ -15,7 +16,7 @@ interface CreateDraftInput {
 export const createDraftsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  drafts: CreateDraftInput[]
+  drafts: CreateDraftApiInput[]
 ): Promise<Result<string[], string>> => {
   if (drafts.length === 0) {
     return err("No drafts provided");
@@ -52,7 +53,7 @@ export const createDraftsDomain = async (
     formatted["to"] = draft.Type === "stream" ? (draft.ChannelId ?? "") : (draft.RecipientIdsJson ?? "[]");
     formatted["topic"] = draft.Topic ?? "";
     formatted["content"] = draft.Content;
-    formatted["timestamp"] = Number(draft.UpdatedAt) / 1000;
+    formatted["timestamp"] = Convert.ToDouble(draft.UpdatedAt) / 1000;
 
     dispatchEventToUser(user.tenantId, user.userId, {
       type: "drafts",

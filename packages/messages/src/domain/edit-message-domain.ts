@@ -48,11 +48,11 @@ export const editMessageDomain = async (
   // Validate content if changing
   let renderedContent: string | undefined = undefined;
   if (params.content !== undefined) {
-    const content = params.content.Trim();
-    if (content.Length === 0) {
+    const content = params.content.trim();
+    if (content.length === 0) {
       return err("Message content must not be empty");
     }
-    if (content.Length > MAX_MESSAGE_LENGTH) {
+    if (content.length > MAX_MESSAGE_LENGTH) {
       return err("Message too long");
     }
 
@@ -65,11 +65,11 @@ export const editMessageDomain = async (
 
   // Validate topic if changing
   if (params.topic !== undefined) {
-    const topic = params.topic.Trim();
-    if (topic.Length === 0) {
+    const topic = params.topic.trim();
+    if (topic.length === 0) {
       return err("Topic must not be empty");
     }
-    if (topic.Length > MAX_TOPIC_LENGTH) {
+    if (topic.length > MAX_TOPIC_LENGTH) {
       return err("Topic too long");
     }
   }
@@ -102,9 +102,9 @@ export const editMessageDomain = async (
 
   // Apply updates
   const updated = await updateMessage(options, user.tenantId, messageId, {
-    content: params.content !== undefined ? params.content.Trim() : undefined,
+    content: params.content !== undefined ? params.content.trim() : undefined,
     renderedContent,
-    topic: params.topic !== undefined ? params.topic.Trim() : undefined,
+    topic: params.topic !== undefined ? params.topic.trim() : undefined,
     channelId: params.channelId,
   });
 
@@ -117,13 +117,13 @@ export const editMessageDomain = async (
   eventData["message_id"] = messageId;
   eventData["user_id"] = user.userId;
   if (params.content !== undefined) {
-    eventData["content"] = params.content.Trim();
+    eventData["content"] = params.content.trim();
     eventData["rendered_content"] = renderedContent;
     eventData["prev_content"] = message.Content;
     eventData["prev_rendered_content"] = message.RenderedContent;
   }
   if (params.topic !== undefined) {
-    eventData["subject"] = params.topic.Trim();
+    eventData["subject"] = params.topic.trim();
     eventData["prev_subject"] = message.Topic;
     eventData["propagate_mode"] = params.propagateMode ?? "change_one";
   }

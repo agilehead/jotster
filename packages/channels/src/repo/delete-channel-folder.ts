@@ -23,7 +23,7 @@ export const deleteChannelFolder = async (
       .Where((item) => item.ChannelFolderId === folderId0)
       .ToArrayAsync();
 
-    for (let i = 0; i < items.Length; i++) {
+    for (let i = 0; i < items.length; i++) {
       db0.ChannelFolderItems.Remove(items[i]);
     }
 

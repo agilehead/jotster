@@ -1,6 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getMessage } from "../repo/get-message.ts";
 import { getEditHistory } from "../repo/get-edit-history.ts";
@@ -19,11 +20,11 @@ export const getEditHistoryDomain = async (
   const history = await getEditHistory(options, user.tenantId, messageId);
 
   const formatted = new List<Record<string, unknown>>();
-  for (let i = 0; i < history.Length; i++) {
+  for (let i = 0; i < history.length; i++) {
     const entry = history[i];
     const obj: Record<string, unknown> = {};
     obj["user_id"] = entry.UserId;
-    obj["timestamp"] = Number(entry.Timestamp) / 1000;
+    obj["timestamp"] = Convert.ToDouble(entry.Timestamp) / 1000;
 
     if (entry.PrevContent !== undefined && entry.PrevContent !== null) {
       obj["prev_content"] = entry.PrevContent;

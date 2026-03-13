@@ -15,7 +15,7 @@ export const removeAllTokensForUser = async (
       .Where((x) => x.TenantId === tenantId0).Where((x) => x.UserId === userId0)
       .ToArrayAsync();
 
-    for (let i = 0; i < tokens.Length; i++) {
+    for (let i = 0; i < tokens.length; i++) {
       db.PushDeviceTokens.Remove(tokens[i]);
     }
 

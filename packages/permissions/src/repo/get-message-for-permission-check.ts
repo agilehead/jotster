@@ -1,3 +1,4 @@
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
@@ -25,7 +26,7 @@ export const getMessageForPermissionCheck = async (
     return {
       senderId: msg.SenderId,
       channelId: msg.ChannelId,
-      createdAt: Number(msg.CreatedAt),
+      createdAt: Convert.ToDouble(msg.CreatedAt),
     };
   } finally {
     db.Dispose();

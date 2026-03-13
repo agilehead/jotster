@@ -8,7 +8,7 @@ export const handleCreateTenant = async (
   app: AppContext
 ): Promise<void> => {
   const authHeader = req.get("authorization") ?? "";
-  const rootToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring(7).Trim() : "";
+  const rootToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7).trim() : "";
 
   const body = req.body as Record<string, unknown>;
   const subdomain = body["subdomain"] as string | undefined;
@@ -22,9 +22,9 @@ export const handleCreateTenant = async (
     return;
   }
 
-  const result = await createTenantAdmin(app.options, app.config, rootToken, {
+  const result = await createTenantAdmin(app.options, app.config, rootToken, ({
     subdomain, name, description, adminEmail, adminPassword,
-  });
+  }));
 
   if (!result.success) {
     const status = result.error === "Unauthorized" ? 401 : 400;

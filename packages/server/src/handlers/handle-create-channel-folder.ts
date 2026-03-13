@@ -25,10 +25,10 @@ export const handleCreateChannelFolder = async (
 
   const channels = body["channels"] as string[] | undefined;
 
-  const result = await createChannelFolderDomain(app.options, user, {
+  const result = await createChannelFolderDomain(app.options, user, ({
     name,
     channels: channels !== undefined && channels !== null ? channels : undefined,
-  });
+  }));
 
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });

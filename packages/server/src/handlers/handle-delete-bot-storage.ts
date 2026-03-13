@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteBotStorage } from "@jotster/webhooks/Jotster.Webhooks.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,9 +16,10 @@ export const handleDeleteBotStorage = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const key = req.body["key"] as string | undefined ?? req.query["key"] as string | undefined;
-  if (key === undefined || key.Trim().Length === 0) {
+  const key = body["key"] as string | undefined ?? req.query["key"] as string | undefined;
+  if (key === undefined || key.trim().length === 0) {
     res.status(400).json({ result: "error", msg: "Missing 'key' parameter" });
     return;
   }

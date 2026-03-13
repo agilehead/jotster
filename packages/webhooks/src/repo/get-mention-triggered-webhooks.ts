@@ -16,7 +16,7 @@ export const getMentionTriggeredWebhooks = async (
       .ToArrayAsync();
 
     const webhooks = new List<OutgoingWebhook>();
-    for (let i = 0; i < result.Length; i++) {
+    for (let i = 0; i < result.length; i++) {
       webhooks.Add(result[i]);
     }
     return webhooks.ToArray();

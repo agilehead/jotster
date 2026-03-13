@@ -3,6 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createMultiuseLinkDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
 
 export const handleCreateMultiuseInvite = async (
   req: Request,
@@ -16,7 +17,7 @@ export const handleCreateMultiuseInvite = async (
   }
 
   const user = authResult.data;
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
 
   // Parse stream_ids (channel_ids) if provided
   let channelIds: string[] = [];
@@ -29,12 +30,18 @@ export const handleCreateMultiuseInvite = async (
     }
   }
 
-  const inviteAsRole = (body["invite_as"] !== undefined ? Number(body["invite_as"]) : 400) as int;
-
-  const result = await createMultiuseLinkDomain(app.options, user, {
+  const parsedInviteAsRole = toOptionalInt(body["invite_as"]);
+  if (body["invite_as"] !== undefined && parsedInviteAsRole === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid invite_as" });
+    return;
+  }
+  const inviteAsRole = parsedInviteAsRole ?? (400 as int);
+  const input = {
     channelIds,
     inviteAsRole,
-  });
+  };
+
+  const result = await createMultiuseLinkDomain(app.options, user, input);
 
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });

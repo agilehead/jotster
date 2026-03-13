@@ -47,14 +47,14 @@ export const updateFlagsDomain = async (
   }
 
   // Dispatch event
+  const eventData: Record<string, unknown> = {};
+  eventData["flag"] = params.flag;
+  eventData["messages"] = params.messages;
+  eventData["all"] = false;
   dispatchEventToUser(user.tenantId, user.userId, {
     type: "update_message_flags",
     op: params.op,
-    data: {
-      flag: params.flag,
-      messages: params.messages,
-      all: false,
-    },
+    data: eventData,
   });
 
   return ok({ messages: params.messages });

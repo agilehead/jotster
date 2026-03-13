@@ -22,9 +22,9 @@ export const markAllAsReadDomain = async (
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
       .ToArrayAsync();
 
-    const readMessageIds = new Set<string>();
-    for (let i = 0; i < readFlags.Length; i++) {
-      readMessageIds.add(readFlags[i].MessageId);
+    const readMessageIds = new List<string>();
+    for (let i = 0; i < readFlags.length; i++) {
+      readMessageIds.Add(readFlags[i].MessageId);
     }
 
     // Get all messages in the tenant
@@ -34,8 +34,15 @@ export const markAllAsReadDomain = async (
 
     // Find unread message IDs
     const unreadIds = new List<string>();
-    for (let i = 0; i < allMessages.Length; i++) {
-      if (!readMessageIds.has(allMessages[i].Id)) {
+    for (let i = 0; i < allMessages.length; i++) {
+      let isRead = false;
+      for (let j = 0; j < readMessageIds.Count; j++) {
+        if (readMessageIds[j] === allMessages[i].Id) {
+          isRead = true;
+          break;
+        }
+      }
+      if (!isRead) {
         unreadIds.Add(allMessages[i].Id);
       }
     }
@@ -45,14 +52,14 @@ export const markAllAsReadDomain = async (
     }
 
     // Dispatch event
+    const eventData: Record<string, unknown> = {};
+    eventData["flag"] = "read";
+    eventData["messages"] = unreadIds.ToArray();
+    eventData["all"] = true;
     dispatchEventToUser(user.tenantId, user.userId, {
       type: "update_message_flags",
       op: "add",
-      data: {
-        flag: "read",
-        messages: unreadIds.ToArray(),
-        all: true,
-      },
+      data: eventData,
     });
 
     return ok(undefined);

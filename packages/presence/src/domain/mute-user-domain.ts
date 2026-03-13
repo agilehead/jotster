@@ -36,7 +36,7 @@ export const muteUserDomain = async (
 
   // Check not already muted
   const existingMuted = await getMutedUsers(options, user.tenantId, user.userId);
-  for (let i = 0; i < existingMuted.Length; i++) {
+  for (let i = 0; i < existingMuted.length; i++) {
     if (existingMuted[i].MutedUserId === mutedUserId) {
       return err("User is already muted");
     }
@@ -48,7 +48,7 @@ export const muteUserDomain = async (
   // Get full list and dispatch event
   const allMuted = await getMutedUsers(options, user.tenantId, user.userId);
   const mutedUserIds = new List<string>();
-  for (let i = 0; i < allMuted.Length; i++) {
+  for (let i = 0; i < allMuted.length; i++) {
     mutedUserIds.Add(allMuted[i].MutedUserId);
   }
 

@@ -2,7 +2,7 @@ import type { int } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
-import { List, Dictionary } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getChannelById } from "../repo/get-channel-by-id.ts";
 
 export const getTopicsDomain = async (
@@ -44,18 +44,21 @@ export const getTopicsDomain = async (
       .Where((m) => m.ChannelId === channelId1)
       .ToArrayAsync();
 
-    const topicMap = new Dictionary<string, string>();
-    for (let i = 0; i < messages.Length; i++) {
+    const topicMap: Record<string, string> = {};
+    const topicKeys = new List<string>();
+    for (let i = 0; i < messages.length; i++) {
       const msg = messages[i];
       const topic = msg.Topic ?? "";
-      if (!topicMap.ContainsKey(topic) || msg.Id > topicMap[topic]) {
+      if (topicMap[topic] === undefined) {
+        topicKeys.Add(topic);
+        topicMap[topic] = msg.Id;
+      } else if (msg.Id > topicMap[topic]) {
         topicMap[topic] = msg.Id;
       }
     }
 
     const topics = new List<{ name: string; maxId: string }>();
-    const topicKeys = topicMap.Keys;
-    for (let i = 0; i < topicKeys.Length; i++) {
+    for (let i = 0; i < topicKeys.Count; i++) {
       const name = topicKeys[i];
       const maxId = topicMap[name];
       topics.Add({ name: name, maxId: maxId });

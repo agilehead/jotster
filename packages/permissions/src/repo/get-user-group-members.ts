@@ -15,7 +15,7 @@ export const getUserGroupMembers = async (
       .ToArrayAsync();
 
     const ids = new List<string>();
-    for (let i = 0; i < members.Length; i++) {
+    for (let i = 0; i < members.length; i++) {
       ids.Add(members[i].UserId);
     }
     return ids.ToArray();

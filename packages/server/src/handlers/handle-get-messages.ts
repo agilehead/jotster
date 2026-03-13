@@ -1,8 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getMessagesDomain } from "@jotster/messages/Jotster.Messages.js";
-import type { int } from "@tsonic/core/types.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { toOptionalInt } from "../helpers/body.ts";
 
 export const handleGetMessages = async (
   req: Request,
@@ -22,12 +22,22 @@ export const handleGetMessages = async (
   const numBefore = req.query["num_before"] as string | undefined;
   const numAfter = req.query["num_after"] as string | undefined;
   const applyMarkdown = req.query["apply_markdown"] as string | undefined;
+  const parsedNumBefore = numBefore === undefined ? undefined : toOptionalInt(numBefore);
+  if (numBefore !== undefined && parsedNumBefore === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid num_before" });
+    return;
+  }
+  const parsedNumAfter = numAfter === undefined ? undefined : toOptionalInt(numAfter);
+  if (numAfter !== undefined && parsedNumAfter === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid num_after" });
+    return;
+  }
 
   const result = await getMessagesDomain(app.options, user, {
     narrow,
     anchor,
-    numBefore: numBefore ? parseInt(numBefore) as int : undefined,
-    numAfter: numAfter ? parseInt(numAfter) as int : undefined,
+    numBefore: parsedNumBefore,
+    numAfter: parsedNumAfter,
     applyMarkdown: applyMarkdown !== "false",
   });
 
