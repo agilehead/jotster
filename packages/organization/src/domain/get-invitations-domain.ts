@@ -2,7 +2,9 @@ import type { int } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 import { getInvitations } from "../repo/get-invitations.ts";
 
 export const getInvitationsDomain = async (
@@ -27,14 +29,14 @@ export const getInvitationsDomain = async (
     obj["email"] = inv.Email ?? "";
     obj["is_multiuse"] = inv.IsMultiuse === (1 as int);
     obj["link_token"] = inv.LinkToken;
-    obj["channel_ids"] = inv.ChannelIdsJson.Length > 0
-      ? JSON.parse(inv.ChannelIdsJson) as string[]
+    obj["channel_ids"] = inv.ChannelIdsJson.length > 0
+      ? JsonSerializer.Deserialize<string[]>(inv.ChannelIdsJson)
       : [];
     obj["invited_as"] = inv.InvitedAsRole;
     obj["status"] = inv.Status;
-    obj["timestamp"] = Number(inv.CreatedAt) / 1000;
+    obj["timestamp"] = Convert.ToDouble(inv.CreatedAt) / 1000;
     if (inv.ExpiresAt !== undefined) {
-      obj["expiry_date"] = Number(inv.ExpiresAt) / 1000;
+      obj["expiry_date"] = Convert.ToDouble(inv.ExpiresAt) / 1000;
     }
     result.Add(obj);
   }

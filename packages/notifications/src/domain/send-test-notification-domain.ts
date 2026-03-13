@@ -12,6 +12,6 @@ export const sendTestNotificationDomain = async (
   // For MVP, just return success with count of devices (actual push dispatch is out of scope)
   const result: Record<string, unknown> = {};
   result["msg"] = "";
-  result["devices_notified"] = tokens.Length;
+  result["devices_notified"] = tokens.length;
   return ok(result);
 };

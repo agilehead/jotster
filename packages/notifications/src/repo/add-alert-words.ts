@@ -2,7 +2,6 @@ import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, AlertWord, generateId } from "@jotster/core/Jotster.Core.js";
-import { Dictionary } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const addAlertWords = async (
   options: DbContextOptions,
@@ -22,17 +21,17 @@ export const addAlertWords = async (
       .Where((aw) => aw.TenantId === tenantId0).Where((aw) => aw.UserId === userId0)
       .ToArrayAsync();
 
-    const existingWords = new Dictionary<string, boolean>();
-    for (let i = 0; i < existing.Length; i++) {
+    const existingWords: Record<string, boolean> = {};
+    for (let i = 0; i < existing.length; i++) {
       existingWords[existing[i].Word] = true;
     }
 
     for (let i = 0; i < words.length; i++) {
-      const wordLower = words[i].ToLower().Trim();
-      if (wordLower.Length === 0) {
+      const wordLower = words[i].toLowerCase().trim();
+      if (wordLower.length === 0) {
         continue;
       }
-      if (existingWords.ContainsKey(wordLower) && existingWords[wordLower] === true) {
+      if (existingWords[wordLower] === true) {
         continue;
       }
 

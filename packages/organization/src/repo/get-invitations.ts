@@ -22,7 +22,7 @@ export const getInvitations = async (
 
     // Filter out expired invitations in application code
     const filtered = new List<Invitation>();
-    for (let i = 0; i < result.Length; i++) {
+    for (let i = 0; i < result.length; i++) {
       const inv = result[i];
       if (inv.ExpiresAt === undefined || inv.ExpiresAt > now0) {
         filtered.Add(inv);

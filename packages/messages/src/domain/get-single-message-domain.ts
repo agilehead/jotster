@@ -1,6 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getMessage } from "../repo/get-message.ts";
 import { getReactionsForMessage } from "../repo/get-reactions-for-message.ts";
@@ -18,7 +19,7 @@ export const getSingleMessageDomain = async (
   // Load reactions
   const reactions = await getReactionsForMessage(options, user.tenantId, message.Id);
   const reactionList = new List<Record<string, unknown>>();
-  for (let i = 0; i < reactions.Length; i++) {
+  for (let i = 0; i < reactions.length; i++) {
     const r = reactions[i];
     const reactionObj: Record<string, unknown> = {};
     reactionObj["emoji_name"] = r.EmojiName;
@@ -35,7 +36,7 @@ export const getSingleMessageDomain = async (
   formatted["content"] = message.RenderedContent;
   formatted["content_raw"] = message.Content;
   formatted["subject"] = message.Topic ?? "";
-  formatted["timestamp"] = Number(message.CreatedAt) / 1000;
+  formatted["timestamp"] = Convert.ToDouble(message.CreatedAt) / 1000;
   formatted["stream_id"] = message.ChannelId;
   formatted["dm_group_id"] = message.DmGroupId;
   formatted["reactions"] = reactionList.ToArray();

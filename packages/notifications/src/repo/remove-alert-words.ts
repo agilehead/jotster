@@ -10,8 +10,8 @@ export const removeAlertWords = async (
   const db = new JotsterDbContext(options);
   try {
     for (let i = 0; i < words.length; i++) {
-      const wordLower = words[i].ToLower().Trim();
-      if (wordLower.Length === 0) {
+      const wordLower = words[i].toLowerCase().trim();
+      if (wordLower.length === 0) {
         continue;
       }
 

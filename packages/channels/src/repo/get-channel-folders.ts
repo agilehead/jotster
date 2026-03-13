@@ -23,7 +23,7 @@ export const getChannelFolders = async (
       .ToArrayAsync();
 
     const result = new List<ChannelFolderWithItems>();
-    for (let i = 0; i < folders.Length; i++) {
+    for (let i = 0; i < folders.length; i++) {
       const folder = folders[i];
       const folderId0 = folder.Id;
       const items = await db0.ChannelFolderItems
@@ -31,7 +31,7 @@ export const getChannelFolders = async (
         .ToArrayAsync();
 
       const itemList = new List<ChannelFolderItem>();
-      for (let j = 0; j < items.Length; j++) {
+      for (let j = 0; j < items.length; j++) {
         itemList.Add(items[j]);
       }
 

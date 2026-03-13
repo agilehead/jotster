@@ -9,7 +9,7 @@ export class Attachment {
   UserId!: string;
   FileName!: string;
   PathId!: string;
-  Size!: int;
+  Size!: long;
   ContentType!: string;
   IsWebPublic!: int;
   CreatedAt!: long;

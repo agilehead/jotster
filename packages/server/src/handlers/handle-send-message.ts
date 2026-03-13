@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { sendMessageDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,11 +16,12 @@ export const handleSendMessage = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const type = req.body["type"] as string;
-  const to = req.body["to"] as string;
-  const topic = req.body["topic"] as string | undefined;
-  const content = req.body["content"] as string;
+  const type = body["type"] as string;
+  const to = body["to"] as string;
+  const topic = body["topic"] as string | undefined;
+  const content = body["content"] as string;
 
   const result = await sendMessageDomain(app.options, user, { type, to, topic, content });
   if (!result.success) {

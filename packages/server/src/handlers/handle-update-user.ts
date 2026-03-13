@@ -1,6 +1,8 @@
+import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateUserDomain } from "@jotster/users/Jotster.Users.js";
+import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateUser = async (
@@ -17,10 +19,10 @@ export const handleUpdateUser = async (
   const user = authResult.data;
   const targetId = req.params["user_id"] as string;
 
-  const body = req.body as Record<string, unknown>;
-  const updates: { fullName?: string; role?: number } = {};
+  const body = getBodyObject(req);
+  const updates: { fullName?: string; role?: int } = {};
   if (body["full_name"] !== undefined) updates.fullName = body["full_name"] as string;
-  if (body["role"] !== undefined) updates.role = body["role"] as number;
+  if (body["role"] !== undefined) updates.role = toOptionalInt(body["role"]);
 
   const result = await updateUserDomain(app.options, user, targetId, updates);
   if (!result.success) {

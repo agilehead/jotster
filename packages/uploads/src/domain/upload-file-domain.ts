@@ -1,9 +1,10 @@
-import type { int } from "@tsonic/core/types.js";
+import type { long } from "@tsonic/core/types.js";
 import { fs, path } from "@tsonic/nodejs/index.js";
 import type { UploadedFile } from "@tsonic/express/index.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err, generateId } from "@jotster/core/Jotster.Core.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { createAttachment } from "../repo/create-attachment.ts";
 
@@ -14,7 +15,7 @@ export const uploadFileDomain = async (
   file: UploadedFile
 ): Promise<Result<{ uri: string }, string>> => {
   const fileName = file.originalname;
-  const size = file.size as int;
+  const size = file.size as long;
   const contentType = file.mimetype;
 
   const ext = path.extname(fileName);
@@ -39,20 +40,21 @@ export const uploadFileDomain = async (
 
   const uri = "/user_uploads/" + user.tenantId + "/" + pathId;
 
+  const messagesArr: unknown[] = [];
+  const attObj: Record<string, unknown> = {};
+  attObj["id"] = attachment.Id;
+  attObj["name"] = attachment.FileName;
+  attObj["path_id"] = attachment.PathId;
+  attObj["size"] = attachment.Size;
+  attObj["create_time"] = Convert.ToDouble(attachment.CreatedAt) / 1000;
+  attObj["messages"] = messagesArr;
+  const eventData: Record<string, unknown> = {};
+  eventData["attachment"] = attObj;
+  eventData["upload_space_used"] = attachment.Size;
   dispatchEventToTenant(user.tenantId, {
     type: "attachment",
     op: "add",
-    data: {
-      attachment: {
-        id: attachment.Id,
-        name: attachment.FileName,
-        path_id: attachment.PathId,
-        size: attachment.Size,
-        create_time: Number(attachment.CreatedAt) / 1000,
-        messages: [],
-      },
-      upload_space_used: attachment.Size,
-    },
+    data: eventData,
   });
 
   return ok({ uri });

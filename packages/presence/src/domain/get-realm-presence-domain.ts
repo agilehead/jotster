@@ -1,5 +1,5 @@
 import type { long } from "@tsonic/core/types.js";
-import { DateTimeOffset } from "@tsonic/dotnet/System.js";
+import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -35,16 +35,18 @@ export const getRealmPresenceDomain = async (
 
   // Group by user, filtering out stale entries
   const userPresenceMap: Record<string, { clientName: string; status: string; timestamp: long }[]> = {};
+  const userPresenceMapKeys = new List<string>();
 
-  for (let i = 0; i < allPresences.Length; i++) {
+  for (let i = 0; i < allPresences.length; i++) {
     const p = allPresences[i];
-    const age = (Number(now) - Number(p.Timestamp)) as long;
-    if (Number(age) > Number(PRESENCE_STALE_THRESHOLD_MS)) {
+    const age = (Convert.ToDouble(now) - Convert.ToDouble(p.Timestamp)) as long;
+    if (Convert.ToDouble(age) > Convert.ToDouble(PRESENCE_STALE_THRESHOLD_MS)) {
       continue;
     }
 
     if (userPresenceMap[p.UserId] === undefined) {
       userPresenceMap[p.UserId] = [];
+      userPresenceMapKeys.Add(p.UserId);
     }
     const presenceList = new List<{ clientName: string; status: string; timestamp: long }>();
     for (let pi = 0; pi < userPresenceMap[p.UserId].length; pi++) {
@@ -61,21 +63,20 @@ export const getRealmPresenceDomain = async (
   if (slimPresence === true) {
     // Slim format: { userId: { active_timestamp, idle_timestamp } }
     const presences: Record<string, SlimUserPresence> = {};
-    const userIds = Object.keys(userPresenceMap);
 
-    for (let i = 0; i < userIds.length; i++) {
-      const userId = userIds[i];
+    for (let i = 0; i < userPresenceMapKeys.Count; i++) {
+      const userId = userPresenceMapKeys[i];
       const entries = userPresenceMap[userId];
       const slim: SlimUserPresence = {};
 
       for (let j = 0; j < entries.length; j++) {
         const entry = entries[j];
         if (entry.status === "active") {
-          if (slim.active_timestamp === undefined || Number(entry.timestamp) > Number(slim.active_timestamp)) {
+          if (slim.active_timestamp === undefined || Convert.ToDouble(entry.timestamp) > Convert.ToDouble(slim.active_timestamp)) {
             slim.active_timestamp = entry.timestamp;
           }
         } else if (entry.status === "idle") {
-          if (slim.idle_timestamp === undefined || Number(entry.timestamp) > Number(slim.idle_timestamp)) {
+          if (slim.idle_timestamp === undefined || Convert.ToDouble(entry.timestamp) > Convert.ToDouble(slim.idle_timestamp)) {
             slim.idle_timestamp = entry.timestamp;
           }
         }
@@ -99,15 +100,14 @@ export const getRealmPresenceDomain = async (
 
     // Build userId -> email map
     const emailMap: Record<string, string> = {};
-    for (let i = 0; i < users.Length; i++) {
+    for (let i = 0; i < users.length; i++) {
       emailMap[users[i].Id] = users[i].Email;
     }
 
     const presences: Record<string, Record<string, ClientPresence>> = {};
-    const userIds = Object.keys(userPresenceMap);
 
-    for (let i = 0; i < userIds.length; i++) {
-      const userId = userIds[i];
+    for (let i = 0; i < userPresenceMapKeys.Count; i++) {
+      const userId = userPresenceMapKeys[i];
       const email = emailMap[userId];
       if (email === undefined) {
         continue;
@@ -125,7 +125,7 @@ export const getRealmPresenceDomain = async (
           timestamp: entry.timestamp,
         };
 
-        if (Number(entry.timestamp) > Number(latestTimestamp)) {
+        if (Convert.ToDouble(entry.timestamp) > Convert.ToDouble(latestTimestamp)) {
           latestTimestamp = entry.timestamp;
           aggregatedStatus = entry.status;
         }

@@ -8,7 +8,7 @@ export const listTenantsAdmin = async (
   config: ServerConfig,
   rootToken: string
 ): Promise<Result<Tenant[], string>> => {
-  if (config.rootToken.Length === 0 || rootToken !== config.rootToken) {
+  if (config.rootToken.length === 0 || rootToken !== config.rootToken) {
     return err("Unauthorized");
   }
 

@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateSettingsDomain } from "@jotster/users/Jotster.Users.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { getBodyObject } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateSettings = async (
@@ -15,8 +17,14 @@ export const handleUpdateSettings = async (
   }
 
   const user = authResult.data;
+  const updates = getBodyObject(req);
+  const bodyKeys = Object.keys(updates);
+  const updateKeys = new List<string>();
+  for (let i = 0; i < bodyKeys.length; i++) {
+    updateKeys.Add(bodyKeys[i]);
+  }
 
-  const result = await updateSettingsDomain(app.options, user, req.body as Record<string, unknown>);
+  const result = await updateSettingsDomain(app.options, user, updates, updateKeys);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

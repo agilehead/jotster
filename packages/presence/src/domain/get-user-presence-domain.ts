@@ -1,5 +1,5 @@
 import type { long } from "@tsonic/core/types.js";
-import { DateTimeOffset } from "@tsonic/dotnet/System.js";
+import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -59,10 +59,10 @@ export const getUserPresenceDomain = async (
   let latestTimestamp = 0 as long;
   let aggregatedStatus = "offline";
 
-  for (let i = 0; i < allPresences.Length; i++) {
+  for (let i = 0; i < allPresences.length; i++) {
     const p = allPresences[i];
-    const age = (Number(now) - Number(p.Timestamp)) as long;
-    if (Number(age) > Number(PRESENCE_STALE_THRESHOLD_MS)) {
+    const age = (Convert.ToDouble(now) - Convert.ToDouble(p.Timestamp)) as long;
+    if (Convert.ToDouble(age) > Convert.ToDouble(PRESENCE_STALE_THRESHOLD_MS)) {
       continue;
     }
 
@@ -71,7 +71,7 @@ export const getUserPresenceDomain = async (
       timestamp: p.Timestamp,
     };
 
-    if (Number(p.Timestamp) > Number(latestTimestamp)) {
+    if (Convert.ToDouble(p.Timestamp) > Convert.ToDouble(latestTimestamp)) {
       latestTimestamp = p.Timestamp;
       aggregatedStatus = p.Status;
     }

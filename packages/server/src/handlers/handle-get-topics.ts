@@ -25,7 +25,7 @@ export const handleGetTopics = async (
   }
 
   const topics = new List<Record<string, unknown>>();
-  for (let i = 0; i < result.data.Length; i++) {
+  for (let i = 0; i < result.data.length; i++) {
     const t = result.data[i];
     const topic: Record<string, unknown> = {};
     topic["name"] = t.name;

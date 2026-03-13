@@ -19,7 +19,7 @@ export const getDmGroupsForUser = async (
       .ToArrayAsync();
 
     const groups = new List<DmGroup>();
-    for (let i = 0; i < memberships.Length; i++) {
+    for (let i = 0; i < memberships.length; i++) {
       const dmGroupId0 = memberships[i].DmGroupId;
       const group = await db0.DmGroups
         .Where((g) => g.Id === dmGroupId0).Where((g) => g.TenantId === tenantId0)

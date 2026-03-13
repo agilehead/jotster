@@ -3,6 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalIntField } from "../helpers/body.ts";
 
 export const handleUpdateChannelFolder = async (
   req: Request,
@@ -17,7 +18,7 @@ export const handleUpdateChannelFolder = async (
 
   const user = authResult.data;
   const folderId = req.params["folder_id"] as string;
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
 
   const updates: {
     name?: string;
@@ -32,7 +33,12 @@ export const handleUpdateChannelFolder = async (
     updates.channels = body["channels"] as string[];
   }
   if (body["ordering"] !== undefined) {
-    updates.ordering = body["ordering"] as int;
+    const ordering = getOptionalIntField(body, "ordering");
+    if (ordering === undefined) {
+      res.status(400).json({ result: "error", msg: "Invalid ordering" });
+      return;
+    }
+    updates.ordering = ordering;
   }
 
   const result = await updateChannelFolderDomain(app.options, user, folderId, updates);

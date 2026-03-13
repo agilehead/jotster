@@ -14,7 +14,7 @@ import { getAllUsers } from "@jotster/users/Jotster.Users.js";
 import { getUserSetting } from "@jotster/users/Jotster.Users.js";
 import { getSubscriptionsForUser } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import { getChannels, getChannelSubscribers } from "@jotster/channels/Jotster.Channels.js";
-import type { RegisterParams } from "./types.ts";
+import type { RegisterParams } from "@jotster/event-queue/Jotster.EventQueue.js";
 
 const mapUserToZulip = (u: {
   Id: string;
@@ -83,7 +83,7 @@ export const buildInitialState = async (
     const activeUsers = new List<Record<string, unknown>>();
     const inactiveUsers = new List<Record<string, unknown>>();
 
-    for (let i = 0; i < allUsers.Length; i++) {
+    for (let i = 0; i < allUsers.length; i++) {
       const u = allUsers[i];
       const mapped = mapUserToZulip(u);
       if (u.IsActive === 1) {
@@ -108,7 +108,7 @@ export const buildInitialState = async (
     } else {
       const allUsers = await getAllUsers(options, tenantId);
       const mapped = new List<Record<string, unknown>>();
-      for (let i = 0; i < allUsers.Length; i++) {
+      for (let i = 0; i < allUsers.length; i++) {
         mapped.Add(mapUserToZulip(allUsers[i]));
       }
       botSource = mapped.ToArray();
@@ -145,14 +145,14 @@ export const buildInitialState = async (
 
     // Build channel lookup map
     const channelMap: Record<string, typeof allChannels[0]> = {};
-    for (let i = 0; i < allChannels.Length; i++) {
+    for (let i = 0; i < allChannels.length; i++) {
       const ch = allChannels[i];
       channelMap[ch.Id] = ch;
     }
 
     const subscriptions = new List<Record<string, unknown>>();
 
-    for (let i = 0; i < userSubs.Length; i++) {
+    for (let i = 0; i < userSubs.length; i++) {
       const sub = userSubs[i];
       const ch = channelMap[sub.ChannelId];
       if (ch === undefined) {
@@ -264,7 +264,7 @@ export const buildInitialState = async (
         state.realm_name = tenant.Name;
         state.realm_description = tenant.Description;
         state.realm_icon_url = tenant.IconUrl ?? null;
-        state.realm_uri = `https://${tenant.Subdomain}.jotster.app`;
+        state.realm_uri = "https://" + tenant.Subdomain + ".jotster.app";
         state.realm_allow_message_editing = true;
         state.realm_message_content_edit_limit_seconds = 600;
         state.realm_message_content_delete_limit_seconds = 600;

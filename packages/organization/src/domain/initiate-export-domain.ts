@@ -19,7 +19,7 @@ export const initiateExportDomain = async (
 
   // Check no other export with status "pending" or "in_progress" for this tenant
   const existingExports = await getExports(options, user.tenantId);
-  for (let i = 0; i < existingExports.Length; i++) {
+  for (let i = 0; i < existingExports.length; i++) {
     const status = existingExports[i].Status;
     if (status === "pending" || status === "in_progress") {
       return err("An export is already in progress");

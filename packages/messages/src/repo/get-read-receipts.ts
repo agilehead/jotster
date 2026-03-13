@@ -28,7 +28,7 @@ export const getReadReceipts = async (
       .ToArrayAsync();
 
     const userIds = new List<string>();
-    for (let i = 0; i < flags.Length; i++) {
+    for (let i = 0; i < flags.length; i++) {
       userIds.Add(flags[i].UserId);
     }
     return userIds.ToArray();

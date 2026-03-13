@@ -8,7 +8,7 @@ export const getCustomEmojisDomain = async (
   const emojis = await getCustomEmojis(options, tenantId);
 
   const emojiMap: Record<string, unknown> = {};
-  for (let i = 0; i < emojis.Length; i++) {
+  for (let i = 0; i < emojis.length; i++) {
     const e = emojis[i];
     const entry: Record<string, unknown> = {};
     entry["id"] = e.Id;

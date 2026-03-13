@@ -15,7 +15,7 @@ export const getUserGroupSubgroups = async (
       .ToArrayAsync();
 
     const ids = new List<string>();
-    for (let i = 0; i < subgroups.Length; i++) {
+    for (let i = 0; i < subgroups.length; i++) {
       ids.Add(subgroups[i].SubgroupId);
     }
     return ids.ToArray();

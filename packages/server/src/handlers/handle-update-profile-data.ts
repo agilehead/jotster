@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateProfileDataDomain } from "@jotster/users/Jotster.Users.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { getBodyObject } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateProfileData = async (
@@ -15,7 +17,7 @@ export const handleUpdateProfileData = async (
   }
 
   const user = authResult.data;
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
   const profileData = body["profile_data"] as Record<string, { value: string }> | undefined;
 
   if (!profileData) {
@@ -23,7 +25,13 @@ export const handleUpdateProfileData = async (
     return;
   }
 
-  const result = await updateProfileDataDomain(app.options, user, profileData);
+  const pdKeys = Object.keys(profileData);
+  const profileDataKeys = new List<string>();
+  for (let i = 0; i < pdKeys.length; i++) {
+    profileDataKeys.Add(pdKeys[i]);
+  }
+
+  const result = await updateProfileDataDomain(app.options, user, profileData, profileDataKeys);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

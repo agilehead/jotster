@@ -28,17 +28,17 @@ export const createChannelDomain = async (
   user: AuthenticatedUser,
   input: CreateChannelDomainInput
 ): Promise<Result<Channel, string>> => {
-  const name = input.name.Trim();
+  const name = input.name.trim();
 
-  if (name.Length === 0) {
+  if (name.length === 0) {
     return err("Channel name must not be empty");
   }
 
-  if (name.Length > MAX_CHANNEL_NAME_LENGTH) {
+  if (name.length > MAX_CHANNEL_NAME_LENGTH) {
     return err("Channel name too long");
   }
 
-  if (name.Contains("\n")) {
+  if (name.includes("\n")) {
     return err("Channel name must not contain newlines");
   }
 

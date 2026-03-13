@@ -15,6 +15,7 @@
   "references": {
     "libraries": [
       "../core/dist/net10.0/Jotster.Core.dll",
+      "../auth/dist/net10.0/Jotster.Auth.dll",
       "../event-queue/dist/net10.0/Jotster.EventQueue.dll"
     ]
   }

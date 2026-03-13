@@ -64,7 +64,7 @@ export const addReactionDomain = async (
 
   // Check for duplicate reaction
   const existingReactions = await getReactionsForMessage(options, user.tenantId, messageId);
-  for (let i = 0; i < existingReactions.Length; i++) {
+  for (let i = 0; i < existingReactions.length; i++) {
     const r = existingReactions[i];
     if (r.UserId === user.userId && r.EmojiCode === params.emojiCode && r.ReactionType === params.reactionType) {
       return err("Reaction already exists");
@@ -82,16 +82,16 @@ export const addReactionDomain = async (
   });
 
   // Dispatch event
+  const eventData: Record<string, unknown> = {};
+  eventData["message_id"] = messageId;
+  eventData["user_id"] = user.userId;
+  eventData["emoji_name"] = params.emojiName;
+  eventData["emoji_code"] = params.emojiCode;
+  eventData["reaction_type"] = params.reactionType;
   dispatchEventToTenant(user.tenantId, {
     type: "reaction",
     op: "add",
-    data: {
-      message_id: messageId,
-      user_id: user.userId,
-      emoji_name: params.emojiName,
-      emoji_code: params.emojiCode,
-      reaction_type: params.reactionType,
-    },
+    data: eventData,
   });
 
   return ok(undefined);

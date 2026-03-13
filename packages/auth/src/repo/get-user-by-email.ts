@@ -13,7 +13,7 @@ export const getUserByEmail = async (
     const email0 = email;
     const byTenant = await db0.Users.Where((u) => u.TenantId === tenantId0).ToArrayAsync();
     let result: User | undefined = undefined;
-    for (let i = 0; i < byTenant.Length; i++) {
+    for (let i = 0; i < byTenant.length; i++) {
       if (byTenant[i].Email === email0) {
         result = byTenant[i];
         break;

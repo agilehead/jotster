@@ -1,5 +1,6 @@
 import knex, { type Knex } from "knex";
 import knexConfig from "../../knexfile.jotster.js";
+import { TEST_DB_PATH, resetTestArtifacts } from "./test-environment.js";
 
 const TABLE_NAMES = [
   "push_device_token",
@@ -46,12 +47,17 @@ export class TestDatabase {
   private db!: Knex;
 
   async setup(): Promise<void> {
-    this.db = knex((knexConfig as Record<string, unknown>).test as Knex.Config);
+    resetTestArtifacts();
+    this.db = knex({
+      ...((knexConfig as Record<string, unknown>).test as Knex.Config),
+      connection: { filename: TEST_DB_PATH },
+    });
     await this.db.migrate.latest();
   }
 
   async teardown(): Promise<void> {
     await this.db.destroy();
+    resetTestArtifacts();
   }
 
   async truncateAllTables(): Promise<void> {

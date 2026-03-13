@@ -1,11 +1,13 @@
 import type { int } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import type { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { JotsterDbContext, UserSetting } from "@jotster/core/Jotster.Core.js";
 
 export const updateUserSetting = async (
   options: DbContextOptions,
   userId: string,
-  updates: Record<string, unknown>
+  updates: Record<string, unknown>,
+  updateKeys: List<string>
 ): Promise<UserSetting | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -19,9 +21,8 @@ export const updateUserSetting = async (
       return undefined;
     }
 
-    const keys = Object.keys(updates);
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
+    for (let i = 0; i < updateKeys.Count; i++) {
+      const key = updateKeys[i];
       const value = updates[key];
 
       if (key === "twenty_four_hour_time") {

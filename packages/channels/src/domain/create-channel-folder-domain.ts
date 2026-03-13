@@ -16,9 +16,9 @@ export const createChannelFolderDomain = async (
   user: AuthenticatedUser,
   input: CreateChannelFolderDomainInput
 ): Promise<Result<ChannelFolder, string>> => {
-  const name = input.name.Trim();
+  const name = input.name.trim();
 
-  if (name.Length === 0) {
+  if (name.length === 0) {
     return err("Folder name must not be empty");
   }
 
@@ -38,17 +38,17 @@ export const createChannelFolderDomain = async (
       channelIds.Add(folderWithItems.items[i].ChannelId);
     }
 
+    const folderObj: Record<string, unknown> = {};
+    folderObj["id"] = folder.Id;
+    folderObj["name"] = folder.Name;
+    folderObj["channels"] = channelIds.ToArray();
+    folderObj["ordering"] = folder.Ordering;
+    const eventData: Record<string, unknown> = {};
+    eventData["channel_folder"] = folderObj;
     dispatchEventToUser(user.tenantId, user.userId, {
       type: "channel_folder",
       op: "add",
-      data: {
-        channel_folder: {
-          id: folder.Id,
-          name: folder.Name,
-          channels: channelIds.ToArray(),
-          ordering: folder.Ordering,
-        },
-      },
+      data: eventData,
     });
   }
 

@@ -1,6 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getMessage } from "../repo/get-message.ts";
 import { deleteMessage } from "../repo/delete-message.ts";
@@ -27,8 +28,8 @@ export const deleteMessageDomain = async (
 
   // Non-admin senders have a time limit
   if (isSender && !isAdmin) {
-    const now = Date.now();
-    const messageTime = Number(message.CreatedAt);
+    const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+    const messageTime = Convert.ToInt64(message.CreatedAt);
     if (now - messageTime > DELETE_TIME_LIMIT_MS) {
       return err("You can no longer delete this message");
     }
@@ -40,15 +41,15 @@ export const deleteMessageDomain = async (
   }
 
   // Dispatch event
+  const eventData: Record<string, unknown> = {};
+  eventData["message_id"] = messageId;
+  eventData["message_type"] = message.Type === "stream" ? "stream" : "direct";
+  eventData["stream_id"] = message.ChannelId;
+  eventData["topic"] = message.Topic;
+  eventData["dm_group_id"] = message.DmGroupId;
   dispatchEventToTenant(user.tenantId, {
     type: "delete_message",
-    data: {
-      message_id: messageId,
-      message_type: message.Type === "stream" ? "stream" : "direct",
-      stream_id: message.ChannelId,
-      topic: message.Topic,
-      dm_group_id: message.DmGroupId,
-    },
+    data: eventData,
   });
 
   return ok(undefined);

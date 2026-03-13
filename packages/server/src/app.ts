@@ -1,7 +1,9 @@
+import type { int } from "@tsonic/core/types.js";
 import { express } from "@tsonic/express/index.js";
 import { loadConfig, createDbOptions } from "@jotster/core/Jotster.Core.js";
 import { initRegistry } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "./helpers/app-context.ts";
+import { toOptionalInt } from "./helpers/body.ts";
 import { registerRoutes } from "./routes/register-routes.ts";
 
 export function main(): void {
@@ -34,7 +36,11 @@ export function main(): void {
   });
 
   // Parse port from listenUrl (e.g., "http://localhost:8080" -> 8080)
-  const urlParts = config.listenUrl.Split(":");
-  const port = urlParts.Length >= 3 ? parseInt(urlParts[urlParts.Length - 1]) : 8080;
+  const urlParts = config.listenUrl.split(":");
+  const parsedPort = urlParts.length >= 3 ? toOptionalInt(urlParts[urlParts.length - 1]) : undefined;
+  if (urlParts.length >= 3 && parsedPort === undefined) {
+    throw new Error("Invalid listenUrl port");
+  }
+  const port = parsedPort ?? (8080 as int);
   app.listen(port);
 }

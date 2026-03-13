@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateFlagsDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,11 +16,12 @@ export const handleUpdateMessageFlags = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const messagesRaw = req.body["messages"] as string;
+  const messagesRaw = body["messages"] as string;
   const parsedMessages = JSON.parse(messagesRaw) as string[];
-  const op = req.body["op"] as string;
-  const flag = req.body["flag"] as string;
+  const op = body["op"] as string;
+  const flag = body["flag"] as string;
 
   const result = await updateFlagsDomain(app.options, user, { messages: parsedMessages, op, flag });
   if (!result.success) {

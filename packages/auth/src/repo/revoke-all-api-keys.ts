@@ -16,7 +16,7 @@ export const revokeAllApiKeys = async (
       .Where((k) => k.TenantId === tenantId0).Where((k) => k.UserId === userId0).Where((k) => k.RevokedAt === undefined)
       .ToArrayAsync();
     const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-    for (let i = 0; i < keys.Length; i++) {
+    for (let i = 0; i < keys.length; i++) {
       keys[i].RevokedAt = now;
     }
     await db0.SaveChangesAsync();

@@ -19,7 +19,7 @@ export const handleGetBots = async (
   const data = await getBotsDomain(app.options, user);
 
   const bots = new List<Record<string, unknown>>();
-  for (let i = 0; i < data.Length; i++) {
+  for (let i = 0; i < data.length; i++) {
     const b = data[i];
     const bot: Record<string, unknown> = {};
     bot["user_id"] = b.Id;

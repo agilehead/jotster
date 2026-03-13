@@ -4,6 +4,12 @@ import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { getSubscription } from "../repo/get-subscription.ts";
 import { updateSubscriptionProperty } from "../repo/update-subscription-property.ts";
 
+interface SubscriptionPropertyUpdate {
+  streamId: string;
+  property: string;
+  propValue: string;
+}
+
 const VALID_PROPERTIES = [
   "color",
   "pin_to_top",
@@ -18,7 +24,7 @@ const VALID_PROPERTIES = [
 export const updateSubscriptionPropertiesDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  updates: { streamId: string; property: string; value: unknown }[]
+  updates: SubscriptionPropertyUpdate[]
 ): Promise<Result<boolean, string>> => {
   for (let i = 0; i < updates.length; i++) {
     const update = updates[i];
@@ -42,7 +48,7 @@ export const updateSubscriptionPropertiesDomain = async (
     }
 
     // Apply update via repo
-    await updateSubscriptionProperty(options, sub.Id, update.property, update.value);
+    await updateSubscriptionProperty(options, sub.Id, update.property, update.propValue);
   }
 
   return ok(true);

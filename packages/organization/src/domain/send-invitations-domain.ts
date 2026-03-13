@@ -29,8 +29,8 @@ export const sendInvitationsDomain = async (
 
   // Check no existing users match
   for (let i = 0; i < input.inviteeEmails.length; i++) {
-    const email = input.inviteeEmails[i].Trim().ToLower();
-    if (email.Length === 0) {
+    const email = input.inviteeEmails[i].trim().toLowerCase();
+    if (email.length === 0) {
       return err("Email address cannot be empty");
     }
 
@@ -43,9 +43,9 @@ export const sendInvitationsDomain = async (
   // Check no pending invites for these emails
   const pendingInvitations = await getInvitations(options, user.tenantId);
   for (let i = 0; i < input.inviteeEmails.length; i++) {
-    const email = input.inviteeEmails[i].Trim().ToLower();
+    const email = input.inviteeEmails[i].trim().toLowerCase();
     for (let j = 0; j < pendingInvitations.length; j++) {
-      if (pendingInvitations[j].Email !== undefined && pendingInvitations[j].Email!.ToLower() === email) {
+      if (pendingInvitations[j].Email !== undefined && pendingInvitations[j].Email!.toLowerCase() === email) {
         return err("An invitation has already been sent to " + email);
       }
     }
@@ -53,7 +53,7 @@ export const sendInvitationsDomain = async (
 
   // Create invitation for each email
   for (let i = 0; i < input.inviteeEmails.length; i++) {
-    const email = input.inviteeEmails[i].Trim().ToLower();
+    const email = input.inviteeEmails[i].trim().toLowerCase();
     await createInvitation(options, {
       tenantId: user.tenantId,
       inviterId: user.userId,

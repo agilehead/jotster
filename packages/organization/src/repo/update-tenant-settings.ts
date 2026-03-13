@@ -2,6 +2,7 @@ import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Tenant } from "@jotster/core/Jotster.Core.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export const updateTenantSettings = async (
   options: DbContextOptions,
@@ -22,14 +23,18 @@ export const updateTenantSettings = async (
     }
 
     // Parse existing settings
-    const existingSettings: Record<string, unknown> = tenant.SettingsJson.Length > 0
-      ? JSON.parse(tenant.SettingsJson) as Record<string, unknown>
-      : {};
+    let existingSettings: Record<string, unknown> = {};
+    if (tenant.SettingsJson.length > 0) {
+      const parsed = JsonSerializer.Deserialize<Record<string, unknown>>(tenant.SettingsJson);
+      if (parsed !== undefined) {
+        existingSettings = parsed;
+      }
+    }
 
     // Merge new settings into existing
-    const keys = Object.keys(settings);
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
+    const settingsKeys = settings.Keys;
+    for (let i = 0; i < settingsKeys.length; i++) {
+      const key = settingsKeys[i];
       existingSettings[key] = settings[key];
 
       // Update direct columns for specific properties
@@ -47,7 +52,7 @@ export const updateTenantSettings = async (
       }
     }
 
-    tenant.SettingsJson = JSON.stringify(existingSettings);
+    tenant.SettingsJson = JsonSerializer.Serialize(existingSettings);
     tenant.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
     await db.SaveChangesAsync();

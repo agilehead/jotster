@@ -1,25 +1,41 @@
 import type { int, long } from "@tsonic/core/types.js";
-import type { Timeout } from "@tsonic/nodejs/index.js";
-import { DateTimeOffset } from "@tsonic/dotnet/System.js";
+import type { Action } from "@tsonic/dotnet/System.js";
+import { DateTimeOffset, Math as ClrMath, Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { timers } from "@tsonic/nodejs/index.js";
 import type { EventQueue, QueueEvent, DomainEvent, RegisterParams, ClientCapabilities } from "./types.ts";
 
 // Module-level state (singleton)
+// We maintain parallel lists of keys for iteration since Object.keys() isn't available in Tsonic
 const queues: Record<string, EventQueue> = {};
-const userQueueIndex: Record<string, string[]> = {}; // key: "tenantId:userId" -> queueId[]
+const queueKeyList = new List<string>();
+const userQueueIndex: Record<string, string[]> = {};
+const userKeyList = new List<string>();
 let nextQueueSeq = 0;
-let heartbeatTimer: Timeout | undefined = undefined;
-let gcTimer: Timeout | undefined = undefined;
+let heartbeatStarted = false;
+let gcStarted = false;
 
 const HEARTBEAT_INTERVAL_MS = 45000;
 const GC_INTERVAL_MS = 60000;
 const QUEUE_EXPIRY_MS = 600000; // 10 minutes
 const LONG_POLL_TIMEOUT_MS = 90000;
 
+const removeFromKeyList = (list: List<string>, key: string): void => {
+  const newList = new List<string>();
+  for (let i = 0; i < list.Count; i++) {
+    if (list[i] !== key) {
+      newList.Add(list[i]);
+    }
+  }
+  list.Clear();
+  for (let i = 0; i < newList.Count; i++) {
+    list.Add(newList[i]);
+  }
+};
+
 const injectHeartbeat = (): void => {
-  const keys = Object.keys(queues);
-  for (let i = 0; i < keys.length; i++) {
-    const queue = queues[keys[i]];
+  for (let i = 0; i < queueKeyList.Count; i++) {
+    const queue = queues[queueKeyList[i]];
     queue.lastEventId = (queue.lastEventId + 1) as int;
     const evt: QueueEvent = { id: queue.lastEventId, type: "heartbeat" };
     queue.events.Add(evt);
@@ -33,10 +49,11 @@ const injectHeartbeat = (): void => {
 
 const gcQueues = (): void => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-  const keys = Object.keys(queues);
+  // Snapshot keys to avoid modifying list during iteration
+  const keys = queueKeyList.ToArray();
   for (let i = 0; i < keys.length; i++) {
     const queue = queues[keys[i]];
-    if (Number(now) - Number(queue.lastAccessTime) > QUEUE_EXPIRY_MS) {
+    if (Convert.ToInt64(now) - Convert.ToInt64(queue.lastAccessTime) > QUEUE_EXPIRY_MS) {
       // Signal waiter so blocked long-poll returns
       if (queue.waiterResolve !== undefined) {
         const resolve = queue.waiterResolve;
@@ -45,6 +62,7 @@ const gcQueues = (): void => {
       }
       // Remove from queues
       delete queues[keys[i]];
+      removeFromKeyList(queueKeyList, keys[i]);
       // Remove from user index
       const userKey = queue.tenantId + ":" + queue.userId;
       const userQueues = userQueueIndex[userKey];
@@ -59,45 +77,56 @@ const gcQueues = (): void => {
           userQueueIndex[userKey] = newList.ToArray();
         } else {
           delete userQueueIndex[userKey];
+          removeFromKeyList(userKeyList, userKey);
         }
       }
     }
   }
 };
 
-const waitForEvents = (queue: EventQueue, timeoutMs: number): Promise<boolean> => {
-  return new Promise<boolean>((resolve) => {
-    let timedOut = false;
-    const timer = setTimeout(() => {
-      timedOut = true;
-      // Clear the waiter so nobody else tries to signal it
+function waitForEventsImpl(queue: EventQueue, timeoutMs: int, resolve: (value: boolean) => void): void {
+  let settled = false;
+
+  const onTimeout = (): void => {
+    if (!settled) {
+      settled = true;
       if (queue.waiterResolve !== undefined) {
         queue.waiterResolve = undefined;
       }
       resolve(false);
-    }, timeoutMs);
+    }
+  };
 
-    queue.waiterResolve = () => {
-      if (!timedOut) {
-        clearTimeout(timer);
-        resolve(true);
-      }
-    };
+  timers.setTimeout(onTimeout as Action, timeoutMs);
+
+  queue.waiterResolve = (): void => {
+    if (!settled) {
+      settled = true;
+      resolve(true);
+    }
+  };
+}
+
+function waitForEvents(queue: EventQueue, timeoutMs: int): Promise<boolean> {
+  return new Promise<boolean>((resolve: (value: boolean) => void) => {
+    waitForEventsImpl(queue, timeoutMs, resolve);
   });
-};
+}
 
-export const initRegistry = (): void => {
-  if (heartbeatTimer === undefined) {
-    heartbeatTimer = setInterval(injectHeartbeat, HEARTBEAT_INTERVAL_MS);
+export function initRegistry(): void {
+  if (!heartbeatStarted) {
+    heartbeatStarted = true;
+    timers.setInterval(injectHeartbeat as Action, HEARTBEAT_INTERVAL_MS as int);
   }
-  if (gcTimer === undefined) {
-    gcTimer = setInterval(gcQueues, GC_INTERVAL_MS);
+  if (!gcStarted) {
+    gcStarted = true;
+    timers.setInterval(gcQueues as Action, GC_INTERVAL_MS as int);
   }
-};
+}
 
-export const registerQueue = (tenantId: string, userId: string, params: RegisterParams): string => {
-  const nowSec = Math.floor(Number(DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-  const queueId = nowSec + ":" + nextQueueSeq;
+export function registerQueue(tenantId: string, userId: string, params: RegisterParams): string {
+  const nowSec = ClrMath.Floor(Convert.ToDouble(DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+  const queueId = Convert.ToString(nowSec) + ":" + Convert.ToString(nextQueueSeq);
   nextQueueSeq = nextQueueSeq + 1;
 
   const queue: EventQueue = {
@@ -110,13 +139,15 @@ export const registerQueue = (tenantId: string, userId: string, params: Register
     lastAccessTime: DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
     narrow: params.narrow !== undefined ? params.narrow : undefined,
     allPublicStreams: params.allPublicStreams === true,
-    applyMarkdown: params.applyMarkdown !== false, // default true
+    applyMarkdown: params.applyMarkdown !== false,
     clientGravatar: params.clientGravatar === true,
     slimPresence: params.slimPresence === true,
-    clientCapabilities: params.clientCapabilities !== undefined ? params.clientCapabilities : {},
+    clientCapabilities: params.clientCapabilities !== undefined ? params.clientCapabilities : {} as ClientCapabilities,
+    waiterResolve: undefined,
   };
 
   queues[queueId] = queue;
+  queueKeyList.Add(queueId);
 
   const userKey = tenantId + ":" + userId;
   const existing = userQueueIndex[userKey];
@@ -129,18 +160,19 @@ export const registerQueue = (tenantId: string, userId: string, params: Register
     userQueueIndex[userKey] = updatedList.ToArray();
   } else {
     userQueueIndex[userKey] = [queueId];
+    userKeyList.Add(userKey);
   }
 
   return queueId;
-};
+}
 
-export const getEventsFromQueue = async (
+export async function getEventsFromQueue(
   tenantId: string,
   userId: string,
   queueId: string,
   lastEventId: int,
   dontBlock: boolean,
-): Promise<{ events: QueueEvent[] } | { error: string; code?: string }> => {
+): Promise<{ events: QueueEvent[] } | { error: string; code?: string }> {
   const queue = queues[queueId];
   if (queue === undefined) {
     return {
@@ -186,7 +218,7 @@ export const getEventsFromQueue = async (
   }
 
   // Long-poll: wait for signal or timeout
-  await waitForEvents(queue, LONG_POLL_TIMEOUT_MS);
+  await waitForEvents(queue, LONG_POLL_TIMEOUT_MS as int);
 
   // After wake, collect any new events
   const newEvents = new List<QueueEvent>();
@@ -197,13 +229,13 @@ export const getEventsFromQueue = async (
   }
 
   return { events: newEvents.ToArray() };
-};
+}
 
-export const deleteQueueById = (
+export function deleteQueueById(
   tenantId: string,
   userId: string,
   queueId: string,
-): { success: boolean; error?: string } => {
+): { success: boolean; error?: string } {
   const queue = queues[queueId];
   if (queue === undefined) {
     return {
@@ -229,6 +261,7 @@ export const deleteQueueById = (
 
   // Remove from queues
   delete queues[queueId];
+  removeFromKeyList(queueKeyList, queueId);
 
   // Remove from userQueueIndex
   const userKey = tenantId + ":" + userId;
@@ -244,13 +277,14 @@ export const deleteQueueById = (
       userQueueIndex[userKey] = newList.ToArray();
     } else {
       delete userQueueIndex[userKey];
+      removeFromKeyList(userKeyList, userKey);
     }
   }
 
   return { success: true };
-};
+}
 
-export const dispatchEvent = (tenantId: string, event: DomainEvent, targetUserIds: string[]): void => {
+export function dispatchEvent(tenantId: string, event: DomainEvent, targetUserIds: string[]): void {
   for (let u = 0; u < targetUserIds.length; u++) {
     const userKey = tenantId + ":" + targetUserIds[u];
     const queueIds = userQueueIndex[userKey];
@@ -281,7 +315,6 @@ export const dispatchEvent = (tenantId: string, event: DomainEvent, targetUserId
       // Build QueueEvent
       queue.lastEventId = (queue.lastEventId + 1) as int;
       const queueEvent: QueueEvent = {
-        ...event.data,
         id: queue.lastEventId,
         type: event.type,
       };
@@ -298,31 +331,27 @@ export const dispatchEvent = (tenantId: string, event: DomainEvent, targetUserId
       }
     }
   }
-};
+}
 
-export const dispatchEventToUser = (tenantId: string, userId: string, event: DomainEvent): void => {
+export function dispatchEventToUser(tenantId: string, userId: string, event: DomainEvent): void {
   dispatchEvent(tenantId, event, [userId]);
-};
+}
 
-export const dispatchEventToTenant = (tenantId: string, event: DomainEvent): void => {
+export function dispatchEventToTenant(tenantId: string, event: DomainEvent): void {
   const prefix = tenantId + ":";
-  const keys = Object.keys(userQueueIndex);
   const targetUserIds = new List<string>();
-  const seen: Record<string, boolean> = {};
 
-  for (let i = 0; i < keys.length; i++) {
-    if (keys[i].length > prefix.length && keys[i].substring(0, prefix.length) === prefix) {
-      const userId = keys[i].substring(prefix.length);
-      if (seen[userId] === undefined) {
-        seen[userId] = true;
-        targetUserIds.Add(userId);
-      }
+  for (let i = 0; i < userKeyList.Count; i++) {
+    const key = userKeyList[i];
+    if (key.length > prefix.length && key.substring(0, prefix.length) === prefix) {
+      const userId = key.substring(prefix.length);
+      targetUserIds.Add(userId);
     }
   }
 
   dispatchEvent(tenantId, event, targetUserIds.ToArray());
-};
+}
 
-export const getActiveQueueCount = (): number => {
-  return Object.keys(queues).length;
-};
+export function getActiveQueueCount(): number {
+  return queueKeyList.Count;
+}

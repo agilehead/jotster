@@ -37,17 +37,17 @@ export const updateUserGroupDomain = async (
   }
 
   if (updates.name !== undefined) {
-    const name = updates.name.Trim();
-    if (name.Length === 0) {
+    const name = updates.name.trim();
+    if (name.length === 0) {
       return err("Group name must not be empty");
     }
-    if (name.Length > 100) {
+    if (name.length > 100) {
       return err("Group name too long");
     }
   }
 
   const updated = await updateUserGroup(options, groupId, {
-    name: updates.name !== undefined ? updates.name.Trim() : undefined,
+    name: updates.name !== undefined ? updates.name.trim() : undefined,
     description: updates.description,
     canAddMembersGroupId: updates.canAddMembersGroupId,
     canJoinGroupId: updates.canJoinGroupId,

@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { legacyMuteTopicDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,11 +16,12 @@ export const handleLegacyMuteTopic = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const op = req.body["op"] as string;
-  const stream = req.body["stream"] as string | undefined;
-  const streamId = req.body["stream_id"] as string | undefined;
-  const topic = req.body["topic"] as string;
+  const op = body["op"] as string;
+  const stream = body["stream"] as string | undefined;
+  const streamId = body["stream_id"] as string | undefined;
+  const topic = body["topic"] as string;
 
   const result = await legacyMuteTopicDomain(app.options, user, {
     op,

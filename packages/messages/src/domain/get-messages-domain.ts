@@ -2,7 +2,9 @@ import type { int } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
-import { List, Dictionary } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { Convert } from "@tsonic/dotnet/System.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getMessages } from "../repo/get-messages.ts";
 import { getReactionsForMessage } from "../repo/get-reactions-for-message.ts";
 
@@ -28,14 +30,14 @@ interface GetMessagesDomainResult {
 }
 
 const parseNarrow = (narrowStr: string | undefined): NarrowFilter[] => {
-  if (narrowStr === undefined || narrowStr.Length === 0) {
+  if (narrowStr === undefined || narrowStr.length === 0) {
     return [];
   }
-  try {
-    return JSON.parse(narrowStr) as NarrowFilter[];
-  } catch (_e) {
+  const parsed = JsonSerializer.Deserialize<NarrowFilter[]>(narrowStr);
+  if (parsed === undefined) {
     return [];
   }
+  return parsed;
 };
 
 const extractFilter = (filters: NarrowFilter[], operator: string): string | undefined => {
@@ -127,7 +129,8 @@ export const getMessagesDomain = async (
 
   // Load flags for the requesting user
   const db2 = new JotsterDbContext(options);
-  let userFlagMap: Dictionary<string, List<string>>;
+  const userFlagMap: Record<string, List<string>> = {};
+  const userFlagMapKeys = new List<string>();
   try {
     const db2_0 = db2;
     const userId0 = user.userId;
@@ -135,11 +138,18 @@ export const getMessagesDomain = async (
       .Where((f) => f.UserId === userId0)
       .ToArrayAsync();
 
-    userFlagMap = new Dictionary<string, List<string>>();
-    for (let i = 0; i < allFlags.Length; i++) {
+    for (let i = 0; i < allFlags.length; i++) {
       const flag = allFlags[i];
-      if (!userFlagMap.ContainsKey(flag.MessageId)) {
+      let keyExists = false;
+      for (let k = 0; k < userFlagMapKeys.Count; k++) {
+        if (userFlagMapKeys[k] === flag.MessageId) {
+          keyExists = true;
+          break;
+        }
+      }
+      if (!keyExists) {
         userFlagMap[flag.MessageId] = new List<string>();
+        userFlagMapKeys.Add(flag.MessageId);
       }
       userFlagMap[flag.MessageId].Add(flag.Flag);
     }
@@ -149,13 +159,13 @@ export const getMessagesDomain = async (
 
   // Build formatted message objects
   const formattedMessages = new List<Record<string, unknown>>();
-  for (let i = 0; i < messages.Length; i++) {
+  for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
 
     // Load reactions for this message
     const reactions = await getReactionsForMessage(options, user.tenantId, msg.Id);
     const reactionList = new List<Record<string, unknown>>();
-    for (let j = 0; j < reactions.Length; j++) {
+    for (let j = 0; j < reactions.length; j++) {
       const r = reactions[j];
       const reactionObj: Record<string, unknown> = {};
       reactionObj["emoji_name"] = r.EmojiName;
@@ -166,7 +176,15 @@ export const getMessagesDomain = async (
     }
 
     // Get flags for this message
-    const msgFlags = userFlagMap.ContainsKey(msg.Id) ? userFlagMap[msg.Id].ToArray() : [];
+    let hasFlags = false;
+    for (let fi = 0; fi < userFlagMapKeys.Count; fi++) {
+      if (userFlagMapKeys[fi] === msg.Id) {
+        hasFlags = true;
+        break;
+      }
+    }
+    const emptyFlags: string[] = [];
+    const msgFlags = hasFlags ? userFlagMap[msg.Id].ToArray() : emptyFlags;
 
     const formatted: Record<string, unknown> = {};
     formatted["id"] = msg.Id;
@@ -174,7 +192,7 @@ export const getMessagesDomain = async (
     formatted["type"] = msg.Type === "stream" ? "stream" : "direct";
     formatted["content"] = applyMarkdown ? msg.RenderedContent : msg.Content;
     formatted["subject"] = msg.Topic ?? "";
-    formatted["timestamp"] = Number(msg.CreatedAt) / 1000;
+    formatted["timestamp"] = Convert.ToDouble(msg.CreatedAt) / 1000;
     formatted["stream_id"] = msg.ChannelId;
     formatted["dm_group_id"] = msg.DmGroupId;
     formatted["reactions"] = reactionList.ToArray();
@@ -191,8 +209,8 @@ export const getMessagesDomain = async (
 
   // Determine pagination metadata
   const foundAnchor = anchor !== "newest" && anchor !== "oldest";
-  const foundNewest = messages.Length < numAfter || anchor === "newest";
-  const foundOldest = messages.Length < numBefore || anchor === "oldest";
+  const foundNewest = messages.length < numAfter || anchor === "newest";
+  const foundOldest = messages.length < numBefore || anchor === "oldest";
 
   return ok({
     messages: formattedMessages.ToArray(),

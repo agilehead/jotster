@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { renderMarkdownDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -14,7 +15,8 @@ export const handleRenderMessage = async (
     return;
   }
 
-  const content = req.body["content"] as string;
+  const body = getBodyObject(req);
+  const content = body["content"] as string;
 
   const result = await renderMarkdownDomain(content);
   if (!result.success) {

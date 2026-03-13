@@ -20,7 +20,7 @@ export const handleGetUsers = async (
   const data = await getUsers(app.options, user.tenantId);
 
   const members = new List<Record<string, unknown>>();
-  for (let i = 0; i < data.Length; i++) {
+  for (let i = 0; i < data.length; i++) {
     members.Add(mapUserToResponse(data[i]));
   }
 

@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updatePresenceDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,12 +16,14 @@ export const handleUpdatePresence = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const status = req.body["status"] as string;
-  const client = req.body["client"] as string;
-  const pingOnly = req.body["ping_only"] === "true" || req.body["ping_only"] === true;
+  const status = body["status"] as string;
+  const client = body["client"] as string;
+  const pingOnly = body["ping_only"] === "true" || body["ping_only"] === true;
+  const input = { status, client, pingOnly };
 
-  const result = await updatePresenceDomain(app.options, user, { status, client, pingOnly });
+  const result = await updatePresenceDomain(app.options, user, input);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

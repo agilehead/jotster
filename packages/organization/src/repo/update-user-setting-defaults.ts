@@ -1,5 +1,6 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, TenantUserSettingDefault } from "@jotster/core/Jotster.Core.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export const updateUserSettingDefaults = async (
   options: DbContextOptions,
@@ -17,23 +18,27 @@ export const updateUserSettingDefaults = async (
 
     if (record !== undefined) {
       // Merge into existing settings
-      const existing: Record<string, unknown> = record.SettingsJson.Length > 0
-        ? JSON.parse(record.SettingsJson) as Record<string, unknown>
-        : {};
-
-      const keys = Object.keys(updates);
-      for (let i = 0; i < keys.length; i++) {
-        existing[keys[i]] = updates[keys[i]];
+      let existing: Record<string, unknown> = {};
+      if (record.SettingsJson.length > 0) {
+        const parsed = JsonSerializer.Deserialize<Record<string, unknown>>(record.SettingsJson);
+        if (parsed !== undefined) {
+          existing = parsed;
+        }
       }
 
-      record.SettingsJson = JSON.stringify(existing);
+      const updateKeys = updates.Keys;
+      for (let i = 0; i < updateKeys.length; i++) {
+        existing[updateKeys[i]] = updates[updateKeys[i]];
+      }
+
+      record.SettingsJson = JsonSerializer.Serialize(existing);
       await db.SaveChangesAsync();
       return existing;
     } else {
       // Create new record
       const newRecord = new TenantUserSettingDefault();
       newRecord.TenantId = tenantId;
-      newRecord.SettingsJson = JSON.stringify(updates);
+      newRecord.SettingsJson = JsonSerializer.Serialize(updates);
 
       db.TenantUserSettingDefaults.Add(newRecord);
       await db.SaveChangesAsync();

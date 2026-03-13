@@ -13,14 +13,14 @@ export const registerDeviceDomain = async (
   iosAppId: string | undefined
 ): Promise<Result<Record<string, unknown>, string>> => {
   // Validate token is non-empty
-  if (!token || token.Trim().Length === 0) {
+  if (!token || token.trim().length === 0) {
     return err("Token must not be empty");
   }
 
   // For APNs tokens, validate hex format
   if (kind === "apns") {
-    const trimmedToken = token.Trim();
-    for (let i = 0; i < trimmedToken.Length; i++) {
+    const trimmedToken = token.trim();
+    for (let i = 0; i < trimmedToken.length; i++) {
       const c = trimmedToken[i];
       const isHex =
         (c >= "0" && c <= "9") ||
@@ -34,7 +34,7 @@ export const registerDeviceDomain = async (
 
   // Check if same token is registered to a different user — if so, unregister from other user first
   const existingTokens = await getTokensByToken(options, user.tenantId, token);
-  for (let i = 0; i < existingTokens.Length; i++) {
+  for (let i = 0; i < existingTokens.length; i++) {
     if (existingTokens[i].UserId !== user.userId) {
       await unregisterPushToken(
         options,

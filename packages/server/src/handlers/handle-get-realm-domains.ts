@@ -20,7 +20,7 @@ export const handleGetRealmDomains = async (
   const domains = await getRealmDomains(app.options, user.tenantId);
 
   const result = new List<Record<string, unknown>>();
-  for (let i = 0; i < domains.Length; i++) {
+  for (let i = 0; i < domains.length; i++) {
     const d = domains[i];
     const obj: Record<string, unknown> = {};
     obj["domain"] = d.Domain;

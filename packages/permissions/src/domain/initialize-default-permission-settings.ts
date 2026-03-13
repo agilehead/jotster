@@ -40,13 +40,30 @@ export const initializeDefaultPermissionSettings = async (
 
     // Build name → id lookup
     const nameToId: Record<string, string> = {};
-    for (let i = 0; i < systemGroups.Length; i++) {
+    for (let i = 0; i < systemGroups.length; i++) {
       nameToId[systemGroups[i].Name] = systemGroups[i].Id;
     }
 
     // Map each default setting name to the group ID
     const settings: Record<string, string> = {};
-    const settingNames = Object.keys(PERMISSION_DEFAULTS);
+    const settingNames: string[] = [
+      "create_public_stream_policy",
+      "create_private_stream_policy",
+      "create_web_public_stream_policy",
+      "invite_to_realm_policy",
+      "invite_to_stream_policy",
+      "move_messages_between_streams_policy",
+      "edit_topic_policy",
+      "wildcard_mention_policy",
+      "user_group_edit_policy",
+      "can_create_groups",
+      "can_manage_all_groups",
+      "can_add_custom_emoji",
+      "can_delete_any_message",
+      "can_delete_own_message",
+      "can_access_all_users_group",
+      "direct_message_permission_group",
+    ];
 
     for (let i = 0; i < settingNames.length; i++) {
       const settingName = settingNames[i];

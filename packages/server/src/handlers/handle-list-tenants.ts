@@ -9,7 +9,7 @@ export const handleListTenants = async (
   app: AppContext
 ): Promise<void> => {
   const authHeader = req.get("authorization") ?? "";
-  const rootToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring(7).Trim() : "";
+  const rootToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7).trim() : "";
 
   const result = await listTenantsAdmin(app.options, app.config, rootToken);
   if (!result.success) {
@@ -20,7 +20,7 @@ export const handleListTenants = async (
 
   const data = result.data;
   const tenants = new List<Record<string, unknown>>();
-  for (let i = 0; i < data.Length; i++) {
+  for (let i = 0; i < data.length; i++) {
     const t = data[i];
     tenants.Add({
       id: t.Id,

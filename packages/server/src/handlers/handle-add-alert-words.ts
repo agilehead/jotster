@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { addAlertWordsDomain } from "@jotster/notifications/Jotster.Notifications.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,8 +16,9 @@ export const handleAddAlertWords = async (
   }
 
   const user = authResult.data;
+  const body = getBodyObject(req);
 
-  const alertWordsRaw = req.body["alert_words"] as string;
+  const alertWordsRaw = body["alert_words"] as string;
   if (!alertWordsRaw) {
     res.status(400).json({ result: "error", msg: "Missing required field: alert_words" });
     return;

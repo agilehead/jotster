@@ -17,7 +17,7 @@ export const getChannelSubscribers = async (
       .ToArrayAsync();
 
     const ids = new List<string>();
-    for (let i = 0; i < subs.Length; i++) {
+    for (let i = 0; i < subs.length; i++) {
       ids.Add(subs[i].UserId);
     }
     return ids.ToArray();

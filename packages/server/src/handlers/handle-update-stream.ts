@@ -1,6 +1,8 @@
+import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateChannelDomain } from "@jotster/channels/Jotster.Channels.js";
+import { getBodyObject, toOptionalFlagInt, toOptionalInt } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateStream = async (
@@ -17,22 +19,22 @@ export const handleUpdateStream = async (
   const user = authResult.data;
   const streamId = req.params["stream_id"] as string;
 
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
   const updates: {
     name?: string;
     description?: string;
-    isPrivate?: boolean;
-    isWebPublic?: boolean;
-    historyPublicToSubscribers?: boolean;
-    messageRetentionDays?: number;
+    isPrivate?: int;
+    isWebPublic?: int;
+    historyPublicToSubscribers?: int;
+    messageRetentionDays?: int;
   } = {};
 
   if (body["new_name"] !== undefined) updates.name = body["new_name"] as string;
   if (body["description"] !== undefined) updates.description = body["description"] as string;
-  if (body["is_private"] !== undefined) updates.isPrivate = body["is_private"] as boolean;
-  if (body["is_web_public"] !== undefined) updates.isWebPublic = body["is_web_public"] as boolean;
-  if (body["history_public_to_subscribers"] !== undefined) updates.historyPublicToSubscribers = body["history_public_to_subscribers"] as boolean;
-  if (body["message_retention_days"] !== undefined) updates.messageRetentionDays = body["message_retention_days"] as number;
+  if (body["is_private"] !== undefined) updates.isPrivate = toOptionalFlagInt(body["is_private"]);
+  if (body["is_web_public"] !== undefined) updates.isWebPublic = toOptionalFlagInt(body["is_web_public"]);
+  if (body["history_public_to_subscribers"] !== undefined) updates.historyPublicToSubscribers = toOptionalFlagInt(body["history_public_to_subscribers"]);
+  if (body["message_retention_days"] !== undefined) updates.messageRetentionDays = toOptionalInt(body["message_retention_days"]);
 
   const result = await updateChannelDomain(app.options, user, streamId, updates);
   if (!result.success) {

@@ -12,7 +12,7 @@ export const createCustomEmojiDomain = async (
   emojiName: string
 ): Promise<Result<CustomEmoji, string>> => {
   // Validate emoji name is not empty
-  if (emojiName.Length === 0) {
+  if (emojiName.length === 0) {
     return err("Emoji name cannot be empty");
   }
 
@@ -35,12 +35,13 @@ export const createCustomEmojiDomain = async (
   // Build full emoji map and dispatch realm_emoji event
   const emojiMap = await getCustomEmojisDomain(options, user.tenantId);
 
+  const eventData: Record<string, unknown> = {};
+  eventData["realm_emoji"] = emojiMap;
+
   dispatchEventToTenant(user.tenantId, {
     type: "realm_emoji",
     op: "update",
-    data: {
-      realm_emoji: emojiMap,
-    },
+    data: eventData,
   });
 
   return ok(emoji);

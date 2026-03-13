@@ -29,7 +29,7 @@ export const getChannelFolderById = async (
       .ToArrayAsync();
 
     const itemList = new List<ChannelFolderItem>();
-    for (let i = 0; i < items.Length; i++) {
+    for (let i = 0; i < items.length; i++) {
       itemList.Add(items[i]);
     }
 

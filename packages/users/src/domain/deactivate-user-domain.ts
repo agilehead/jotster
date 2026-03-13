@@ -44,7 +44,7 @@ export const deactivateUserDomain = async (
         )
         .ToArrayAsync();
 
-      if (owners.Length <= 1) {
+      if (owners.length <= 1) {
         return err("Cannot deactivate the only organization owner");
       }
     } finally {

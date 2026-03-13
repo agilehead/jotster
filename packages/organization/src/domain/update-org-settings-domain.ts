@@ -1,6 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { updateTenantSettings } from "../repo/update-tenant-settings.ts";
 
@@ -20,8 +21,12 @@ export const updateOrgSettingsDomain = async (
   }
 
   // Emit realm event
-  const keys = Object.keys(settings);
-  if (keys.length === 1) {
+  const settingsKeys = settings.Keys;
+  const keys = new List<string>();
+  for (let i = 0; i < settingsKeys.length; i++) {
+    keys.Add(settingsKeys[i]);
+  }
+  if (keys.Count === 1) {
     const key = keys[0];
     dispatchEventToTenant(user.tenantId, {
       type: "realm",
@@ -31,9 +36,9 @@ export const updateOrgSettingsDomain = async (
         value: settings[key],
       },
     });
-  } else if (keys.length > 1) {
+  } else if (keys.Count > 1) {
     const data: Record<string, unknown> = {};
-    for (let i = 0; i < keys.length; i++) {
+    for (let i = 0; i < keys.Count; i++) {
       data[keys[i]] = settings[keys[i]];
     }
     dispatchEventToTenant(user.tenantId, {

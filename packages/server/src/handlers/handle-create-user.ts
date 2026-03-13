@@ -1,4 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
+import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createUserDomain } from "@jotster/users/Jotster.Users.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -15,16 +16,18 @@ export const handleCreateUser = async (
   }
 
   const user = authResult.data;
-  const email = req.body["email"] as string | undefined;
-  const password = req.body["password"] as string | undefined;
-  const fullName = req.body["full_name"] as string | undefined;
+  const body = getBodyObject(req);
+  const email = body["email"] as string | undefined;
+  const password = body["password"] as string | undefined;
+  const fullName = body["full_name"] as string | undefined;
 
   if (!email || !password || !fullName) {
     res.status(400).json({ result: "error", msg: "Missing required fields: email, password, full_name" });
     return;
   }
 
-  const result = await createUserDomain(app.options, user, { email, password, fullName });
+  const input = { email, password, fullName };
+  const result = await createUserDomain(app.options, user, input);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

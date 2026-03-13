@@ -15,7 +15,7 @@ export const getBotStorage = async (
       .ToArrayAsync();
 
     const entries = new List<BotStorage>();
-    for (let i = 0; i < result.Length; i++) {
+    for (let i = 0; i < result.length; i++) {
       entries.Add(result[i]);
     }
     return entries.ToArray();

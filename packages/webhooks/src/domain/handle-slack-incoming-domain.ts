@@ -16,7 +16,7 @@ const convertSlackToZulipMarkdown = (text: string): string => {
 
   // Slack bold: *text* -> Zulip bold: **text**
   // Be careful: Slack uses single asterisks, Zulip uses double
-  result = result.Replace("*", "**");
+  result = result.replace("*", "**");
 
   // Slack links: <url|text> -> Zulip: [text](url)
   // Simple replacement for common patterns
@@ -64,7 +64,7 @@ export const handleSlackIncomingDomain = async (
   const channel = body["channel"] as string | undefined;
   const username = body["username"] as string | undefined;
 
-  if (text === undefined || text.Trim().Length === 0) {
+  if (text === undefined || text.trim().length === 0) {
     return err("Message text must not be empty");
   }
 
@@ -72,24 +72,24 @@ export const handleSlackIncomingDomain = async (
   const content = convertSlackToZulipMarkdown(text);
 
   // Resolve stream: use explicit stream param, or channel from payload (strip # prefix)
-  let stream = (input.stream ?? "").Trim();
-  if (stream.Length === 0 && channel !== undefined) {
-    let channelName = channel.Trim();
-    if (channelName.StartsWith("#")) {
-      channelName = channelName.Substring(1);
+  let stream = (input.stream ?? "").trim();
+  if (stream.length === 0 && channel !== undefined) {
+    let channelName = channel.trim();
+    if (channelName.startsWith("#")) {
+      channelName = channelName.substring(1);
     }
     stream = channelName;
   }
 
-  if (stream.Length === 0) {
+  if (stream.length === 0) {
     return err("Stream/channel must be specified");
   }
 
   // Topic: use explicit topic param, or username, or default
-  let topic = (input.topic ?? "").Trim();
-  if (topic.Length === 0) {
-    if (username !== undefined && username.Trim().Length > 0) {
-      topic = username.Trim();
+  let topic = (input.topic ?? "").trim();
+  if (topic.length === 0) {
+    if (username !== undefined && username.trim().length > 0) {
+      topic = username.trim();
     } else {
       topic = "Slack incoming";
     }

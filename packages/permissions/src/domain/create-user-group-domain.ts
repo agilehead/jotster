@@ -23,13 +23,13 @@ export const createUserGroupDomain = async (
     return err("Admin required");
   }
 
-  const name = input.name.Trim();
+  const name = input.name.trim();
 
-  if (name.Length === 0) {
+  if (name.length === 0) {
     return err("Group name must not be empty");
   }
 
-  if (name.Length > 100) {
+  if (name.length > 100) {
     return err("Group name too long");
   }
 
