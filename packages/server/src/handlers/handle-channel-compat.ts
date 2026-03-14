@@ -26,6 +26,10 @@ export const handleCreateChannelFolderCompat = async (
   if (requester === undefined) {
     return;
   }
+  if (requester.role > 200) {
+    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    return;
+  }
 
   const body = getBodyObject(req);
   const name = getOptionalStringField(body, "name");

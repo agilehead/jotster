@@ -32,6 +32,14 @@ const mapLinkifiers = (entries: Linkifier[]): Record<string, unknown>[] => {
   return result;
 };
 
+const rejectNonAdmin = (res: Response): void => {
+  res.status(400).json({
+    result: "error",
+    msg: "Must be an organization administrator",
+    code: "UNAUTHORIZED_PRINCIPAL",
+  });
+};
+
 export const handleReorderProfileFieldsCompat = async (
   req: Request,
   res: Response,
@@ -39,6 +47,10 @@ export const handleReorderProfileFieldsCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
     return;
   }
 
@@ -85,6 +97,10 @@ export const handleReorderLinkifiersCompat = async (
   if (requester === undefined) {
     return;
   }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
+    return;
+  }
 
   const body = getBodyObject(req);
   const orderedIds = getOptionalStringArrayField(body, "ordered_linkifier_ids");
@@ -109,6 +125,10 @@ export const handleCreateLinkifierCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
     return;
   }
 
@@ -146,6 +166,10 @@ export const handleUpdateLinkifierCompat = async (
   if (requester === undefined) {
     return;
   }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
+    return;
+  }
 
   const body = getBodyObject(req);
   const ok = await updateLinkifier(app.options, requester.tenantId, normalizeFilterId(req.params["filter_id"] as string), {
@@ -172,6 +196,10 @@ export const handleDeleteLinkifierCompat = async (
   if (requester === undefined) {
     return;
   }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
+    return;
+  }
 
   const ok = await deleteLinkifier(app.options, requester.tenantId, normalizeFilterId(req.params["filter_id"] as string));
   if (!ok) {
@@ -189,6 +217,10 @@ export const handleTestWelcomeBotCustomMessageCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
     return;
   }
 

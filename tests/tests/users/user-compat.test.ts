@@ -62,6 +62,27 @@ describe("User compatibility endpoints", () => {
     expect((getRes.body.status as Record<string, unknown>).status_text).to.equal("reviewing");
   });
 
+  it("POST /api/v1/users/{user_id}/status should reject non-admin requesters and unknown users", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+    const member = await seedUser(db, tenantId);
+
+    const memberRes = await member.client.post(`/users/${admin.userId}/status`, {
+      status_text: "reviewing",
+    });
+    expect(memberRes.status).to.equal(403);
+    expect(memberRes.body.msg).to.equal("Insufficient permission");
+    expect(memberRes.body.code).to.equal("BAD_REQUEST");
+
+    const missingUserRes = await admin.client.post("/users/missing-user/status", {
+      status_text: "reviewing",
+    });
+    expect(missingUserRes.status).to.equal(400);
+    expect(missingUserRes.body.msg).to.equal("User not found");
+    expect(missingUserRes.body.code).to.equal("BAD_REQUEST");
+  });
+
   it("GET /api/v1/bots/{bot_id}/api_key and POST /api/v1/bots/{bot_id}/api_key/regenerate should work for a bot owner", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -102,6 +123,20 @@ describe("User compatibility endpoints", () => {
     expect(getRes.body.result).to.equal("error");
 
     const regenerateRes = await member.client.post(`/bots/${bot.userId}/api_key/regenerate`);
+    expect(regenerateRes.status).to.equal(400);
+    expect(regenerateRes.body.result).to.equal("error");
+  });
+
+  it("bot api key compat endpoints should reject unknown bot ids", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+
+    const getRes = await admin.client.get("/bots/missing-bot/api_key");
+    expect(getRes.status).to.equal(400);
+    expect(getRes.body.result).to.equal("error");
+
+    const regenerateRes = await admin.client.post("/bots/missing-bot/api_key/regenerate");
     expect(regenerateRes.status).to.equal(400);
     expect(regenerateRes.body.result).to.equal("error");
   });

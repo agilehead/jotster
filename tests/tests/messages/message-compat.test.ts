@@ -50,6 +50,24 @@ describe("Message compatibility endpoints", () => {
     expect(topicFlagRows.map((row) => row.message_id)).to.deep.equal([topicMessageId]);
   });
 
+  it("mark-as-read compat endpoints should validate required fields", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const seeded = await seedUser(db, tenantId);
+
+    const missingStreamRes = await seeded.client.post("/mark_stream_as_read");
+    expect(missingStreamRes.status).to.equal(400);
+    expect(missingStreamRes.body.msg).to.equal("Missing required field: stream_id");
+    expect(missingStreamRes.body.code).to.equal("BAD_REQUEST");
+
+    const missingTopicRes = await seeded.client.post("/mark_topic_as_read", {
+      stream_id: "stream",
+    });
+    expect(missingTopicRes.status).to.equal(400);
+    expect(missingTopicRes.body.msg).to.equal("Missing required field");
+    expect(missingTopicRes.body.code).to.equal("BAD_REQUEST");
+  });
+
   it("POST /api/v1/messages/flags/narrow and GET /api/v1/messages/matches_narrow should update flags for a narrow and report matching messages", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -95,6 +113,28 @@ describe("Message compatibility endpoints", () => {
     expect(messages[matchingMessageId].match_subject).to.equal("incident");
   });
 
+  it("messages narrow compat endpoints should reject invalid payloads", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const seeded = await seedUser(db, tenantId);
+
+    const missingFlagRes = await seeded.client.post("/messages/flags/narrow", {
+      narrow: JSON.stringify([{ operator: "is", operand: "mentioned" }]),
+      op: "add",
+    });
+    expect(missingFlagRes.status).to.equal(400);
+    expect(missingFlagRes.body.msg).to.equal("Missing required field");
+    expect(missingFlagRes.body.code).to.equal("BAD_REQUEST");
+
+    const invalidMsgIdsRes = await seeded.client.get("/messages/matches_narrow", {
+      msg_ids: "not-json",
+      narrow: JSON.stringify([{ operator: "is", operand: "mentioned" }]),
+    });
+    expect(invalidMsgIdsRes.status).to.equal(400);
+    expect(invalidMsgIdsRes.body.msg).to.equal("Invalid msg_ids");
+    expect(invalidMsgIdsRes.body.code).to.equal("BAD_REQUEST");
+  });
+
   it("POST /api/v1/messages/{message_id}/report, POST /api/v1/messages/{message_id}/typing, and GET /thumbnail/status/{realm_id_str}/{filename} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -120,6 +160,29 @@ describe("Message compatibility endpoints", () => {
     const thumbnailRes = await client.getRaw(`/thumbnail/status/${tenantId}/example.png`);
     expect(thumbnailRes.status).to.equal(200);
     expect(thumbnailRes.body.has_thumbnail).to.equal(false);
+  });
+
+  it("message report and typing compat endpoints should validate report_type and op", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client, userId } = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "moderation-errors" });
+    await seedSubscription(db, tenantId, userId, channelId);
+    const messageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "report",
+      content: "Needs review",
+    });
+
+    const missingReportTypeRes = await client.post(`/messages/${messageId}/report`);
+    expect(missingReportTypeRes.status).to.equal(400);
+    expect(missingReportTypeRes.body.msg).to.equal("Missing report_type");
+    expect(missingReportTypeRes.body.code).to.equal("BAD_REQUEST");
+
+    const invalidTypingOpRes = await client.post(`/messages/${messageId}/typing`, { op: "pause" });
+    expect(invalidTypingOpRes.status).to.equal(400);
+    expect(invalidTypingOpRes.body.msg).to.equal("Invalid op");
+    expect(invalidTypingOpRes.body.code).to.equal("BAD_REQUEST");
   });
 
   it("POST /api/v1/messages/render and GET /api/v1/messages/{message_id}/read_receipts should render markdown and return read receipts", async () => {

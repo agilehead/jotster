@@ -30,6 +30,41 @@ describe("Channel compatibility endpoints", () => {
     expect(ordering.get(secondId)).to.equal(0);
   });
 
+  it("channel folder compat endpoints should enforce admin auth and validate the order payload", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+    const member = await seedUser(db, tenantId);
+
+    const memberCreateRes = await member.client.post("/channel_folders/create", {
+      name: "member-folder",
+      description: "Member folder",
+    });
+    expect(memberCreateRes.status).to.equal(400);
+    expect(memberCreateRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberCreateRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
+
+    const folderRes = await admin.client.post("/channel_folders/create", {
+      name: "admin-folder",
+      description: "Admin folder",
+    });
+    const folderId = folderRes.body.channel_folder_id as string;
+
+    const memberReorderRes = await member.client.patch("/channel_folders", {
+      order: JSON.stringify([folderId]),
+    });
+    expect(memberReorderRes.status).to.equal(400);
+    expect(memberReorderRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberReorderRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
+
+    const missingOrderRes = await admin.client.patch("/channel_folders", {
+      order: "not-json",
+    });
+    expect(missingOrderRes.status).to.equal(400);
+    expect(missingOrderRes.body.msg).to.equal("Invalid order mapping");
+    expect(missingOrderRes.body.code).to.equal("BAD_REQUEST");
+  });
+
   it("GET /api/v1/streams/{stream_id}/email_address and POST /api/v1/streams/{stream_id}/delete_topic should return an email address and delete a topic", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db, { subdomain: "compat-mail" });
@@ -60,6 +95,29 @@ describe("Channel compatibility endpoints", () => {
 
     const remaining = await db("message").where({ tenant_id: tenantId, channel_id: channelId, topic: "cleanup" });
     expect(remaining).to.have.length(0);
+  });
+
+  it("stream email and delete-topic compat endpoints should reject invalid channels and missing topic names", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const seeded = await seedUser(db, tenantId);
+
+    const emailRes = await seeded.client.get("/streams/missing-stream/email_address");
+    expect(emailRes.status).to.equal(400);
+    expect(emailRes.body.msg).to.equal("Invalid channel");
+    expect(emailRes.body.code).to.equal("BAD_REQUEST");
+
+    const missingTopicRes = await seeded.client.post("/streams/missing-stream/delete_topic");
+    expect(missingTopicRes.status).to.equal(400);
+    expect(missingTopicRes.body.msg).to.equal("Missing required field: topic_name");
+    expect(missingTopicRes.body.code).to.equal("BAD_REQUEST");
+
+    const invalidChannelRes = await seeded.client.post("/streams/missing-stream/delete_topic", {
+      topic_name: "cleanup",
+    });
+    expect(invalidChannelRes.status).to.equal(400);
+    expect(invalidChannelRes.body.msg).to.equal("Invalid channel");
+    expect(invalidChannelRes.body.code).to.equal("BAD_REQUEST");
   });
 
   it("POST /api/v1/default_streams and DELETE /api/v1/default_streams should add and remove a default stream", async () => {
@@ -173,5 +231,29 @@ describe("Channel compatibility endpoints", () => {
       topic: "announcements",
     });
     expect(unmutedRows).to.have.length(0);
+  });
+
+  it("PATCH /api/v1/users/me/subscriptions/muted_topics should validate visibility policy inputs", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const seeded = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "muted-topics-errors" });
+    await seedSubscription(db, tenantId, seeded.userId, channelId);
+
+    const invalidOpRes = await seeded.client.patch("/users/me/subscriptions/muted_topics", {
+      op: "invalid",
+      stream_id: channelId,
+      topic: "announcements",
+    });
+    expect(invalidOpRes.status).to.equal(400);
+    expect(invalidOpRes.body.msg).to.equal("Invalid op: must be 'add' or 'remove'");
+
+    const invalidChannelRes = await seeded.client.patch("/users/me/subscriptions/muted_topics", {
+      op: "add",
+      stream_id: "missing-channel",
+      topic: "announcements",
+    });
+    expect(invalidChannelRes.status).to.equal(400);
+    expect(invalidChannelRes.body.msg).to.equal("Channel not found");
   });
 });
