@@ -56,6 +56,7 @@ describe("GET /api/v1/streams/{stream_id}", () => {
     const res = await client.get("/streams/nonexistent_id_999");
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 404]);
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });
 
@@ -81,5 +82,6 @@ describe("GET /api/v1/get_stream_id", () => {
     const res = await client.get("/get_stream_id", { stream: "does-not-exist" });
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 404]);
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

@@ -54,6 +54,7 @@ describe("GET /api/v1/users/{user_id}", () => {
     const res = await client.get("/users/nonexistent_id_999");
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 404]);
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });
 

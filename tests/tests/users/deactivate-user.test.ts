@@ -32,6 +32,7 @@ describe("DELETE /api/v1/users/{user_id}", () => {
 
     const res = await client.delete("/users/nonexistent_id_999");
     expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });
 
@@ -78,5 +79,6 @@ describe("POST /api/v1/users/{user_id}/reactivate", () => {
     const res = await memberClient.post(`/users/${targetUserId}/reactivate`);
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 403]);
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

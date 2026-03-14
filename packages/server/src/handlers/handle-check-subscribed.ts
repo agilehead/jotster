@@ -20,7 +20,7 @@ export const handleCheckSubscribed = async (
 
   const result = await checkSubscribedDomain(app.options, user, targetUserId, streamId);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

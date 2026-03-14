@@ -19,13 +19,13 @@ export const handleGetStreamId = async (
   const streamName = getOptionalStringField(req.query as Record<string, unknown>, "stream");
 
   if (!streamName) {
-    res.status(400).json({ result: "error", msg: "Missing required parameter: stream" });
+    res.status(400).json({ result: "error", msg: "Missing required parameter: stream", code: "BAD_REQUEST" });
     return;
   }
 
   const result = await getChannelIdByName(app.options, user.tenantId, streamName);
   if (!result.success) {
-    res.status(404).json({ result: "error", msg: result.error });
+    res.status(404).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

@@ -24,12 +24,12 @@ export const handleGetMessages = async (
   const applyMarkdown = getOptionalStringField(query, "apply_markdown");
   const parsedNumBefore = numBefore === undefined ? undefined : toOptionalInt(numBefore);
   if (numBefore !== undefined && parsedNumBefore === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid num_before" });
+    res.status(400).json({ result: "error", msg: "Invalid num_before", code: "BAD_REQUEST" });
     return;
   }
   const parsedNumAfter = numAfter === undefined ? undefined : toOptionalInt(numAfter);
   if (numAfter !== undefined && parsedNumAfter === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid num_after" });
+    res.status(400).json({ result: "error", msg: "Invalid num_after", code: "BAD_REQUEST" });
     return;
   }
 
@@ -42,7 +42,7 @@ export const handleGetMessages = async (
   });
 
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

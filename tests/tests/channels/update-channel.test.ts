@@ -55,6 +55,7 @@ describe("PATCH /api/v1/streams/{stream_id}", () => {
     });
 
     expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });
 
@@ -88,5 +89,6 @@ describe("DELETE /api/v1/streams/{stream_id}", () => {
 
     const res = await client.delete("/streams/nonexistent_id_999");
     expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

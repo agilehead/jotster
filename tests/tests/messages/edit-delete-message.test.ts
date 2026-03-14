@@ -91,6 +91,7 @@ describe("DELETE /api/v1/messages/{message_id}", function () {
 
     expect(res.body.result).to.equal("error");
     expect(res.body).to.have.property("msg");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });
 

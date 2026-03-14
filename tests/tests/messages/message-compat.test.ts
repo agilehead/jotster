@@ -155,4 +155,16 @@ describe("Message compatibility endpoints", () => {
     expect(receiptsRes.body.result).to.equal("success");
     expect(receiptsRes.body.user_ids).to.deep.equal([reader.userId]);
   });
+
+  it("POST /api/v1/messages/render should return BAD_REQUEST when content is missing", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+
+    const renderRes = await sender.client.post("/messages/render");
+
+    expect(renderRes.status).to.equal(400);
+    expect(renderRes.body.result).to.equal("error");
+    expect(renderRes.body.code).to.equal("BAD_REQUEST");
+  });
 });

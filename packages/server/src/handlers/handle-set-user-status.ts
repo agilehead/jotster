@@ -25,7 +25,7 @@ export const handleSetUserStatus = async (
 
   const result = await setUserStatusDomain(app.options, user, { statusText, emojiName, emojiCode, reactionType });
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

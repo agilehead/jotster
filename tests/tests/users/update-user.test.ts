@@ -55,5 +55,6 @@ describe("PATCH /api/v1/users/{user_id}", () => {
     });
 
     expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

@@ -21,18 +21,18 @@ export const handleGetEvents = async (
 
   const queueId = getOptionalStringField(query, "queue_id");
   if (!queueId) {
-    res.status(400).json({ result: "error", msg: "Missing required parameter: queue_id" });
+    res.status(400).json({ result: "error", msg: "Missing required parameter: queue_id", code: "BAD_REQUEST" });
     return;
   }
 
   const lastEventIdRaw = getOptionalStringField(query, "last_event_id");
   if (lastEventIdRaw === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required parameter: last_event_id" });
+    res.status(400).json({ result: "error", msg: "Missing required parameter: last_event_id", code: "BAD_REQUEST" });
     return;
   }
   const lastEventId = toOptionalInt(lastEventIdRaw);
   if (lastEventId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid last_event_id" });
+    res.status(400).json({ result: "error", msg: "Invalid last_event_id", code: "BAD_REQUEST" });
     return;
   }
 

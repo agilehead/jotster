@@ -19,7 +19,7 @@ export const handleGetUserStatus = async (
 
   const result = await getUserStatusDomain(app.options, user, userId);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

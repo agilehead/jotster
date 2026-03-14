@@ -16,7 +16,7 @@ export const handleRegenerateApiKey = async (
   const user = authResult.data;
   const result = await regenerateApiKey(app.options, user.tenantId, user.userId);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

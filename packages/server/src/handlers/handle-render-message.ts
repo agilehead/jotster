@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { renderMarkdownDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -16,11 +16,15 @@ export const handleRenderMessage = async (
   }
 
   const body = getBodyObject(req);
-  const content = body["content"] as string;
+  const content = getOptionalStringField(body, "content");
+  if (content === undefined) {
+    res.status(400).json({ result: "error", msg: "Missing required field: content", code: "BAD_REQUEST" });
+    return;
+  }
 
   const result = await renderMarkdownDomain(content);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

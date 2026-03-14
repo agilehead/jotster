@@ -19,7 +19,7 @@ export const handleReactivateUser = async (
 
   const result = await reactivateUserDomain(app.options, user, targetId);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 
