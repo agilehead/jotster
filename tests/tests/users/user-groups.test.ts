@@ -74,7 +74,7 @@ describe("POST /api/v1/user_groups/create", () => {
   });
 });
 
-describe("PATCH /api/v1/user_groups/:group_id", () => {
+describe("PATCH /api/v1/user_groups/{user_group_id}", () => {
   it("should update a user group name", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -107,7 +107,7 @@ describe("PATCH /api/v1/user_groups/:group_id", () => {
   });
 });
 
-describe("POST /api/v1/user_groups/:group_id/deactivate", () => {
+describe("POST /api/v1/user_groups/{user_group_id}/deactivate", () => {
   it("should deactivate a user group", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -137,7 +137,7 @@ describe("POST /api/v1/user_groups/:group_id/deactivate", () => {
 });
 
 describe("User group compatibility endpoints", () => {
-  it("should report recursive and direct membership status", async () => {
+  it("POST /api/v1/user_groups/{user_group_id}/members and GET /api/v1/user_groups/{user_group_id}/members/{user_id} should report recursive and direct membership status", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -175,7 +175,7 @@ describe("User group compatibility endpoints", () => {
     expect(directOnlyRes.body.is_user_group_member).to.equal(false);
   });
 
-  it("should return direct-only and recursive user group members", async () => {
+  it("POST /api/v1/user_groups/{user_group_id}/members and GET /api/v1/user_groups/{user_group_id}/members should return direct-only and recursive members", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -211,7 +211,7 @@ describe("User group compatibility endpoints", () => {
     expect(directOnlyRes.body.members).to.have.members([admin.userId, directMember.userId]);
   });
 
-  it("should return direct-only and recursive subgroup lists", async () => {
+  it("POST /api/v1/user_groups/{user_group_id}/subgroups and GET /api/v1/user_groups/{user_group_id}/subgroups should return direct-only and recursive subgroup lists", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -242,7 +242,7 @@ describe("User group compatibility endpoints", () => {
     expect(directOnlyRes.body.subgroups).to.have.members([middleGroupId]);
   });
 
-  it("should allow removing subgroups via the members compatibility endpoint", async () => {
+  it("POST /api/v1/user_groups/{user_group_id}/members should allow removing subgroups via the members compatibility endpoint", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });

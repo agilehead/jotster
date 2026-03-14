@@ -3,7 +3,7 @@ import { testDb } from "../../test-setup.js";
 import { seedChannel, seedMessage, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 describe("User compatibility endpoints", () => {
-  it("should get and update a user by email path", async () => {
+  it("GET /api/v1/users/{email} and PATCH /api/v1/users/{email} should get and update a user by email path", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -23,7 +23,7 @@ describe("User compatibility endpoints", () => {
     expect((getUpdatedRes.body.user as Record<string, unknown>).full_name).to.equal("Updated Name");
   });
 
-  it("should resolve Zulip dummy email addresses to the target user", async () => {
+  it("GET /api/v1/users/{email} and PATCH /api/v1/users/{email} should resolve Zulip dummy email addresses to the target user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db, { subdomain: "compat-users" });
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -43,7 +43,7 @@ describe("User compatibility endpoints", () => {
     expect((getUpdatedRes.body.user as Record<string, unknown>).full_name).to.equal("Dummy Email Updated");
   });
 
-  it("should update another user's status by user id", async () => {
+  it("POST /api/v1/users/{user_id}/status and GET /api/v1/users/{user_id}/status should update another user's status by user id", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -62,7 +62,7 @@ describe("User compatibility endpoints", () => {
     expect((getRes.body.status as Record<string, unknown>).status_text).to.equal("reviewing");
   });
 
-  it("should get and regenerate a bot API key", async () => {
+  it("GET /api/v1/bots/{bot_id}/api_key and POST /api/v1/bots/{bot_id}/api_key/regenerate should work for a bot owner", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -85,7 +85,7 @@ describe("User compatibility endpoints", () => {
     expect(regeneratedKey).to.not.equal(originalKey);
   });
 
-  it("should reject bot api key access for a non-owner non-admin user", async () => {
+  it("GET /api/v1/bots/{bot_id}/api_key and POST /api/v1/bots/{bot_id}/api_key/regenerate should reject a non-owner non-admin user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -106,7 +106,7 @@ describe("User compatibility endpoints", () => {
     expect(regenerateRes.body.result).to.equal("error");
   });
 
-  it("should send message edit typing notifications", async () => {
+  it("POST /api/v1/messages/{message_id}/typing should send message edit typing notifications", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);

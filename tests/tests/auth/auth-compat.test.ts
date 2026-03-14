@@ -24,7 +24,7 @@ const createTenantClient = async (tenantId: string, email: string, apiKey: strin
 };
 
 describe("Auth compatibility endpoints", () => {
-  it("should fetch an API key using JWT auth", async () => {
+  it("POST /api/v1/jwt/fetch_api_key should fetch an API key using JWT auth", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, email, userId } = await seedUser(db, tenantId);
@@ -50,7 +50,7 @@ describe("Auth compatibility endpoints", () => {
     expect((res.body.user as Record<string, unknown>).email).to.equal(email);
   });
 
-  it("should issue a development API key for a direct email login", async () => {
+  it("POST /api/v1/dev_fetch_api_key should issue a development API key for a direct email login", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { email, userId } = await seedUser(db, tenantId);
@@ -73,7 +73,7 @@ describe("Auth compatibility endpoints", () => {
     expect(res.body.api_key).to.be.a("string").and.not.equal("");
   });
 
-  it("should regenerate the authenticated user's API key and invalidate the old key", async () => {
+  it("POST /api/v1/users/me/api_key/regenerate should regenerate the authenticated user's API key and invalidate the old key", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const seeded = await seedUser(db, tenantId);
@@ -98,7 +98,7 @@ describe("Auth compatibility endpoints", () => {
     expect(newKeyRes.body.email).to.equal(seeded.email);
   });
 
-  it("should list direct admins and users for dev_list_users", async () => {
+  it("GET /api/v1/dev_list_users should list direct admins and users", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });

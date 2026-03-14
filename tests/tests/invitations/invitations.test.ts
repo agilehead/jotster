@@ -58,7 +58,7 @@ describe("Invitations", () => {
     });
   });
 
-  describe("POST /api/v1/invites/:invite_id/resend", () => {
+  describe("POST /api/v1/invites/{invite_id}/resend", () => {
     it("should resend a pending invitation", async () => {
       const db = testDb.getDb();
       const tenantId = await seedTenant(db);
@@ -82,7 +82,7 @@ describe("Invitations", () => {
     });
   });
 
-  describe("DELETE /api/v1/invites/multiuse/:invite_id", () => {
+  describe("DELETE /api/v1/invites/multiuse/{invite_id}", () => {
     it("should revoke a multiuse invitation link", async () => {
       const db = testDb.getDb();
       const tenantId = await seedTenant(db);
@@ -105,7 +105,7 @@ describe("Invitations", () => {
     });
   });
 
-  describe("DELETE /api/v1/invites/:invite_id", () => {
+  describe("DELETE /api/v1/invites/{invite_id}", () => {
     it("should revoke an invitation", async () => {
       const db = testDb.getDb();
       const tenantId = await seedTenant(db);

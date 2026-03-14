@@ -3,7 +3,7 @@ import { testDb } from "../../test-setup.js";
 import { seedChannel, seedMessage, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 describe("Channel compatibility endpoints", () => {
-  it("should create and reorder channel folders via Zulip-compatible routes", async () => {
+  it("POST /api/v1/channel_folders/create and PATCH /api/v1/channel_folders should create and reorder channel folders", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
@@ -30,7 +30,7 @@ describe("Channel compatibility endpoints", () => {
     expect(ordering.get(secondId)).to.equal(0);
   });
 
-  it("should return a stream email address and delete a topic", async () => {
+  it("GET /api/v1/streams/{stream_id}/email_address and POST /api/v1/streams/{stream_id}/delete_topic should return an email address and delete a topic", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db, { subdomain: "compat-mail" });
     const { client, userId } = await seedUser(db, tenantId);
@@ -62,7 +62,7 @@ describe("Channel compatibility endpoints", () => {
     expect(remaining).to.have.length(0);
   });
 
-  it("should add and remove a default stream via Zulip-compatible routes", async () => {
+  it("POST /api/v1/default_streams and DELETE /api/v1/default_streams should add and remove a default stream", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -87,7 +87,7 @@ describe("Channel compatibility endpoints", () => {
     expect(remaining).to.have.length(0);
   });
 
-  it("should return stream members and topic summaries for a subscribed user", async () => {
+  it("GET /api/v1/streams/{stream_id}/members and GET /api/v1/users/me/{stream_id}/topics should return stream members and topic summaries", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const owner = await seedUser(db, tenantId);
@@ -134,7 +134,7 @@ describe("Channel compatibility endpoints", () => {
     expect(topics[1].max_id).to.equal(newerMessageId);
   });
 
-  it("should update muted topics through the subscriptions muted_topics compatibility route", async () => {
+  it("PATCH /api/v1/users/me/subscriptions/muted_topics should update muted topics", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const seeded = await seedUser(db, tenantId);

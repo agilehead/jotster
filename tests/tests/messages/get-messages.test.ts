@@ -101,7 +101,7 @@ describe("GET /api/v1/messages", function () {
   });
 });
 
-describe("GET /api/v1/messages/:message_id", function () {
+describe("GET /api/v1/messages/{message_id}", function () {
   this.timeout(10000);
 
   it("should fetch a single message by ID", async () => {

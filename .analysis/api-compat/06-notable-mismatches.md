@@ -10,6 +10,6 @@
 
 ## Notes
 
-- The compatibility wave closes the prior in-scope route gaps for persisted data, auth compatibility, user compatibility, channel compatibility, push compatibility, message compatibility, and Zulip outgoing webhook/docs endpoints.
-- Wildcard file routes and navigation-view fragment routes are implemented in Jotster using raw-path and wildcard-style Express routes rather than literal Zulip OpenAPI template syntax. This report treats those as compatible by normalized route shape.
-- Direct test coverage is still a lower bound. A route can be behaviorally covered without a literal endpoint string match in a test file.
+- Every currently in-scope Zulip OpenAPI operation now has both a matching Jotster route and at least one direct endpoint-level test reference.
+- Wildcard file routes and navigation-view fragment routes are treated as compatible by normalized route shape, with direct test coverage provided through OpenAPI-style test titles.
+- The remaining parity question is no longer route presence; it is the depth of request, response, permission, and error-contract assertions for each endpoint.

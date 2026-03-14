@@ -100,7 +100,7 @@ describe("POST /api/v1/channel_folders", () => {
   });
 });
 
-describe("PATCH /api/v1/channel_folders/:folder_id", () => {
+describe("PATCH /api/v1/channel_folders/{channel_folder_id}", () => {
   it("should update a channel folder name", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -133,7 +133,7 @@ describe("PATCH /api/v1/channel_folders/:folder_id", () => {
   });
 });
 
-describe("DELETE /api/v1/channel_folders/:folder_id", () => {
+describe("DELETE /api/v1/channel_folders/{channel_folder_id}", () => {
   it("should delete an existing channel folder", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

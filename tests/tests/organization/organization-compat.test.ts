@@ -3,7 +3,7 @@ import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 describe("Organization compatibility endpoints", () => {
-  it("should reorder custom profile fields", async () => {
+  it("POST /api/v1/realm/profile_fields and PATCH /api/v1/realm/profile_fields should reorder custom profile fields", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
@@ -35,7 +35,7 @@ describe("Organization compatibility endpoints", () => {
     expect(ordering.get(secondId)).to.equal(0);
   });
 
-  it("should create, reorder, update, and delete linkifiers", async () => {
+  it("POST /api/v1/realm/filters, GET /api/v1/realm/linkifiers, PATCH /api/v1/realm/linkifiers, PATCH /api/v1/realm/filters/{filter_id}, and DELETE /api/v1/realm/filters/{filter_id} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
@@ -77,7 +77,7 @@ describe("Organization compatibility endpoints", () => {
     expect(deleteRes.status).to.equal(200);
   });
 
-  it("should send a welcome bot custom message test", async () => {
+  it("POST /api/v1/realm/test_welcome_bot_custom_message should send a welcome bot custom message test", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });

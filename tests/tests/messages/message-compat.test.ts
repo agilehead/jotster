@@ -9,7 +9,7 @@ import {
 } from "../../utils/test-helpers.js";
 
 describe("Message compatibility endpoints", () => {
-  it("should mark stream and topic messages as read", async () => {
+  it("POST /api/v1/mark_stream_as_read and POST /api/v1/mark_topic_as_read should mark stream and topic messages as read", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
@@ -50,7 +50,7 @@ describe("Message compatibility endpoints", () => {
     expect(topicFlagRows.map((row) => row.message_id)).to.deep.equal([topicMessageId]);
   });
 
-  it("should update flags for a narrow and report matching messages", async () => {
+  it("POST /api/v1/messages/flags/narrow and GET /api/v1/messages/matches_narrow should update flags for a narrow and report matching messages", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
@@ -95,7 +95,7 @@ describe("Message compatibility endpoints", () => {
     expect(messages[matchingMessageId].match_subject).to.equal("incident");
   });
 
-  it("should report a message, handle edit typing, and expose thumbnail status", async () => {
+  it("POST /api/v1/messages/{message_id}/report, POST /api/v1/messages/{message_id}/typing, and GET /thumbnail/status/{realm_id_str}/{filename} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
@@ -122,7 +122,7 @@ describe("Message compatibility endpoints", () => {
     expect(thumbnailRes.body.has_thumbnail).to.equal(false);
   });
 
-  it("should render markdown and return read receipts for a message", async () => {
+  it("POST /api/v1/messages/render and GET /api/v1/messages/{message_id}/read_receipts should render markdown and return read receipts", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);

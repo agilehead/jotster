@@ -3,7 +3,7 @@ import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 describe("Webhook and docs compatibility endpoints", () => {
-  it("should respond to docs example endpoints", async () => {
+  it("POST /api/v1/real-time and POST /api/v1/rest-error-handling should respond to docs example endpoints", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
@@ -17,7 +17,7 @@ describe("Webhook and docs compatibility endpoints", () => {
     expect(restErrorRes.body.code).to.equal("BAD_REQUEST");
   });
 
-  it("should accept Zulip outgoing webhook requests", async () => {
+  it("POST /api/v1/zulip-outgoing-webhook should accept Zulip outgoing webhook requests", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);

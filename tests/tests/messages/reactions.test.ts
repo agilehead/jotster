@@ -8,7 +8,7 @@ import {
   seedMessage,
 } from "../../utils/test-helpers.js";
 
-describe("POST /api/v1/messages/:message_id/reactions", function () {
+describe("POST /api/v1/messages/{message_id}/reactions", function () {
   this.timeout(10000);
 
   it("should add a unicode emoji reaction to a message", async () => {
@@ -70,7 +70,7 @@ describe("POST /api/v1/messages/:message_id/reactions", function () {
   });
 });
 
-describe("DELETE /api/v1/messages/:message_id/reactions", function () {
+describe("DELETE /api/v1/messages/{message_id}/reactions", function () {
   this.timeout(10000);
 
   it("should remove a reaction from a message", async () => {

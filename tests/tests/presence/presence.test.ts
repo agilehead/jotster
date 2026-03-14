@@ -44,7 +44,7 @@ describe("POST /api/v1/users/me/presence", () => {
   });
 });
 
-describe("GET /api/v1/users/:user_id_or_email/presence", () => {
+describe("GET /api/v1/users/{user_id_or_email}/presence", () => {
   it("should return presence info for a user by email", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

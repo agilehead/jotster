@@ -35,7 +35,7 @@ describe("GET /api/v1/streams", () => {
   });
 });
 
-describe("GET /api/v1/streams/:stream_id", () => {
+describe("GET /api/v1/streams/{stream_id}", () => {
   it("should return a specific stream by ID", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

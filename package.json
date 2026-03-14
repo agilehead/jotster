@@ -14,6 +14,7 @@
     "migrate:rollback": "npx knex --knexfile knexfile.jotster.js migrate:rollback",
     "migrate:make": "npx knex --knexfile knexfile.jotster.js migrate:make",
     "migrate:status": "npx knex --knexfile knexfile.jotster.js migrate:status",
+    "report:api-compat": "node scripts/generate-api-compat-report.mjs",
     "test": "NODE_OPTIONS='--import tsx' mocha tests/index.ts --timeout 60000"
   },
   "devDependencies": {

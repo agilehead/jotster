@@ -8,7 +8,7 @@ import {
   seedMessage,
 } from "../../utils/test-helpers.js";
 
-describe("PATCH /api/v1/messages/:message_id", function () {
+describe("PATCH /api/v1/messages/{message_id}", function () {
   this.timeout(10000);
 
   it("should edit the content of a message", async () => {
@@ -58,7 +58,7 @@ describe("PATCH /api/v1/messages/:message_id", function () {
   });
 });
 
-describe("DELETE /api/v1/messages/:message_id", function () {
+describe("DELETE /api/v1/messages/{message_id}", function () {
   this.timeout(10000);
 
   it("should delete a message", async () => {
@@ -94,7 +94,7 @@ describe("DELETE /api/v1/messages/:message_id", function () {
   });
 });
 
-describe("GET /api/v1/messages/:message_id/history", function () {
+describe("GET /api/v1/messages/{message_id}/history", function () {
   this.timeout(10000);
 
   it("should return edit history after editing a message", async () => {

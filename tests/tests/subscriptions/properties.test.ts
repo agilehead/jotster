@@ -68,7 +68,7 @@ describe("POST /api/v1/users/me/subscriptions/properties", function () {
   });
 });
 
-describe("GET /api/v1/users/:user_id/subscriptions/:stream_id", function () {
+describe("GET /api/v1/users/{user_id}/subscriptions/{stream_id}", function () {
   this.timeout(10000);
 
   it("should confirm that a user is subscribed to a channel", async () => {
@@ -108,7 +108,7 @@ describe("GET /api/v1/users/:user_id/subscriptions/:stream_id", function () {
   });
 });
 
-describe("GET /api/v1/users/:user_id/channels", function () {
+describe("GET /api/v1/users/{user_id}/channels", function () {
   this.timeout(10000);
 
   it("should return subscribed channel ids for a user", async () => {
@@ -143,7 +143,7 @@ describe("GET /api/v1/users/:user_id/channels", function () {
   });
 });
 
-describe("PATCH /api/v1/users/me/subscriptions/:stream_id", function () {
+describe("PATCH /api/v1/users/me/subscriptions/{stream_id}", function () {
   this.timeout(10000);
 
   it("should update a single subscription property", async () => {
@@ -169,5 +169,50 @@ describe("PATCH /api/v1/users/me/subscriptions/:stream_id", function () {
       .where({ tenant_id: tenantId, user_id: userId, channel_id: channelId })
       .first();
     expect(row?.is_muted).to.equal(1);
+  });
+});
+
+describe("PATCH /api/v1/users/me/subscriptions", function () {
+  this.timeout(10000);
+
+  it("should bulk subscribe and unsubscribe channels", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { userId, client } = await seedUser(db, tenantId);
+    const existingChannelId = await seedChannel(db, tenantId, {
+      name: "bulk-existing-channel",
+    });
+    await seedSubscription(db, tenantId, userId, existingChannelId);
+
+    const res = await client.patch("/users/me/subscriptions", {
+      add: JSON.stringify([{ name: "bulk-new-channel" }]),
+      delete: JSON.stringify(["bulk-existing-channel"]),
+    });
+
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("success");
+    expect(res.body.msg).to.equal("");
+    expect(res.body.subscribed).to.be.an("array");
+    expect(res.body.removed).to.be.an("array");
+
+    const removedRows = await db("subscription").where({
+      tenant_id: tenantId,
+      user_id: userId,
+      channel_id: existingChannelId,
+    });
+    expect(removedRows).to.have.length(0);
+
+    const newChannel = await db("channel")
+      .select("id")
+      .where({ tenant_id: tenantId, name: "bulk-new-channel" })
+      .first();
+    expect(newChannel?.id).to.be.a("string");
+
+    const addedRows = await db("subscription").where({
+      tenant_id: tenantId,
+      user_id: userId,
+      channel_id: newChannel!.id as string,
+    });
+    expect(addedRows).to.have.length(1);
   });
 });

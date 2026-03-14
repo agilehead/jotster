@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
-describe("PATCH /api/v1/users/:user_id", () => {
+describe("PATCH /api/v1/users/{user_id}", () => {
   it("should allow admin to update another user's full name", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

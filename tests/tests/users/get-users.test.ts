@@ -33,7 +33,7 @@ describe("GET /api/v1/users", () => {
   });
 });
 
-describe("GET /api/v1/users/:user_id", () => {
+describe("GET /api/v1/users/{user_id}", () => {
   it("should return a specific user by ID", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

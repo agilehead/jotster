@@ -34,7 +34,7 @@ describe("Attachments and Uploads", () => {
       expect(res.body).to.have.property("msg");
     });
 
-    it("should upload, list, serve, and delete an attachment", async () => {
+    it("POST /api/v1/user_uploads, GET /api/v1/attachments, GET /user_uploads/{realm_id_str}/{filename}, and DELETE /api/v1/attachments/{attachment_id} should work", async () => {
       const db = testDb.getDb();
       const tenantId = await seedTenant(db);
       const { client } = await seedUser(db, tenantId);

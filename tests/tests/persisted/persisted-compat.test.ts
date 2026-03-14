@@ -9,7 +9,7 @@ import {
 } from "../../utils/test-helpers.js";
 
 describe("Persisted compatibility endpoints", () => {
-  it("should create, list, update, and delete navigation views", async () => {
+  it("POST /api/v1/navigation_views, GET /api/v1/navigation_views, PATCH /api/v1/navigation_views/{fragment}, and DELETE /api/v1/navigation_views/{fragment} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
@@ -35,7 +35,7 @@ describe("Persisted compatibility endpoints", () => {
     expect(deleteRes.status).to.equal(200);
   });
 
-  it("should create, list, update, and delete saved snippets", async () => {
+  it("POST /api/v1/saved_snippets, GET /api/v1/saved_snippets, PATCH /api/v1/saved_snippets/{saved_snippet_id}, and DELETE /api/v1/saved_snippets/{saved_snippet_id} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
@@ -61,7 +61,7 @@ describe("Persisted compatibility endpoints", () => {
     expect(deleteRes.status).to.equal(200);
   });
 
-  it("should create, list, and delete reminders", async () => {
+  it("POST /api/v1/reminders, GET /api/v1/reminders, and DELETE /api/v1/reminders/{reminder_id} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
@@ -90,7 +90,7 @@ describe("Persisted compatibility endpoints", () => {
     expect(deleteRes.status).to.equal(200);
   });
 
-  it("should create, list, update, and delete scheduled messages", async () => {
+  it("POST /api/v1/scheduled_messages, GET /api/v1/scheduled_messages, PATCH /api/v1/scheduled_messages/{scheduled_message_id}, and DELETE /api/v1/scheduled_messages/{scheduled_message_id} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);

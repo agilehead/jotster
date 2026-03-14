@@ -33,7 +33,7 @@ describe("Custom emoji mutation endpoints", () => {
     "base64",
   );
 
-  it("should upload, list, serve, and deactivate a custom emoji", async () => {
+  it("POST /api/v1/realm/emoji/{emoji_name} and DELETE /api/v1/realm/emoji/{emoji_name} should upload, list, serve, and deactivate a custom emoji", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
@@ -65,7 +65,7 @@ describe("Custom emoji mutation endpoints", () => {
     expect(afterDelete.body.emoji).to.deep.equal({});
   });
 
-  it("should reject non-admin custom emoji uploads", async () => {
+  it("POST /api/v1/realm/emoji/{emoji_name} should reject non-admin custom emoji uploads", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
