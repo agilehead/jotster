@@ -1,0 +1,1814 @@
+[
+  {
+    "method": "POST",
+    "path": "/fetch_api_key",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "Fetch an API key (production)",
+    "operationId": "fetch-api-key",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/fetch_api_key"
+  },
+  {
+    "method": "POST",
+    "path": "/jwt/fetch_api_key",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "Fetch an API key (JWT)",
+    "operationId": "jwt-fetch-api-key",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/dev_fetch_api_key",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "Fetch an API key (development only)",
+    "operationId": "dev-fetch-api-key",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/dev_fetch_api_key"
+  },
+  {
+    "method": "GET",
+    "path": "/dev_list_users",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "List users (development only)",
+    "operationId": "dev-list-users",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/events",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Get events from an event queue",
+    "operationId": "get-events",
+    "status": "implemented_tested",
+    "test_hits": 5,
+    "jotster_path": "/api/v1/events"
+  },
+  {
+    "method": "DELETE",
+    "path": "/events",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Delete an event queue",
+    "operationId": "delete-queue",
+    "status": "implemented_tested",
+    "test_hits": 5,
+    "jotster_path": "/api/v1/events"
+  },
+  {
+    "method": "GET",
+    "path": "/get_stream_id",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel ID",
+    "operationId": "get-stream-id",
+    "status": "implemented_tested",
+    "test_hits": 2,
+    "jotster_path": "/api/v1/get_stream_id"
+  },
+  {
+    "method": "POST",
+    "path": "/mark_all_as_read",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Mark all messages as read",
+    "operationId": "mark-all-as-read",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/mark_all_as_read"
+  },
+  {
+    "method": "POST",
+    "path": "/mark_stream_as_read",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Mark messages in a channel as read",
+    "operationId": "mark-stream-as-read",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/mark_topic_as_read",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Mark messages in a topic as read",
+    "operationId": "mark-topic-as-read",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/attachments",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get attachments",
+    "operationId": "get-attachments",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/attachments"
+  },
+  {
+    "method": "DELETE",
+    "path": "/attachments/{attachment_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Delete an attachment",
+    "operationId": "remove-attachment",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/attachments/:attachment_id"
+  },
+  {
+    "method": "GET",
+    "path": "/drafts",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Get drafts",
+    "operationId": "get-drafts",
+    "status": "implemented_tested",
+    "test_hits": 7,
+    "jotster_path": "/api/v1/drafts"
+  },
+  {
+    "method": "POST",
+    "path": "/drafts",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Create drafts",
+    "operationId": "create-drafts",
+    "status": "implemented_tested",
+    "test_hits": 7,
+    "jotster_path": "/api/v1/drafts"
+  },
+  {
+    "method": "PATCH",
+    "path": "/drafts/{draft_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Edit a draft",
+    "operationId": "edit-draft",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/drafts/:draft_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/drafts/{draft_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Delete a draft",
+    "operationId": "delete-draft",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/drafts/:draft_id"
+  },
+  {
+    "method": "GET",
+    "path": "/navigation_views",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Get all navigation views",
+    "operationId": "get-navigation-views",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/navigation_views",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Add a navigation view",
+    "operationId": "add-navigation-view",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/navigation_views/{fragment}",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Update the navigation view",
+    "operationId": "edit-navigation-view",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/navigation_views/{fragment}",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Remove a navigation view",
+    "operationId": "remove-navigation-view",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/saved_snippets",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Get all saved snippets",
+    "operationId": "get-saved-snippets",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/saved_snippets",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Create a saved snippet",
+    "operationId": "create-saved-snippet",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/saved_snippets/{saved_snippet_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Edit a saved snippet",
+    "operationId": "edit-saved-snippet",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/saved_snippets/{saved_snippet_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Delete a saved snippet",
+    "operationId": "delete-saved-snippet",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/reminders",
+    "tags": [
+      "reminders"
+    ],
+    "summary": "Get reminders",
+    "operationId": "get-reminders",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/reminders",
+    "tags": [
+      "reminders"
+    ],
+    "summary": "Create a message reminder",
+    "operationId": "create-message-reminder",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/reminders/{reminder_id}",
+    "tags": [
+      "reminders"
+    ],
+    "summary": "Delete a reminder",
+    "operationId": "delete-reminder",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/scheduled_messages",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Get scheduled messages",
+    "operationId": "get-scheduled-messages",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/scheduled_messages",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Create a scheduled message",
+    "operationId": "create-scheduled-message",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/scheduled_messages/{scheduled_message_id}",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Edit a scheduled message",
+    "operationId": "update-scheduled-message",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/scheduled_messages/{scheduled_message_id}",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Delete a scheduled message",
+    "operationId": "delete-scheduled-message",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/default_streams",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Add a default channel",
+    "operationId": "add-default-stream",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/default_streams"
+  },
+  {
+    "method": "DELETE",
+    "path": "/default_streams",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Remove a default channel",
+    "operationId": "remove-default-stream",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/default_streams"
+  },
+  {
+    "method": "GET",
+    "path": "/messages",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get messages",
+    "operationId": "get-messages",
+    "status": "implemented_tested",
+    "test_hits": 8,
+    "jotster_path": "/api/v1/messages"
+  },
+  {
+    "method": "POST",
+    "path": "/messages",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Send a message",
+    "operationId": "send-message",
+    "status": "implemented_tested",
+    "test_hits": 8,
+    "jotster_path": "/api/v1/messages"
+  },
+  {
+    "method": "GET",
+    "path": "/messages/{message_id}/history",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get a message's edit history",
+    "operationId": "get-message-history",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/:message_id/history"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/flags",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Update personal message flags",
+    "operationId": "update-message-flags",
+    "status": "implemented_tested",
+    "test_hits": 4,
+    "jotster_path": "/api/v1/messages/flags"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/flags/narrow",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Update personal message flags for narrow",
+    "operationId": "update-message-flags-for-narrow",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/messages/render",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Render a message",
+    "operationId": "render-message",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/render"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/{message_id}/reactions",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Add an emoji reaction",
+    "operationId": "add-reaction",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/:message_id/reactions"
+  },
+  {
+    "method": "DELETE",
+    "path": "/messages/{message_id}/reactions",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Remove an emoji reaction",
+    "operationId": "remove-reaction",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/:message_id/reactions"
+  },
+  {
+    "method": "GET",
+    "path": "/messages/{message_id}/read_receipts",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get a message's read receipts",
+    "operationId": "get-read-receipts",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/:message_id/read_receipts"
+  },
+  {
+    "method": "GET",
+    "path": "/messages/matches_narrow",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Check if messages match a narrow",
+    "operationId": "check-messages-match-narrow",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/messages/{message_id}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Fetch a single message",
+    "operationId": "get-message",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/:message_id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/messages/{message_id}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Edit a message",
+    "operationId": "update-message",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/:message_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/messages/{message_id}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Delete a message",
+    "operationId": "delete-message",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/messages/:message_id"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/{message_id}/report",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Report a message",
+    "operationId": "report-message",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/user_uploads",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Upload a file",
+    "operationId": "upload-file",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/user_uploads"
+  },
+  {
+    "method": "GET",
+    "path": "/thumbnail/status/{realm_id_str}/{filename}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Check thumbnail status",
+    "operationId": "check-thumbnail-status",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/user_uploads/{realm_id_str}/{filename}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get public temporary URL for an uploaded file",
+    "operationId": "get-file-temporary-url",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/user_uploads/:tenant_id/:path_id"
+  },
+  {
+    "method": "GET",
+    "path": "/users",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get users",
+    "operationId": "get-users",
+    "status": "implemented_tested",
+    "test_hits": 6,
+    "jotster_path": "/api/v1/users"
+  },
+  {
+    "method": "POST",
+    "path": "/users",
+    "tags": [
+      "users"
+    ],
+    "summary": "Create a user",
+    "operationId": "create-user",
+    "status": "implemented_tested",
+    "test_hits": 6,
+    "jotster_path": "/api/v1/users"
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/reactivate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Reactivate a user",
+    "operationId": "reactivate-user",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id/reactivate"
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/status",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update user status",
+    "operationId": "update-status-for-user",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}/status",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user's status",
+    "operationId": "get-user-status",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id/status"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id_or_email}/presence",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user's presence",
+    "operationId": "get-user-presence",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id_or_email/presence"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get own user",
+    "operationId": "get-own-user",
+    "status": "implemented_tested",
+    "test_hits": 2,
+    "jotster_path": "/api/v1/users/me"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me",
+    "tags": [
+      "users"
+    ],
+    "summary": "Deactivate own user",
+    "operationId": "deactivate-own-user",
+    "status": "implemented_tested",
+    "test_hits": 2,
+    "jotster_path": "/api/v1/users/me"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/api_key/regenerate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Regenerate your API key",
+    "operationId": "regenerate-api-key",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/me/api_key/regenerate"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/alert_words",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get all alert words",
+    "operationId": "get-alert-words",
+    "status": "implemented_tested",
+    "test_hits": 8,
+    "jotster_path": "/api/v1/users/me/alert_words"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/alert_words",
+    "tags": [
+      "users"
+    ],
+    "summary": "Add alert words",
+    "operationId": "add-alert-words",
+    "status": "implemented_tested",
+    "test_hits": 8,
+    "jotster_path": "/api/v1/users/me/alert_words"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/alert_words",
+    "tags": [
+      "users"
+    ],
+    "summary": "Remove alert words",
+    "operationId": "remove-alert-words",
+    "status": "implemented_tested",
+    "test_hits": 8,
+    "jotster_path": "/api/v1/users/me/alert_words"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/presence",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update your presence",
+    "operationId": "update-presence",
+    "status": "implemented_tested",
+    "test_hits": 6,
+    "jotster_path": "/api/v1/users/me/presence"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/status",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update your status",
+    "operationId": "update-status",
+    "status": "implemented_tested",
+    "test_hits": 5,
+    "jotster_path": "/api/v1/users/me/status"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/{stream_id}/topics",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get topics in a channel",
+    "operationId": "get-stream-topics",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/me/:stream_id/topics"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get subscribed channels",
+    "operationId": "get-subscriptions",
+    "status": "implemented_tested",
+    "test_hits": 16,
+    "jotster_path": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Subscribe to a channel",
+    "operationId": "subscribe",
+    "status": "implemented_tested",
+    "test_hits": 16,
+    "jotster_path": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update subscriptions",
+    "operationId": "update-subscriptions",
+    "status": "implemented_tested",
+    "test_hits": 16,
+    "jotster_path": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Unsubscribe from a channel",
+    "operationId": "unsubscribe",
+    "status": "implemented_tested",
+    "test_hits": 16,
+    "jotster_path": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me/subscriptions/muted_topics",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Topic muting",
+    "operationId": "mute-topic",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/me/subscriptions/muted_topics"
+  },
+  {
+    "method": "POST",
+    "path": "/mobile_push/test_notification",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Send a test notification to mobile device(s)",
+    "operationId": "test-notify",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/mobile_push/test_notification"
+  },
+  {
+    "method": "POST",
+    "path": "/mobile_push/e2ee/test_notification",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Send an E2EE test notification to mobile device(s)",
+    "operationId": "e2ee-test-notify",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/mobile_push/e2ee/test_notification"
+  },
+  {
+    "method": "POST",
+    "path": "/mobile_push/register",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Register E2EE push device",
+    "operationId": "register-push-device",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/mobile_push/register"
+  },
+  {
+    "method": "POST",
+    "path": "/remotes/push/e2ee/register",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Register E2EE push device to bouncer",
+    "operationId": "register-remote-push-device",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/register_client_device",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Register a logged-in device",
+    "operationId": "register-client-device",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/remove_client_device",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Remove a registered device",
+    "operationId": "remove-client-device",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/user_topics",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update personal preferences for a topic",
+    "operationId": "update-user-topic",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/user_topics"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/muted_users/{muted_user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Mute a user",
+    "operationId": "mute-user",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/me/muted_users/:muted_user_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/muted_users/{muted_user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Unmute a user",
+    "operationId": "unmute-user",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/me/muted_users/:muted_user_id"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/apns_device_token",
+    "tags": [
+      "users"
+    ],
+    "summary": "Add an APNs device token",
+    "operationId": "add-apns-token",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/users/me/apns_device_token"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/apns_device_token",
+    "tags": [
+      "users"
+    ],
+    "summary": "Remove an APNs device token",
+    "operationId": "remove-apns-token",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/users/me/apns_device_token"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/android_gcm_reg_id",
+    "tags": [
+      "users"
+    ],
+    "summary": "Add an FCM registration token",
+    "operationId": "add-fcm-token",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/users/me/android_gcm_reg_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/android_gcm_reg_id",
+    "tags": [
+      "users"
+    ],
+    "summary": "Remove an FCM registration token",
+    "operationId": "remove-fcm-token",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/users/me/android_gcm_reg_id"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}/subscriptions/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get subscription status",
+    "operationId": "get-subscription-status",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id/subscriptions/:stream_id"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}/channels",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get a user's subscribed channels",
+    "operationId": "get-user-channels",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id/channels"
+  },
+  {
+    "method": "POST",
+    "path": "/realm/emoji/{emoji_name}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Upload custom emoji",
+    "operationId": "upload-custom-emoji",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/realm/emoji/:emoji_name"
+  },
+  {
+    "method": "DELETE",
+    "path": "/realm/emoji/{emoji_name}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Deactivate custom emoji",
+    "operationId": "deactivate-custom-emoji",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/realm/emoji/:emoji_name"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/emoji",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get all custom emoji",
+    "operationId": "get-custom-emoji",
+    "status": "implemented_tested",
+    "test_hits": 2,
+    "jotster_path": "/api/v1/realm/emoji"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/presence",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get presence of all users",
+    "operationId": "get-presence",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/realm/presence"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/profile_fields",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get all custom profile fields",
+    "operationId": "get-custom-profile-fields",
+    "status": "implemented_tested",
+    "test_hits": 6,
+    "jotster_path": "/api/v1/realm/profile_fields"
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/profile_fields",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Reorder custom profile fields",
+    "operationId": "reorder-custom-profile-fields",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/realm/profile_fields",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Create a custom profile field",
+    "operationId": "create-custom-profile-field",
+    "status": "implemented_tested",
+    "test_hits": 6,
+    "jotster_path": "/api/v1/realm/profile_fields"
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/user_settings_defaults",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Update realm-level defaults of user settings",
+    "operationId": "update-realm-user-settings-defaults",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/realm/user_settings_defaults"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/subscriptions/properties",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Bulk update subscription settings",
+    "operationId": "update-subscription-settings",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/users/me/subscriptions/properties"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me/subscriptions/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update a subscription setting",
+    "operationId": "update-subscription-property",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/me/subscriptions/:stream_id"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{email}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user by email",
+    "operationId": "get-user-by-email",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/{email}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update a user by email",
+    "operationId": "update-user-by-email",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user",
+    "operationId": "get-user",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update a user",
+    "operationId": "update-user",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Deactivate a user",
+    "operationId": "deactivate-user",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/users/:user_id"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/linkifiers",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get linkifiers",
+    "operationId": "get-linkifiers",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/linkifiers",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Reorder linkifiers",
+    "operationId": "reorder-linkifiers",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/realm/filters",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Add a linkifier",
+    "operationId": "add-linkifier",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/realm/filters/{filter_id}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Remove a linkifier",
+    "operationId": "remove-linkifier",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/filters/{filter_id}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Update a linkifier",
+    "operationId": "update-linkifier",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/realm/playgrounds",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Add a code playground",
+    "operationId": "add-code-playground",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/realm/playgrounds/{playground_id}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Remove a code playground",
+    "operationId": "remove-code-playground",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/export/realm",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get all data exports",
+    "operationId": "get-realm-exports",
+    "status": "implemented_tested",
+    "test_hits": 4,
+    "jotster_path": "/api/v1/export/realm"
+  },
+  {
+    "method": "POST",
+    "path": "/export/realm",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Create a data export",
+    "operationId": "export-realm",
+    "status": "implemented_tested",
+    "test_hits": 4,
+    "jotster_path": "/api/v1/export/realm"
+  },
+  {
+    "method": "GET",
+    "path": "/export/realm/consents",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get data export consent state",
+    "operationId": "get-realm-export-consents",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/export/realm/consents"
+  },
+  {
+    "method": "GET",
+    "path": "/invites",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Get all invitations",
+    "operationId": "get-invites",
+    "status": "implemented_tested",
+    "test_hits": 4,
+    "jotster_path": "/api/v1/invites"
+  },
+  {
+    "method": "POST",
+    "path": "/invites",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Send invitations",
+    "operationId": "send-invites",
+    "status": "implemented_tested",
+    "test_hits": 4,
+    "jotster_path": "/api/v1/invites"
+  },
+  {
+    "method": "POST",
+    "path": "/invites/multiuse",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Create a reusable invitation link",
+    "operationId": "create-invite-link",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/invites/multiuse"
+  },
+  {
+    "method": "DELETE",
+    "path": "/invites/{invite_id}",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Revoke an email invitation",
+    "operationId": "revoke-email-invite",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/invites/:invite_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/invites/multiuse/{invite_id}",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Revoke a reusable invitation link",
+    "operationId": "revoke-invite-link",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/invites/multiuse/:invite_id"
+  },
+  {
+    "method": "POST",
+    "path": "/invites/{invite_id}/resend",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Resend an email invitation",
+    "operationId": "resend-email-invite",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/invites/:invite_id/resend"
+  },
+  {
+    "method": "POST",
+    "path": "/realm/test_welcome_bot_custom_message",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Test welcome bot custom message",
+    "operationId": "test-welcome-bot-custom-message",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/register",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Register an event queue",
+    "operationId": "register-queue",
+    "status": "implemented_tested",
+    "test_hits": 7,
+    "jotster_path": "/api/v1/register"
+  },
+  {
+    "method": "GET",
+    "path": "/server_settings",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get server settings",
+    "operationId": "get-server-settings",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/server_settings"
+  },
+  {
+    "method": "PATCH",
+    "path": "/settings",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update settings",
+    "operationId": "update-settings",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/settings"
+  },
+  {
+    "method": "GET",
+    "path": "/streams/{stream_id}/members",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel subscribers",
+    "operationId": "get-subscribers",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/streams/:stream_id/members"
+  },
+  {
+    "method": "GET",
+    "path": "/streams",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get all channels",
+    "operationId": "get-streams",
+    "status": "implemented_tested",
+    "test_hits": 2,
+    "jotster_path": "/api/v1/streams"
+  },
+  {
+    "method": "GET",
+    "path": "/streams/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get a channel by ID",
+    "operationId": "get-stream-by-id",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/streams/:stream_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/streams/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Archive a channel",
+    "operationId": "archive-stream",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/streams/:stream_id"
+  },
+  {
+    "method": "PATCH",
+    "path": "/streams/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update a channel",
+    "operationId": "update-stream",
+    "status": "implemented_route_only",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/streams/:stream_id"
+  },
+  {
+    "method": "GET",
+    "path": "/streams/{stream_id}/email_address",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel's email address",
+    "operationId": "get-stream-email-address",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/streams/{stream_id}/delete_topic",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Delete a topic",
+    "operationId": "delete-topic",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/typing",
+    "tags": [
+      "users"
+    ],
+    "summary": "Set \"typing\" status",
+    "operationId": "set-typing-status",
+    "status": "implemented_tested",
+    "test_hits": 4,
+    "jotster_path": "/api/v1/typing"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/{message_id}/typing",
+    "tags": [
+      "users"
+    ],
+    "summary": "Set \"typing\" status for message editing",
+    "operationId": "set-typing-status-for-message-edit",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/channels/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create a channel",
+    "operationId": "create-channel",
+    "status": "implemented_tested",
+    "test_hits": 1,
+    "jotster_path": "/api/v1/channels/create"
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/create",
+    "tags": [
+      "users"
+    ],
+    "summary": "Create a user group",
+    "operationId": "create-user-group",
+    "status": "implemented_tested",
+    "test_hits": 5,
+    "jotster_path": "/api/v1/user_groups/create"
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/{user_group_id}/members",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update user group members",
+    "operationId": "update-user-group-members",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/user_groups/:group_id/members"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups/{user_group_id}/members",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get user group members",
+    "operationId": "get-user-group-members",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/user_groups/:group_id/members"
+  },
+  {
+    "method": "PATCH",
+    "path": "/user_groups/{user_group_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update a user group",
+    "operationId": "update-user-group",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/user_groups/:group_id"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get user groups",
+    "operationId": "get-user-groups",
+    "status": "implemented_tested",
+    "test_hits": 3,
+    "jotster_path": "/api/v1/user_groups"
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/{user_group_id}/subgroups",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update subgroups of a user group",
+    "operationId": "update-user-group-subgroups",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/user_groups/:group_id/subgroups"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups/{user_group_id}/subgroups",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get subgroups of a user group",
+    "operationId": "get-user-group-subgroups",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/user_groups/:group_id/subgroups"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups/{user_group_id}/members/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get user group membership status",
+    "operationId": "get-is-user-group-member",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/{user_group_id}/deactivate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Deactivate a user group",
+    "operationId": "deactivate-user-group",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/user_groups/:group_id/deactivate"
+  },
+  {
+    "method": "POST",
+    "path": "/channel_folders/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create a channel folder",
+    "operationId": "create-channel-folder",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/channel_folders",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel folders",
+    "operationId": "get-channel-folders",
+    "status": "implemented_tested",
+    "test_hits": 6,
+    "jotster_path": "/api/v1/channel_folders"
+  },
+  {
+    "method": "PATCH",
+    "path": "/channel_folders",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Reorder channel folders",
+    "operationId": "patch-channel-folders",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/channel_folders/{channel_folder_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update a channel folder",
+    "operationId": "update-channel-folder",
+    "status": "implemented_param_alias",
+    "test_hits": 0,
+    "jotster_path": "/api/v1/channel_folders/:folder_id"
+  },
+  {
+    "method": "GET",
+    "path": "/bots/{bot_id}/api_key",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a bot's API key",
+    "operationId": "get-bot-api-key",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/bots/{bot_id}/api_key/regenerate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Regenerate a bot's API key",
+    "operationId": "regenerate-bot-api-key",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/real-time",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "",
+    "operationId": "",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/rest-error-handling",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Error handling",
+    "operationId": "rest-error-handling",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/zulip-outgoing-webhook",
+    "tags": [
+      "webhooks"
+    ],
+    "summary": "Outgoing webhooks",
+    "operationId": "zulip-outgoing-webhooks",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "GET",
+    "path": "/calls/bigbluebutton/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create BigBlueButton video call",
+    "operationId": "create-big-blue-button-video-call",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/calls/nextcloud_talk/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create Nextcloud Talk video call",
+    "operationId": "create-nextcloud-talk-video-call",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  },
+  {
+    "method": "POST",
+    "path": "/calls/constructorgroups/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create Constructor Groups video call",
+    "operationId": "create-constructor-groups-video-call",
+    "status": "missing",
+    "test_hits": 0,
+    "jotster_path": null
+  }
+]

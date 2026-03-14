@@ -10,6 +10,7 @@ import { handleRegenerateApiKey } from "../handlers/handle-regenerate-api-key.ts
 import { handleCreateTenant } from "../handlers/handle-create-tenant.ts";
 import { handleListTenants } from "../handlers/handle-list-tenants.ts";
 import { handleUpdateTenant } from "../handlers/handle-update-tenant.ts";
+import { handleDevListUsers, handleJwtFetchApiKey } from "../handlers/handle-auth-compat.ts";
 
 // User handlers (Phase 2)
 import { handleGetOwnProfile } from "../handlers/handle-get-own-profile.ts";
@@ -25,6 +26,16 @@ import { handleGetBots } from "../handlers/handle-get-bots.ts";
 import { handleCreateBot } from "../handlers/handle-create-bot.ts";
 import { handleUpdateBot } from "../handlers/handle-update-bot.ts";
 import { handleDeactivateBot } from "../handlers/handle-deactivate-bot.ts";
+import {
+  handleGetBotApiKeyCompat,
+  handleGetUserGroupMembersCompat,
+  handleGetUserGroupMembershipCompat,
+  handleGetUserGroupSubgroupsCompat,
+  handleMutateUserGroupMembersCompat,
+  handleMutateUserGroupSubgroupsCompat,
+  handleRegenerateBotApiKeyCompat,
+  handleSetTargetUserStatusCompat,
+} from "../handlers/handle-user-compat.ts";
 
 // Channel handlers (Phase 2)
 import { handleGetStreams } from "../handlers/handle-get-streams.ts";
@@ -43,6 +54,12 @@ import { handleGetChannelFolders } from "../handlers/handle-get-channel-folders.
 import { handleCreateChannelFolder } from "../handlers/handle-create-channel-folder.ts";
 import { handleUpdateChannelFolder } from "../handlers/handle-update-channel-folder.ts";
 import { handleDeleteChannelFolder } from "../handlers/handle-delete-channel-folder.ts";
+import {
+  handleCreateChannelFolderCompat,
+  handleDeleteTopicCompat,
+  handleGetStreamEmailAddressCompat,
+  handleReorderChannelFoldersCompat,
+} from "../handlers/handle-channel-compat.ts";
 
 // Subscription handlers (Phase 2)
 import { handleGetSubscriptions } from "../handlers/handle-get-subscriptions.ts";
@@ -72,6 +89,15 @@ import { handleUpdateMessageFlags } from "../handlers/handle-update-message-flag
 import { handleMarkAllAsRead } from "../handlers/handle-mark-all-as-read.ts";
 import { handleAddReaction } from "../handlers/handle-add-reaction.ts";
 import { handleRemoveReaction } from "../handlers/handle-remove-reaction.ts";
+import {
+  handleMarkStreamAsReadCompat,
+  handleMarkTopicAsReadCompat,
+  handleMessageEditTypingCompat,
+  handleMessagesMatchNarrowCompat,
+  handleReportMessageCompat,
+  handleThumbnailStatusCompat,
+  handleUpdateMessageFlagsForNarrowCompat,
+} from "../handlers/handle-message-compat.ts";
 
 // Custom Emoji handlers
 import { handleGetCustomEmojis } from "../handlers/handle-get-custom-emojis.ts";
@@ -116,6 +142,11 @@ import { handleUnregisterApnsToken } from "../handlers/handle-unregister-apns-to
 import { handleTestNotification } from "../handlers/handle-test-notification.ts";
 import { handleRegisterPushDevice } from "../handlers/handle-register-push-device.ts";
 import { handleTestE2eeNotification } from "../handlers/handle-test-e2ee-notification.ts";
+import {
+  handleRegisterClientDeviceCompat,
+  handleRegisterRemotePushDeviceCompat,
+  handleRemoveClientDeviceCompat,
+} from "../handlers/handle-mobile-compat.ts";
 
 // User group handlers
 import { handleGetUserGroups } from "../handlers/handle-get-user-groups.ts";
@@ -124,10 +155,8 @@ import { handleUpdateUserGroup } from "../handlers/handle-update-user-group.ts";
 import { handleDeactivateUserGroup } from "../handlers/handle-deactivate-user-group.ts";
 import { handleAddUserGroupMembers } from "../handlers/handle-add-user-group-members.ts";
 import { handleRemoveUserGroupMembers } from "../handlers/handle-remove-user-group-members.ts";
-import { handleGetUserGroupMembers } from "../handlers/handle-get-user-group-members.ts";
 import { handleAddUserGroupSubgroups } from "../handlers/handle-add-user-group-subgroups.ts";
 import { handleRemoveUserGroupSubgroups } from "../handlers/handle-remove-user-group-subgroups.ts";
-import { handleGetUserGroupSubgroups } from "../handlers/handle-get-user-group-subgroups.ts";
 
 // Upload/Attachment handlers
 import { handleUploadFile } from "../handlers/handle-upload-file.ts";
@@ -157,6 +186,15 @@ import { handleGetRealmLogo } from "../handlers/handle-get-realm-logo.ts";
 import { handleUploadRealmLogo } from "../handlers/handle-upload-realm-logo.ts";
 import { handleDeleteRealmLogo } from "../handlers/handle-delete-realm-logo.ts";
 import { handleDeactivateRealm } from "../handlers/handle-deactivate-realm.ts";
+import {
+  handleCreateLinkifierCompat,
+  handleDeleteLinkifierCompat,
+  handleGetLinkifiersCompat,
+  handleReorderLinkifiersCompat,
+  handleReorderProfileFieldsCompat,
+  handleTestWelcomeBotCustomMessageCompat,
+  handleUpdateLinkifierCompat,
+} from "../handlers/handle-organization-compat.ts";
 
 // Data Export handlers (Phase 8A)
 import { handleGetExports } from "../handlers/handle-get-exports.ts";
@@ -171,6 +209,28 @@ import { handleCreateMultiuseInvite } from "../handlers/handle-create-multiuse-i
 import { handleResendInvite } from "../handlers/handle-resend-invite.ts";
 import { handleRevokeInvite } from "../handlers/handle-revoke-invite.ts";
 import { handleRevokeMultiuseInvite } from "../handlers/handle-revoke-multiuse-invite.ts";
+import {
+  handleCreateNavigationViewCompat,
+  handleCreateReminderCompat,
+  handleCreateSavedSnippetCompat,
+  handleCreateScheduledMessageCompat,
+  handleDeleteNavigationViewCompat,
+  handleDeleteReminderCompat,
+  handleDeleteSavedSnippetCompat,
+  handleDeleteScheduledMessageCompat,
+  handleGetNavigationViewsCompat,
+  handleGetRemindersCompat,
+  handleGetSavedSnippetsCompat,
+  handleGetScheduledMessagesCompat,
+  handleUpdateNavigationViewCompat,
+  handleUpdateSavedSnippetCompat,
+  handleUpdateScheduledMessageCompat,
+} from "../handlers/handle-persisted-compat.ts";
+import {
+  handleRealTimeCompat,
+  handleRestErrorHandlingCompat,
+  handleZulipOutgoingWebhookCompat,
+} from "../handlers/handle-docs-compat.ts";
 
 export const registerRoutes = (app: Application, ctx: AppContext): void => {
   // --- Auth & Server ---
@@ -184,6 +244,14 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.post("/api/v1/dev_fetch_api_key", async (req: Request, res: Response, _next: NextFunction) => {
     await handleDevFetchApiKey(req, res, ctx);
+  });
+
+  app.post("/api/v1/jwt/fetch_api_key", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleJwtFetchApiKey(req, res, ctx);
+  });
+
+  app.get("/api/v1/dev_list_users", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDevListUsers(req, res, ctx);
   });
 
   // --- Users (specific paths before parameterized) ---
@@ -307,11 +375,15 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleGetUserStatus(req, res, ctx);
   });
 
-  app.get("/api/v1/users/:user_id", async (req: Request, res: Response, _next: NextFunction) => {
+  app.post("/api/v1/users/:user_id/status", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleSetTargetUserStatusCompat(req, res, ctx);
+  });
+
+  app.get("/api/v1/users/:user_id_or_email", async (req: Request, res: Response, _next: NextFunction) => {
     await handleGetUser(req, res, ctx);
   });
 
-  app.patch("/api/v1/users/:user_id", async (req: Request, res: Response, _next: NextFunction) => {
+  app.patch("/api/v1/users/:user_id_or_email", async (req: Request, res: Response, _next: NextFunction) => {
     await handleUpdateUser(req, res, ctx);
   });
 
@@ -339,6 +411,14 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.delete("/api/v1/bots/:bot_id", async (req: Request, res: Response, _next: NextFunction) => {
     await handleDeactivateBot(req, res, ctx);
+  });
+
+  app.get("/api/v1/bots/:bot_id/api_key", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetBotApiKeyCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/bots/:bot_id/api_key/regenerate", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleRegenerateBotApiKeyCompat(req, res, ctx);
   });
 
   // --- Channels/Streams ---
@@ -378,6 +458,14 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleArchiveStream(req, res, ctx);
   });
 
+  app.get("/api/v1/streams/:stream_id/email_address", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetStreamEmailAddressCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/streams/:stream_id/delete_topic", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteTopicCompat(req, res, ctx);
+  });
+
   // --- Channel Folders ---
   app.get("/api/v1/channel_folders", async (req: Request, res: Response, _next: NextFunction) => {
     await handleGetChannelFolders(req, res, ctx);
@@ -385,6 +473,14 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.post("/api/v1/channel_folders", async (req: Request, res: Response, _next: NextFunction) => {
     await handleCreateChannelFolder(req, res, ctx);
+  });
+
+  app.post("/api/v1/channel_folders/create", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleCreateChannelFolderCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/channel_folders", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleReorderChannelFoldersCompat(req, res, ctx);
   });
 
   app.patch("/api/v1/channel_folders/:folder_id", async (req: Request, res: Response, _next: NextFunction) => {
@@ -417,8 +513,24 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleUpdateMessageFlags(req, res, ctx);
   });
 
+  app.post("/api/v1/messages/flags/narrow", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateMessageFlagsForNarrowCompat(req, res, ctx);
+  });
+
   app.post("/api/v1/mark_all_as_read", async (req: Request, res: Response, _next: NextFunction) => {
     await handleMarkAllAsRead(req, res, ctx);
+  });
+
+  app.post("/api/v1/mark_stream_as_read", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleMarkStreamAsReadCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/mark_topic_as_read", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleMarkTopicAsReadCompat(req, res, ctx);
+  });
+
+  app.get("/api/v1/messages/matches_narrow", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleMessagesMatchNarrowCompat(req, res, ctx);
   });
 
   app.get("/api/v1/messages/:message_id/history", async (req: Request, res: Response, _next: NextFunction) => {
@@ -435,6 +547,14 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.delete("/api/v1/messages/:message_id/reactions", async (req: Request, res: Response, _next: NextFunction) => {
     await handleRemoveReaction(req, res, ctx);
+  });
+
+  app.post("/api/v1/messages/:message_id/report", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleReportMessageCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/messages/:message_id/typing", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleMessageEditTypingCompat(req, res, ctx);
   });
 
   app.get("/api/v1/messages", async (req: Request, res: Response, _next: NextFunction) => {
@@ -474,6 +594,10 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleDeleteCustomProfileField(req, res, ctx);
   });
 
+  app.patch("/api/v1/realm/profile_fields", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleReorderProfileFieldsCompat(req, res, ctx);
+  });
+
   // --- Custom Emoji ---
   app.get("/api/v1/realm/emoji", async (req: Request, res: Response, _next: NextFunction) => {
     await handleGetCustomEmojis(req, res, ctx);
@@ -501,6 +625,30 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.post("/api/v1/realm/deactivate", async (req: Request, res: Response, _next: NextFunction) => {
     await handleDeactivateRealm(req, res, ctx);
+  });
+
+  app.get("/api/v1/realm/linkifiers", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetLinkifiersCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/realm/linkifiers", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleReorderLinkifiersCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/realm/filters", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleCreateLinkifierCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/realm/filters/:filter_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateLinkifierCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/realm/filters/:filter_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteLinkifierCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/realm/test_welcome_bot_custom_message", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleTestWelcomeBotCustomMessageCompat(req, res, ctx);
   });
 
   app.get("/api/v1/realm/domains", async (req: Request, res: Response, _next: NextFunction) => {
@@ -598,6 +746,14 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleSendTyping(req, res, ctx);
   });
 
+  app.post("/api/v1/register_client_device", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleRegisterClientDeviceCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/remove_client_device", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleRemoveClientDeviceCompat(req, res, ctx);
+  });
+
   // --- Mobile Push ---
   app.post("/api/v1/mobile_push/test_notification", async (req: Request, res: Response, _next: NextFunction) => {
     await handleTestNotification(req, res, ctx);
@@ -609,6 +765,10 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.post("/api/v1/mobile_push/e2ee/test_notification", async (req: Request, res: Response, _next: NextFunction) => {
     await handleTestE2eeNotification(req, res, ctx);
+  });
+
+  app.post("/api/v1/remotes/push/e2ee/register", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleRegisterRemotePushDeviceCompat(req, res, ctx);
   });
 
   // --- User Groups ---
@@ -625,11 +785,15 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
   });
 
   app.get("/api/v1/user_groups/:group_id/members", async (req: Request, res: Response, _next: NextFunction) => {
-    await handleGetUserGroupMembers(req, res, ctx);
+    await handleGetUserGroupMembersCompat(req, res, ctx);
+  });
+
+  app.get("/api/v1/user_groups/:group_id/members/:user_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetUserGroupMembershipCompat(req, res, ctx);
   });
 
   app.post("/api/v1/user_groups/:group_id/members", async (req: Request, res: Response, _next: NextFunction) => {
-    await handleAddUserGroupMembers(req, res, ctx);
+    await handleMutateUserGroupMembersCompat(req, res, ctx);
   });
 
   app.delete("/api/v1/user_groups/:group_id/members", async (req: Request, res: Response, _next: NextFunction) => {
@@ -637,11 +801,11 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
   });
 
   app.get("/api/v1/user_groups/:group_id/subgroups", async (req: Request, res: Response, _next: NextFunction) => {
-    await handleGetUserGroupSubgroups(req, res, ctx);
+    await handleGetUserGroupSubgroupsCompat(req, res, ctx);
   });
 
   app.post("/api/v1/user_groups/:group_id/subgroups", async (req: Request, res: Response, _next: NextFunction) => {
-    await handleAddUserGroupSubgroups(req, res, ctx);
+    await handleMutateUserGroupSubgroupsCompat(req, res, ctx);
   });
 
   app.delete("/api/v1/user_groups/:group_id/subgroups", async (req: Request, res: Response, _next: NextFunction) => {
@@ -655,6 +819,18 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
   // --- Uploads/Attachments ---
   app.post("/api/v1/user_uploads", upload.single("file"), async (req: Request, res: Response, _next: NextFunction) => {
     await handleUploadFile(req, res, ctx);
+  });
+
+  app.get("/thumbnail/status/:realm_id_str/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleThumbnailStatusCompat(req, res, ctx);
+  });
+
+  app.get("/thumbnail/status/:realm_id_str/:path_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleThumbnailStatusCompat(req, res, ctx);
+  });
+
+  app.get("/user_uploads/:tenant_id/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleServeFile(req, res, ctx);
   });
 
   app.get("/user_uploads/:tenant_id/:path_id", async (req: Request, res: Response, _next: NextFunction) => {
@@ -694,6 +870,10 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleSubmessage(req, res, ctx);
   });
 
+  app.post("/api/v1/zulip-outgoing-webhook", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleZulipOutgoingWebhookCompat(req, res, ctx);
+  });
+
   // --- Data Export ---
   app.get("/api/v1/export/realm/consents", async (req: Request, res: Response, _next: NextFunction) => {
     await handleGetExportConsents(req, res, ctx);
@@ -709,6 +889,82 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.delete("/api/v1/export/realm/:export_id", async (req: Request, res: Response, _next: NextFunction) => {
     await handleDeleteExport(req, res, ctx);
+  });
+
+  app.get("/api/v1/navigation_views", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetNavigationViewsCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/navigation_views", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleCreateNavigationViewCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/navigation_views/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateNavigationViewCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/navigation_views/:fragment_head/:fragment_tail", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateNavigationViewCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/navigation_views/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteNavigationViewCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/navigation_views/:fragment_head/:fragment_tail", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteNavigationViewCompat(req, res, ctx);
+  });
+
+  app.get("/api/v1/saved_snippets", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetSavedSnippetsCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/saved_snippets", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleCreateSavedSnippetCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/saved_snippets/:saved_snippet_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateSavedSnippetCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/saved_snippets/:saved_snippet_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteSavedSnippetCompat(req, res, ctx);
+  });
+
+  app.get("/api/v1/reminders", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetRemindersCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/reminders", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleCreateReminderCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/reminders/:reminder_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteReminderCompat(req, res, ctx);
+  });
+
+  app.get("/api/v1/scheduled_messages", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleGetScheduledMessagesCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/scheduled_messages", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleCreateScheduledMessageCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/scheduled_messages/:scheduled_message_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateScheduledMessageCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/scheduled_messages/:scheduled_message_id", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteScheduledMessageCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/real-time", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleRealTimeCompat(req, res, ctx);
+  });
+
+  app.post("/api/v1/rest-error-handling", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleRestErrorHandlingCompat(req, res, ctx);
   });
 
   // --- Internal Admin ---

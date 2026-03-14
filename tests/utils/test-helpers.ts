@@ -96,6 +96,7 @@ export async function seedUser(
     tenant_id: tenantId,
     user_id: userId,
     key_hash: keyHash,
+    raw_key: apiKey,
     created_at: now,
   });
 

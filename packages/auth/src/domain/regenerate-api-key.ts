@@ -21,7 +21,7 @@ export const regenerateApiKey = async (
 
   const rawKey = generateApiKey();
   const keyHash = hashApiKey(rawKey);
-  await createApiKey(options, tenantId, userId, keyHash);
+  await createApiKey(options, tenantId, userId, keyHash, rawKey);
 
   return ok({ api_key: rawKey, email: user.Email, user_id: user.Id });
 };

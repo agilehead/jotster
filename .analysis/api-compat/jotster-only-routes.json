@@ -1,0 +1,167 @@
+[
+  {
+    "method": "PATCH",
+    "raw_path": "/api/v1/users/me/profile_data",
+    "path": "/users/me/profile_data"
+  },
+  {
+    "method": "GET",
+    "raw_path": "/api/v1/bots",
+    "path": "/bots"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/bots",
+    "path": "/bots"
+  },
+  {
+    "method": "PATCH",
+    "raw_path": "/api/v1/bots/:bot_id",
+    "path": "/bots/{bot_id}"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/bots/:bot_id",
+    "path": "/bots/{bot_id}"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/channel_folders",
+    "path": "/channel_folders"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/channel_folders/:folder_id",
+    "path": "/channel_folders/{folder_id}"
+  },
+  {
+    "method": "PATCH",
+    "raw_path": "/api/v1/realm/profile_fields/:field_id",
+    "path": "/realm/profile_fields/{field_id}"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/realm/profile_fields/:field_id",
+    "path": "/realm/profile_fields/{field_id}"
+  },
+  {
+    "method": "PATCH",
+    "raw_path": "/api/v1/realm",
+    "path": "/realm"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/realm/deactivate",
+    "path": "/realm/deactivate"
+  },
+  {
+    "method": "GET",
+    "raw_path": "/api/v1/realm/domains",
+    "path": "/realm/domains"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/realm/domains",
+    "path": "/realm/domains"
+  },
+  {
+    "method": "PATCH",
+    "raw_path": "/api/v1/realm/domains/:domain",
+    "path": "/realm/domains/{domain}"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/realm/domains/:domain",
+    "path": "/realm/domains/{domain}"
+  },
+  {
+    "method": "GET",
+    "raw_path": "/api/v1/realm/icon",
+    "path": "/realm/icon"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/realm/icon",
+    "path": "/realm/icon"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/realm/icon",
+    "path": "/realm/icon"
+  },
+  {
+    "method": "GET",
+    "raw_path": "/api/v1/realm/logo",
+    "path": "/realm/logo"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/realm/logo",
+    "path": "/realm/logo"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/realm/logo",
+    "path": "/realm/logo"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/user_groups/:group_id/members",
+    "path": "/user_groups/{group_id}/members"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/user_groups/:group_id/subgroups",
+    "path": "/user_groups/{group_id}/subgroups"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/external/slack_incoming",
+    "path": "/external/slack_incoming"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/external/:integration_name",
+    "path": "/external/{integration_name}"
+  },
+  {
+    "method": "GET",
+    "raw_path": "/api/v1/bot_storage",
+    "path": "/bot_storage"
+  },
+  {
+    "method": "PUT",
+    "raw_path": "/api/v1/bot_storage",
+    "path": "/bot_storage"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/bot_storage",
+    "path": "/bot_storage"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/api/v1/submessage",
+    "path": "/submessage"
+  },
+  {
+    "method": "DELETE",
+    "raw_path": "/api/v1/export/realm/:export_id",
+    "path": "/export/realm/{export_id}"
+  },
+  {
+    "method": "POST",
+    "raw_path": "/internal/admin/tenants",
+    "path": "/internal/admin/tenants"
+  },
+  {
+    "method": "GET",
+    "raw_path": "/internal/admin/tenants",
+    "path": "/internal/admin/tenants"
+  },
+  {
+    "method": "PATCH",
+    "raw_path": "/internal/admin/tenants/:tenant_id",
+    "path": "/internal/admin/tenants/{tenant_id}"
+  }
+]

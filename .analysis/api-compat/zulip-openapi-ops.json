@@ -1,0 +1,1361 @@
+[
+  {
+    "method": "POST",
+    "path": "/fetch_api_key",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "Fetch an API key (production)",
+    "operationId": "fetch-api-key"
+  },
+  {
+    "method": "POST",
+    "path": "/jwt/fetch_api_key",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "Fetch an API key (JWT)",
+    "operationId": "jwt-fetch-api-key"
+  },
+  {
+    "method": "POST",
+    "path": "/dev_fetch_api_key",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "Fetch an API key (development only)",
+    "operationId": "dev-fetch-api-key"
+  },
+  {
+    "method": "GET",
+    "path": "/dev_list_users",
+    "tags": [
+      "authentication"
+    ],
+    "summary": "List users (development only)",
+    "operationId": "dev-list-users"
+  },
+  {
+    "method": "GET",
+    "path": "/events",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Get events from an event queue",
+    "operationId": "get-events"
+  },
+  {
+    "method": "DELETE",
+    "path": "/events",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Delete an event queue",
+    "operationId": "delete-queue"
+  },
+  {
+    "method": "GET",
+    "path": "/get_stream_id",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel ID",
+    "operationId": "get-stream-id"
+  },
+  {
+    "method": "POST",
+    "path": "/mark_all_as_read",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Mark all messages as read",
+    "operationId": "mark-all-as-read"
+  },
+  {
+    "method": "POST",
+    "path": "/mark_stream_as_read",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Mark messages in a channel as read",
+    "operationId": "mark-stream-as-read"
+  },
+  {
+    "method": "POST",
+    "path": "/mark_topic_as_read",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Mark messages in a topic as read",
+    "operationId": "mark-topic-as-read"
+  },
+  {
+    "method": "GET",
+    "path": "/attachments",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get attachments",
+    "operationId": "get-attachments"
+  },
+  {
+    "method": "DELETE",
+    "path": "/attachments/{attachment_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Delete an attachment",
+    "operationId": "remove-attachment"
+  },
+  {
+    "method": "GET",
+    "path": "/drafts",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Get drafts",
+    "operationId": "get-drafts"
+  },
+  {
+    "method": "POST",
+    "path": "/drafts",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Create drafts",
+    "operationId": "create-drafts"
+  },
+  {
+    "method": "PATCH",
+    "path": "/drafts/{draft_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Edit a draft",
+    "operationId": "edit-draft"
+  },
+  {
+    "method": "DELETE",
+    "path": "/drafts/{draft_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Delete a draft",
+    "operationId": "delete-draft"
+  },
+  {
+    "method": "GET",
+    "path": "/navigation_views",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Get all navigation views",
+    "operationId": "get-navigation-views"
+  },
+  {
+    "method": "POST",
+    "path": "/navigation_views",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Add a navigation view",
+    "operationId": "add-navigation-view"
+  },
+  {
+    "method": "PATCH",
+    "path": "/navigation_views/{fragment}",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Update the navigation view",
+    "operationId": "edit-navigation-view"
+  },
+  {
+    "method": "DELETE",
+    "path": "/navigation_views/{fragment}",
+    "tags": [
+      "navigation_views"
+    ],
+    "summary": "Remove a navigation view",
+    "operationId": "remove-navigation-view"
+  },
+  {
+    "method": "GET",
+    "path": "/saved_snippets",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Get all saved snippets",
+    "operationId": "get-saved-snippets"
+  },
+  {
+    "method": "POST",
+    "path": "/saved_snippets",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Create a saved snippet",
+    "operationId": "create-saved-snippet"
+  },
+  {
+    "method": "PATCH",
+    "path": "/saved_snippets/{saved_snippet_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Edit a saved snippet",
+    "operationId": "edit-saved-snippet"
+  },
+  {
+    "method": "DELETE",
+    "path": "/saved_snippets/{saved_snippet_id}",
+    "tags": [
+      "drafts"
+    ],
+    "summary": "Delete a saved snippet",
+    "operationId": "delete-saved-snippet"
+  },
+  {
+    "method": "GET",
+    "path": "/reminders",
+    "tags": [
+      "reminders"
+    ],
+    "summary": "Get reminders",
+    "operationId": "get-reminders"
+  },
+  {
+    "method": "POST",
+    "path": "/reminders",
+    "tags": [
+      "reminders"
+    ],
+    "summary": "Create a message reminder",
+    "operationId": "create-message-reminder"
+  },
+  {
+    "method": "DELETE",
+    "path": "/reminders/{reminder_id}",
+    "tags": [
+      "reminders"
+    ],
+    "summary": "Delete a reminder",
+    "operationId": "delete-reminder"
+  },
+  {
+    "method": "GET",
+    "path": "/scheduled_messages",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Get scheduled messages",
+    "operationId": "get-scheduled-messages"
+  },
+  {
+    "method": "POST",
+    "path": "/scheduled_messages",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Create a scheduled message",
+    "operationId": "create-scheduled-message"
+  },
+  {
+    "method": "PATCH",
+    "path": "/scheduled_messages/{scheduled_message_id}",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Edit a scheduled message",
+    "operationId": "update-scheduled-message"
+  },
+  {
+    "method": "DELETE",
+    "path": "/scheduled_messages/{scheduled_message_id}",
+    "tags": [
+      "scheduled_messages"
+    ],
+    "summary": "Delete a scheduled message",
+    "operationId": "delete-scheduled-message"
+  },
+  {
+    "method": "POST",
+    "path": "/default_streams",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Add a default channel",
+    "operationId": "add-default-stream"
+  },
+  {
+    "method": "DELETE",
+    "path": "/default_streams",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Remove a default channel",
+    "operationId": "remove-default-stream"
+  },
+  {
+    "method": "GET",
+    "path": "/messages",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get messages",
+    "operationId": "get-messages"
+  },
+  {
+    "method": "POST",
+    "path": "/messages",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Send a message",
+    "operationId": "send-message"
+  },
+  {
+    "method": "GET",
+    "path": "/messages/{message_id}/history",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get a message's edit history",
+    "operationId": "get-message-history"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/flags",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Update personal message flags",
+    "operationId": "update-message-flags"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/flags/narrow",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Update personal message flags for narrow",
+    "operationId": "update-message-flags-for-narrow"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/render",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Render a message",
+    "operationId": "render-message"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/{message_id}/reactions",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Add an emoji reaction",
+    "operationId": "add-reaction"
+  },
+  {
+    "method": "DELETE",
+    "path": "/messages/{message_id}/reactions",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Remove an emoji reaction",
+    "operationId": "remove-reaction"
+  },
+  {
+    "method": "GET",
+    "path": "/messages/{message_id}/read_receipts",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get a message's read receipts",
+    "operationId": "get-read-receipts"
+  },
+  {
+    "method": "GET",
+    "path": "/messages/matches_narrow",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Check if messages match a narrow",
+    "operationId": "check-messages-match-narrow"
+  },
+  {
+    "method": "GET",
+    "path": "/messages/{message_id}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Fetch a single message",
+    "operationId": "get-message"
+  },
+  {
+    "method": "PATCH",
+    "path": "/messages/{message_id}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Edit a message",
+    "operationId": "update-message"
+  },
+  {
+    "method": "DELETE",
+    "path": "/messages/{message_id}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Delete a message",
+    "operationId": "delete-message"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/{message_id}/report",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Report a message",
+    "operationId": "report-message"
+  },
+  {
+    "method": "POST",
+    "path": "/user_uploads",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Upload a file",
+    "operationId": "upload-file"
+  },
+  {
+    "method": "GET",
+    "path": "/thumbnail/status/{realm_id_str}/{filename}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Check thumbnail status",
+    "operationId": "check-thumbnail-status"
+  },
+  {
+    "method": "GET",
+    "path": "/user_uploads/{realm_id_str}/{filename}",
+    "tags": [
+      "messages"
+    ],
+    "summary": "Get public temporary URL for an uploaded file",
+    "operationId": "get-file-temporary-url"
+  },
+  {
+    "method": "GET",
+    "path": "/users",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get users",
+    "operationId": "get-users"
+  },
+  {
+    "method": "POST",
+    "path": "/users",
+    "tags": [
+      "users"
+    ],
+    "summary": "Create a user",
+    "operationId": "create-user"
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/reactivate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Reactivate a user",
+    "operationId": "reactivate-user"
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/status",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update user status",
+    "operationId": "update-status-for-user"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}/status",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user's status",
+    "operationId": "get-user-status"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id_or_email}/presence",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user's presence",
+    "operationId": "get-user-presence"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get own user",
+    "operationId": "get-own-user"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me",
+    "tags": [
+      "users"
+    ],
+    "summary": "Deactivate own user",
+    "operationId": "deactivate-own-user"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/api_key/regenerate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Regenerate your API key",
+    "operationId": "regenerate-api-key"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/alert_words",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get all alert words",
+    "operationId": "get-alert-words"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/alert_words",
+    "tags": [
+      "users"
+    ],
+    "summary": "Add alert words",
+    "operationId": "add-alert-words"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/alert_words",
+    "tags": [
+      "users"
+    ],
+    "summary": "Remove alert words",
+    "operationId": "remove-alert-words"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/presence",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update your presence",
+    "operationId": "update-presence"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/status",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update your status",
+    "operationId": "update-status"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/{stream_id}/topics",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get topics in a channel",
+    "operationId": "get-stream-topics"
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get subscribed channels",
+    "operationId": "get-subscriptions"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Subscribe to a channel",
+    "operationId": "subscribe"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update subscriptions",
+    "operationId": "update-subscriptions"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/subscriptions",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Unsubscribe from a channel",
+    "operationId": "unsubscribe"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me/subscriptions/muted_topics",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Topic muting",
+    "operationId": "mute-topic"
+  },
+  {
+    "method": "POST",
+    "path": "/mobile_push/test_notification",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Send a test notification to mobile device(s)",
+    "operationId": "test-notify"
+  },
+  {
+    "method": "POST",
+    "path": "/mobile_push/e2ee/test_notification",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Send an E2EE test notification to mobile device(s)",
+    "operationId": "e2ee-test-notify"
+  },
+  {
+    "method": "POST",
+    "path": "/mobile_push/register",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Register E2EE push device",
+    "operationId": "register-push-device"
+  },
+  {
+    "method": "POST",
+    "path": "/remotes/push/e2ee/register",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Register E2EE push device to bouncer",
+    "operationId": "register-remote-push-device"
+  },
+  {
+    "method": "POST",
+    "path": "/register_client_device",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Register a logged-in device",
+    "operationId": "register-client-device"
+  },
+  {
+    "method": "POST",
+    "path": "/remove_client_device",
+    "tags": [
+      "mobile"
+    ],
+    "summary": "Remove a registered device",
+    "operationId": "remove-client-device"
+  },
+  {
+    "method": "POST",
+    "path": "/user_topics",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update personal preferences for a topic",
+    "operationId": "update-user-topic"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/muted_users/{muted_user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Mute a user",
+    "operationId": "mute-user"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/muted_users/{muted_user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Unmute a user",
+    "operationId": "unmute-user"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/apns_device_token",
+    "tags": [
+      "users"
+    ],
+    "summary": "Add an APNs device token",
+    "operationId": "add-apns-token"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/apns_device_token",
+    "tags": [
+      "users"
+    ],
+    "summary": "Remove an APNs device token",
+    "operationId": "remove-apns-token"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/android_gcm_reg_id",
+    "tags": [
+      "users"
+    ],
+    "summary": "Add an FCM registration token",
+    "operationId": "add-fcm-token"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me/android_gcm_reg_id",
+    "tags": [
+      "users"
+    ],
+    "summary": "Remove an FCM registration token",
+    "operationId": "remove-fcm-token"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}/subscriptions/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get subscription status",
+    "operationId": "get-subscription-status"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}/channels",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get a user's subscribed channels",
+    "operationId": "get-user-channels"
+  },
+  {
+    "method": "POST",
+    "path": "/realm/emoji/{emoji_name}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Upload custom emoji",
+    "operationId": "upload-custom-emoji"
+  },
+  {
+    "method": "DELETE",
+    "path": "/realm/emoji/{emoji_name}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Deactivate custom emoji",
+    "operationId": "deactivate-custom-emoji"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/emoji",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get all custom emoji",
+    "operationId": "get-custom-emoji"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/presence",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get presence of all users",
+    "operationId": "get-presence"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/profile_fields",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get all custom profile fields",
+    "operationId": "get-custom-profile-fields"
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/profile_fields",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Reorder custom profile fields",
+    "operationId": "reorder-custom-profile-fields"
+  },
+  {
+    "method": "POST",
+    "path": "/realm/profile_fields",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Create a custom profile field",
+    "operationId": "create-custom-profile-field"
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/user_settings_defaults",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Update realm-level defaults of user settings",
+    "operationId": "update-realm-user-settings-defaults"
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/subscriptions/properties",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Bulk update subscription settings",
+    "operationId": "update-subscription-settings"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me/subscriptions/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update a subscription setting",
+    "operationId": "update-subscription-property"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{email}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user by email",
+    "operationId": "get-user-by-email"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/{email}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update a user by email",
+    "operationId": "update-user-by-email"
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a user",
+    "operationId": "get-user"
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update a user",
+    "operationId": "update-user"
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Deactivate a user",
+    "operationId": "deactivate-user"
+  },
+  {
+    "method": "GET",
+    "path": "/realm/linkifiers",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get linkifiers",
+    "operationId": "get-linkifiers"
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/linkifiers",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Reorder linkifiers",
+    "operationId": "reorder-linkifiers"
+  },
+  {
+    "method": "POST",
+    "path": "/realm/filters",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Add a linkifier",
+    "operationId": "add-linkifier"
+  },
+  {
+    "method": "DELETE",
+    "path": "/realm/filters/{filter_id}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Remove a linkifier",
+    "operationId": "remove-linkifier"
+  },
+  {
+    "method": "PATCH",
+    "path": "/realm/filters/{filter_id}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Update a linkifier",
+    "operationId": "update-linkifier"
+  },
+  {
+    "method": "POST",
+    "path": "/realm/playgrounds",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Add a code playground",
+    "operationId": "add-code-playground"
+  },
+  {
+    "method": "DELETE",
+    "path": "/realm/playgrounds/{playground_id}",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Remove a code playground",
+    "operationId": "remove-code-playground"
+  },
+  {
+    "method": "GET",
+    "path": "/export/realm",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get all data exports",
+    "operationId": "get-realm-exports"
+  },
+  {
+    "method": "POST",
+    "path": "/export/realm",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Create a data export",
+    "operationId": "export-realm"
+  },
+  {
+    "method": "GET",
+    "path": "/export/realm/consents",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get data export consent state",
+    "operationId": "get-realm-export-consents"
+  },
+  {
+    "method": "GET",
+    "path": "/invites",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Get all invitations",
+    "operationId": "get-invites"
+  },
+  {
+    "method": "POST",
+    "path": "/invites",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Send invitations",
+    "operationId": "send-invites"
+  },
+  {
+    "method": "POST",
+    "path": "/invites/multiuse",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Create a reusable invitation link",
+    "operationId": "create-invite-link"
+  },
+  {
+    "method": "DELETE",
+    "path": "/invites/{invite_id}",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Revoke an email invitation",
+    "operationId": "revoke-email-invite"
+  },
+  {
+    "method": "DELETE",
+    "path": "/invites/multiuse/{invite_id}",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Revoke a reusable invitation link",
+    "operationId": "revoke-invite-link"
+  },
+  {
+    "method": "POST",
+    "path": "/invites/{invite_id}/resend",
+    "tags": [
+      "invites"
+    ],
+    "summary": "Resend an email invitation",
+    "operationId": "resend-email-invite"
+  },
+  {
+    "method": "POST",
+    "path": "/realm/test_welcome_bot_custom_message",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Test welcome bot custom message",
+    "operationId": "test-welcome-bot-custom-message"
+  },
+  {
+    "method": "POST",
+    "path": "/register",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Register an event queue",
+    "operationId": "register-queue"
+  },
+  {
+    "method": "GET",
+    "path": "/server_settings",
+    "tags": [
+      "server_and_organizations"
+    ],
+    "summary": "Get server settings",
+    "operationId": "get-server-settings"
+  },
+  {
+    "method": "PATCH",
+    "path": "/settings",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update settings",
+    "operationId": "update-settings"
+  },
+  {
+    "method": "GET",
+    "path": "/streams/{stream_id}/members",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel subscribers",
+    "operationId": "get-subscribers"
+  },
+  {
+    "method": "GET",
+    "path": "/streams",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get all channels",
+    "operationId": "get-streams"
+  },
+  {
+    "method": "GET",
+    "path": "/streams/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get a channel by ID",
+    "operationId": "get-stream-by-id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/streams/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Archive a channel",
+    "operationId": "archive-stream"
+  },
+  {
+    "method": "PATCH",
+    "path": "/streams/{stream_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update a channel",
+    "operationId": "update-stream"
+  },
+  {
+    "method": "GET",
+    "path": "/streams/{stream_id}/email_address",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel's email address",
+    "operationId": "get-stream-email-address"
+  },
+  {
+    "method": "POST",
+    "path": "/streams/{stream_id}/delete_topic",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Delete a topic",
+    "operationId": "delete-topic"
+  },
+  {
+    "method": "POST",
+    "path": "/typing",
+    "tags": [
+      "users"
+    ],
+    "summary": "Set \"typing\" status",
+    "operationId": "set-typing-status"
+  },
+  {
+    "method": "POST",
+    "path": "/messages/{message_id}/typing",
+    "tags": [
+      "users"
+    ],
+    "summary": "Set \"typing\" status for message editing",
+    "operationId": "set-typing-status-for-message-edit"
+  },
+  {
+    "method": "POST",
+    "path": "/channels/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create a channel",
+    "operationId": "create-channel"
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/create",
+    "tags": [
+      "users"
+    ],
+    "summary": "Create a user group",
+    "operationId": "create-user-group"
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/{user_group_id}/members",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update user group members",
+    "operationId": "update-user-group-members"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups/{user_group_id}/members",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get user group members",
+    "operationId": "get-user-group-members"
+  },
+  {
+    "method": "PATCH",
+    "path": "/user_groups/{user_group_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update a user group",
+    "operationId": "update-user-group"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get user groups",
+    "operationId": "get-user-groups"
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/{user_group_id}/subgroups",
+    "tags": [
+      "users"
+    ],
+    "summary": "Update subgroups of a user group",
+    "operationId": "update-user-group-subgroups"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups/{user_group_id}/subgroups",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get subgroups of a user group",
+    "operationId": "get-user-group-subgroups"
+  },
+  {
+    "method": "GET",
+    "path": "/user_groups/{user_group_id}/members/{user_id}",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get user group membership status",
+    "operationId": "get-is-user-group-member"
+  },
+  {
+    "method": "POST",
+    "path": "/user_groups/{user_group_id}/deactivate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Deactivate a user group",
+    "operationId": "deactivate-user-group"
+  },
+  {
+    "method": "POST",
+    "path": "/channel_folders/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create a channel folder",
+    "operationId": "create-channel-folder"
+  },
+  {
+    "method": "GET",
+    "path": "/channel_folders",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Get channel folders",
+    "operationId": "get-channel-folders"
+  },
+  {
+    "method": "PATCH",
+    "path": "/channel_folders",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Reorder channel folders",
+    "operationId": "patch-channel-folders"
+  },
+  {
+    "method": "PATCH",
+    "path": "/channel_folders/{channel_folder_id}",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Update a channel folder",
+    "operationId": "update-channel-folder"
+  },
+  {
+    "method": "GET",
+    "path": "/bots/{bot_id}/api_key",
+    "tags": [
+      "users"
+    ],
+    "summary": "Get a bot's API key",
+    "operationId": "get-bot-api-key"
+  },
+  {
+    "method": "POST",
+    "path": "/bots/{bot_id}/api_key/regenerate",
+    "tags": [
+      "users"
+    ],
+    "summary": "Regenerate a bot's API key",
+    "operationId": "regenerate-bot-api-key"
+  },
+  {
+    "method": "POST",
+    "path": "/real-time",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "",
+    "operationId": ""
+  },
+  {
+    "method": "POST",
+    "path": "/rest-error-handling",
+    "tags": [
+      "real_time_events"
+    ],
+    "summary": "Error handling",
+    "operationId": "rest-error-handling"
+  },
+  {
+    "method": "POST",
+    "path": "/zulip-outgoing-webhook",
+    "tags": [
+      "webhooks"
+    ],
+    "summary": "Outgoing webhooks",
+    "operationId": "zulip-outgoing-webhooks"
+  },
+  {
+    "method": "GET",
+    "path": "/calls/bigbluebutton/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create BigBlueButton video call",
+    "operationId": "create-big-blue-button-video-call"
+  },
+  {
+    "method": "POST",
+    "path": "/calls/nextcloud_talk/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create Nextcloud Talk video call",
+    "operationId": "create-nextcloud-talk-video-call"
+  },
+  {
+    "method": "POST",
+    "path": "/calls/constructorgroups/create",
+    "tags": [
+      "channels"
+    ],
+    "summary": "Create Constructor Groups video call",
+    "operationId": "create-constructor-groups-video-call"
+  }
+]

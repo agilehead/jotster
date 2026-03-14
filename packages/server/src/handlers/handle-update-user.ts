@@ -3,6 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateUserDomain } from "@jotster/users/Jotster.Users.js";
 import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
+import { resolveUserByEmailPath } from "../helpers/compat-db.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateUser = async (
@@ -17,7 +18,9 @@ export const handleUpdateUser = async (
   }
 
   const user = authResult.data;
-  const targetId = req.params["user_id"] as string;
+  const identifier = req.params["user_id_or_email"] as string ?? req.params["user_id"] as string;
+  const resolvedUser = await resolveUserByEmailPath(app.options, user.tenantId, identifier);
+  const targetId = resolvedUser?.Id ?? identifier;
 
   const body = getBodyObject(req);
   const updates: { fullName?: string; role?: int } = {};

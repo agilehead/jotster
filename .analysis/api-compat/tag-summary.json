@@ -1,0 +1,106 @@
+{
+  "authentication": {
+    "total": 4,
+    "implemented_tested": 1,
+    "implemented_route_only": 1,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 2
+  },
+  "real_time_events": {
+    "total": 5,
+    "implemented_tested": 3,
+    "implemented_route_only": 0,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 2
+  },
+  "channels": {
+    "total": 29,
+    "implemented_tested": 10,
+    "implemented_route_only": 11,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 1,
+    "missing": 7
+  },
+  "messages": {
+    "total": 20,
+    "implemented_tested": 5,
+    "implemented_route_only": 8,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 1,
+    "missing": 6
+  },
+  "users": {
+    "total": 41,
+    "implemented_tested": 18,
+    "implemented_route_only": 10,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 6,
+    "missing": 7
+  },
+  "drafts": {
+    "total": 8,
+    "implemented_tested": 2,
+    "implemented_route_only": 2,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 4
+  },
+  "navigation_views": {
+    "total": 4,
+    "implemented_tested": 0,
+    "implemented_route_only": 0,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 4
+  },
+  "reminders": {
+    "total": 3,
+    "implemented_tested": 0,
+    "implemented_route_only": 0,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 3
+  },
+  "scheduled_messages": {
+    "total": 4,
+    "implemented_tested": 0,
+    "implemented_route_only": 0,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 4
+  },
+  "mobile": {
+    "total": 6,
+    "implemented_tested": 0,
+    "implemented_route_only": 3,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 3
+  },
+  "server_and_organizations": {
+    "total": 20,
+    "implemented_tested": 9,
+    "implemented_route_only": 2,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 9
+  },
+  "invites": {
+    "total": 6,
+    "implemented_tested": 3,
+    "implemented_route_only": 3,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 0
+  },
+  "webhooks": {
+    "total": 1,
+    "implemented_tested": 0,
+    "implemented_route_only": 0,
+    "implemented_param_alias_tested": 0,
+    "implemented_param_alias": 0,
+    "missing": 1
+  }
+}

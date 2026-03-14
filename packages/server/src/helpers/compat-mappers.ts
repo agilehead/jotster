@@ -1,0 +1,106 @@
+import type {
+  ChannelFolder,
+  Linkifier,
+  NavigationView,
+  Reminder,
+  SavedSnippet,
+  ScheduledMessage,
+} from "@jotster/core/Jotster.Core.js";
+import { Convert, Math as ClrMath } from "@tsonic/dotnet/System.js";
+
+const toUnixSeconds = (value: unknown): number => {
+  if (value === undefined || value === null) {
+    return 0;
+  }
+  const parsed = Number(`${value}`);
+  if (Number.isFinite(parsed)) {
+    return ClrMath.Floor(parsed / 1000);
+  }
+  return 0;
+};
+
+const parseStringArray = (value: string | undefined): string[] => {
+  if (value === undefined || value.trim().length === 0) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    const entries = parsed as unknown[];
+    const result: string[] = [];
+    for (let i = 0; i < entries.length; i++) {
+      result.push(`${entries[i] ?? ""}`);
+    }
+    return result;
+  } catch {
+    return [];
+  }
+};
+
+const parseAlternativeUrlTemplates = (value: string | undefined): string[] => {
+  return parseStringArray(value);
+};
+
+export const mapChannelFolderToCompatResponse = (folder: ChannelFolder): Record<string, unknown> => ({
+  id: folder.Id,
+  name: folder.Name,
+  order: folder.Ordering,
+  date_created: toUnixSeconds(folder.CreatedAt),
+  creator_id: folder.UserId,
+  description: "",
+  rendered_description: "",
+  is_archived: false,
+});
+
+export const mapNavigationViewToCompatResponse = (view: NavigationView): Record<string, unknown> => ({
+  fragment: view.Fragment,
+  is_pinned: view.IsPinned === 1,
+  name: view.Name ?? null,
+});
+
+export const mapSavedSnippetToCompatResponse = (snippet: SavedSnippet): Record<string, unknown> => ({
+  id: snippet.Id,
+  title: snippet.Title,
+  content: snippet.Content,
+  date_created: toUnixSeconds(snippet.CreatedAt),
+});
+
+export const mapReminderToCompatResponse = (
+  reminder: Reminder,
+  userId: string,
+): Record<string, unknown> => ({
+  reminder_id: reminder.Id,
+  type: "private",
+  to: [userId],
+  content: reminder.Content,
+  rendered_content: reminder.RenderedContent,
+  scheduled_delivery_timestamp: toUnixSeconds(reminder.ScheduledDeliveryTimestamp),
+  failed: reminder.Failed === 1,
+  reminder_target_message_id: reminder.MessageId,
+});
+
+export const mapScheduledMessageToCompatResponse = (
+  scheduledMessage: ScheduledMessage,
+): Record<string, unknown> => ({
+  scheduled_message_id: scheduledMessage.Id,
+  type: scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
+  to: scheduledMessage.Type === "stream"
+    ? (scheduledMessage.ChannelId ?? "")
+    : parseStringArray(scheduledMessage.RecipientIdsJson),
+  topic: scheduledMessage.Type === "stream" ? (scheduledMessage.Topic ?? "") : undefined,
+  content: scheduledMessage.Content,
+  rendered_content: scheduledMessage.RenderedContent,
+  scheduled_delivery_timestamp: toUnixSeconds(scheduledMessage.ScheduledDeliveryTimestamp),
+  failed: scheduledMessage.Failed === 1,
+});
+
+export const mapLinkifierToCompatResponse = (linkifier: Linkifier): Record<string, unknown> => ({
+  pattern: linkifier.Pattern,
+  url_template: linkifier.UrlTemplate,
+  id: linkifier.Id,
+  example_input: linkifier.ExampleInput ?? null,
+  reverse_template: linkifier.ReverseTemplate ?? null,
+  alternative_url_templates: parseAlternativeUrlTemplates(linkifier.AlternativeUrlTemplatesJson),
+});

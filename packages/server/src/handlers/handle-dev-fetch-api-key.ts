@@ -15,13 +15,13 @@ export const handleDevFetchApiKey = async (
   }
 
   const body = getBodyObject(req);
-  const directEmail = body["direct_email"] as string | undefined;
-  if (!directEmail) {
-    res.status(400).json({ result: "error", msg: "Missing direct_email", code: "BAD_REQUEST" });
+  const username = (body["username"] as string | undefined) ?? (body["direct_email"] as string | undefined);
+  if (!username) {
+    res.status(400).json({ result: "error", msg: "Missing username", code: "BAD_REQUEST" });
     return;
   }
 
-  const result = await devFetchApiKey(app.options, app.config, tenantResult.data.Id, directEmail);
+  const result = await devFetchApiKey(app.options, app.config, tenantResult.data.Id, username);
   if (!result.success) {
     res.status(403).json({ result: "error", msg: result.error });
     return;

@@ -3,6 +3,7 @@ export class ServerConfig {
   listenUrl: string = "http://localhost:8080";
   database: string = "jotster.db";
   rootToken: string = "";
+  jwtSecret: string = "";
   singleTenantId: string = "";
   uploadsDir: string = "";
 }
