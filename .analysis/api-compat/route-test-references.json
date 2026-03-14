@@ -1,259 +1,1826 @@
-{
-  "/api/v1/attachments": 0,
-  "/api/v1/attachments/{attachment_id}": 0,
-  "/api/v1/bots/{bot_id}/api_key": 0,
-  "/api/v1/bots/{bot_id}/api_key/regenerate": 0,
-  "/api/v1/calls/bigbluebutton/create": 0,
-  "/api/v1/calls/constructorgroups/create": 0,
-  "/api/v1/calls/nextcloud_talk/create": 0,
-  "/api/v1/channel_folders": 0,
-  "/api/v1/channel_folders/create": 0,
-  "/api/v1/channel_folders/{channel_folder_id}": 0,
-  "/api/v1/channels/create": 0,
-  "/api/v1/default_streams": 0,
-  "/api/v1/dev_fetch_api_key": 0,
-  "/api/v1/dev_list_users": 0,
-  "/api/v1/drafts": 0,
-  "/api/v1/drafts/{draft_id}": 0,
-  "/api/v1/events": 0,
-  "/api/v1/export/realm": 0,
-  "/api/v1/export/realm/consents": 0,
-  "/api/v1/fetch_api_key": 0,
-  "/api/v1/get_stream_id": 0,
-  "/api/v1/invites": 0,
-  "/api/v1/invites/multiuse": 0,
-  "/api/v1/invites/multiuse/{invite_id}": 0,
-  "/api/v1/invites/{invite_id}": 0,
-  "/api/v1/invites/{invite_id}/resend": 0,
-  "/api/v1/jwt/fetch_api_key": 0,
-  "/api/v1/mark_all_as_read": 0,
-  "/api/v1/mark_stream_as_read": 0,
-  "/api/v1/mark_topic_as_read": 0,
-  "/api/v1/messages": 0,
-  "/api/v1/messages/flags": 0,
-  "/api/v1/messages/flags/narrow": 0,
-  "/api/v1/messages/matches_narrow": 0,
-  "/api/v1/messages/render": 0,
-  "/api/v1/messages/{message_id}": 0,
-  "/api/v1/messages/{message_id}/history": 0,
-  "/api/v1/messages/{message_id}/reactions": 0,
-  "/api/v1/messages/{message_id}/read_receipts": 0,
-  "/api/v1/messages/{message_id}/report": 0,
-  "/api/v1/messages/{message_id}/typing": 0,
-  "/api/v1/mobile_push/e2ee/test_notification": 0,
-  "/api/v1/mobile_push/register": 0,
-  "/api/v1/mobile_push/test_notification": 0,
-  "/api/v1/navigation_views": 0,
-  "/api/v1/navigation_views/{fragment}": 0,
-  "/api/v1/real-time": 0,
-  "/api/v1/realm/emoji": 0,
-  "/api/v1/realm/emoji/{emoji_name}": 0,
-  "/api/v1/realm/filters": 0,
-  "/api/v1/realm/filters/{filter_id}": 0,
-  "/api/v1/realm/linkifiers": 0,
-  "/api/v1/realm/playgrounds": 0,
-  "/api/v1/realm/playgrounds/{playground_id}": 0,
-  "/api/v1/realm/presence": 0,
-  "/api/v1/realm/profile_fields": 0,
-  "/api/v1/realm/test_welcome_bot_custom_message": 0,
-  "/api/v1/realm/user_settings_defaults": 0,
-  "/api/v1/register": 0,
-  "/api/v1/register_client_device": 0,
-  "/api/v1/reminders": 0,
-  "/api/v1/reminders/{reminder_id}": 0,
-  "/api/v1/remotes/push/e2ee/register": 0,
-  "/api/v1/remove_client_device": 0,
-  "/api/v1/rest-error-handling": 0,
-  "/api/v1/saved_snippets": 0,
-  "/api/v1/saved_snippets/{saved_snippet_id}": 0,
-  "/api/v1/scheduled_messages": 0,
-  "/api/v1/scheduled_messages/{scheduled_message_id}": 0,
-  "/api/v1/server_settings": 0,
-  "/api/v1/settings": 0,
-  "/api/v1/streams": 0,
-  "/api/v1/streams/{stream_id}": 0,
-  "/api/v1/streams/{stream_id}/delete_topic": 0,
-  "/api/v1/streams/{stream_id}/email_address": 0,
-  "/api/v1/streams/{stream_id}/members": 0,
-  "/api/v1/thumbnail/status/{realm_id_str}/{filename}": 0,
-  "/api/v1/typing": 0,
-  "/api/v1/user_groups": 0,
-  "/api/v1/user_groups/create": 0,
-  "/api/v1/user_groups/{user_group_id}": 0,
-  "/api/v1/user_groups/{user_group_id}/deactivate": 0,
-  "/api/v1/user_groups/{user_group_id}/members": 0,
-  "/api/v1/user_groups/{user_group_id}/members/{user_id}": 0,
-  "/api/v1/user_groups/{user_group_id}/subgroups": 0,
-  "/api/v1/user_topics": 0,
-  "/api/v1/user_uploads": 0,
-  "/api/v1/user_uploads/{realm_id_str}/{filename}": 0,
-  "/api/v1/users": 0,
-  "/api/v1/users/me": 0,
-  "/api/v1/users/me/alert_words": 0,
-  "/api/v1/users/me/android_gcm_reg_id": 0,
-  "/api/v1/users/me/api_key/regenerate": 0,
-  "/api/v1/users/me/apns_device_token": 0,
-  "/api/v1/users/me/muted_users/{muted_user_id}": 0,
-  "/api/v1/users/me/presence": 0,
-  "/api/v1/users/me/status": 0,
-  "/api/v1/users/me/subscriptions": 0,
-  "/api/v1/users/me/subscriptions/muted_topics": 0,
-  "/api/v1/users/me/subscriptions/properties": 0,
-  "/api/v1/users/me/subscriptions/{stream_id}": 0,
-  "/api/v1/users/me/{stream_id}/topics": 0,
-  "/api/v1/users/{email}": 0,
-  "/api/v1/users/{user_id_or_email}/presence": 0,
-  "/api/v1/users/{user_id}": 0,
-  "/api/v1/users/{user_id}/channels": 0,
-  "/api/v1/users/{user_id}/reactivate": 0,
-  "/api/v1/users/{user_id}/status": 0,
-  "/api/v1/users/{user_id}/subscriptions/{stream_id}": 0,
-  "/api/v1/zulip-outgoing-webhook": 0,
-  "/attachments": 1,
-  "/attachments/{attachment_id}": 0,
-  "/bot_storage": 6,
-  "/bots/{bot_id}/api_key": 0,
-  "/bots/{bot_id}/api_key/regenerate": 0,
-  "/calls/bigbluebutton/create": 0,
-  "/calls/constructorgroups/create": 0,
-  "/calls/nextcloud_talk/create": 0,
-  "/channel_folders": 6,
-  "/channel_folders/${folderId}": 2,
-  "/channel_folders/create": 0,
-  "/channel_folders/nonexistent_folder_id": 1,
-  "/channel_folders/{channel_folder_id}": 0,
-  "/channels/create": 1,
-  "/default_streams": 0,
-  "/dev_fetch_api_key": 0,
-  "/dev_list_users": 0,
-  "/drafts": 7,
-  "/drafts/${draftId}": 2,
-  "/drafts/nonexistent_draft_id": 1,
-  "/drafts/{draft_id}": 0,
-  "/events": 5,
-  "/export/realm": 4,
-  "/export/realm/consents": 1,
-  "/external/github": 1,
-  "/external/nonexistent_integration": 1,
-  "/fetch_api_key": 3,
-  "/get_stream_id": 2,
-  "/health": 1,
-  "/internal/admin/tenants": 3,
-  "/internal/admin/tenants/${tenantId}": 1,
-  "/invites": 4,
-  "/invites/${inviteId}": 1,
-  "/invites/multiuse": 1,
-  "/invites/multiuse/{invite_id}": 0,
-  "/invites/{invite_id}": 0,
-  "/invites/{invite_id}/resend": 0,
-  "/jwt/fetch_api_key": 0,
-  "/mark_all_as_read": 1,
-  "/mark_stream_as_read": 0,
-  "/mark_topic_as_read": 0,
-  "/messages": 8,
-  "/messages/${messageId}": 5,
-  "/messages/${messageId}/history": 1,
-  "/messages/${messageId}/reactions": 6,
-  "/messages/flags": 4,
-  "/messages/flags/narrow": 0,
-  "/messages/matches_narrow": 0,
-  "/messages/msg_nonexistent999": 2,
-  "/messages/render": 0,
-  "/messages/{message_id}": 0,
-  "/messages/{message_id}/history": 0,
-  "/messages/{message_id}/reactions": 0,
-  "/messages/{message_id}/read_receipts": 0,
-  "/messages/{message_id}/report": 0,
-  "/messages/{message_id}/typing": 0,
-  "/mobile_push/e2ee/test_notification": 0,
-  "/mobile_push/register": 0,
-  "/mobile_push/test_notification": 0,
-  "/navigation_views": 0,
-  "/navigation_views/{fragment}": 0,
-  "/real-time": 0,
-  "/realm": 2,
-  "/realm/deactivate": 3,
-  "/realm/domains": 4,
-  "/realm/domains/example.com": 2,
-  "/realm/emoji": 2,
-  "/realm/emoji/{emoji_name}": 0,
-  "/realm/filters": 0,
-  "/realm/filters/{filter_id}": 0,
-  "/realm/linkifiers": 0,
-  "/realm/playgrounds": 0,
-  "/realm/playgrounds/{playground_id}": 0,
-  "/realm/presence": 1,
-  "/realm/profile_fields": 6,
-  "/realm/profile_fields/${fieldId}": 2,
-  "/realm/profile_fields/nonexistent_id": 1,
-  "/realm/test_welcome_bot_custom_message": 0,
-  "/realm/user_settings_defaults": 1,
-  "/register": 7,
-  "/register_client_device": 0,
-  "/reminders": 0,
-  "/reminders/{reminder_id}": 0,
-  "/remotes/push/e2ee/register": 0,
-  "/remove_client_device": 0,
-  "/rest-error-handling": 0,
-  "/saved_snippets": 0,
-  "/saved_snippets/{saved_snippet_id}": 0,
-  "/scheduled_messages": 0,
-  "/scheduled_messages/{scheduled_message_id}": 0,
-  "/server_settings": 3,
-  "/settings": 3,
-  "/streams": 2,
-  "/streams/${channelId}": 6,
-  "/streams/nonexistent_id_999": 3,
-  "/streams/{stream_id}": 0,
-  "/streams/{stream_id}/delete_topic": 0,
-  "/streams/{stream_id}/email_address": 0,
-  "/streams/{stream_id}/members": 0,
-  "/submit": 1,
-  "/thumbnail/status/{realm_id_str}/{filename}": 0,
-  "/typing": 4,
-  "/user_groups": 3,
-  "/user_groups/${group!.id}": 1,
-  "/user_groups/${group!.id}/deactivate": 1,
-  "/user_groups/create": 5,
-  "/user_groups/{user_group_id}": 0,
-  "/user_groups/{user_group_id}/deactivate": 0,
-  "/user_groups/{user_group_id}/members": 0,
-  "/user_groups/{user_group_id}/members/{user_id}": 0,
-  "/user_groups/{user_group_id}/subgroups": 0,
-  "/user_topics": 3,
-  "/user_uploads": 1,
-  "/user_uploads/{realm_id_str}/{filename}": 0,
-  "/users": 6,
-  "/users/${encodeURIComponent(email)}/presence": 1,
-  "/users/${targetUserId}": 7,
-  "/users/${targetUserId}/reactivate": 2,
-  "/users/${user2.userId}/status": 1,
-  "/users/${userId}": 1,
-  "/users/${userId}/channels": 2,
-  "/users/${userId}/presence": 1,
-  "/users/${userId}/status": 1,
-  "/users/${userId}/subscriptions/${channelId}": 2,
-  "/users/me": 2,
-  "/users/me/alert_words": 8,
-  "/users/me/android_gcm_reg_id": 3,
-  "/users/me/api_key/regenerate": 0,
-  "/users/me/apns_device_token": 3,
-  "/users/me/muted_users/${user2.userId}": 6,
-  "/users/me/muted_users/{muted_user_id}": 0,
-  "/users/me/presence": 6,
-  "/users/me/status": 5,
-  "/users/me/subscriptions": 16,
-  "/users/me/subscriptions/muted_topics": 0,
-  "/users/me/subscriptions/properties": 3,
-  "/users/me/subscriptions/{stream_id}": 0,
-  "/users/me/{stream_id}/topics": 0,
-  "/users/nonexistent_id_999": 3,
-  "/users/{email}": 0,
-  "/users/{user_id_or_email}/presence": 0,
-  "/users/{user_id}": 0,
-  "/users/{user_id}/channels": 0,
-  "/users/{user_id}/reactivate": 0,
-  "/users/{user_id}/status": 0,
-  "/users/{user_id}/subscriptions/{stream_id}": 0,
-  "/zulip-outgoing-webhook": 0
-}
+[
+  {
+    "file": "tests/tests/auth/auth-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/jwt/fetch_api_key",
+    "normalized": "/api/v1/jwt/fetch_api_key"
+  },
+  {
+    "file": "tests/tests/auth/auth-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/dev_list_users",
+    "normalized": "/api/v1/dev_list_users"
+  },
+  {
+    "file": "tests/tests/auth/fetch-api-key.test.ts",
+    "method": "POST",
+    "path": "/api/v1/fetch_api_key",
+    "normalized": "/api/v1/fetch_api_key"
+  },
+  {
+    "file": "tests/tests/auth/fetch-api-key.test.ts",
+    "method": "POST",
+    "path": "/api/v1/fetch_api_key",
+    "normalized": "/api/v1/fetch_api_key"
+  },
+  {
+    "file": "tests/tests/auth/fetch-api-key.test.ts",
+    "method": "POST",
+    "path": "/api/v1/fetch_api_key",
+    "normalized": "/api/v1/fetch_api_key"
+  },
+  {
+    "file": "tests/tests/auth/server-settings.test.ts",
+    "method": "GET",
+    "path": "/api/v1/server_settings",
+    "normalized": "/api/v1/server_settings"
+  },
+  {
+    "file": "tests/tests/auth/server-settings.test.ts",
+    "method": "GET",
+    "path": "/api/v1/server_settings",
+    "normalized": "/api/v1/server_settings"
+  },
+  {
+    "file": "tests/tests/auth/server-settings.test.ts",
+    "method": "GET",
+    "path": "/api/v1/server_settings",
+    "normalized": "/api/v1/server_settings"
+  },
+  {
+    "file": "tests/tests/auth/tenant-management.test.ts",
+    "method": "POST",
+    "path": "/internal/admin/tenants",
+    "normalized": "/internal/admin/tenants"
+  },
+  {
+    "file": "tests/tests/auth/tenant-management.test.ts",
+    "method": "POST",
+    "path": "/internal/admin/tenants",
+    "normalized": "/internal/admin/tenants"
+  },
+  {
+    "file": "tests/tests/auth/tenant-management.test.ts",
+    "method": "GET",
+    "path": "/internal/admin/tenants",
+    "normalized": "/internal/admin/tenants"
+  },
+  {
+    "file": "tests/tests/auth/tenant-management.test.ts",
+    "method": "PATCH",
+    "path": "/internal/admin/tenants/${tenantId}",
+    "normalized": "/internal/admin/tenants/${}"
+  },
+  {
+    "file": "tests/tests/channels/channel-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/channel_folders/create",
+    "normalized": "/api/v1/channel_folders/create"
+  },
+  {
+    "file": "tests/tests/channels/channel-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/channel_folders/create",
+    "normalized": "/api/v1/channel_folders/create"
+  },
+  {
+    "file": "tests/tests/channels/channel-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "file": "tests/tests/channels/channel-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/streams/${channelId}/email_address",
+    "normalized": "/api/v1/streams/${}/email_address"
+  },
+  {
+    "file": "tests/tests/channels/channel-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/streams/${channelId}/delete_topic",
+    "normalized": "/api/v1/streams/${}/delete_topic"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "GET",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "GET",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "POST",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "POST",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "POST",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/channel_folders/${folderId}",
+    "normalized": "/api/v1/channel_folders/${}"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "POST",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/channel_folders/${folderId}",
+    "normalized": "/api/v1/channel_folders/${}"
+  },
+  {
+    "file": "tests/tests/channels/channel-folders.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/channel_folders/nonexistent_folder_id",
+    "normalized": "/api/v1/channel_folders/nonexistent_folder_id"
+  },
+  {
+    "file": "tests/tests/channels/create-channel.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/channels/create-channel.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/channels/create-channel.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/channels/create-channel.test.ts",
+    "method": "POST",
+    "path": "/api/v1/channels/create",
+    "normalized": "/api/v1/channels/create"
+  },
+  {
+    "file": "tests/tests/channels/get-channels.test.ts",
+    "method": "GET",
+    "path": "/api/v1/streams",
+    "normalized": "/api/v1/streams"
+  },
+  {
+    "file": "tests/tests/channels/get-channels.test.ts",
+    "method": "GET",
+    "path": "/api/v1/streams",
+    "normalized": "/api/v1/streams"
+  },
+  {
+    "file": "tests/tests/channels/get-channels.test.ts",
+    "method": "GET",
+    "path": "/api/v1/streams/${channelId}",
+    "normalized": "/api/v1/streams/${}"
+  },
+  {
+    "file": "tests/tests/channels/get-channels.test.ts",
+    "method": "GET",
+    "path": "/api/v1/streams/nonexistent_id_999",
+    "normalized": "/api/v1/streams/nonexistent_id_999"
+  },
+  {
+    "file": "tests/tests/channels/get-channels.test.ts",
+    "method": "GET",
+    "path": "/api/v1/get_stream_id",
+    "normalized": "/api/v1/get_stream_id"
+  },
+  {
+    "file": "tests/tests/channels/get-channels.test.ts",
+    "method": "GET",
+    "path": "/api/v1/get_stream_id",
+    "normalized": "/api/v1/get_stream_id"
+  },
+  {
+    "file": "tests/tests/channels/update-channel.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/streams/${channelId}",
+    "normalized": "/api/v1/streams/${}"
+  },
+  {
+    "file": "tests/tests/channels/update-channel.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/streams/${channelId}",
+    "normalized": "/api/v1/streams/${}"
+  },
+  {
+    "file": "tests/tests/channels/update-channel.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/streams/${channelId}",
+    "normalized": "/api/v1/streams/${}"
+  },
+  {
+    "file": "tests/tests/channels/update-channel.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/streams/nonexistent_id_999",
+    "normalized": "/api/v1/streams/nonexistent_id_999"
+  },
+  {
+    "file": "tests/tests/channels/update-channel.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/streams/${channelId}",
+    "normalized": "/api/v1/streams/${}"
+  },
+  {
+    "file": "tests/tests/channels/update-channel.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/streams/${channelId}",
+    "normalized": "/api/v1/streams/${}"
+  },
+  {
+    "file": "tests/tests/channels/update-channel.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/streams/nonexistent_id_999",
+    "normalized": "/api/v1/streams/nonexistent_id_999"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "POST",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "POST",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "POST",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "GET",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "GET",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "POST",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/drafts/${draftId}",
+    "normalized": "/api/v1/drafts/${}"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "POST",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/drafts/${draftId}",
+    "normalized": "/api/v1/drafts/${}"
+  },
+  {
+    "file": "tests/tests/drafts/drafts.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/drafts/nonexistent_draft_id",
+    "normalized": "/api/v1/drafts/nonexistent_draft_id"
+  },
+  {
+    "file": "tests/tests/emoji/custom-emoji.test.ts",
+    "method": "GET",
+    "path": "/api/v1/realm/emoji",
+    "normalized": "/api/v1/realm/emoji"
+  },
+  {
+    "file": "tests/tests/emoji/custom-emoji.test.ts",
+    "method": "GET",
+    "path": "/api/v1/realm/emoji",
+    "normalized": "/api/v1/realm/emoji"
+  },
+  {
+    "file": "tests/tests/events/get-events.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "file": "tests/tests/events/get-events.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/events/get-events.test.ts",
+    "method": "GET",
+    "path": "/api/v1/events",
+    "normalized": "/api/v1/events"
+  },
+  {
+    "file": "tests/tests/events/get-events.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "file": "tests/tests/events/get-events.test.ts",
+    "method": "GET",
+    "path": "/api/v1/events",
+    "normalized": "/api/v1/events"
+  },
+  {
+    "file": "tests/tests/events/get-events.test.ts",
+    "method": "GET",
+    "path": "/api/v1/events",
+    "normalized": "/api/v1/events"
+  },
+  {
+    "file": "tests/tests/events/register-queue.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "file": "tests/tests/events/register-queue.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "file": "tests/tests/events/register-queue.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "file": "tests/tests/events/register-queue.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "file": "tests/tests/events/register-queue.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "file": "tests/tests/events/register-queue.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/events",
+    "normalized": "/api/v1/events"
+  },
+  {
+    "file": "tests/tests/events/register-queue.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/events",
+    "normalized": "/api/v1/events"
+  },
+  {
+    "file": "tests/tests/export/data-export.test.ts",
+    "method": "GET",
+    "path": "/api/v1/export/realm",
+    "normalized": "/api/v1/export/realm"
+  },
+  {
+    "file": "tests/tests/export/data-export.test.ts",
+    "method": "GET",
+    "path": "/api/v1/export/realm",
+    "normalized": "/api/v1/export/realm"
+  },
+  {
+    "file": "tests/tests/export/data-export.test.ts",
+    "method": "POST",
+    "path": "/api/v1/export/realm",
+    "normalized": "/api/v1/export/realm"
+  },
+  {
+    "file": "tests/tests/export/data-export.test.ts",
+    "method": "POST",
+    "path": "/api/v1/export/realm",
+    "normalized": "/api/v1/export/realm"
+  },
+  {
+    "file": "tests/tests/export/data-export.test.ts",
+    "method": "GET",
+    "path": "/api/v1/export/realm/consents",
+    "normalized": "/api/v1/export/realm/consents"
+  },
+  {
+    "file": "tests/tests/invitations/invitations.test.ts",
+    "method": "GET",
+    "path": "/api/v1/invites",
+    "normalized": "/api/v1/invites"
+  },
+  {
+    "file": "tests/tests/invitations/invitations.test.ts",
+    "method": "GET",
+    "path": "/api/v1/invites",
+    "normalized": "/api/v1/invites"
+  },
+  {
+    "file": "tests/tests/invitations/invitations.test.ts",
+    "method": "POST",
+    "path": "/api/v1/invites",
+    "normalized": "/api/v1/invites"
+  },
+  {
+    "file": "tests/tests/invitations/invitations.test.ts",
+    "method": "POST",
+    "path": "/api/v1/invites/multiuse",
+    "normalized": "/api/v1/invites/multiuse"
+  },
+  {
+    "file": "tests/tests/invitations/invitations.test.ts",
+    "method": "POST",
+    "path": "/api/v1/invites",
+    "normalized": "/api/v1/invites"
+  },
+  {
+    "file": "tests/tests/invitations/invitations.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/invites/${inviteId}",
+    "normalized": "/api/v1/invites/${}"
+  },
+  {
+    "file": "tests/tests/messages/edit-delete-message.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/messages/${messageId}",
+    "normalized": "/api/v1/messages/${}"
+  },
+  {
+    "file": "tests/tests/messages/edit-delete-message.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/messages/${messageId}",
+    "normalized": "/api/v1/messages/${}"
+  },
+  {
+    "file": "tests/tests/messages/edit-delete-message.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/messages/${messageId}",
+    "normalized": "/api/v1/messages/${}"
+  },
+  {
+    "file": "tests/tests/messages/edit-delete-message.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/messages/msg_nonexistent999",
+    "normalized": "/api/v1/messages/msg_nonexistent999"
+  },
+  {
+    "file": "tests/tests/messages/edit-delete-message.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/messages/${messageId}",
+    "normalized": "/api/v1/messages/${}"
+  },
+  {
+    "file": "tests/tests/messages/edit-delete-message.test.ts",
+    "method": "GET",
+    "path": "/api/v1/messages/${messageId}/history",
+    "normalized": "/api/v1/messages/${}/history"
+  },
+  {
+    "file": "tests/tests/messages/get-messages.test.ts",
+    "method": "GET",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/messages/get-messages.test.ts",
+    "method": "GET",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/messages/get-messages.test.ts",
+    "method": "GET",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/messages/get-messages.test.ts",
+    "method": "GET",
+    "path": "/api/v1/messages/${messageId}",
+    "normalized": "/api/v1/messages/${}"
+  },
+  {
+    "file": "tests/tests/messages/get-messages.test.ts",
+    "method": "GET",
+    "path": "/api/v1/messages/msg_nonexistent999",
+    "normalized": "/api/v1/messages/msg_nonexistent999"
+  },
+  {
+    "file": "tests/tests/messages/message-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/mark_stream_as_read",
+    "normalized": "/api/v1/mark_stream_as_read"
+  },
+  {
+    "file": "tests/tests/messages/message-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/mark_topic_as_read",
+    "normalized": "/api/v1/mark_topic_as_read"
+  },
+  {
+    "file": "tests/tests/messages/message-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/flags/narrow",
+    "normalized": "/api/v1/messages/flags/narrow"
+  },
+  {
+    "file": "tests/tests/messages/message-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/messages/matches_narrow",
+    "normalized": "/api/v1/messages/matches_narrow"
+  },
+  {
+    "file": "tests/tests/messages/message-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/${messageId}/report",
+    "normalized": "/api/v1/messages/${}/report"
+  },
+  {
+    "file": "tests/tests/messages/message-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/${messageId}/typing",
+    "normalized": "/api/v1/messages/${}/typing"
+  },
+  {
+    "file": "tests/tests/messages/message-compat.test.ts",
+    "method": "GET",
+    "path": "/thumbnail/status/${tenantId}/example.png",
+    "normalized": "/thumbnail/status/${}/example.png"
+  },
+  {
+    "file": "tests/tests/messages/message-flags.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/flags",
+    "normalized": "/api/v1/messages/flags"
+  },
+  {
+    "file": "tests/tests/messages/message-flags.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/flags",
+    "normalized": "/api/v1/messages/flags"
+  },
+  {
+    "file": "tests/tests/messages/message-flags.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/flags",
+    "normalized": "/api/v1/messages/flags"
+  },
+  {
+    "file": "tests/tests/messages/message-flags.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/flags",
+    "normalized": "/api/v1/messages/flags"
+  },
+  {
+    "file": "tests/tests/messages/message-flags.test.ts",
+    "method": "POST",
+    "path": "/api/v1/mark_all_as_read",
+    "normalized": "/api/v1/mark_all_as_read"
+  },
+  {
+    "file": "tests/tests/messages/reactions.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/${messageId}/reactions",
+    "normalized": "/api/v1/messages/${}/reactions"
+  },
+  {
+    "file": "tests/tests/messages/reactions.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/${messageId}/reactions",
+    "normalized": "/api/v1/messages/${}/reactions"
+  },
+  {
+    "file": "tests/tests/messages/reactions.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/${messageId}/reactions",
+    "normalized": "/api/v1/messages/${}/reactions"
+  },
+  {
+    "file": "tests/tests/messages/reactions.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages/${messageId}/reactions",
+    "normalized": "/api/v1/messages/${}/reactions"
+  },
+  {
+    "file": "tests/tests/messages/reactions.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/messages/${messageId}/reactions",
+    "normalized": "/api/v1/messages/${}/reactions"
+  },
+  {
+    "file": "tests/tests/messages/reactions.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/messages/${messageId}/reactions",
+    "normalized": "/api/v1/messages/${}/reactions"
+  },
+  {
+    "file": "tests/tests/messages/send-message.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/messages/send-message.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/messages/send-message.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/messages/send-message.test.ts",
+    "method": "POST",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "file": "tests/tests/organization/deactivate-realm.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/deactivate",
+    "normalized": "/api/v1/realm/deactivate"
+  },
+  {
+    "file": "tests/tests/organization/deactivate-realm.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/deactivate",
+    "normalized": "/api/v1/realm/deactivate"
+  },
+  {
+    "file": "tests/tests/organization/deactivate-realm.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/deactivate",
+    "normalized": "/api/v1/realm/deactivate"
+  },
+  {
+    "file": "tests/tests/organization/org-settings.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm",
+    "normalized": "/api/v1/realm"
+  },
+  {
+    "file": "tests/tests/organization/org-settings.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm",
+    "normalized": "/api/v1/realm"
+  },
+  {
+    "file": "tests/tests/organization/org-settings.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm/user_settings_defaults",
+    "normalized": "/api/v1/realm/user_settings_defaults"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/filters",
+    "normalized": "/api/v1/realm/filters"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/filters",
+    "normalized": "/api/v1/realm/filters"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/realm/linkifiers",
+    "normalized": "/api/v1/realm/linkifiers"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm/linkifiers",
+    "normalized": "/api/v1/realm/linkifiers"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm/filters/${firstId}",
+    "normalized": "/api/v1/realm/filters/${}"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/realm/filters/${secondId}",
+    "normalized": "/api/v1/realm/filters/${}"
+  },
+  {
+    "file": "tests/tests/organization/organization-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/test_welcome_bot_custom_message",
+    "normalized": "/api/v1/realm/test_welcome_bot_custom_message"
+  },
+  {
+    "file": "tests/tests/organization/realm-domains.test.ts",
+    "method": "GET",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "file": "tests/tests/organization/realm-domains.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "file": "tests/tests/organization/realm-domains.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "file": "tests/tests/organization/realm-domains.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm/domains/example.com",
+    "normalized": "/api/v1/realm/domains/example.com"
+  },
+  {
+    "file": "tests/tests/organization/realm-domains.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "file": "tests/tests/organization/realm-domains.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/realm/domains/example.com",
+    "normalized": "/api/v1/realm/domains/example.com"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/navigation_views",
+    "normalized": "/api/v1/navigation_views"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/navigation_views",
+    "normalized": "/api/v1/navigation_views"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/navigation_views/streams/all",
+    "normalized": "/api/v1/navigation_views/streams/all"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/navigation_views/streams/all",
+    "normalized": "/api/v1/navigation_views/streams/all"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/saved_snippets",
+    "normalized": "/api/v1/saved_snippets"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/saved_snippets",
+    "normalized": "/api/v1/saved_snippets"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/saved_snippets/${snippetId}",
+    "normalized": "/api/v1/saved_snippets/${}"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/saved_snippets/${snippetId}",
+    "normalized": "/api/v1/saved_snippets/${}"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/reminders",
+    "normalized": "/api/v1/reminders"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/reminders",
+    "normalized": "/api/v1/reminders"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/reminders/${reminderId}",
+    "normalized": "/api/v1/reminders/${}"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/scheduled_messages",
+    "normalized": "/api/v1/scheduled_messages"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/scheduled_messages",
+    "normalized": "/api/v1/scheduled_messages"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/scheduled_messages/${scheduledMessageId}",
+    "normalized": "/api/v1/scheduled_messages/${}"
+  },
+  {
+    "file": "tests/tests/persisted/persisted-compat.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/scheduled_messages/${scheduledMessageId}",
+    "normalized": "/api/v1/scheduled_messages/${}"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/muted_users/${user2.userId}",
+    "normalized": "/api/v1/users/me/muted_users/${}"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/muted_users/${user2.userId}",
+    "normalized": "/api/v1/users/me/muted_users/${}"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/muted_users/${user2.userId}",
+    "normalized": "/api/v1/users/me/muted_users/${}"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/muted_users/${user2.userId}",
+    "normalized": "/api/v1/users/me/muted_users/${}"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/muted_users/${user2.userId}",
+    "normalized": "/api/v1/users/me/muted_users/${}"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/muted_users/${user2.userId}",
+    "normalized": "/api/v1/users/me/muted_users/${}"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_topics",
+    "normalized": "/api/v1/user_topics"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_topics",
+    "normalized": "/api/v1/user_topics"
+  },
+  {
+    "file": "tests/tests/presence/muting.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_topics",
+    "normalized": "/api/v1/user_topics"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/presence",
+    "normalized": "/api/v1/users/me/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/presence",
+    "normalized": "/api/v1/users/me/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/presence",
+    "normalized": "/api/v1/users/me/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/presence",
+    "normalized": "/api/v1/users/me/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${encodeURIComponent(email)}/presence",
+    "normalized": "/api/v1/users/${}/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/presence",
+    "normalized": "/api/v1/users/me/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${userId}/presence",
+    "normalized": "/api/v1/users/${}/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/presence",
+    "normalized": "/api/v1/users/me/presence"
+  },
+  {
+    "file": "tests/tests/presence/presence.test.ts",
+    "method": "GET",
+    "path": "/api/v1/realm/presence",
+    "normalized": "/api/v1/realm/presence"
+  },
+  {
+    "file": "tests/tests/presence/typing.test.ts",
+    "method": "POST",
+    "path": "/api/v1/typing",
+    "normalized": "/api/v1/typing"
+  },
+  {
+    "file": "tests/tests/presence/typing.test.ts",
+    "method": "POST",
+    "path": "/api/v1/typing",
+    "normalized": "/api/v1/typing"
+  },
+  {
+    "file": "tests/tests/presence/typing.test.ts",
+    "method": "POST",
+    "path": "/api/v1/typing",
+    "normalized": "/api/v1/typing"
+  },
+  {
+    "file": "tests/tests/presence/typing.test.ts",
+    "method": "POST",
+    "path": "/api/v1/typing",
+    "normalized": "/api/v1/typing"
+  },
+  {
+    "file": "tests/tests/presence/user-status.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/status",
+    "normalized": "/api/v1/users/me/status"
+  },
+  {
+    "file": "tests/tests/presence/user-status.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/status",
+    "normalized": "/api/v1/users/me/status"
+  },
+  {
+    "file": "tests/tests/presence/user-status.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/status",
+    "normalized": "/api/v1/users/me/status"
+  },
+  {
+    "file": "tests/tests/presence/user-status.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/status",
+    "normalized": "/api/v1/users/me/status"
+  },
+  {
+    "file": "tests/tests/presence/user-status.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/status",
+    "normalized": "/api/v1/users/me/status"
+  },
+  {
+    "file": "tests/tests/presence/user-status.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${userId}/status",
+    "normalized": "/api/v1/users/${}/status"
+  },
+  {
+    "file": "tests/tests/presence/user-status.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${user2.userId}/status",
+    "normalized": "/api/v1/users/${}/status"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "GET",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/realm/profile_fields/${fieldId}",
+    "normalized": "/api/v1/realm/profile_fields/${}"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/realm/profile_fields/${fieldId}",
+    "normalized": "/api/v1/realm/profile_fields/${}"
+  },
+  {
+    "file": "tests/tests/profile/custom-profile-fields.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/realm/profile_fields/nonexistent_id",
+    "normalized": "/api/v1/realm/profile_fields/nonexistent_id"
+  },
+  {
+    "file": "tests/tests/push/push-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/register_client_device",
+    "normalized": "/api/v1/register_client_device"
+  },
+  {
+    "file": "tests/tests/push/push-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/remove_client_device",
+    "normalized": "/api/v1/remove_client_device"
+  },
+  {
+    "file": "tests/tests/push/push-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/remotes/push/e2ee/register",
+    "normalized": "/api/v1/remotes/push/e2ee/register"
+  },
+  {
+    "file": "tests/tests/push/push-tokens.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/android_gcm_reg_id",
+    "normalized": "/api/v1/users/me/android_gcm_reg_id"
+  },
+  {
+    "file": "tests/tests/push/push-tokens.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/android_gcm_reg_id",
+    "normalized": "/api/v1/users/me/android_gcm_reg_id"
+  },
+  {
+    "file": "tests/tests/push/push-tokens.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/android_gcm_reg_id",
+    "normalized": "/api/v1/users/me/android_gcm_reg_id"
+  },
+  {
+    "file": "tests/tests/push/push-tokens.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/apns_device_token",
+    "normalized": "/api/v1/users/me/apns_device_token"
+  },
+  {
+    "file": "tests/tests/push/push-tokens.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/apns_device_token",
+    "normalized": "/api/v1/users/me/apns_device_token"
+  },
+  {
+    "file": "tests/tests/push/push-tokens.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/apns_device_token",
+    "normalized": "/api/v1/users/me/apns_device_token"
+  },
+  {
+    "file": "tests/tests/settings/user-settings.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/settings",
+    "normalized": "/api/v1/settings"
+  },
+  {
+    "file": "tests/tests/settings/user-settings.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/settings",
+    "normalized": "/api/v1/settings"
+  },
+  {
+    "file": "tests/tests/settings/user-settings.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/settings",
+    "normalized": "/api/v1/settings"
+  },
+  {
+    "file": "tests/tests/subscriptions/properties.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions/properties",
+    "normalized": "/api/v1/users/me/subscriptions/properties"
+  },
+  {
+    "file": "tests/tests/subscriptions/properties.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions/properties",
+    "normalized": "/api/v1/users/me/subscriptions/properties"
+  },
+  {
+    "file": "tests/tests/subscriptions/properties.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions/properties",
+    "normalized": "/api/v1/users/me/subscriptions/properties"
+  },
+  {
+    "file": "tests/tests/subscriptions/properties.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${userId}/subscriptions/${channelId}",
+    "normalized": "/api/v1/users/${}/subscriptions/${}"
+  },
+  {
+    "file": "tests/tests/subscriptions/properties.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${userId}/subscriptions/${channelId}",
+    "normalized": "/api/v1/users/${}/subscriptions/${}"
+  },
+  {
+    "file": "tests/tests/subscriptions/properties.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${userId}/channels",
+    "normalized": "/api/v1/users/${}/channels"
+  },
+  {
+    "file": "tests/tests/subscriptions/properties.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${userId}/channels",
+    "normalized": "/api/v1/users/${}/channels"
+  },
+  {
+    "file": "tests/tests/subscriptions/subscribe.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/subscribe.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/subscribe.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/subscribe.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/subscribe.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/subscribe.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/subscribe.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "file": "tests/tests/uploads/attachments.test.ts",
+    "method": "GET",
+    "path": "/api/v1/attachments",
+    "normalized": "/api/v1/attachments"
+  },
+  {
+    "file": "tests/tests/uploads/attachments.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_uploads",
+    "normalized": "/api/v1/user_uploads"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/alert-words.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "file": "tests/tests/users/create-user.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "file": "tests/tests/users/create-user.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "file": "tests/tests/users/create-user.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "file": "tests/tests/users/create-user.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/${targetUserId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/${targetUserId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/nonexistent_id_999",
+    "normalized": "/api/v1/users/nonexistent_id_999"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/me",
+    "normalized": "/api/v1/users/me"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/${targetUserId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/${targetUserId}/reactivate",
+    "normalized": "/api/v1/users/${}/reactivate"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/users/${targetUserId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/deactivate-user.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/${targetUserId}/reactivate",
+    "normalized": "/api/v1/users/${}/reactivate"
+  },
+  {
+    "file": "tests/tests/users/get-users.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "file": "tests/tests/users/get-users.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "file": "tests/tests/users/get-users.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${userId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/get-users.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/nonexistent_id_999",
+    "normalized": "/api/v1/users/nonexistent_id_999"
+  },
+  {
+    "file": "tests/tests/users/get-users.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/me",
+    "normalized": "/api/v1/users/me"
+  },
+  {
+    "file": "tests/tests/users/update-user.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/users/${targetUserId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/update-user.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/users/${targetUserId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/update-user.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/users/${targetUserId}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/update-user.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/users/nonexistent_id_999",
+    "normalized": "/api/v1/users/nonexistent_id_999"
+  },
+  {
+    "file": "tests/tests/users/user-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${encodedEmail}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/user-compat.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/users/${encodedEmail}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/user-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${encodedEmail}",
+    "normalized": "/api/v1/users/${}"
+  },
+  {
+    "file": "tests/tests/users/user-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/users/${member.userId}/status",
+    "normalized": "/api/v1/users/${}/status"
+  },
+  {
+    "file": "tests/tests/users/user-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/users/${member.userId}/status",
+    "normalized": "/api/v1/users/${}/status"
+  },
+  {
+    "file": "tests/tests/users/user-compat.test.ts",
+    "method": "GET",
+    "path": "/api/v1/bots/${bot.userId}/api_key",
+    "normalized": "/api/v1/bots/${}/api_key"
+  },
+  {
+    "file": "tests/tests/users/user-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/bots/${bot.userId}/api_key/regenerate",
+    "normalized": "/api/v1/bots/${}/api_key/regenerate"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups",
+    "normalized": "/api/v1/user_groups"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups",
+    "normalized": "/api/v1/user_groups"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups",
+    "normalized": "/api/v1/user_groups"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "PATCH",
+    "path": "/api/v1/user_groups/${group!.id}",
+    "normalized": "/api/v1/user_groups/${}"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups",
+    "normalized": "/api/v1/user_groups"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/${group!.id}/deactivate",
+    "normalized": "/api/v1/user_groups/${}/deactivate"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/${parentGroupId}/members",
+    "normalized": "/api/v1/user_groups/${}/members"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${parentGroupId}/members/${nestedMember.userId}",
+    "normalized": "/api/v1/user_groups/${}/members/${}"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${parentGroupId}/members/${nestedMember.userId}",
+    "normalized": "/api/v1/user_groups/${}/members/${}"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/${parentGroupId}/members",
+    "normalized": "/api/v1/user_groups/${}/members"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${parentGroupId}/members",
+    "normalized": "/api/v1/user_groups/${}/members"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${parentGroupId}/members",
+    "normalized": "/api/v1/user_groups/${}/members"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/${rootGroupId}/members",
+    "normalized": "/api/v1/user_groups/${}/members"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/${middleGroupId}/subgroups",
+    "normalized": "/api/v1/user_groups/${}/subgroups"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${rootGroupId}/subgroups",
+    "normalized": "/api/v1/user_groups/${}/subgroups"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${rootGroupId}/subgroups",
+    "normalized": "/api/v1/user_groups/${}/subgroups"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/${parentGroupId}/members",
+    "normalized": "/api/v1/user_groups/${}/members"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${parentGroupId}/members/${nestedMember.userId}",
+    "normalized": "/api/v1/user_groups/${}/members/${}"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "POST",
+    "path": "/api/v1/user_groups/${parentGroupId}/members",
+    "normalized": "/api/v1/user_groups/${}/members"
+  },
+  {
+    "file": "tests/tests/users/user-groups.test.ts",
+    "method": "GET",
+    "path": "/api/v1/user_groups/${parentGroupId}/members/${nestedMember.userId}",
+    "normalized": "/api/v1/user_groups/${}/members/${}"
+  },
+  {
+    "file": "tests/tests/utils/api-client.test.ts",
+    "method": "GET",
+    "path": "/health",
+    "normalized": "/health"
+  },
+  {
+    "file": "tests/tests/utils/api-client.test.ts",
+    "method": "POST",
+    "path": "/submit",
+    "normalized": "/submit"
+  },
+  {
+    "file": "tests/tests/webhooks/bot-storage.test.ts",
+    "method": "PUT",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "file": "tests/tests/webhooks/bot-storage.test.ts",
+    "method": "PUT",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "file": "tests/tests/webhooks/bot-storage.test.ts",
+    "method": "GET",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "file": "tests/tests/webhooks/bot-storage.test.ts",
+    "method": "GET",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "file": "tests/tests/webhooks/bot-storage.test.ts",
+    "method": "PUT",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "file": "tests/tests/webhooks/bot-storage.test.ts",
+    "method": "DELETE",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "file": "tests/tests/webhooks/incoming-webhook.test.ts",
+    "method": "POST",
+    "path": "/api/v1/external/github",
+    "normalized": "/api/v1/external/github"
+  },
+  {
+    "file": "tests/tests/webhooks/incoming-webhook.test.ts",
+    "method": "POST",
+    "path": "/api/v1/external/nonexistent_integration",
+    "normalized": "/api/v1/external/nonexistent_integration"
+  },
+  {
+    "file": "tests/tests/webhooks/webhook-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/real-time",
+    "normalized": "/api/v1/real-time"
+  },
+  {
+    "file": "tests/tests/webhooks/webhook-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/rest-error-handling",
+    "normalized": "/api/v1/rest-error-handling"
+  },
+  {
+    "file": "tests/tests/webhooks/webhook-compat.test.ts",
+    "method": "POST",
+    "path": "/api/v1/zulip-outgoing-webhook",
+    "normalized": "/api/v1/zulip-outgoing-webhook"
+  }
+]

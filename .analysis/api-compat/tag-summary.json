@@ -1,106 +1,106 @@
-{
-  "authentication": {
+[
+  {
+    "tag": "authentication",
     "total": 4,
-    "implemented_tested": 1,
-    "implemented_route_only": 1,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 2
+    "implemented": 4,
+    "directlyTestCovered": 3,
+    "missingInScope": 0,
+    "excludedByScope": 0
   },
-  "real_time_events": {
-    "total": 5,
-    "implemented_tested": 3,
-    "implemented_route_only": 0,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 2
-  },
-  "channels": {
+  {
+    "tag": "channels",
     "total": 29,
-    "implemented_tested": 10,
-    "implemented_route_only": 11,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 1,
-    "missing": 7
+    "implemented": 26,
+    "directlyTestCovered": 11,
+    "missingInScope": 0,
+    "excludedByScope": 3
   },
-  "messages": {
-    "total": 20,
-    "implemented_tested": 5,
-    "implemented_route_only": 8,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 1,
-    "missing": 6
-  },
-  "users": {
-    "total": 41,
-    "implemented_tested": 18,
-    "implemented_route_only": 10,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 6,
-    "missing": 7
-  },
-  "drafts": {
+  {
+    "tag": "drafts",
     "total": 8,
-    "implemented_tested": 2,
-    "implemented_route_only": 2,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 4
+    "implemented": 8,
+    "directlyTestCovered": 4,
+    "missingInScope": 0,
+    "excludedByScope": 0
   },
-  "navigation_views": {
-    "total": 4,
-    "implemented_tested": 0,
-    "implemented_route_only": 0,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 4
-  },
-  "reminders": {
-    "total": 3,
-    "implemented_tested": 0,
-    "implemented_route_only": 0,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 3
-  },
-  "scheduled_messages": {
-    "total": 4,
-    "implemented_tested": 0,
-    "implemented_route_only": 0,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 4
-  },
-  "mobile": {
+  {
+    "tag": "invites",
     "total": 6,
-    "implemented_tested": 0,
-    "implemented_route_only": 3,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 3
+    "implemented": 6,
+    "directlyTestCovered": 3,
+    "missingInScope": 0,
+    "excludedByScope": 0
   },
-  "server_and_organizations": {
+  {
+    "tag": "messages",
     "total": 20,
-    "implemented_tested": 9,
-    "implemented_route_only": 2,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 9
+    "implemented": 20,
+    "directlyTestCovered": 9,
+    "missingInScope": 0,
+    "excludedByScope": 0
   },
-  "invites": {
+  {
+    "tag": "mobile",
     "total": 6,
-    "implemented_tested": 3,
-    "implemented_route_only": 3,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 0
+    "implemented": 6,
+    "directlyTestCovered": 3,
+    "missingInScope": 0,
+    "excludedByScope": 0
   },
-  "webhooks": {
+  {
+    "tag": "navigation_views",
+    "total": 4,
+    "implemented": 4,
+    "directlyTestCovered": 2,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "real_time_events",
+    "total": 5,
+    "implemented": 5,
+    "directlyTestCovered": 5,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "reminders",
+    "total": 3,
+    "implemented": 3,
+    "directlyTestCovered": 2,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "scheduled_messages",
+    "total": 4,
+    "implemented": 4,
+    "directlyTestCovered": 2,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "server_and_organizations",
+    "total": 20,
+    "implemented": 18,
+    "directlyTestCovered": 14,
+    "missingInScope": 0,
+    "excludedByScope": 2
+  },
+  {
+    "tag": "users",
+    "total": 41,
+    "implemented": 41,
+    "directlyTestCovered": 18,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "webhooks",
     "total": 1,
-    "implemented_tested": 0,
-    "implemented_route_only": 0,
-    "implemented_param_alias_tested": 0,
-    "implemented_param_alias": 0,
-    "missing": 1
+    "implemented": 1,
+    "directlyTestCovered": 1,
+    "missingInScope": 0,
+    "excludedByScope": 0
   }
-}
+]

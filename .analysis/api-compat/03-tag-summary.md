@@ -1,17 +1,17 @@
-# Compatibility by Zulip OpenAPI tag
+# Per-tag summary
 
-| Tag | Total | Implemented + tested | Implemented route only | Param-name diff | Missing |
-|---|---:|---:|---:|---:|---:|
-| `authentication` | 4 | 1 | 1 | 0 | 2 |
-| `real_time_events` | 5 | 3 | 0 | 0 | 2 |
-| `channels` | 29 | 10 | 11 | 1 | 7 |
-| `messages` | 20 | 5 | 8 | 1 | 6 |
-| `users` | 41 | 18 | 10 | 6 | 7 |
-| `drafts` | 8 | 2 | 2 | 0 | 4 |
-| `navigation_views` | 4 | 0 | 0 | 0 | 4 |
-| `reminders` | 3 | 0 | 0 | 0 | 3 |
-| `scheduled_messages` | 4 | 0 | 0 | 0 | 4 |
-| `mobile` | 6 | 0 | 3 | 0 | 3 |
-| `server_and_organizations` | 20 | 9 | 2 | 0 | 9 |
-| `invites` | 6 | 3 | 3 | 0 | 0 |
-| `webhooks` | 1 | 0 | 0 | 0 | 1 |
+| Tag | Total | Implemented | Direct tests | Missing in scope | Excluded |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| authentication | 4 | 4 | 3 | 0 | 0 |
+| channels | 29 | 26 | 11 | 0 | 3 |
+| drafts | 8 | 8 | 4 | 0 | 0 |
+| invites | 6 | 6 | 3 | 0 | 0 |
+| messages | 20 | 20 | 9 | 0 | 0 |
+| mobile | 6 | 6 | 3 | 0 | 0 |
+| navigation_views | 4 | 4 | 2 | 0 | 0 |
+| real_time_events | 5 | 5 | 5 | 0 | 0 |
+| reminders | 3 | 3 | 2 | 0 | 0 |
+| scheduled_messages | 4 | 4 | 2 | 0 | 0 |
+| server_and_organizations | 20 | 18 | 14 | 0 | 2 |
+| users | 41 | 41 | 18 | 0 | 0 |
+| webhooks | 1 | 1 | 1 | 0 | 0 |

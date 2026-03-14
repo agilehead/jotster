@@ -2,1813 +2,2594 @@
   {
     "method": "POST",
     "path": "/fetch_api_key",
-    "tags": [
-      "authentication"
-    ],
+    "tag": "authentication",
     "summary": "Fetch an API key (production)",
-    "operationId": "fetch-api-key",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/fetch_api_key"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/fetch_api_key"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/auth/fetch-api-key.test.ts",
+        "path": "/api/v1/fetch_api_key"
+      },
+      {
+        "file": "tests/tests/auth/fetch-api-key.test.ts",
+        "path": "/api/v1/fetch_api_key"
+      },
+      {
+        "file": "tests/tests/auth/fetch-api-key.test.ts",
+        "path": "/api/v1/fetch_api_key"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/jwt/fetch_api_key",
-    "tags": [
-      "authentication"
-    ],
+    "tag": "authentication",
     "summary": "Fetch an API key (JWT)",
-    "operationId": "jwt-fetch-api-key",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/jwt/fetch_api_key"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/auth/auth-compat.test.ts",
+        "path": "/api/v1/jwt/fetch_api_key"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/dev_fetch_api_key",
-    "tags": [
-      "authentication"
-    ],
+    "tag": "authentication",
     "summary": "Fetch an API key (development only)",
-    "operationId": "dev-fetch-api-key",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/dev_fetch_api_key"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/dev_fetch_api_key"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/dev_list_users",
-    "tags": [
-      "authentication"
-    ],
+    "tag": "authentication",
     "summary": "List users (development only)",
-    "operationId": "dev-list-users",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/dev_list_users"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/auth/auth-compat.test.ts",
+        "path": "/api/v1/dev_list_users"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/events",
-    "tags": [
-      "real_time_events"
-    ],
+    "tag": "real_time_events",
     "summary": "Get events from an event queue",
-    "operationId": "get-events",
-    "status": "implemented_tested",
-    "test_hits": 5,
-    "jotster_path": "/api/v1/events"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/events"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/events/get-events.test.ts",
+        "path": "/api/v1/events"
+      },
+      {
+        "file": "tests/tests/events/get-events.test.ts",
+        "path": "/api/v1/events"
+      },
+      {
+        "file": "tests/tests/events/get-events.test.ts",
+        "path": "/api/v1/events"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/events",
-    "tags": [
-      "real_time_events"
-    ],
+    "tag": "real_time_events",
     "summary": "Delete an event queue",
-    "operationId": "delete-queue",
-    "status": "implemented_tested",
-    "test_hits": 5,
-    "jotster_path": "/api/v1/events"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/events"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/events/register-queue.test.ts",
+        "path": "/api/v1/events"
+      },
+      {
+        "file": "tests/tests/events/register-queue.test.ts",
+        "path": "/api/v1/events"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/get_stream_id",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get channel ID",
-    "operationId": "get-stream-id",
-    "status": "implemented_tested",
-    "test_hits": 2,
-    "jotster_path": "/api/v1/get_stream_id"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/get_stream_id"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/get-channels.test.ts",
+        "path": "/api/v1/get_stream_id"
+      },
+      {
+        "file": "tests/tests/channels/get-channels.test.ts",
+        "path": "/api/v1/get_stream_id"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/mark_all_as_read",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Mark all messages as read",
-    "operationId": "mark-all-as-read",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/mark_all_as_read"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/mark_all_as_read"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-flags.test.ts",
+        "path": "/api/v1/mark_all_as_read"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/mark_stream_as_read",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Mark messages in a channel as read",
-    "operationId": "mark-stream-as-read",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/mark_stream_as_read"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/mark_stream_as_read"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/mark_topic_as_read",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Mark messages in a topic as read",
-    "operationId": "mark-topic-as-read",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/mark_topic_as_read"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/mark_topic_as_read"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/attachments",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get attachments",
-    "operationId": "get-attachments",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/attachments"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/attachments"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/uploads/attachments.test.ts",
+        "path": "/api/v1/attachments"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/attachments/{attachment_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Delete an attachment",
-    "operationId": "remove-attachment",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/attachments/:attachment_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/attachments/:attachment_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/drafts",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Get drafts",
-    "operationId": "get-drafts",
-    "status": "implemented_tested",
-    "test_hits": 7,
-    "jotster_path": "/api/v1/drafts"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/drafts"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts"
+      },
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/drafts",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Create drafts",
-    "operationId": "create-drafts",
-    "status": "implemented_tested",
-    "test_hits": 7,
-    "jotster_path": "/api/v1/drafts"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/drafts"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts"
+      },
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts"
+      },
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts"
+      },
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts"
+      },
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/drafts/{draft_id}",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Edit a draft",
-    "operationId": "edit-draft",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/drafts/:draft_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/drafts/:draft_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/drafts/{draft_id}",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Delete a draft",
-    "operationId": "delete-draft",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/drafts/:draft_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/drafts/:draft_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/navigation_views",
-    "tags": [
-      "navigation_views"
-    ],
+    "tag": "navigation_views",
     "summary": "Get all navigation views",
-    "operationId": "get-navigation-views",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/navigation_views"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/navigation_views"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/navigation_views",
-    "tags": [
-      "navigation_views"
-    ],
+    "tag": "navigation_views",
     "summary": "Add a navigation view",
-    "operationId": "add-navigation-view",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/navigation_views"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/navigation_views"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/navigation_views/{fragment}",
-    "tags": [
-      "navigation_views"
-    ],
+    "tag": "navigation_views",
     "summary": "Update the navigation view",
-    "operationId": "edit-navigation-view",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/navigation_views/*"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/navigation_views/{fragment}",
-    "tags": [
-      "navigation_views"
-    ],
+    "tag": "navigation_views",
     "summary": "Remove a navigation view",
-    "operationId": "remove-navigation-view",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/navigation_views/*"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/saved_snippets",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Get all saved snippets",
-    "operationId": "get-saved-snippets",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/saved_snippets"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/saved_snippets"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/saved_snippets",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Create a saved snippet",
-    "operationId": "create-saved-snippet",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/saved_snippets"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/saved_snippets"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/saved_snippets/{saved_snippet_id}",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Edit a saved snippet",
-    "operationId": "edit-saved-snippet",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/saved_snippets/:saved_snippet_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/saved_snippets/{saved_snippet_id}",
-    "tags": [
-      "drafts"
-    ],
+    "tag": "drafts",
     "summary": "Delete a saved snippet",
-    "operationId": "delete-saved-snippet",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/saved_snippets/:saved_snippet_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/reminders",
-    "tags": [
-      "reminders"
-    ],
+    "tag": "reminders",
     "summary": "Get reminders",
-    "operationId": "get-reminders",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/reminders"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/reminders"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/reminders",
-    "tags": [
-      "reminders"
-    ],
+    "tag": "reminders",
     "summary": "Create a message reminder",
-    "operationId": "create-message-reminder",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/reminders"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/reminders"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/reminders/{reminder_id}",
-    "tags": [
-      "reminders"
-    ],
+    "tag": "reminders",
     "summary": "Delete a reminder",
-    "operationId": "delete-reminder",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/reminders/:reminder_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/scheduled_messages",
-    "tags": [
-      "scheduled_messages"
-    ],
+    "tag": "scheduled_messages",
     "summary": "Get scheduled messages",
-    "operationId": "get-scheduled-messages",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/scheduled_messages"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/scheduled_messages"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/scheduled_messages",
-    "tags": [
-      "scheduled_messages"
-    ],
+    "tag": "scheduled_messages",
     "summary": "Create a scheduled message",
-    "operationId": "create-scheduled-message",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/scheduled_messages"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/scheduled_messages"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/scheduled_messages/{scheduled_message_id}",
-    "tags": [
-      "scheduled_messages"
-    ],
+    "tag": "scheduled_messages",
     "summary": "Edit a scheduled message",
-    "operationId": "update-scheduled-message",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/scheduled_messages/:scheduled_message_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/scheduled_messages/{scheduled_message_id}",
-    "tags": [
-      "scheduled_messages"
-    ],
+    "tag": "scheduled_messages",
     "summary": "Delete a scheduled message",
-    "operationId": "delete-scheduled-message",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/scheduled_messages/:scheduled_message_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/default_streams",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Add a default channel",
-    "operationId": "add-default-stream",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/default_streams"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/default_streams"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/default_streams",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Remove a default channel",
-    "operationId": "remove-default-stream",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/default_streams"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/default_streams"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/messages",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Get messages",
-    "operationId": "get-messages",
-    "status": "implemented_tested",
-    "test_hits": 8,
-    "jotster_path": "/api/v1/messages"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/messages"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/get-messages.test.ts",
+        "path": "/api/v1/messages"
+      },
+      {
+        "file": "tests/tests/messages/get-messages.test.ts",
+        "path": "/api/v1/messages"
+      },
+      {
+        "file": "tests/tests/messages/get-messages.test.ts",
+        "path": "/api/v1/messages"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/messages",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Send a message",
-    "operationId": "send-message",
-    "status": "implemented_tested",
-    "test_hits": 8,
-    "jotster_path": "/api/v1/messages"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/messages"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/events/get-events.test.ts",
+        "path": "/api/v1/messages"
+      },
+      {
+        "file": "tests/tests/messages/send-message.test.ts",
+        "path": "/api/v1/messages"
+      },
+      {
+        "file": "tests/tests/messages/send-message.test.ts",
+        "path": "/api/v1/messages"
+      },
+      {
+        "file": "tests/tests/messages/send-message.test.ts",
+        "path": "/api/v1/messages"
+      },
+      {
+        "file": "tests/tests/messages/send-message.test.ts",
+        "path": "/api/v1/messages"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/messages/{message_id}/history",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Get a message's edit history",
-    "operationId": "get-message-history",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/:message_id/history"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id/history"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/messages/flags",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Update personal message flags",
-    "operationId": "update-message-flags",
-    "status": "implemented_tested",
-    "test_hits": 4,
-    "jotster_path": "/api/v1/messages/flags"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/messages/flags"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-flags.test.ts",
+        "path": "/api/v1/messages/flags"
+      },
+      {
+        "file": "tests/tests/messages/message-flags.test.ts",
+        "path": "/api/v1/messages/flags"
+      },
+      {
+        "file": "tests/tests/messages/message-flags.test.ts",
+        "path": "/api/v1/messages/flags"
+      },
+      {
+        "file": "tests/tests/messages/message-flags.test.ts",
+        "path": "/api/v1/messages/flags"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/messages/flags/narrow",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Update personal message flags for narrow",
-    "operationId": "update-message-flags-for-narrow",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/messages/flags/narrow"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/messages/flags/narrow"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/messages/render",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Render a message",
-    "operationId": "render-message",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/render"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/render"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/messages/{message_id}/reactions",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Add an emoji reaction",
-    "operationId": "add-reaction",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/:message_id/reactions"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id/reactions"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/messages/{message_id}/reactions",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Remove an emoji reaction",
-    "operationId": "remove-reaction",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/:message_id/reactions"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id/reactions"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/messages/{message_id}/read_receipts",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Get a message's read receipts",
-    "operationId": "get-read-receipts",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/:message_id/read_receipts"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id/read_receipts"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/messages/matches_narrow",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Check if messages match a narrow",
-    "operationId": "check-messages-match-narrow",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/messages/matches_narrow"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/messages/matches_narrow"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/messages/{message_id}",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Fetch a single message",
-    "operationId": "get-message",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/:message_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/messages/{message_id}",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Edit a message",
-    "operationId": "update-message",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/:message_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/messages/{message_id}",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Delete a message",
-    "operationId": "delete-message",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/messages/:message_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/messages/{message_id}/report",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Report a message",
-    "operationId": "report-message",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id/report"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/user_uploads",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Upload a file",
-    "operationId": "upload-file",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/user_uploads"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/user_uploads"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/uploads/attachments.test.ts",
+        "path": "/api/v1/user_uploads"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/thumbnail/status/{realm_id_str}/{filename}",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Check thumbnail status",
-    "operationId": "check-thumbnail-status",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/thumbnail/status/:realm_id_str/*",
+      "/thumbnail/status/:realm_id_str/:path_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/user_uploads/{realm_id_str}/{filename}",
-    "tags": [
-      "messages"
-    ],
+    "tag": "messages",
     "summary": "Get public temporary URL for an uploaded file",
-    "operationId": "get-file-temporary-url",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/user_uploads/:tenant_id/:path_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/user_uploads/:tenant_id/*",
+      "/user_uploads/:tenant_id/:path_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get users",
-    "operationId": "get-users",
-    "status": "implemented_tested",
-    "test_hits": 6,
-    "jotster_path": "/api/v1/users"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/get-users.test.ts",
+        "path": "/api/v1/users"
+      },
+      {
+        "file": "tests/tests/users/get-users.test.ts",
+        "path": "/api/v1/users"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Create a user",
-    "operationId": "create-user",
-    "status": "implemented_tested",
-    "test_hits": 6,
-    "jotster_path": "/api/v1/users"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/create-user.test.ts",
+        "path": "/api/v1/users"
+      },
+      {
+        "file": "tests/tests/users/create-user.test.ts",
+        "path": "/api/v1/users"
+      },
+      {
+        "file": "tests/tests/users/create-user.test.ts",
+        "path": "/api/v1/users"
+      },
+      {
+        "file": "tests/tests/users/create-user.test.ts",
+        "path": "/api/v1/users"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/{user_id}/reactivate",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Reactivate a user",
-    "operationId": "reactivate-user",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id/reactivate"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id/reactivate"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/{user_id}/status",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update user status",
-    "operationId": "update-status-for-user",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id/status"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/{user_id}/status",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get a user's status",
-    "operationId": "get-user-status",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id/status"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id/status"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/{user_id_or_email}/presence",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get a user's presence",
-    "operationId": "get-user-presence",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id_or_email/presence"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id_or_email/presence"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/me",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get own user",
-    "operationId": "get-own-user",
-    "status": "implemented_tested",
-    "test_hits": 2,
-    "jotster_path": "/api/v1/users/me"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/get-users.test.ts",
+        "path": "/api/v1/users/me"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/users/me",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Deactivate own user",
-    "operationId": "deactivate-own-user",
-    "status": "implemented_tested",
-    "test_hits": 2,
-    "jotster_path": "/api/v1/users/me"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/deactivate-user.test.ts",
+        "path": "/api/v1/users/me"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/api_key/regenerate",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Regenerate your API key",
-    "operationId": "regenerate-api-key",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/me/api_key/regenerate"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/me/api_key/regenerate"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/me/alert_words",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get all alert words",
-    "operationId": "get-alert-words",
-    "status": "implemented_tested",
-    "test_hits": 8,
-    "jotster_path": "/api/v1/users/me/alert_words"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/alert_words"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      },
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/alert_words",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Add alert words",
-    "operationId": "add-alert-words",
-    "status": "implemented_tested",
-    "test_hits": 8,
-    "jotster_path": "/api/v1/users/me/alert_words"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/alert_words"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      },
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      },
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      },
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/users/me/alert_words",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Remove alert words",
-    "operationId": "remove-alert-words",
-    "status": "implemented_tested",
-    "test_hits": 8,
-    "jotster_path": "/api/v1/users/me/alert_words"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/alert_words"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      },
+      {
+        "file": "tests/tests/users/alert-words.test.ts",
+        "path": "/api/v1/users/me/alert_words"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/presence",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update your presence",
-    "operationId": "update-presence",
-    "status": "implemented_tested",
-    "test_hits": 6,
-    "jotster_path": "/api/v1/users/me/presence"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/presence"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/users/me/presence"
+      },
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/users/me/presence"
+      },
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/users/me/presence"
+      },
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/users/me/presence"
+      },
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/users/me/presence"
+      },
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/users/me/presence"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/status",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update your status",
-    "operationId": "update-status",
-    "status": "implemented_tested",
-    "test_hits": 5,
-    "jotster_path": "/api/v1/users/me/status"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/status"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/user-status.test.ts",
+        "path": "/api/v1/users/me/status"
+      },
+      {
+        "file": "tests/tests/presence/user-status.test.ts",
+        "path": "/api/v1/users/me/status"
+      },
+      {
+        "file": "tests/tests/presence/user-status.test.ts",
+        "path": "/api/v1/users/me/status"
+      },
+      {
+        "file": "tests/tests/presence/user-status.test.ts",
+        "path": "/api/v1/users/me/status"
+      },
+      {
+        "file": "tests/tests/presence/user-status.test.ts",
+        "path": "/api/v1/users/me/status"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/me/{stream_id}/topics",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get topics in a channel",
-    "operationId": "get-stream-topics",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/me/:stream_id/topics"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/me/:stream_id/topics"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/me/subscriptions",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get subscribed channels",
-    "operationId": "get-subscriptions",
-    "status": "implemented_tested",
-    "test_hits": 16,
-    "jotster_path": "/api/v1/users/me/subscriptions"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/subscriptions"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/subscriptions/subscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/subscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/subscriptions",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Subscribe to a channel",
-    "operationId": "subscribe",
-    "status": "implemented_tested",
-    "test_hits": 16,
-    "jotster_path": "/api/v1/users/me/subscriptions"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/subscriptions"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/create-channel.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/channels/create-channel.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/channels/create-channel.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/subscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/subscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/subscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/subscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/subscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/users/me/subscriptions",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Update subscriptions",
-    "operationId": "update-subscriptions",
-    "status": "implemented_tested",
-    "test_hits": 16,
-    "jotster_path": "/api/v1/users/me/subscriptions"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/me/subscriptions"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/users/me/subscriptions",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Unsubscribe from a channel",
-    "operationId": "unsubscribe",
-    "status": "implemented_tested",
-    "test_hits": 16,
-    "jotster_path": "/api/v1/users/me/subscriptions"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/subscriptions"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      },
+      {
+        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/users/me/subscriptions/muted_topics",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Topic muting",
-    "operationId": "mute-topic",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/me/subscriptions/muted_topics"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/me/subscriptions/muted_topics"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/mobile_push/test_notification",
-    "tags": [
-      "mobile"
-    ],
+    "tag": "mobile",
     "summary": "Send a test notification to mobile device(s)",
-    "operationId": "test-notify",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/mobile_push/test_notification"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/mobile_push/test_notification"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/mobile_push/e2ee/test_notification",
-    "tags": [
-      "mobile"
-    ],
+    "tag": "mobile",
     "summary": "Send an E2EE test notification to mobile device(s)",
-    "operationId": "e2ee-test-notify",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/mobile_push/e2ee/test_notification"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/mobile_push/e2ee/test_notification"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/mobile_push/register",
-    "tags": [
-      "mobile"
-    ],
+    "tag": "mobile",
     "summary": "Register E2EE push device",
-    "operationId": "register-push-device",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/mobile_push/register"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/mobile_push/register"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/remotes/push/e2ee/register",
-    "tags": [
-      "mobile"
-    ],
+    "tag": "mobile",
     "summary": "Register E2EE push device to bouncer",
-    "operationId": "register-remote-push-device",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/remotes/push/e2ee/register"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-compat.test.ts",
+        "path": "/api/v1/remotes/push/e2ee/register"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/register_client_device",
-    "tags": [
-      "mobile"
-    ],
+    "tag": "mobile",
     "summary": "Register a logged-in device",
-    "operationId": "register-client-device",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/register_client_device"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-compat.test.ts",
+        "path": "/api/v1/register_client_device"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/remove_client_device",
-    "tags": [
-      "mobile"
-    ],
+    "tag": "mobile",
     "summary": "Remove a registered device",
-    "operationId": "remove-client-device",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/remove_client_device"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-compat.test.ts",
+        "path": "/api/v1/remove_client_device"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/user_topics",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Update personal preferences for a topic",
-    "operationId": "update-user-topic",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/user_topics"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/user_topics"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/muting.test.ts",
+        "path": "/api/v1/user_topics"
+      },
+      {
+        "file": "tests/tests/presence/muting.test.ts",
+        "path": "/api/v1/user_topics"
+      },
+      {
+        "file": "tests/tests/presence/muting.test.ts",
+        "path": "/api/v1/user_topics"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/muted_users/{muted_user_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Mute a user",
-    "operationId": "mute-user",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/me/muted_users/:muted_user_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/me/muted_users/:muted_user_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/users/me/muted_users/{muted_user_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Unmute a user",
-    "operationId": "unmute-user",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/me/muted_users/:muted_user_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/me/muted_users/:muted_user_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/apns_device_token",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Add an APNs device token",
-    "operationId": "add-apns-token",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/users/me/apns_device_token"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/apns_device_token"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-tokens.test.ts",
+        "path": "/api/v1/users/me/apns_device_token"
+      },
+      {
+        "file": "tests/tests/push/push-tokens.test.ts",
+        "path": "/api/v1/users/me/apns_device_token"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/users/me/apns_device_token",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Remove an APNs device token",
-    "operationId": "remove-apns-token",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/users/me/apns_device_token"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/apns_device_token"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-tokens.test.ts",
+        "path": "/api/v1/users/me/apns_device_token"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/android_gcm_reg_id",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Add an FCM registration token",
-    "operationId": "add-fcm-token",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/users/me/android_gcm_reg_id"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/android_gcm_reg_id"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-tokens.test.ts",
+        "path": "/api/v1/users/me/android_gcm_reg_id"
+      },
+      {
+        "file": "tests/tests/push/push-tokens.test.ts",
+        "path": "/api/v1/users/me/android_gcm_reg_id"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/users/me/android_gcm_reg_id",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Remove an FCM registration token",
-    "operationId": "remove-fcm-token",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/users/me/android_gcm_reg_id"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/android_gcm_reg_id"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-tokens.test.ts",
+        "path": "/api/v1/users/me/android_gcm_reg_id"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/{user_id}/subscriptions/{stream_id}",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get subscription status",
-    "operationId": "get-subscription-status",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id/subscriptions/:stream_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id/subscriptions/:stream_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/{user_id}/channels",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get a user's subscribed channels",
-    "operationId": "get-user-channels",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id/channels"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id/channels"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/realm/emoji/{emoji_name}",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Upload custom emoji",
-    "operationId": "upload-custom-emoji",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/realm/emoji/:emoji_name"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/realm/emoji/:emoji_name"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/realm/emoji/{emoji_name}",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Deactivate custom emoji",
-    "operationId": "deactivate-custom-emoji",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/realm/emoji/:emoji_name"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/realm/emoji/:emoji_name"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/realm/emoji",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Get all custom emoji",
-    "operationId": "get-custom-emoji",
-    "status": "implemented_tested",
-    "test_hits": 2,
-    "jotster_path": "/api/v1/realm/emoji"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/emoji"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/emoji/custom-emoji.test.ts",
+        "path": "/api/v1/realm/emoji"
+      },
+      {
+        "file": "tests/tests/emoji/custom-emoji.test.ts",
+        "path": "/api/v1/realm/emoji"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/realm/presence",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Get presence of all users",
-    "operationId": "get-presence",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/realm/presence"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/presence"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/realm/presence"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/realm/profile_fields",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Get all custom profile fields",
-    "operationId": "get-custom-profile-fields",
-    "status": "implemented_tested",
-    "test_hits": 6,
-    "jotster_path": "/api/v1/realm/profile_fields"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/profile_fields"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/profile/custom-profile-fields.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/realm/profile_fields",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Reorder custom profile fields",
-    "operationId": "reorder-custom-profile-fields",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/profile_fields"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/realm/profile_fields",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Create a custom profile field",
-    "operationId": "create-custom-profile-field",
-    "status": "implemented_tested",
-    "test_hits": 6,
-    "jotster_path": "/api/v1/realm/profile_fields"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/profile_fields"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      },
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      },
+      {
+        "file": "tests/tests/profile/custom-profile-fields.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      },
+      {
+        "file": "tests/tests/profile/custom-profile-fields.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      },
+      {
+        "file": "tests/tests/profile/custom-profile-fields.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      },
+      {
+        "file": "tests/tests/profile/custom-profile-fields.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      },
+      {
+        "file": "tests/tests/profile/custom-profile-fields.test.ts",
+        "path": "/api/v1/realm/profile_fields"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/realm/user_settings_defaults",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Update realm-level defaults of user settings",
-    "operationId": "update-realm-user-settings-defaults",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/realm/user_settings_defaults"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/user_settings_defaults"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/org-settings.test.ts",
+        "path": "/api/v1/realm/user_settings_defaults"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/users/me/subscriptions/properties",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Bulk update subscription settings",
-    "operationId": "update-subscription-settings",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/users/me/subscriptions/properties"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/users/me/subscriptions/properties"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/subscriptions/properties.test.ts",
+        "path": "/api/v1/users/me/subscriptions/properties"
+      },
+      {
+        "file": "tests/tests/subscriptions/properties.test.ts",
+        "path": "/api/v1/users/me/subscriptions/properties"
+      },
+      {
+        "file": "tests/tests/subscriptions/properties.test.ts",
+        "path": "/api/v1/users/me/subscriptions/properties"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/users/me/subscriptions/{stream_id}",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Update a subscription setting",
-    "operationId": "update-subscription-property",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/me/subscriptions/:stream_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/me/subscriptions/:stream_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/{email}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get a user by email",
-    "operationId": "get-user-by-email",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id_or_email"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/users/{email}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update a user by email",
-    "operationId": "update-user-by-email",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id_or_email"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/users/{user_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get a user",
-    "operationId": "get-user",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id_or_email"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/users/{user_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update a user",
-    "operationId": "update-user",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id_or_email"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/users/{user_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Deactivate a user",
-    "operationId": "deactivate-user",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/users/:user_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/users/:user_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/realm/linkifiers",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Get linkifiers",
-    "operationId": "get-linkifiers",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/linkifiers"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/linkifiers"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/realm/linkifiers",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Reorder linkifiers",
-    "operationId": "reorder-linkifiers",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/linkifiers"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/linkifiers"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/realm/filters",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Add a linkifier",
-    "operationId": "add-linkifier",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/filters"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/filters"
+      },
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/filters"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/realm/filters/{filter_id}",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Remove a linkifier",
-    "operationId": "remove-linkifier",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/realm/filters/:filter_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/realm/filters/{filter_id}",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Update a linkifier",
-    "operationId": "update-linkifier",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/realm/filters/:filter_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/realm/playgrounds",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Add a code playground",
-    "operationId": "add-code-playground",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Excluded by scope",
+    "routePaths": [],
+    "testRefs": [],
+    "excluded": true
   },
   {
     "method": "DELETE",
     "path": "/realm/playgrounds/{playground_id}",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Remove a code playground",
-    "operationId": "remove-code-playground",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Excluded by scope",
+    "routePaths": [],
+    "testRefs": [],
+    "excluded": true
   },
   {
     "method": "GET",
     "path": "/export/realm",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Get all data exports",
-    "operationId": "get-realm-exports",
-    "status": "implemented_tested",
-    "test_hits": 4,
-    "jotster_path": "/api/v1/export/realm"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/export/realm"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/export/data-export.test.ts",
+        "path": "/api/v1/export/realm"
+      },
+      {
+        "file": "tests/tests/export/data-export.test.ts",
+        "path": "/api/v1/export/realm"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/export/realm",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Create a data export",
-    "operationId": "export-realm",
-    "status": "implemented_tested",
-    "test_hits": 4,
-    "jotster_path": "/api/v1/export/realm"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/export/realm"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/export/data-export.test.ts",
+        "path": "/api/v1/export/realm"
+      },
+      {
+        "file": "tests/tests/export/data-export.test.ts",
+        "path": "/api/v1/export/realm"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/export/realm/consents",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Get data export consent state",
-    "operationId": "get-realm-export-consents",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/export/realm/consents"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/export/realm/consents"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/export/data-export.test.ts",
+        "path": "/api/v1/export/realm/consents"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/invites",
-    "tags": [
-      "invites"
-    ],
+    "tag": "invites",
     "summary": "Get all invitations",
-    "operationId": "get-invites",
-    "status": "implemented_tested",
-    "test_hits": 4,
-    "jotster_path": "/api/v1/invites"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/invites"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites"
+      },
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/invites",
-    "tags": [
-      "invites"
-    ],
+    "tag": "invites",
     "summary": "Send invitations",
-    "operationId": "send-invites",
-    "status": "implemented_tested",
-    "test_hits": 4,
-    "jotster_path": "/api/v1/invites"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/invites"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites"
+      },
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/invites/multiuse",
-    "tags": [
-      "invites"
-    ],
+    "tag": "invites",
     "summary": "Create a reusable invitation link",
-    "operationId": "create-invite-link",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/invites/multiuse"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/invites/multiuse"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites/multiuse"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/invites/{invite_id}",
-    "tags": [
-      "invites"
-    ],
+    "tag": "invites",
     "summary": "Revoke an email invitation",
-    "operationId": "revoke-email-invite",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/invites/:invite_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/invites/:invite_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/invites/multiuse/{invite_id}",
-    "tags": [
-      "invites"
-    ],
+    "tag": "invites",
     "summary": "Revoke a reusable invitation link",
-    "operationId": "revoke-invite-link",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/invites/multiuse/:invite_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/invites/multiuse/:invite_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/invites/{invite_id}/resend",
-    "tags": [
-      "invites"
-    ],
+    "tag": "invites",
     "summary": "Resend an email invitation",
-    "operationId": "resend-email-invite",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/invites/:invite_id/resend"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/invites/:invite_id/resend"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/realm/test_welcome_bot_custom_message",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Test welcome bot custom message",
-    "operationId": "test-welcome-bot-custom-message",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/realm/test_welcome_bot_custom_message"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/test_welcome_bot_custom_message"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/register",
-    "tags": [
-      "real_time_events"
-    ],
+    "tag": "real_time_events",
     "summary": "Register an event queue",
-    "operationId": "register-queue",
-    "status": "implemented_tested",
-    "test_hits": 7,
-    "jotster_path": "/api/v1/register"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/register"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/events/get-events.test.ts",
+        "path": "/api/v1/register"
+      },
+      {
+        "file": "tests/tests/events/get-events.test.ts",
+        "path": "/api/v1/register"
+      },
+      {
+        "file": "tests/tests/events/register-queue.test.ts",
+        "path": "/api/v1/register"
+      },
+      {
+        "file": "tests/tests/events/register-queue.test.ts",
+        "path": "/api/v1/register"
+      },
+      {
+        "file": "tests/tests/events/register-queue.test.ts",
+        "path": "/api/v1/register"
+      },
+      {
+        "file": "tests/tests/events/register-queue.test.ts",
+        "path": "/api/v1/register"
+      },
+      {
+        "file": "tests/tests/events/register-queue.test.ts",
+        "path": "/api/v1/register"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/server_settings",
-    "tags": [
-      "server_and_organizations"
-    ],
+    "tag": "server_and_organizations",
     "summary": "Get server settings",
-    "operationId": "get-server-settings",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/server_settings"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/server_settings"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/auth/server-settings.test.ts",
+        "path": "/api/v1/server_settings"
+      },
+      {
+        "file": "tests/tests/auth/server-settings.test.ts",
+        "path": "/api/v1/server_settings"
+      },
+      {
+        "file": "tests/tests/auth/server-settings.test.ts",
+        "path": "/api/v1/server_settings"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/settings",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update settings",
-    "operationId": "update-settings",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/settings"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/settings"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/settings/user-settings.test.ts",
+        "path": "/api/v1/settings"
+      },
+      {
+        "file": "tests/tests/settings/user-settings.test.ts",
+        "path": "/api/v1/settings"
+      },
+      {
+        "file": "tests/tests/settings/user-settings.test.ts",
+        "path": "/api/v1/settings"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/streams/{stream_id}/members",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get channel subscribers",
-    "operationId": "get-subscribers",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/streams/:stream_id/members"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/streams/:stream_id/members"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/streams",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get all channels",
-    "operationId": "get-streams",
-    "status": "implemented_tested",
-    "test_hits": 2,
-    "jotster_path": "/api/v1/streams"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/streams"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/get-channels.test.ts",
+        "path": "/api/v1/streams"
+      },
+      {
+        "file": "tests/tests/channels/get-channels.test.ts",
+        "path": "/api/v1/streams"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/streams/{stream_id}",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get a channel by ID",
-    "operationId": "get-stream-by-id",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/streams/:stream_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/streams/:stream_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "DELETE",
     "path": "/streams/{stream_id}",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Archive a channel",
-    "operationId": "archive-stream",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/streams/:stream_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/streams/:stream_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/streams/{stream_id}",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Update a channel",
-    "operationId": "update-stream",
-    "status": "implemented_route_only",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/streams/:stream_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/streams/:stream_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/streams/{stream_id}/email_address",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get channel's email address",
-    "operationId": "get-stream-email-address",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/streams/:stream_id/email_address"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/streams/{stream_id}/delete_topic",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Delete a topic",
-    "operationId": "delete-topic",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/streams/:stream_id/delete_topic"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/typing",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Set \"typing\" status",
-    "operationId": "set-typing-status",
-    "status": "implemented_tested",
-    "test_hits": 4,
-    "jotster_path": "/api/v1/typing"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/typing"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/typing.test.ts",
+        "path": "/api/v1/typing"
+      },
+      {
+        "file": "tests/tests/presence/typing.test.ts",
+        "path": "/api/v1/typing"
+      },
+      {
+        "file": "tests/tests/presence/typing.test.ts",
+        "path": "/api/v1/typing"
+      },
+      {
+        "file": "tests/tests/presence/typing.test.ts",
+        "path": "/api/v1/typing"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/messages/{message_id}/typing",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Set \"typing\" status for message editing",
-    "operationId": "set-typing-status-for-message-edit",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/messages/:message_id/typing"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/channels/create",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Create a channel",
-    "operationId": "create-channel",
-    "status": "implemented_tested",
-    "test_hits": 1,
-    "jotster_path": "/api/v1/channels/create"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/channels/create"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/create-channel.test.ts",
+        "path": "/api/v1/channels/create"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/user_groups/create",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Create a user group",
-    "operationId": "create-user-group",
-    "status": "implemented_tested",
-    "test_hits": 5,
-    "jotster_path": "/api/v1/user_groups/create"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/user_groups/create"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/create"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/user_groups/{user_group_id}/members",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update user group members",
-    "operationId": "update-user-group-members",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/user_groups/:group_id/members"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/user_groups/:group_id/members"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/user_groups/{user_group_id}/members",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get user group members",
-    "operationId": "get-user-group-members",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/user_groups/:group_id/members"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/user_groups/:group_id/members"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/user_groups/{user_group_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update a user group",
-    "operationId": "update-user-group",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/user_groups/:group_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/user_groups/:group_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/user_groups",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get user groups",
-    "operationId": "get-user-groups",
-    "status": "implemented_tested",
-    "test_hits": 3,
-    "jotster_path": "/api/v1/user_groups"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/user_groups"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups"
+      },
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/user_groups/{user_group_id}/subgroups",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Update subgroups of a user group",
-    "operationId": "update-user-group-subgroups",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/user_groups/:group_id/subgroups"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/user_groups/:group_id/subgroups"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/user_groups/{user_group_id}/subgroups",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get subgroups of a user group",
-    "operationId": "get-user-group-subgroups",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/user_groups/:group_id/subgroups"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/user_groups/:group_id/subgroups"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/user_groups/{user_group_id}/members/{user_id}",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get user group membership status",
-    "operationId": "get-is-user-group-member",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/user_groups/:group_id/members/:user_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/user_groups/{user_group_id}/deactivate",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Deactivate a user group",
-    "operationId": "deactivate-user-group",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/user_groups/:group_id/deactivate"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/user_groups/:group_id/deactivate"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/channel_folders/create",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Create a channel folder",
-    "operationId": "create-channel-folder",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/channel_folders/create"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/channel_folders/create"
+      },
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/channel_folders/create"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/channel_folders",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Get channel folders",
-    "operationId": "get-channel-folders",
-    "status": "implemented_tested",
-    "test_hits": 6,
-    "jotster_path": "/api/v1/channel_folders"
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/channel_folders"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-folders.test.ts",
+        "path": "/api/v1/channel_folders"
+      },
+      {
+        "file": "tests/tests/channels/channel-folders.test.ts",
+        "path": "/api/v1/channel_folders"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/channel_folders",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Reorder channel folders",
-    "operationId": "patch-channel-folders",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/channel_folders"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/channel_folders"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "PATCH",
     "path": "/channel_folders/{channel_folder_id}",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Update a channel folder",
-    "operationId": "update-channel-folder",
-    "status": "implemented_param_alias",
-    "test_hits": 0,
-    "jotster_path": "/api/v1/channel_folders/:folder_id"
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/channel_folders/:folder_id"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/bots/{bot_id}/api_key",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Get a bot's API key",
-    "operationId": "get-bot-api-key",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/bots/:bot_id/api_key"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/bots/{bot_id}/api_key/regenerate",
-    "tags": [
-      "users"
-    ],
+    "tag": "users",
     "summary": "Regenerate a bot's API key",
-    "operationId": "regenerate-bot-api-key",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented route only",
+    "routePaths": [
+      "/api/v1/bots/:bot_id/api_key/regenerate"
+    ],
+    "testRefs": [],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/real-time",
-    "tags": [
-      "real_time_events"
-    ],
+    "tag": "real_time_events",
     "summary": "",
-    "operationId": "",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/real-time"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/webhooks/webhook-compat.test.ts",
+        "path": "/api/v1/real-time"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/rest-error-handling",
-    "tags": [
-      "real_time_events"
-    ],
+    "tag": "real_time_events",
     "summary": "Error handling",
-    "operationId": "rest-error-handling",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/rest-error-handling"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/webhooks/webhook-compat.test.ts",
+        "path": "/api/v1/rest-error-handling"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "POST",
     "path": "/zulip-outgoing-webhook",
-    "tags": [
-      "webhooks"
-    ],
+    "tag": "webhooks",
     "summary": "Outgoing webhooks",
-    "operationId": "zulip-outgoing-webhooks",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Implemented + directly test-covered",
+    "routePaths": [
+      "/api/v1/zulip-outgoing-webhook"
+    ],
+    "testRefs": [
+      {
+        "file": "tests/tests/webhooks/webhook-compat.test.ts",
+        "path": "/api/v1/zulip-outgoing-webhook"
+      }
+    ],
+    "excluded": false
   },
   {
     "method": "GET",
     "path": "/calls/bigbluebutton/create",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Create BigBlueButton video call",
-    "operationId": "create-big-blue-button-video-call",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Excluded by scope",
+    "routePaths": [],
+    "testRefs": [],
+    "excluded": true
   },
   {
     "method": "POST",
     "path": "/calls/nextcloud_talk/create",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Create Nextcloud Talk video call",
-    "operationId": "create-nextcloud-talk-video-call",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Excluded by scope",
+    "routePaths": [],
+    "testRefs": [],
+    "excluded": true
   },
   {
     "method": "POST",
     "path": "/calls/constructorgroups/create",
-    "tags": [
-      "channels"
-    ],
+    "tag": "channels",
     "summary": "Create Constructor Groups video call",
-    "operationId": "create-constructor-groups-video-call",
-    "status": "missing",
-    "test_hits": 0,
-    "jotster_path": null
+    "status": "Excluded by scope",
+    "routePaths": [],
+    "testRefs": [],
+    "excluded": true
   }
 ]

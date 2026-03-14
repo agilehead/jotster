@@ -1,6 +1,8 @@
 {
-  "implemented_tested": 51,
-  "missing": 52,
-  "implemented_route_only": 40,
-  "implemented_param_alias": 8
+  "totalOperations": 151,
+  "implemented": 146,
+  "directlyTestCovered": 77,
+  "excludedByScope": 5,
+  "missingInScope": 0,
+  "fullyMissing": 5
 }
