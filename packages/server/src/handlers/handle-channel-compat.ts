@@ -2,7 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { createChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { deleteTopicMessages, getStreamEmailAddress, reorderChannelFolders } from "../helpers/compat-db.ts";
-import { getBodyObject, getOptionalStringArrayField, getOptionalStringField, toOptionalStringArray } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField, toOptionalStringArray } from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
 const parseOrder = (value: unknown): string[] | undefined => {
@@ -36,9 +36,13 @@ export const handleCreateChannelFolderCompat = async (
 
   const createResult = await createChannelFolderDomain(app.options, requester, {
     name,
-    channels: getOptionalStringArrayField(body, "channels"),
+    description: getOptionalStringField(body, "description"),
   });
   if (!createResult.success) {
+    if (createResult.error === "Must be an organization administrator") {
+      res.status(400).json({ result: "error", msg: createResult.error, code: "UNAUTHORIZED_PRINCIPAL" });
+      return;
+    }
     res.status(400).json({ result: "error", msg: createResult.error, code: "BAD_REQUEST" });
     return;
   }
@@ -53,6 +57,11 @@ export const handleReorderChannelFoldersCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+
+  if (requester.role > 200) {
+    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
     return;
   }
 

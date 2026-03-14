@@ -1,14 +1,14 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ChannelFolder, ok, err } from "@jotster/core/Jotster.Core.js";
-import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
-import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { createChannelFolder } from "../repo/create-channel-folder.ts";
 import { getChannelFolderById } from "../repo/get-channel-folder-by-id.ts";
+import { getChannelFolders } from "../repo/get-channel-folders.ts";
 
 interface CreateChannelFolderDomainInput {
   name: string;
-  channels?: string[];
+  description?: string;
 }
 
 export const createChannelFolderDomain = async (
@@ -16,36 +16,44 @@ export const createChannelFolderDomain = async (
   user: AuthenticatedUser,
   input: CreateChannelFolderDomainInput
 ): Promise<Result<ChannelFolder, string>> => {
+  if (user.role > 200) {
+    return err("Must be an organization administrator");
+  }
+
   const name = input.name.trim();
 
   if (name.length === 0) {
     return err("Folder name must not be empty");
   }
 
+  const existingFolders = await getChannelFolders(options, user.tenantId, true);
+  for (let i = 0; i < existingFolders.length; i++) {
+    if (existingFolders[i].folder.Name === name) {
+      return err("Channel folder with this name already exists");
+    }
+  }
+
+  const description = (input.description ?? "").trim();
+
   const folder = await createChannelFolder(options, {
     tenantId: user.tenantId,
     userId: user.userId,
     name,
-    channels: input.channels,
+    description,
   });
 
-  // Fetch folder with items for the event
   const folderWithItems = await getChannelFolderById(options, folder.Id);
 
   if (folderWithItems !== undefined) {
-    const channelIds = new List<string>();
-    for (let i = 0; i < folderWithItems.items.length; i++) {
-      channelIds.Add(folderWithItems.items[i].ChannelId);
-    }
-
     const folderObj: Record<string, unknown> = {};
     folderObj["id"] = folder.Id;
     folderObj["name"] = folder.Name;
-    folderObj["channels"] = channelIds.ToArray();
+    folderObj["description"] = folder.Description;
+    folderObj["is_archived"] = folder.IsArchived === 1;
     folderObj["ordering"] = folder.Ordering;
     const eventData: Record<string, unknown> = {};
     eventData["channel_folder"] = folderObj;
-    dispatchEventToUser(user.tenantId, user.userId, {
+    dispatchEventToTenant(user.tenantId, {
       type: "channel_folder",
       op: "add",
       data: eventData,

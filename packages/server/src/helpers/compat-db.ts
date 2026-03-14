@@ -233,10 +233,8 @@ export const reorderChannelFolders = async (
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = user.tenantId;
-    const userId0 = user.userId;
     const folders = await db.ChannelFolders
       .Where((entry) => entry.TenantId === tenantId0)
-      .Where((entry) => entry.UserId === userId0)
       .ToListAsync();
 
     if (folders.Count !== orderedIds.length) {

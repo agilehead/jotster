@@ -10,16 +10,18 @@ interface ChannelFolderWithItems {
 export const getChannelFolders = async (
   options: DbContextOptions,
   tenantId: string,
-  userId: string
+  includeArchived: boolean,
 ): Promise<ChannelFolderWithItems[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    const userId0 = userId;
+    const includeArchived0 = includeArchived;
 
     const folders = await db0.ChannelFolders
-      .Where((f) => f.TenantId === tenantId0).Where((f) => f.UserId === userId0)
+      .Where((f) => f.TenantId === tenantId0)
+      .Where((f) => includeArchived0 || f.IsArchived === 0)
+      .OrderBy((f) => f.Ordering)
       .ToListAsync();
 
     const result = new List<ChannelFolderWithItems>();

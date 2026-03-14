@@ -19,7 +19,11 @@ export const handleDeleteChannelFolder = async (
 
   const result = await deleteChannelFolderDomain(app.options, user, folderId);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    if (result.error === "Must be an organization administrator") {
+      res.status(400).json({ result: "error", msg: result.error, code: "UNAUTHORIZED_PRINCIPAL" });
+      return;
+    }
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

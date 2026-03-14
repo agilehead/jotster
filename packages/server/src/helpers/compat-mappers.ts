@@ -43,15 +43,27 @@ const parseAlternativeUrlTemplates = (value: string | undefined): string[] => {
   return parseStringArray(value);
 };
 
+const escapeHtml = (value: string): string => value
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;");
+
+const renderDescription = (value: string): string => {
+  if (value.length === 0) {
+    return "";
+  }
+  return `<p>${escapeHtml(value)}</p>`;
+};
+
 export const mapChannelFolderToCompatResponse = (folder: ChannelFolder): Record<string, unknown> => ({
   id: folder.Id,
   name: folder.Name,
   order: folder.Ordering,
   date_created: toUnixSeconds(folder.CreatedAt),
   creator_id: folder.UserId,
-  description: "",
-  rendered_description: "",
-  is_archived: false,
+  description: folder.Description,
+  rendered_description: renderDescription(folder.Description),
+  is_archived: folder.IsArchived === 1,
 });
 
 export const mapNavigationViewToCompatResponse = (view: NavigationView): Record<string, unknown> => ({

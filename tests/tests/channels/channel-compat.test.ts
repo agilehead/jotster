@@ -6,10 +6,10 @@ describe("Channel compatibility endpoints", () => {
   it("should create and reorder channel folders via Zulip-compatible routes", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
-    const { client } = await seedUser(db, tenantId);
+    const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const folderOne = await client.post("/channel_folders/create", { name: "alpha" });
-    const folderTwo = await client.post("/channel_folders/create", { name: "beta" });
+    const folderOne = await client.post("/channel_folders/create", { name: "alpha", description: "Alpha folder" });
+    const folderTwo = await client.post("/channel_folders/create", { name: "beta", description: "Beta folder" });
 
     expect(folderOne.status).to.equal(200);
     expect(folderTwo.status).to.equal(200);
