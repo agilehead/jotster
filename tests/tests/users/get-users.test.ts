@@ -31,6 +31,72 @@ describe("GET /api/v1/users", () => {
     expect(names).to.include("Tenant1 User");
     expect(names).to.not.include("Tenant2 User");
   });
+
+  it("should return Zulip-compatible user objects", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const owner = await seedUser(db, tenantId, {
+      fullName: "Owner User",
+      role: 100,
+      avatarUrl: "https://cdn.test.local/avatar.png",
+      isBillingAdmin: 1,
+    });
+    const guest = await seedUser(db, tenantId, {
+      fullName: "Guest User",
+      role: 600,
+    });
+
+    const res = await owner.client.get("/users");
+    expect(res.status).to.equal(200);
+
+    const members = res.body.members as Array<Record<string, unknown>>;
+    const ownerEntry = members.find((member) => member.user_id === owner.userId);
+    const guestEntry = members.find((member) => member.user_id === guest.userId);
+
+    expect(ownerEntry).to.not.equal(undefined);
+    expect(ownerEntry).to.deep.include({
+      user_id: owner.userId,
+      email: owner.email,
+      delivery_email: owner.email,
+      full_name: "Owner User",
+      role: 100,
+      is_active: true,
+      is_owner: true,
+      is_admin: true,
+      is_guest: false,
+      is_bot: false,
+      bot_type: null,
+      bot_owner_id: null,
+      timezone: "UTC",
+      avatar_url: "https://cdn.test.local/avatar.png",
+      avatar_version: 1,
+      is_billing_admin: true,
+    });
+    expect(ownerEntry!.date_joined).to.be.a("number");
+    expect(ownerEntry!.profile_data).to.deep.equal({});
+    expect(ownerEntry).to.not.have.property("avatar_source");
+
+    expect(guestEntry).to.not.equal(undefined);
+    expect(guestEntry).to.deep.include({
+      user_id: guest.userId,
+      email: guest.email,
+      delivery_email: guest.email,
+      full_name: "Guest User",
+      role: 600,
+      is_active: true,
+      is_owner: false,
+      is_admin: false,
+      is_guest: true,
+      is_bot: false,
+      bot_type: null,
+      bot_owner_id: null,
+      timezone: "UTC",
+      avatar_version: 1,
+      is_billing_admin: false,
+    });
+    expect(guestEntry!.profile_data).to.deep.equal({});
+    expect(guestEntry).to.not.have.property("avatar_source");
+  });
 });
 
 describe("GET /api/v1/users/{user_id}", () => {
@@ -44,6 +110,45 @@ describe("GET /api/v1/users/{user_id}", () => {
     expect(res.body.result).to.equal("success");
     expect(res.body).to.have.property("user");
     expect((res.body.user as Record<string, unknown>).full_name).to.equal("Target User");
+  });
+
+  it("should return a Zulip-compatible user payload by id", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const owner = await seedUser(db, tenantId, {
+      fullName: "Bot Owner",
+    });
+    const target = await seedUser(db, tenantId, {
+      fullName: "Detailed User",
+      role: 200,
+      isBot: 1,
+      botType: 1,
+      botOwnerId: owner.userId,
+    });
+
+    const res = await target.client.get(`/users/${target.userId}`);
+    expect(res.status).to.equal(200);
+
+    const user = res.body.user as Record<string, unknown>;
+    expect(user).to.deep.include({
+      user_id: target.userId,
+      email: target.email,
+      delivery_email: target.email,
+      full_name: "Detailed User",
+      role: 200,
+      is_active: true,
+      is_owner: false,
+      is_admin: true,
+      is_guest: false,
+      is_bot: true,
+      bot_type: 1,
+      bot_owner_id: owner.userId,
+      timezone: "UTC",
+      avatar_version: 1,
+      is_billing_admin: false,
+    });
+    expect(user.profile_data).to.deep.equal({});
+    expect(user).to.not.have.property("avatar_source");
   });
 
   it("should return error for non-existent user ID", async () => {
@@ -71,5 +176,41 @@ describe("GET /api/v1/users/me", () => {
       // Response may have the user info at top level or nested under a key
       return body.email === email || body.full_name === "My Profile" || body.user_id === userId;
     });
+  });
+
+  it("should return a Zulip-compatible own-profile payload", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const user = await seedUser(db, tenantId, {
+      fullName: "Compat Profile",
+      role: 300,
+      avatarUrl: "https://cdn.test.local/me.png",
+    });
+
+    const res = await user.client.get("/users/me");
+    expect(res.status).to.equal(200);
+
+    expect(res.body).to.deep.include({
+      result: "success",
+      msg: "",
+      user_id: user.userId,
+      email: user.email,
+      delivery_email: user.email,
+      full_name: "Compat Profile",
+      role: 300,
+      is_active: true,
+      is_owner: false,
+      is_admin: false,
+      is_guest: false,
+      is_bot: false,
+      bot_type: null,
+      bot_owner_id: null,
+      timezone: "UTC",
+      avatar_url: "https://cdn.test.local/me.png",
+      avatar_version: 1,
+      is_billing_admin: false,
+    });
+    expect(res.body.profile_data).to.deep.equal({});
+    expect(res.body).to.not.have.property("avatar_source");
   });
 });

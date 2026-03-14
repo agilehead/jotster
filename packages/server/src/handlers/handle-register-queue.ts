@@ -42,6 +42,15 @@ const normalizeClientCapabilities = (
   if (getOptionalBooleanField(value, "group_setting_value") === true) {
     normalized.groupSettingValue = true;
   }
+  if (getOptionalBooleanField(value, "archived_channels") === true) {
+    normalized.archivedChannels = true;
+  }
+  if (getOptionalBooleanField(value, "user_list_incomplete") === true) {
+    normalized.userListIncomplete = true;
+  }
+  if (getOptionalBooleanField(value, "include_deactivated_groups") === true) {
+    normalized.includeDeactivatedGroups = true;
+  }
 
   return normalized;
 };

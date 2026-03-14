@@ -5,6 +5,13 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getSubscriptionsForUser } from "../repo/get-subscriptions-for-user.ts";
 import { getSubscriptionsForChannel } from "../repo/get-subscriptions-for-channel.ts";
 
+const toOptionalBoolean = (value: number | undefined): boolean | null => {
+  if (value === undefined) {
+    return null;
+  }
+  return value === 1;
+};
+
 export const getSubscriptionsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
@@ -35,19 +42,25 @@ export const getSubscriptionsDomain = async (
         name: channel.Name,
         description: channel.Description,
         rendered_description: channel.RenderedDescription,
+        date_created: channel.CreatedAt,
+        creator_id: channel.CreatorId !== undefined ? channel.CreatorId : null,
         invite_only: channel.IsPrivate === 1,
+        stream_post_policy: 1,
+        is_announcement_only: false,
         is_web_public: channel.IsWebPublic === 1,
         history_public_to_subscribers: channel.HistoryPublicToSubscribers === 1,
         color: sub.Color,
         pin_to_top: sub.PinToTop === 1,
         is_muted: sub.IsMuted === 1,
-        desktop_notifications: sub.DesktopNotifications !== undefined ? sub.DesktopNotifications : null,
-        push_notifications: sub.PushNotifications !== undefined ? sub.PushNotifications : null,
-        audible_notifications: sub.AudibleNotifications !== undefined ? sub.AudibleNotifications : null,
-        email_notifications: sub.EmailNotifications !== undefined ? sub.EmailNotifications : null,
-        wildcard_mentions_notify: sub.WildcardMentionsNotify !== undefined ? sub.WildcardMentionsNotify : null,
-        date_created: channel.CreatedAt,
-        creator_id: channel.CreatorId !== undefined ? channel.CreatorId : null,
+        in_home_view: sub.IsMuted !== 1,
+        desktop_notifications: toOptionalBoolean(sub.DesktopNotifications),
+        push_notifications: toOptionalBoolean(sub.PushNotifications),
+        audible_notifications: toOptionalBoolean(sub.AudibleNotifications),
+        email_notifications: toOptionalBoolean(sub.EmailNotifications),
+        wildcard_mentions_notify: toOptionalBoolean(sub.WildcardMentionsNotify),
+        first_message_id: channel.FirstMessageId !== undefined ? channel.FirstMessageId : null,
+        message_retention_days: channel.MessageRetentionDays !== undefined ? channel.MessageRetentionDays : null,
+        is_archived: channel.IsArchived === 1,
       };
 
       if (includeSubscribers) {

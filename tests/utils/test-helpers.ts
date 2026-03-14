@@ -57,9 +57,12 @@ export async function seedUser(
     email: string;
     fullName: string;
     role: number;
+    avatarUrl: string;
+    timezone: string;
     isBot: number;
     botType: number;
     botOwnerId: string;
+    isBillingAdmin: number;
   }>
 ): Promise<{
   userId: string;
@@ -77,14 +80,15 @@ export async function seedUser(
     email,
     full_name: overrides?.fullName ?? "Test User",
     role: overrides?.role ?? 400,
+    avatar_url: overrides?.avatarUrl ?? null,
     avatar_source: "gravatar",
     is_bot: overrides?.isBot ?? 0,
     bot_type: overrides?.botType ?? null,
     bot_owner_id: overrides?.botOwnerId ?? null,
     is_active: 1,
-    timezone: "",
+    timezone: overrides?.timezone ?? "UTC",
     date_joined: now,
-    is_billing_admin: 0,
+    is_billing_admin: overrides?.isBillingAdmin ?? 0,
     delivery_email: email,
     created_at: now,
     updated_at: now,

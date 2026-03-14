@@ -259,6 +259,59 @@ describe("POST /api/v1/register", function () {
     expect(group).to.not.equal(undefined);
     expect(group!.deactivated).to.equal(true);
   });
+
+  it("should populate never_subscribed channels and gate archived channels by capability", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const user = await seedUser(db, tenantId, { role: 100 });
+    const subscribedChannelId = await seedChannel(db, tenantId, { name: "subscribed-channel", creatorId: user.userId });
+    const neverSubscribedChannelId = await seedChannel(db, tenantId, { name: "never-subscribed-channel", creatorId: user.userId });
+    const archivedChannelId = await seedChannel(db, tenantId, { name: "archived-channel", creatorId: user.userId });
+
+    await seedSubscription(db, tenantId, user.userId, subscribedChannelId);
+    await db("channel").where({ tenant_id: tenantId, id: archivedChannelId }).update({ is_archived: 1 });
+
+    const defaultRes = await user.client.post("/register", {
+      fetch_event_types: JSON.stringify(["subscription"]),
+    });
+    expect(defaultRes.status).to.equal(200);
+    expect(defaultRes.body.subscriptions).to.be.an("array");
+    expect(defaultRes.body.unsubscribed).to.deep.equal([]);
+    expect(defaultRes.body.never_subscribed).to.deep.equal([
+      {
+        stream_id: neverSubscribedChannelId,
+        name: "never-subscribed-channel",
+        description: "",
+        rendered_description: "",
+        invite_only: false,
+        is_web_public: false,
+        history_public_to_subscribers: true,
+        creator_id: user.userId,
+        message_retention_days: null,
+        first_message_id: null,
+        is_archived: false,
+        stream_post_policy: 1,
+        is_announcement_only: false,
+        date_created: (defaultRes.body.never_subscribed as Array<Record<string, unknown>>)[0].date_created,
+      },
+    ]);
+
+    const capableRes = await user.client.post("/register", {
+      fetch_event_types: JSON.stringify(["subscription"]),
+      client_capabilities: JSON.stringify({ archived_channels: true }),
+    });
+    expect(capableRes.status).to.equal(200);
+    const neverSubscribed = capableRes.body.never_subscribed as Array<Record<string, unknown>>;
+    expect(neverSubscribed.map((entry) => entry.stream_id)).to.have.members([
+      neverSubscribedChannelId,
+      archivedChannelId,
+    ]);
+    const archivedEntry = neverSubscribed.find((entry) => entry.stream_id === archivedChannelId);
+    expect(archivedEntry).to.not.equal(undefined);
+    expect(archivedEntry!.is_archived).to.equal(true);
+    expect(archivedEntry!.stream_post_policy).to.equal(1);
+    expect(archivedEntry!.is_announcement_only).to.equal(false);
+  });
 });
 
 describe("DELETE /api/v1/events", function () {

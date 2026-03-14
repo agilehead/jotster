@@ -89,8 +89,25 @@ export const buildInitialState = async (
   compatRequester.tenantId = tenantId;
   compatRequester.userId = userId;
   compatRequester.email = "";
-  compatRequester.role = 0;
+  compatRequester.role = 400;
   compatRequester.isBot = 0;
+
+  const bootstrapDb = new JotsterDbContext(options);
+  try {
+    const bootstrapDb0 = bootstrapDb;
+    const tenantId0 = tenantId;
+    const userId0 = userId;
+    const requester = await bootstrapDb0.Users
+      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === userId0)
+      .FirstOrDefaultAsync();
+    if (requester !== undefined && requester !== null) {
+      compatRequester.email = requester.Email;
+      compatRequester.role = requester.Role;
+      compatRequester.isBot = requester.IsBot;
+    }
+  } finally {
+    bootstrapDb.Dispose();
+  }
 
   // Server metadata (always included)
   state.zulip_version = ZULIP_VERSION;
@@ -164,31 +181,41 @@ export const buildInitialState = async (
   // --- subscriptions ---
   if (shouldInclude("subscription")) {
     const userSubs = await getSubscriptionsForUser(options, tenantId, userId);
-    const allChannels = await getChannels(options, tenantId, false);
-
-    // Build channel lookup map
-    const channelMap: Record<string, typeof allChannels[0]> = {};
-    for (let i = 0; i < allChannels.length; i++) {
-      const ch = allChannels[i];
-      channelMap[ch.Id] = ch;
-    }
+    const allChannels = await getChannels(options, tenantId, params.clientCapabilities?.archivedChannels === true);
 
     const subscriptions = new List<Record<string, unknown>>();
+    const subscribedChannelIds: string[] = [];
 
     for (let i = 0; i < userSubs.Count; i++) {
       const sub = userSubs[i];
-      const ch = channelMap[sub.ChannelId];
+      let ch = undefined as (typeof allChannels)[number] | undefined;
+      for (let channelIndex = 0; channelIndex < allChannels.length; channelIndex++) {
+        if (allChannels[channelIndex].Id === sub.ChannelId) {
+          ch = allChannels[channelIndex];
+          break;
+        }
+      }
       if (ch === undefined) {
         continue;
       }
+      subscribedChannelIds.push(sub.ChannelId);
 
       const subscriberIds = await getChannelSubscribers(options, tenantId, sub.ChannelId);
-
       const entry: Record<string, unknown> = {};
-      entry.stream_id = sub.ChannelId;
+      entry.stream_id = ch.Id;
       entry.name = ch.Name;
       entry.description = ch.Description;
       entry.rendered_description = ch.RenderedDescription;
+      entry.invite_only = ch.IsPrivate === 1;
+      entry.stream_post_policy = 1;
+      entry.is_announcement_only = false;
+      entry.is_web_public = ch.IsWebPublic === 1;
+      entry.history_public_to_subscribers = ch.HistoryPublicToSubscribers === 1;
+      entry.creator_id = ch.CreatorId ?? null;
+      entry.date_created = ch.CreatedAt;
+      entry.first_message_id = ch.FirstMessageId ?? null;
+      entry.message_retention_days = ch.MessageRetentionDays ?? null;
+      entry.is_archived = ch.IsArchived === 1;
       entry.color = sub.Color;
       entry.pin_to_top = sub.PinToTop === 1;
       entry.is_muted = sub.IsMuted === 1;
@@ -198,10 +225,6 @@ export const buildInitialState = async (
       entry.audible_notifications = sub.AudibleNotifications !== undefined ? sub.AudibleNotifications === 1 : null;
       entry.email_notifications = sub.EmailNotifications !== undefined ? sub.EmailNotifications === 1 : null;
       entry.wildcard_mentions_notify = sub.WildcardMentionsNotify !== undefined ? sub.WildcardMentionsNotify === 1 : null;
-      entry.invite_only = ch.IsPrivate === 1;
-      entry.is_web_public = ch.IsWebPublic === 1;
-      entry.history_public_to_subscribers = ch.HistoryPublicToSubscribers === 1;
-      entry.stream_weekly_traffic = 0;
       entry.subscribers = subscriberIds;
 
       subscriptions.Add(entry);
@@ -209,7 +232,40 @@ export const buildInitialState = async (
 
     state.subscriptions = subscriptions.ToArray();
     state.unsubscribed = [];
-    state.never_subscribed = [];
+    const neverSubscribed = new List<Record<string, unknown>>();
+    for (let i = 0; i < allChannels.length; i++) {
+      const ch = allChannels[i];
+      let isSubscribed = false;
+      for (let subscribedIndex = 0; subscribedIndex < subscribedChannelIds.length; subscribedIndex++) {
+        if (subscribedChannelIds[subscribedIndex] === ch.Id) {
+          isSubscribed = true;
+          break;
+        }
+      }
+      if (isSubscribed) {
+        continue;
+      }
+      if (compatRequester.role > 200 && ch.IsPrivate === 1) {
+        continue;
+      }
+      const entry: Record<string, unknown> = {};
+      entry.stream_id = ch.Id;
+      entry.name = ch.Name;
+      entry.description = ch.Description;
+      entry.rendered_description = ch.RenderedDescription;
+      entry.invite_only = ch.IsPrivate === 1;
+      entry.stream_post_policy = 1;
+      entry.is_announcement_only = false;
+      entry.is_web_public = ch.IsWebPublic === 1;
+      entry.history_public_to_subscribers = ch.HistoryPublicToSubscribers === 1;
+      entry.creator_id = ch.CreatorId ?? null;
+      entry.date_created = ch.CreatedAt;
+      entry.first_message_id = ch.FirstMessageId ?? null;
+      entry.message_retention_days = ch.MessageRetentionDays ?? null;
+      entry.is_archived = ch.IsArchived === 1;
+      neverSubscribed.Add(entry);
+    }
+    state.never_subscribed = neverSubscribed.ToArray();
   }
 
   // --- user_settings ---

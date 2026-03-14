@@ -37,6 +37,8 @@ export const handleGetStreams = async (
     s["first_message_id"] = ch.FirstMessageId ?? null;
     s["message_retention_days"] = ch.MessageRetentionDays ?? null;
     s["is_archived"] = ch.IsArchived === 1;
+    s["stream_post_policy"] = 1;
+    s["is_announcement_only"] = false;
     streams.Add(s);
   }
 

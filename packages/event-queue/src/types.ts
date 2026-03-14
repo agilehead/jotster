@@ -9,6 +9,9 @@ export interface ClientCapabilities {
   userSettingsObject?: boolean;
   linkifierUrlTemplate?: boolean;
   groupSettingValue?: boolean;
+  archivedChannels?: boolean;
+  userListIncomplete?: boolean;
+  includeDeactivatedGroups?: boolean;
 }
 
 export interface RegisterParams {

@@ -37,6 +37,8 @@ export const handleGetStream = async (
   stream["first_message_id"] = ch.FirstMessageId ?? null;
   stream["message_retention_days"] = ch.MessageRetentionDays ?? null;
   stream["is_archived"] = ch.IsArchived === 1;
+  stream["stream_post_policy"] = 1;
+  stream["is_announcement_only"] = false;
 
   const payload: Record<string, unknown> = {};
   payload["result"] = "success";
