@@ -7,6 +7,7 @@ export function loadConfig(): ServerConfig {
   const listenUrl = Environment.GetEnvironmentVariable("JOTSTER_LISTEN_URL") ?? "http://localhost:8080";
   const database = Environment.GetEnvironmentVariable("JOTSTER_DB") ?? "jotster.db";
   const rootToken = Environment.GetEnvironmentVariable("JOTSTER_ROOT_TOKEN") ?? "";
+  const jwtSecret = Environment.GetEnvironmentVariable("JOTSTER_JWT_SECRET") ?? "";
   const singleTenantId = Environment.GetEnvironmentVariable("JOTSTER_SINGLE_TENANT") ?? "";
   const uploadsDir = Environment.GetEnvironmentVariable("JOTSTER_UPLOADS_DIR") ?? "";
 
@@ -15,6 +16,7 @@ export function loadConfig(): ServerConfig {
   config.listenUrl = listenUrl;
   config.database = database;
   config.rootToken = rootToken;
+  config.jwtSecret = jwtSecret;
   config.singleTenantId = singleTenantId;
   config.uploadsDir = uploadsDir;
   return config;

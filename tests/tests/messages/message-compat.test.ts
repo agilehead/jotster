@@ -1,0 +1,124 @@
+import { expect } from "chai";
+import { testDb } from "../../test-setup.js";
+import {
+  seedChannel,
+  seedMessage,
+  seedSubscription,
+  seedTenant,
+  seedUser,
+} from "../../utils/test-helpers.js";
+
+describe("Message compatibility endpoints", () => {
+  it("should mark stream and topic messages as read", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client, userId } = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "compat-stream" });
+    await seedSubscription(db, tenantId, userId, channelId);
+
+    const streamMessageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "general",
+      content: "mark stream",
+    });
+    const topicMessageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "specific",
+      content: "mark topic",
+    });
+
+    const markStreamRes = await client.post("/mark_stream_as_read", { stream_id: channelId });
+    expect(markStreamRes.status).to.equal(200);
+
+    const flagRows = await db("message_flag")
+      .select("message_id")
+      .where({ user_id: userId, flag: "read" });
+    expect(flagRows.map((row) => row.message_id)).to.include(streamMessageId);
+    expect(flagRows.map((row) => row.message_id)).to.include(topicMessageId);
+
+    await db("message_flag").del();
+
+    const markTopicRes = await client.post("/mark_topic_as_read", {
+      stream_id: channelId,
+      topic_name: "specific",
+    });
+    expect(markTopicRes.status).to.equal(200);
+
+    const topicFlagRows = await db("message_flag")
+      .select("message_id")
+      .where({ user_id: userId, flag: "read" });
+    expect(topicFlagRows.map((row) => row.message_id)).to.deep.equal([topicMessageId]);
+  });
+
+  it("should update flags for a narrow and report matching messages", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client, userId } = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "narrow-stream" });
+    await seedSubscription(db, tenantId, userId, channelId);
+
+    const matchingMessageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "incident",
+      content: "match me",
+    });
+    const otherMessageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "other",
+      content: "ignore me",
+    });
+
+    const narrow = JSON.stringify([
+      { operator: "channel", operand: channelId },
+      { operator: "topic", operand: "incident" },
+    ]);
+
+    const updateRes = await client.post("/messages/flags/narrow", {
+      anchor: matchingMessageId,
+      include_anchor: "true",
+      num_before: "0",
+      num_after: "0",
+      narrow,
+      op: "add",
+      flag: "starred",
+    });
+    expect(updateRes.status).to.equal(200);
+    expect(updateRes.body.processed_count).to.equal(1);
+
+    const matchingRes = await client.get("/messages/matches_narrow", {
+      msg_ids: JSON.stringify([matchingMessageId, otherMessageId]),
+      narrow,
+    });
+    expect(matchingRes.status).to.equal(200);
+    const messages = matchingRes.body.messages as Record<string, Record<string, unknown>>;
+    expect(Object.keys(messages)).to.deep.equal([matchingMessageId]);
+    expect(messages[matchingMessageId].match_subject).to.equal("incident");
+  });
+
+  it("should report a message, handle edit typing, and expose thumbnail status", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client, userId } = await seedUser(db, tenantId);
+    const moderationChannelId = await seedChannel(db, tenantId, { name: "moderation-requests" });
+    const sourceChannelId = await seedChannel(db, tenantId, { name: "source" });
+    await seedSubscription(db, tenantId, userId, moderationChannelId);
+    await seedSubscription(db, tenantId, userId, sourceChannelId);
+    const messageId = await seedMessage(db, tenantId, userId, {
+      channelId: sourceChannelId,
+      topic: "report",
+      content: "Needs review",
+    });
+
+    const reportRes = await client.post(`/messages/${messageId}/report`, {
+      report_type: "spam",
+    });
+    expect(reportRes.status).to.equal(200);
+
+    const typingRes = await client.post(`/messages/${messageId}/typing`, { op: "start" });
+    expect(typingRes.status).to.equal(200);
+
+    const thumbnailRes = await client.getRaw(`/thumbnail/status/${tenantId}/example.png`);
+    expect(thumbnailRes.status).to.equal(200);
+    expect(thumbnailRes.body.has_thumbnail).to.equal(false);
+  });
+});

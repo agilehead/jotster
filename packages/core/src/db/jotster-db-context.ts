@@ -35,6 +35,11 @@ import type { CustomEmoji } from "./entities/custom-emoji.ts";
 import type { CustomProfileField } from "./entities/custom-profile-field.ts";
 import type { CustomProfileFieldValue } from "./entities/custom-profile-field-value.ts";
 import type { Draft } from "./entities/draft.ts";
+import type { SavedSnippet } from "./entities/saved-snippet.ts";
+import type { Reminder } from "./entities/reminder.ts";
+import type { ScheduledMessage } from "./entities/scheduled-message.ts";
+import type { NavigationView } from "./entities/navigation-view.ts";
+import type { Linkifier } from "./entities/linkifier.ts";
 import type { AlertWord } from "./entities/alert-word.ts";
 import type { RealmDomain } from "./entities/realm-domain.ts";
 import type { TenantUserSettingDefault } from "./entities/tenant-user-setting-default.ts";
@@ -43,6 +48,7 @@ import type { OutgoingWebhook } from "./entities/outgoing-webhook.ts";
 import type { BotStorage } from "./entities/bot-storage.ts";
 import type { DataExport } from "./entities/data-export.ts";
 import type { PushDeviceToken } from "./entities/push-device-token.ts";
+import type { ClientDevice } from "./entities/client-device.ts";
 
 type DbSetQuery<T> = Ef<Linq<DbSet<T>>>;
 type RelationalEntityTypeBuilder = Ef<EntityTypeBuilder>;
@@ -207,6 +213,26 @@ export class JotsterDbContext extends DbContext {
     return asinterface<DbSetQuery<Draft>>(this.Set<Draft>());
   }
 
+  get SavedSnippets(): DbSetQuery<SavedSnippet> {
+    return asinterface<DbSetQuery<SavedSnippet>>(this.Set<SavedSnippet>());
+  }
+
+  get Reminders(): DbSetQuery<Reminder> {
+    return asinterface<DbSetQuery<Reminder>>(this.Set<Reminder>());
+  }
+
+  get ScheduledMessages(): DbSetQuery<ScheduledMessage> {
+    return asinterface<DbSetQuery<ScheduledMessage>>(this.Set<ScheduledMessage>());
+  }
+
+  get NavigationViews(): DbSetQuery<NavigationView> {
+    return asinterface<DbSetQuery<NavigationView>>(this.Set<NavigationView>());
+  }
+
+  get Linkifiers(): DbSetQuery<Linkifier> {
+    return asinterface<DbSetQuery<Linkifier>>(this.Set<Linkifier>());
+  }
+
   get AlertWords(): DbSetQuery<AlertWord> {
     return asinterface<DbSetQuery<AlertWord>>(this.Set<AlertWord>());
   }
@@ -237,6 +263,10 @@ export class JotsterDbContext extends DbContext {
 
   get PushDeviceTokens(): DbSetQuery<PushDeviceToken> {
     return asinterface<DbSetQuery<PushDeviceToken>>(this.Set<PushDeviceToken>());
+  }
+
+  get ClientDevices(): DbSetQuery<ClientDevice> {
+    return asinterface<DbSetQuery<ClientDevice>>(this.Set<ClientDevice>());
   }
 
   constructor(options: DbContextOptions) {
@@ -276,6 +306,11 @@ export class JotsterDbContext extends DbContext {
     configureRelationalNames(modelBuilder.Entity<CustomProfileField>());
     configureRelationalNames(modelBuilder.Entity<CustomProfileFieldValue>());
     configureRelationalNames(modelBuilder.Entity<Draft>());
+    configureRelationalNames(modelBuilder.Entity<SavedSnippet>());
+    configureRelationalNames(modelBuilder.Entity<Reminder>());
+    configureRelationalNames(modelBuilder.Entity<ScheduledMessage>());
+    configureRelationalNames(modelBuilder.Entity<NavigationView>());
+    configureRelationalNames(modelBuilder.Entity<Linkifier>());
     configureRelationalNames(modelBuilder.Entity<AlertWord>());
     configureRelationalNames(modelBuilder.Entity<RealmDomain>());
     configureRelationalNames(modelBuilder.Entity<TenantUserSettingDefault>());
@@ -284,6 +319,7 @@ export class JotsterDbContext extends DbContext {
     configureRelationalNames(modelBuilder.Entity<BotStorage>());
     configureRelationalNames(modelBuilder.Entity<DataExport>());
     configureRelationalNames(modelBuilder.Entity<PushDeviceToken>());
+    configureRelationalNames(modelBuilder.Entity<ClientDevice>());
   }
 }
 

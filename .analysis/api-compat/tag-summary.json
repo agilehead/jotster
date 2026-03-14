@@ -1,0 +1,106 @@
+[
+  {
+    "tag": "authentication",
+    "total": 4,
+    "implemented": 4,
+    "directlyTestCovered": 3,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "channels",
+    "total": 29,
+    "implemented": 26,
+    "directlyTestCovered": 11,
+    "missingInScope": 0,
+    "excludedByScope": 3
+  },
+  {
+    "tag": "drafts",
+    "total": 8,
+    "implemented": 8,
+    "directlyTestCovered": 4,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "invites",
+    "total": 6,
+    "implemented": 6,
+    "directlyTestCovered": 3,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "messages",
+    "total": 20,
+    "implemented": 20,
+    "directlyTestCovered": 9,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "mobile",
+    "total": 6,
+    "implemented": 6,
+    "directlyTestCovered": 3,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "navigation_views",
+    "total": 4,
+    "implemented": 4,
+    "directlyTestCovered": 2,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "real_time_events",
+    "total": 5,
+    "implemented": 5,
+    "directlyTestCovered": 5,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "reminders",
+    "total": 3,
+    "implemented": 3,
+    "directlyTestCovered": 2,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "scheduled_messages",
+    "total": 4,
+    "implemented": 4,
+    "directlyTestCovered": 2,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "server_and_organizations",
+    "total": 20,
+    "implemented": 18,
+    "directlyTestCovered": 14,
+    "missingInScope": 0,
+    "excludedByScope": 2
+  },
+  {
+    "tag": "users",
+    "total": 41,
+    "implemented": 41,
+    "directlyTestCovered": 18,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  },
+  {
+    "tag": "webhooks",
+    "total": 1,
+    "implemented": 1,
+    "directlyTestCovered": 1,
+    "missingInScope": 0,
+    "excludedByScope": 0
+  }
+]

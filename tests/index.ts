@@ -4,6 +4,7 @@ import "./tests/utils/api-client.test.js";
 // Auth tests
 import "./tests/auth/server-settings.test.js";
 import "./tests/auth/fetch-api-key.test.js";
+import "./tests/auth/auth-compat.test.js";
 import "./tests/auth/tenant-management.test.js";
 
 // User tests
@@ -11,11 +12,13 @@ import "./tests/users/create-user.test.js";
 import "./tests/users/get-users.test.js";
 import "./tests/users/update-user.test.js";
 import "./tests/users/deactivate-user.test.js";
+import "./tests/users/user-compat.test.js";
 
 // Channel tests
 import "./tests/channels/create-channel.test.js";
 import "./tests/channels/get-channels.test.js";
 import "./tests/channels/update-channel.test.js";
+import "./tests/channels/channel-compat.test.js";
 
 // Subscription tests
 import "./tests/subscriptions/subscribe.test.js";
@@ -27,6 +30,7 @@ import "./tests/messages/send-message.test.js";
 import "./tests/messages/get-messages.test.js";
 import "./tests/messages/edit-delete-message.test.js";
 import "./tests/messages/message-flags.test.js";
+import "./tests/messages/message-compat.test.js";
 import "./tests/messages/reactions.test.js";
 
 // Event queue tests
@@ -61,6 +65,7 @@ import "./tests/users/alert-words.test.js";
 import "./tests/organization/org-settings.test.js";
 import "./tests/organization/realm-domains.test.js";
 import "./tests/organization/deactivate-realm.test.js";
+import "./tests/organization/organization-compat.test.js";
 
 // Invitation tests
 import "./tests/invitations/invitations.test.js";
@@ -74,9 +79,12 @@ import "./tests/export/data-export.test.js";
 
 // Push notification tests
 import "./tests/push/push-tokens.test.js";
+import "./tests/push/push-compat.test.js";
 
 // User settings tests
 import "./tests/settings/user-settings.test.js";
 
 // Upload/attachment tests
 import "./tests/uploads/attachments.test.js";
+import "./tests/persisted/persisted-compat.test.js";
+import "./tests/webhooks/webhook-compat.test.js";

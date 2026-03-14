@@ -16,7 +16,7 @@ export const handleServeFile = async (
 
   const user = authResult.data;
   const tenantId = req.params["tenant_id"] as string;
-  const pathId = req.params["path_id"] as string;
+  const pathId = (req.params["0"] as string | undefined) ?? (req.params["path_id"] as string);
 
   const uploadsDir = app.config.uploadsDir || "./uploads";
 

@@ -1,6 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserByIdDomain } from "@jotster/users/Jotster.Users.js";
+import { resolveUserByEmailPath } from "../helpers/compat-db.ts";
 import { mapUserToResponse } from "../helpers/map-user-to-response.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
@@ -16,9 +17,15 @@ export const handleGetUser = async (
   }
 
   const user = authResult.data;
-  const userId = req.params["user_id"] as string;
+  const identifier = req.params["user_id_or_email"] as string ?? req.params["user_id"] as string;
 
-  const result = await getUserByIdDomain(app.options, user.tenantId, userId);
+  const resolvedByEmail = await resolveUserByEmailPath(app.options, user.tenantId, identifier);
+  if (resolvedByEmail !== undefined) {
+    res.json({ result: "success", msg: "", user: mapUserToResponse(resolvedByEmail) });
+    return;
+  }
+
+  const result = await getUserByIdDomain(app.options, user.tenantId, identifier);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

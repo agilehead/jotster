@@ -45,6 +45,7 @@ export const createBotDomain = async (
     apiKey.TenantId = actingUser.tenantId;
     apiKey.UserId = user.Id;
     apiKey.KeyHash = keyHash;
+    apiKey.RawKey = rawKey;
     apiKey.CreatedAt = now;
     db.ApiKeys.Add(apiKey);
     await db.SaveChangesAsync();

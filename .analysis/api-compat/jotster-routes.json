@@ -1,0 +1,907 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/v1/server_settings",
+    "normalized": "/api/v1/server_settings"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/fetch_api_key",
+    "normalized": "/api/v1/fetch_api_key"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/dev_fetch_api_key",
+    "normalized": "/api/v1/dev_fetch_api_key"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/jwt/fetch_api_key",
+    "normalized": "/api/v1/jwt/fetch_api_key"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/dev_list_users",
+    "normalized": "/api/v1/dev_list_users"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/me",
+    "normalized": "/api/v1/users/me"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/me",
+    "normalized": "/api/v1/users/me"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/api_key/regenerate",
+    "normalized": "/api/v1/users/me/api_key/regenerate"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/presence",
+    "normalized": "/api/v1/users/me/presence"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/status",
+    "normalized": "/api/v1/users/me/status"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/muted_users/:muted_user_id",
+    "normalized": "/api/v1/users/me/muted_users/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/me/muted_users/:muted_user_id",
+    "normalized": "/api/v1/users/me/muted_users/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/me/alert_words",
+    "normalized": "/api/v1/users/me/alert_words"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/android_gcm_reg_id",
+    "normalized": "/api/v1/users/me/android_gcm_reg_id"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/me/android_gcm_reg_id",
+    "normalized": "/api/v1/users/me/android_gcm_reg_id"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/apns_device_token",
+    "normalized": "/api/v1/users/me/apns_device_token"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/me/apns_device_token",
+    "normalized": "/api/v1/users/me/apns_device_token"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions/properties",
+    "normalized": "/api/v1/users/me/subscriptions/properties"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users/me/subscriptions/muted_topics",
+    "normalized": "/api/v1/users/me/subscriptions/muted_topics"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users/me/subscriptions/:stream_id",
+    "normalized": "/api/v1/users/me/subscriptions/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users/me/subscriptions",
+    "normalized": "/api/v1/users/me/subscriptions"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users/me/profile_data",
+    "normalized": "/api/v1/users/me/profile_data"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/me/:stream_id/topics",
+    "normalized": "/api/v1/users/me/{}/topics"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users",
+    "normalized": "/api/v1/users"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/:user_id/reactivate",
+    "normalized": "/api/v1/users/{}/reactivate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/:user_id/subscriptions/:stream_id",
+    "normalized": "/api/v1/users/{}/subscriptions/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/:user_id/channels",
+    "normalized": "/api/v1/users/{}/channels"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/:user_id_or_email/presence",
+    "normalized": "/api/v1/users/{}/presence"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/:user_id/status",
+    "normalized": "/api/v1/users/{}/status"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/:user_id/status",
+    "normalized": "/api/v1/users/{}/status"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/:user_id_or_email",
+    "normalized": "/api/v1/users/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users/:user_id_or_email",
+    "normalized": "/api/v1/users/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/:user_id",
+    "normalized": "/api/v1/users/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/settings",
+    "normalized": "/api/v1/settings"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/bots",
+    "normalized": "/api/v1/bots"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/bots",
+    "normalized": "/api/v1/bots"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/bots/:bot_id",
+    "normalized": "/api/v1/bots/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/bots/:bot_id",
+    "normalized": "/api/v1/bots/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/bots/:bot_id/api_key",
+    "normalized": "/api/v1/bots/{}/api_key"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/bots/:bot_id/api_key/regenerate",
+    "normalized": "/api/v1/bots/{}/api_key/regenerate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/streams",
+    "normalized": "/api/v1/streams"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/channels/create",
+    "normalized": "/api/v1/channels/create"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/get_stream_id",
+    "normalized": "/api/v1/get_stream_id"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/default_streams",
+    "normalized": "/api/v1/default_streams"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/default_streams",
+    "normalized": "/api/v1/default_streams"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/streams/:stream_id/members",
+    "normalized": "/api/v1/streams/{}/members"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/streams/:stream_id",
+    "normalized": "/api/v1/streams/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/streams/:stream_id",
+    "normalized": "/api/v1/streams/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/streams/:stream_id",
+    "normalized": "/api/v1/streams/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/streams/:stream_id/email_address",
+    "normalized": "/api/v1/streams/{}/email_address"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/streams/:stream_id/delete_topic",
+    "normalized": "/api/v1/streams/{}/delete_topic"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/channel_folders/create",
+    "normalized": "/api/v1/channel_folders/create"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/channel_folders/:folder_id",
+    "normalized": "/api/v1/channel_folders/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/channel_folders/:folder_id",
+    "normalized": "/api/v1/channel_folders/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/register",
+    "normalized": "/api/v1/register"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/events",
+    "normalized": "/api/v1/events"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/events",
+    "normalized": "/api/v1/events"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/messages/render",
+    "normalized": "/api/v1/messages/render"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/messages/flags",
+    "normalized": "/api/v1/messages/flags"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/messages/flags/narrow",
+    "normalized": "/api/v1/messages/flags/narrow"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/mark_all_as_read",
+    "normalized": "/api/v1/mark_all_as_read"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/mark_stream_as_read",
+    "normalized": "/api/v1/mark_stream_as_read"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/mark_topic_as_read",
+    "normalized": "/api/v1/mark_topic_as_read"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/messages/matches_narrow",
+    "normalized": "/api/v1/messages/matches_narrow"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/messages/:message_id/history",
+    "normalized": "/api/v1/messages/{}/history"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/messages/:message_id/read_receipts",
+    "normalized": "/api/v1/messages/{}/read_receipts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/messages/:message_id/reactions",
+    "normalized": "/api/v1/messages/{}/reactions"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/messages/:message_id/reactions",
+    "normalized": "/api/v1/messages/{}/reactions"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/messages/:message_id/report",
+    "normalized": "/api/v1/messages/{}/report"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/messages/:message_id/typing",
+    "normalized": "/api/v1/messages/{}/typing"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/messages",
+    "normalized": "/api/v1/messages"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/messages/:message_id",
+    "normalized": "/api/v1/messages/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/messages/:message_id",
+    "normalized": "/api/v1/messages/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/messages/:message_id",
+    "normalized": "/api/v1/messages/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/profile_fields/:field_id",
+    "normalized": "/api/v1/realm/profile_fields/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/profile_fields/:field_id",
+    "normalized": "/api/v1/realm/profile_fields/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/profile_fields",
+    "normalized": "/api/v1/realm/profile_fields"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/emoji",
+    "normalized": "/api/v1/realm/emoji"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/emoji/:emoji_name",
+    "normalized": "/api/v1/realm/emoji/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/emoji/:emoji_name",
+    "normalized": "/api/v1/realm/emoji/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm",
+    "normalized": "/api/v1/realm"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/user_settings_defaults",
+    "normalized": "/api/v1/realm/user_settings_defaults"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/deactivate",
+    "normalized": "/api/v1/realm/deactivate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/linkifiers",
+    "normalized": "/api/v1/realm/linkifiers"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/linkifiers",
+    "normalized": "/api/v1/realm/linkifiers"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/filters",
+    "normalized": "/api/v1/realm/filters"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/filters/:filter_id",
+    "normalized": "/api/v1/realm/filters/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/filters/:filter_id",
+    "normalized": "/api/v1/realm/filters/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/test_welcome_bot_custom_message",
+    "normalized": "/api/v1/realm/test_welcome_bot_custom_message"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/domains/:domain",
+    "normalized": "/api/v1/realm/domains/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/domains/:domain",
+    "normalized": "/api/v1/realm/domains/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/icon",
+    "normalized": "/api/v1/realm/icon"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/icon",
+    "normalized": "/api/v1/realm/icon"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/icon",
+    "normalized": "/api/v1/realm/icon"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/logo",
+    "normalized": "/api/v1/realm/logo"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/logo",
+    "normalized": "/api/v1/realm/logo"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/logo",
+    "normalized": "/api/v1/realm/logo"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/invites",
+    "normalized": "/api/v1/invites"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invites",
+    "normalized": "/api/v1/invites"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invites/multiuse",
+    "normalized": "/api/v1/invites/multiuse"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invites/:invite_id/resend",
+    "normalized": "/api/v1/invites/{}/resend"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/invites/multiuse/:invite_id",
+    "normalized": "/api/v1/invites/multiuse/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/invites/:invite_id",
+    "normalized": "/api/v1/invites/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/drafts",
+    "normalized": "/api/v1/drafts"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/drafts/:draft_id",
+    "normalized": "/api/v1/drafts/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/drafts/:draft_id",
+    "normalized": "/api/v1/drafts/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/presence",
+    "normalized": "/api/v1/realm/presence"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/user_topics",
+    "normalized": "/api/v1/user_topics"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/typing",
+    "normalized": "/api/v1/typing"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/register_client_device",
+    "normalized": "/api/v1/register_client_device"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/remove_client_device",
+    "normalized": "/api/v1/remove_client_device"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/mobile_push/test_notification",
+    "normalized": "/api/v1/mobile_push/test_notification"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/mobile_push/register",
+    "normalized": "/api/v1/mobile_push/register"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/mobile_push/e2ee/test_notification",
+    "normalized": "/api/v1/mobile_push/e2ee/test_notification"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/remotes/push/e2ee/register",
+    "normalized": "/api/v1/remotes/push/e2ee/register"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/user_groups",
+    "normalized": "/api/v1/user_groups"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/user_groups/create",
+    "normalized": "/api/v1/user_groups/create"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/user_groups/:group_id/deactivate",
+    "normalized": "/api/v1/user_groups/{}/deactivate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/user_groups/:group_id/members",
+    "normalized": "/api/v1/user_groups/{}/members"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/user_groups/:group_id/members/:user_id",
+    "normalized": "/api/v1/user_groups/{}/members/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/user_groups/:group_id/members",
+    "normalized": "/api/v1/user_groups/{}/members"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/user_groups/:group_id/members",
+    "normalized": "/api/v1/user_groups/{}/members"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/user_groups/:group_id/subgroups",
+    "normalized": "/api/v1/user_groups/{}/subgroups"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/user_groups/:group_id/subgroups",
+    "normalized": "/api/v1/user_groups/{}/subgroups"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/user_groups/:group_id/subgroups",
+    "normalized": "/api/v1/user_groups/{}/subgroups"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/user_groups/:group_id",
+    "normalized": "/api/v1/user_groups/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/user_uploads",
+    "normalized": "/api/v1/user_uploads"
+  },
+  {
+    "method": "GET",
+    "path": "/thumbnail/status/:realm_id_str/*",
+    "normalized": "/thumbnail/status/{}/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/thumbnail/status/:realm_id_str/:path_id",
+    "normalized": "/thumbnail/status/{}/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/user_uploads/:tenant_id/*",
+    "normalized": "/user_uploads/{}/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/user_uploads/:tenant_id/:path_id",
+    "normalized": "/user_uploads/{}/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/attachments",
+    "normalized": "/api/v1/attachments"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/attachments/:attachment_id",
+    "normalized": "/api/v1/attachments/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/external/slack_incoming",
+    "normalized": "/api/v1/external/slack_incoming"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/external/:integration_name",
+    "normalized": "/api/v1/external/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/submessage",
+    "normalized": "/api/v1/submessage"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/zulip-outgoing-webhook",
+    "normalized": "/api/v1/zulip-outgoing-webhook"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/export/realm/consents",
+    "normalized": "/api/v1/export/realm/consents"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/export/realm",
+    "normalized": "/api/v1/export/realm"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/export/realm",
+    "normalized": "/api/v1/export/realm"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/export/realm/:export_id",
+    "normalized": "/api/v1/export/realm/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/navigation_views",
+    "normalized": "/api/v1/navigation_views"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/navigation_views",
+    "normalized": "/api/v1/navigation_views"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/navigation_views/*",
+    "normalized": "/api/v1/navigation_views/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/navigation_views/:fragment_head/:fragment_tail",
+    "normalized": "/api/v1/navigation_views/{}/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/navigation_views/*",
+    "normalized": "/api/v1/navigation_views/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/navigation_views/:fragment_head/:fragment_tail",
+    "normalized": "/api/v1/navigation_views/{}/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/saved_snippets",
+    "normalized": "/api/v1/saved_snippets"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/saved_snippets",
+    "normalized": "/api/v1/saved_snippets"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/saved_snippets/:saved_snippet_id",
+    "normalized": "/api/v1/saved_snippets/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/saved_snippets/:saved_snippet_id",
+    "normalized": "/api/v1/saved_snippets/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/reminders",
+    "normalized": "/api/v1/reminders"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/reminders",
+    "normalized": "/api/v1/reminders"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/reminders/:reminder_id",
+    "normalized": "/api/v1/reminders/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/scheduled_messages",
+    "normalized": "/api/v1/scheduled_messages"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/scheduled_messages",
+    "normalized": "/api/v1/scheduled_messages"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/scheduled_messages/:scheduled_message_id",
+    "normalized": "/api/v1/scheduled_messages/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/scheduled_messages/:scheduled_message_id",
+    "normalized": "/api/v1/scheduled_messages/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/real-time",
+    "normalized": "/api/v1/real-time"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/rest-error-handling",
+    "normalized": "/api/v1/rest-error-handling"
+  },
+  {
+    "method": "POST",
+    "path": "/internal/admin/tenants",
+    "normalized": "/internal/admin/tenants"
+  },
+  {
+    "method": "GET",
+    "path": "/internal/admin/tenants",
+    "normalized": "/internal/admin/tenants"
+  },
+  {
+    "method": "PATCH",
+    "path": "/internal/admin/tenants/:tenant_id",
+    "normalized": "/internal/admin/tenants/{}"
+  }
+]

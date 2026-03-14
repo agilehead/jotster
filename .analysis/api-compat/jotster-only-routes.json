@@ -1,0 +1,177 @@
+[
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users/me/profile_data",
+    "normalized": "/api/v1/users/me/profile_data"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/bots",
+    "normalized": "/api/v1/bots"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/bots",
+    "normalized": "/api/v1/bots"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/bots/:bot_id",
+    "normalized": "/api/v1/bots/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/bots/:bot_id",
+    "normalized": "/api/v1/bots/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/channel_folders",
+    "normalized": "/api/v1/channel_folders"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/channel_folders/:folder_id",
+    "normalized": "/api/v1/channel_folders/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/profile_fields/:field_id",
+    "normalized": "/api/v1/realm/profile_fields/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/profile_fields/:field_id",
+    "normalized": "/api/v1/realm/profile_fields/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm",
+    "normalized": "/api/v1/realm"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/deactivate",
+    "normalized": "/api/v1/realm/deactivate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/domains",
+    "normalized": "/api/v1/realm/domains"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/realm/domains/:domain",
+    "normalized": "/api/v1/realm/domains/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/domains/:domain",
+    "normalized": "/api/v1/realm/domains/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/icon",
+    "normalized": "/api/v1/realm/icon"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/icon",
+    "normalized": "/api/v1/realm/icon"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/icon",
+    "normalized": "/api/v1/realm/icon"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/realm/logo",
+    "normalized": "/api/v1/realm/logo"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/realm/logo",
+    "normalized": "/api/v1/realm/logo"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/realm/logo",
+    "normalized": "/api/v1/realm/logo"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/user_groups/:group_id/members",
+    "normalized": "/api/v1/user_groups/{}/members"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/user_groups/:group_id/subgroups",
+    "normalized": "/api/v1/user_groups/{}/subgroups"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/external/slack_incoming",
+    "normalized": "/api/v1/external/slack_incoming"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/external/:integration_name",
+    "normalized": "/api/v1/external/{}"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/bot_storage",
+    "normalized": "/api/v1/bot_storage"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/submessage",
+    "normalized": "/api/v1/submessage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/export/realm/:export_id",
+    "normalized": "/api/v1/export/realm/{}"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/navigation_views/:fragment_head/:fragment_tail",
+    "normalized": "/api/v1/navigation_views/{}/{}"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/navigation_views/:fragment_head/:fragment_tail",
+    "normalized": "/api/v1/navigation_views/{}/{}"
+  },
+  {
+    "method": "POST",
+    "path": "/internal/admin/tenants",
+    "normalized": "/internal/admin/tenants"
+  },
+  {
+    "method": "GET",
+    "path": "/internal/admin/tenants",
+    "normalized": "/internal/admin/tenants"
+  },
+  {
+    "method": "PATCH",
+    "path": "/internal/admin/tenants/:tenant_id",
+    "normalized": "/internal/admin/tenants/{}"
+  }
+]

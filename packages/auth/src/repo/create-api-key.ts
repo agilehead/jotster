@@ -6,7 +6,8 @@ export const createApiKey = async (
   options: DbContextOptions,
   tenantId: string,
   userId: string,
-  keyHash: string
+  keyHash: string,
+  rawKey?: string
 ): Promise<ApiKey> => {
   const db = new JotsterDbContext(options);
   try {
@@ -16,6 +17,7 @@ export const createApiKey = async (
     apiKey.TenantId = tenantId;
     apiKey.UserId = userId;
     apiKey.KeyHash = keyHash;
+    apiKey.RawKey = rawKey;
     apiKey.CreatedAt = now;
     db.ApiKeys.Add(apiKey);
     await db.SaveChangesAsync();

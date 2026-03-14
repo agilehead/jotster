@@ -8,6 +8,7 @@ export class ApiKey {
   TenantId!: string;
   UserId!: string;
   KeyHash!: string;
+  RawKey?: string;
   CreatedAt!: long;
   RevokedAt?: long;
 }

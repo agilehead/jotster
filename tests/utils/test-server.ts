@@ -81,6 +81,7 @@ export class TestServer {
         JOTSTER_LISTEN_URL: this.baseUrl,
         JOTSTER_DB: TEST_DB_PATH,
         JOTSTER_ROOT_TOKEN: "test-root-token",
+        JOTSTER_JWT_SECRET: "test-jwt-secret",
         JOTSTER_MODE: "multi-tenant",
       },
       stdio: "pipe",

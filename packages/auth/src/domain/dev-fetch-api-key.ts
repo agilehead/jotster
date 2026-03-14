@@ -22,7 +22,7 @@ export const devFetchApiKey = async (
 
   const rawKey = generateApiKey();
   const keyHash = hashApiKey(rawKey);
-  await createApiKey(options, tenantId, user.Id, keyHash);
+  await createApiKey(options, tenantId, user.Id, keyHash, rawKey);
 
   return ok({ api_key: rawKey, email: user.Email, user_id: user.Id });
 };
