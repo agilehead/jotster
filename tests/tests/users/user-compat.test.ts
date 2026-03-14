@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import { seedTenant, seedUser } from "../../utils/test-helpers.js";
+import { seedChannel, seedMessage, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 describe("User compatibility endpoints", () => {
   it("should get and update a user by email path", async () => {
@@ -21,6 +21,26 @@ describe("User compatibility endpoints", () => {
 
     const getUpdatedRes = await admin.client.get(`/users/${encodedEmail}`);
     expect((getUpdatedRes.body.user as Record<string, unknown>).full_name).to.equal("Updated Name");
+  });
+
+  it("should resolve Zulip dummy email addresses to the target user", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db, { subdomain: "compat-users" });
+    const admin = await seedUser(db, tenantId, { role: 200 });
+    const member = await seedUser(db, tenantId, { fullName: "Dummy Email User" });
+    const dummyEmail = encodeURIComponent(`user${member.userId}@compat-users.test.local`);
+
+    const getRes = await admin.client.get(`/users/${dummyEmail}`);
+    expect(getRes.status).to.equal(200);
+    expect((getRes.body.user as Record<string, unknown>).user_id).to.equal(member.userId);
+
+    const patchRes = await admin.client.patch(`/users/${dummyEmail}`, {
+      full_name: "Dummy Email Updated",
+    });
+    expect(patchRes.status).to.equal(200);
+
+    const getUpdatedRes = await admin.client.get(`/users/${member.userId}`);
+    expect((getUpdatedRes.body.user as Record<string, unknown>).full_name).to.equal("Dummy Email Updated");
   });
 
   it("should update another user's status by user id", async () => {
@@ -63,5 +83,47 @@ describe("User compatibility endpoints", () => {
     const regeneratedKey = regenerateRes.body.api_key as string;
     expect(regeneratedKey).to.be.a("string").and.not.equal("");
     expect(regeneratedKey).to.not.equal(originalKey);
+  });
+
+  it("should reject bot api key access for a non-owner non-admin user", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+    const member = await seedUser(db, tenantId);
+    const bot = await seedUser(db, tenantId, {
+      email: `bot-${Date.now()}@test.local`,
+      isBot: 1,
+      botType: 1,
+      botOwnerId: admin.userId,
+    });
+
+    const getRes = await member.client.get(`/bots/${bot.userId}/api_key`);
+    expect(getRes.status).to.equal(400);
+    expect(getRes.body.result).to.equal("error");
+
+    const regenerateRes = await member.client.post(`/bots/${bot.userId}/api_key/regenerate`);
+    expect(regenerateRes.status).to.equal(400);
+    expect(regenerateRes.body.result).to.equal("error");
+  });
+
+  it("should send message edit typing notifications", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "typing-edit" });
+    await seedSubscription(db, tenantId, sender.userId, channelId);
+    const messageId = await seedMessage(db, tenantId, sender.userId, {
+      channelId,
+      topic: "editing",
+      content: "Edit me",
+    });
+
+    const res = await sender.client.post(`/messages/${messageId}/typing`, {
+      op: "start",
+    });
+
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("success");
+    expect(res.body.msg).to.equal("");
   });
 });

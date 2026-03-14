@@ -25,9 +25,18 @@ export const handleGetUserChannels = async (
     return;
   }
 
-  const payload: Record<string, unknown> = {};
-  payload["result"] = "success";
-  payload["msg"] = "";
-  payload["channels"] = result.data;
-  res.json(payload);
+  const subscribedChannelIds: string[] = [];
+  for (let i = 0; i < result.data.length; i++) {
+    const entry = result.data[i];
+    const streamId = entry["stream_id"];
+    if (typeof streamId === "string") {
+      subscribedChannelIds.push(streamId);
+    }
+  }
+
+  res.json({
+    result: "success",
+    msg: "",
+    subscribed_channel_ids: subscribedChannelIds,
+  });
 };
