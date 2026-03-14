@@ -1,5 +1,10 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalFlagIntField, getOptionalStringField } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalFlagIntField,
+  getOptionalJsonObjectField,
+  getOptionalStringField,
+} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { registerQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { buildInitialState } from "../helpers/build-initial-state.ts";
@@ -30,6 +35,8 @@ export const handleRegisterQueue = async (
   const clientCapabilities = clientCapabilitiesRaw
     ? (JSON.parse(clientCapabilitiesRaw) as RegisterParams["clientCapabilities"])
     : undefined;
+  const clientCapabilitiesObject = getOptionalJsonObjectField(body, "client_capabilities");
+  const includeDeactivatedGroups = clientCapabilitiesObject?.["include_deactivated_groups"] === true;
 
   const narrowRaw = getOptionalStringField(body, "narrow");
   const narrow = narrowRaw ? (JSON.parse(narrowRaw) as RegisterParams["narrow"]) : undefined;
@@ -56,7 +63,8 @@ export const handleRegisterQueue = async (
     user.tenantId,
     user.userId,
     fetchEventTypes,
-    params
+    params,
+    includeDeactivatedGroups,
   );
 
   const response: Record<string, unknown> = {};

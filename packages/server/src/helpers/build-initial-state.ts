@@ -1,6 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import {
+  AuthenticatedUser,
   JotsterDbContext,
   ZULIP_VERSION,
   ZULIP_FEATURE_LEVEL,
@@ -15,6 +16,21 @@ import { getUserSetting } from "@jotster/users/Jotster.Users.js";
 import { getSubscriptionsForUser } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import { getChannels, getChannelSubscribers } from "@jotster/channels/Jotster.Channels.js";
 import type { RegisterParams } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { getUserGroupsDomain } from "@jotster/permissions/Jotster.Permissions.js";
+import {
+  listLinkifiers,
+  listNavigationViews,
+  listReminders,
+  listSavedSnippets,
+  listScheduledMessages,
+} from "./compat-db.ts";
+import {
+  mapLinkifierToCompatResponse,
+  mapNavigationViewToCompatResponse,
+  mapReminderToCompatResponse,
+  mapSavedSnippetToCompatResponse,
+  mapScheduledMessageToCompatResponse,
+} from "./compat-mappers.ts";
 
 const mapUserToZulip = (u: {
   Id: string;
@@ -53,7 +69,8 @@ export const buildInitialState = async (
   tenantId: string,
   userId: string,
   fetchEventTypes: string[] | undefined,
-  params: RegisterParams
+  params: RegisterParams,
+  includeDeactivatedGroups: boolean,
 ): Promise<Record<string, unknown>> => {
   const shouldInclude = (type: string): boolean => {
     if (fetchEventTypes === undefined) {
@@ -68,6 +85,12 @@ export const buildInitialState = async (
   };
 
   const state: Record<string, unknown> = {};
+  const compatRequester = new AuthenticatedUser();
+  compatRequester.tenantId = tenantId;
+  compatRequester.userId = userId;
+  compatRequester.email = "";
+  compatRequester.role = 0;
+  compatRequester.isBot = 0;
 
   // Server metadata (always included)
   state.zulip_version = ZULIP_VERSION;
@@ -277,10 +300,86 @@ export const buildInitialState = async (
         state.realm_create_web_public_stream_policy = 6;
         state.realm_default_language = "en";
         state.realm_video_chat_provider = 1;
+        state.event_queue_longpoll_timeout_seconds = 90;
       }
     } finally {
       db.Dispose();
     }
+  }
+
+  if (shouldInclude("realm_user_groups")) {
+    const groupsWithDetails = await getUserGroupsDomain(
+      options,
+      compatRequester,
+      includeDeactivatedGroups,
+    );
+    const realmUserGroups: Record<string, unknown>[] = [];
+    for (let i = 0; i < groupsWithDetails.length; i++) {
+      const item = groupsWithDetails[i];
+      const group: Record<string, unknown> = {};
+      group["id"] = item.group.Id;
+      group["name"] = item.group.Name;
+      group["description"] = item.group.Description;
+      group["is_system_group"] = item.group.IsSystemGroup === 1;
+      group["creator_id"] = item.group.CreatorId ?? null;
+      group["date_created"] = item.group.CreatedAt;
+      group["members"] = item.members;
+      group["direct_subgroup_ids"] = item.subgroups;
+      group["can_add_members_group"] = item.group.CanAddMembersGroupId ?? null;
+      group["can_join_group"] = item.group.CanJoinGroupId ?? null;
+      group["can_leave_group"] = item.group.CanLeaveGroupId ?? null;
+      group["can_manage_group"] = item.group.CanManageGroupId ?? null;
+      group["can_mention_group"] = item.group.CanMentionGroupId ?? null;
+      group["can_remove_members_group"] = item.group.CanRemoveMembersGroupId ?? item.group.CanManageGroupId ?? null;
+      group["deactivated"] = item.group.IsActive !== 1;
+      realmUserGroups.push(group);
+    }
+    state.realm_user_groups = realmUserGroups;
+  }
+
+  if (shouldInclude("navigation_views")) {
+    const views = await listNavigationViews(options, compatRequester);
+    const navigationViews: Record<string, unknown>[] = [];
+    for (let i = 0; i < views.length; i++) {
+      navigationViews.push(mapNavigationViewToCompatResponse(views[i]));
+    }
+    state.navigation_views = navigationViews;
+  }
+
+  if (shouldInclude("saved_snippets")) {
+    const snippets = await listSavedSnippets(options, compatRequester);
+    const savedSnippets: Record<string, unknown>[] = [];
+    for (let i = 0; i < snippets.length; i++) {
+      savedSnippets.push(mapSavedSnippetToCompatResponse(snippets[i]));
+    }
+    state.saved_snippets = savedSnippets;
+  }
+
+  if (shouldInclude("reminders")) {
+    const reminders = await listReminders(options, compatRequester);
+    const reminderPayloads: Record<string, unknown>[] = [];
+    for (let i = 0; i < reminders.length; i++) {
+      reminderPayloads.push(mapReminderToCompatResponse(reminders[i], userId));
+    }
+    state.reminders = reminderPayloads;
+  }
+
+  if (shouldInclude("scheduled_messages")) {
+    const scheduledMessages = await listScheduledMessages(options, compatRequester);
+    const scheduledMessagePayloads: Record<string, unknown>[] = [];
+    for (let i = 0; i < scheduledMessages.length; i++) {
+      scheduledMessagePayloads.push(mapScheduledMessageToCompatResponse(scheduledMessages[i]));
+    }
+    state.scheduled_messages = scheduledMessagePayloads;
+  }
+
+  if (shouldInclude("realm_linkifiers")) {
+    const linkifiers = await listLinkifiers(options, tenantId);
+    const realmLinkifiers: Record<string, unknown>[] = [];
+    for (let i = 0; i < linkifiers.length; i++) {
+      realmLinkifiers.push(mapLinkifierToCompatResponse(linkifiers[i]));
+    }
+    state.realm_linkifiers = realmLinkifiers;
   }
 
   // --- Empty/default sections for not-yet-implemented modules ---
@@ -318,7 +417,6 @@ export const buildInitialState = async (
 
   if (shouldInclude("realm")) {
     state.realm_filters = [];
-    state.realm_linkifiers = [];
     state.realm_playgrounds = [];
   }
 
