@@ -1,5 +1,7 @@
 export class ServerConfig {
   mode: string = "multi-tenant";
+  production: boolean = false;
+  devAuthEnabled: boolean = true;
   listenUrl: string = "http://localhost:8080";
   database: string = "jotster.db";
   rootToken: string = "";

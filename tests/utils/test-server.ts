@@ -16,6 +16,10 @@ type LaunchTarget = {
   description: string;
 };
 
+type TestServerOptions = {
+  envOverrides?: Record<string, string>;
+};
+
 function resolveLaunchTarget(): LaunchTarget | null {
   if (existsSync(NATIVE_BINARY_PATH)) {
     return {
@@ -63,6 +67,12 @@ export class TestServer {
   private process: ChildProcess | null = null;
   private baseUrl = "";
   private recentOutput: string[] = [];
+  private readonly envOverrides: Record<string, string>;
+  private previousBaseUrl: string | undefined;
+
+  constructor(options?: TestServerOptions) {
+    this.envOverrides = { ...(options?.envOverrides ?? {}) };
+  }
 
   async start(): Promise<void> {
     const launchTarget = resolveLaunchTarget();
@@ -73,6 +83,7 @@ export class TestServer {
     }
     const port = await allocatePort();
     this.baseUrl = `http://${SERVER_HOST}:${port}`;
+    this.previousBaseUrl = process.env[TEST_BASE_URL_ENV];
     process.env[TEST_BASE_URL_ENV] = this.baseUrl;
 
     this.process = spawn(launchTarget.command, launchTarget.args, {
@@ -84,6 +95,9 @@ export class TestServer {
         JOTSTER_ROOT_TOKEN: "test-root-token",
         JOTSTER_JWT_SECRET: "test-jwt-secret",
         JOTSTER_MODE: "multi-tenant",
+        JOTSTER_PRODUCTION: "0",
+        JOTSTER_DEV_AUTH_ENABLED: "1",
+        ...this.envOverrides,
       },
       stdio: "pipe",
     });
@@ -97,7 +111,12 @@ export class TestServer {
   async stop(): Promise<void> {
     const child = this.process;
     this.process = null;
-    delete process.env[TEST_BASE_URL_ENV];
+    if (this.previousBaseUrl === undefined) {
+      delete process.env[TEST_BASE_URL_ENV];
+    } else {
+      process.env[TEST_BASE_URL_ENV] = this.previousBaseUrl;
+    }
+    this.previousBaseUrl = undefined;
 
     if (child === null) {
       return;

@@ -22,13 +22,16 @@ export const resolveTenant = async (
 
   const parts = hostname.split(".");
   if (parts.length <= 2) {
-    return err("No subdomain found");
+    return err("Invalid subdomain");
   }
 
   const subdomain = parts[0];
   const tenant = await getTenantBySubdomain(options, subdomain);
-  if (tenant === undefined || tenant.Active !== 1) {
-    return err("Organization not found");
+  if (tenant === undefined) {
+    return err("Invalid subdomain");
+  }
+  if (tenant.Active !== 1) {
+    return err("This organization has been deactivated");
   }
 
   return ok(tenant);

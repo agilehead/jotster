@@ -1,32 +1,23 @@
-import type { byte } from "@tsonic/core/types.js";
+import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
 import { HMACSHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
-import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, ServerConfig, User } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { getUserByEmail } from "../repo/get-user-by-email.ts";
-import { revokeAllApiKeys } from "../repo/revoke-all-api-keys.ts";
 import { generateApiKey } from "../crypto/generate-api-key.ts";
 import { hashApiKey } from "../crypto/hash-api-key.ts";
 import { createApiKey } from "../repo/create-api-key.ts";
+import { getActiveApiKey } from "../repo/get-active-api-key.ts";
 
-type JwtPayload = {
+export type JwtPayload = {
   email?: string;
   exp?: number;
 };
 
-const getObjectField = (value: unknown, key: string): unknown => {
-  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) {
-    return undefined;
-  }
-  for (const [entryKey, entryValue] of Object.entries(value)) {
-    if (entryKey === key) {
-      return entryValue;
-    }
-  }
-  return undefined;
-};
+type JwtVerificationResult =
+  | { success: true; payload: JwtPayload }
+  | { success: false; error: "segments" | "header" | "payload" | "signature" | "expired" };
 
 const normalizeBase64Url = (segment: string): string => {
   let normalized = segment.split("-").join("+").split("_").join("/");
@@ -41,37 +32,25 @@ const normalizeBase64Url = (segment: string): string => {
   return normalized;
 };
 
-const decodeBase64UrlBytes = (segment: string): byte[] | undefined => {
-  const normalized = normalizeBase64Url(segment);
-  if (normalized.length === 0) {
+const getObjectField = (value: unknown, key: string): unknown => {
+  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) {
     return undefined;
   }
-  try {
-    return Convert.FromBase64String(normalized) as byte[];
-  } catch {
-    return undefined;
-  }
-};
-
-const bytesEqual = (left: byte[], right: byte[]): boolean => {
-  if (left.length !== right.length) {
-    return false;
-  }
-  for (let i = 0; i < left.length; i++) {
-    if (left[i] !== right[i]) {
-      return false;
+  for (const [entryKey, entryValue] of Object.entries(value)) {
+    if (entryKey === key) {
+      return entryValue;
     }
   }
-  return true;
+  return undefined;
 };
 
 const decodeJsonSegment = (segment: string): unknown => {
   try {
-    const bytes = decodeBase64UrlBytes(segment);
-    if (bytes === undefined) {
+    const normalized = normalizeBase64Url(segment);
+    if (normalized.length === 0) {
       return undefined;
     }
-    const json = Encoding.UTF8.GetString(bytes);
+    const json = Encoding.UTF8.GetString(Convert.FromBase64String(normalized));
     const parsed = JSON.parse(json) as unknown;
     if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
       return undefined;
@@ -82,41 +61,51 @@ const decodeJsonSegment = (segment: string): unknown => {
   }
 };
 
-const verifyJwt = (token: string, secret: string): JwtPayload | undefined => {
+const verifyJwt = (token: string, secret: string): JwtVerificationResult => {
   const segments = token.split(".");
   if (segments.length !== 3) {
-    return undefined;
+    return { success: false, error: "segments" };
   }
 
   const [headerSegment, payloadSegment, signatureSegment] = segments;
   const header = decodeJsonSegment(headerSegment);
   if (header === undefined || getObjectField(header, "alg") !== "HS256") {
-    return undefined;
+    return { success: false, error: "header" };
   }
 
   const payloadObject = decodeJsonSegment(payloadSegment);
   if (payloadObject === undefined) {
-    return undefined;
+    return { success: false, error: "payload" };
   }
 
   try {
-    const secretBytes = Encoding.UTF8.GetBytes(secret);
-    const signingInputBytes = Encoding.UTF8.GetBytes(`${headerSegment}.${payloadSegment}`);
-    const expectedSignature = HMACSHA256.HashData(secretBytes, signingInputBytes);
-    const actualSignature = decodeBase64UrlBytes(signatureSegment);
-    if (actualSignature === undefined || !bytesEqual(expectedSignature, actualSignature)) {
-      return undefined;
+    const signingInput = `${headerSegment}.${payloadSegment}`;
+    const expectedSignatureBytes = HMACSHA256.HashData(
+      Encoding.UTF8.GetBytes(secret),
+      Encoding.UTF8.GetBytes(signingInput),
+    );
+    const expectedSignatureHex = Convert.ToHexStringLower(expectedSignatureBytes);
+    const normalizedSignature = normalizeBase64Url(signatureSegment);
+    if (normalizedSignature.length === 0) {
+      return { success: false, error: "signature" };
+    }
+    const actualSignatureHex = Convert.ToHexStringLower(Convert.FromBase64String(normalizedSignature));
+    if (expectedSignatureHex !== actualSignatureHex) {
+      return { success: false, error: "signature" };
     }
   } catch {
-    return undefined;
+    return { success: false, error: "signature" };
   }
 
   const expValue = getObjectField(payloadObject, "exp");
-  const exp = typeof expValue === "number" ? (expValue as number) : undefined;
+  let exp: number | undefined = undefined;
+  if (typeof expValue === "number") {
+    exp = expValue as number;
+  }
   if (exp !== undefined) {
     const nowSeconds = Number(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
     if (exp < nowSeconds) {
-      return undefined;
+      return { success: false, error: "expired" };
     }
   }
 
@@ -128,7 +117,7 @@ const verifyJwt = (token: string, secret: string): JwtPayload | undefined => {
   if (exp !== undefined) {
     payload.exp = exp as number;
   }
-  return payload;
+  return { success: true, payload };
 };
 
 export const fetchJwtApiKey = async (
@@ -137,22 +126,43 @@ export const fetchJwtApiKey = async (
   tenantId: string,
   token: string,
   includeProfile: boolean,
-): Promise<Result<{ api_key: string; email: string; user_id: string; user?: User }, string>> => {
+): Promise<Result<{ api_key: string; email: string; user?: User }, string>> => {
   if (config.jwtSecret.trim().length === 0) {
-    return err("JWT authentication is not configured");
+    return err("JWT authentication is not enabled for this organization");
+  }
+  if (token.trim().length === 0) {
+    return err("No JSON web token passed in request");
   }
 
-  const payload = verifyJwt(token, config.jwtSecret);
-  if (payload === undefined || typeof payload.email !== "string" || payload.email.trim().length === 0) {
-    return err("Invalid JWT");
+  const verification = verifyJwt(token, config.jwtSecret);
+  if (!verification.success) {
+    return err("Bad JSON web token");
+  }
+
+  const { payload } = verification;
+  if (payload.email === undefined) {
+    return err("No email specified in JSON web token claims");
+  }
+  if (payload.email.trim().length === 0) {
+    return err("Your username or password is incorrect");
   }
 
   const user = await getUserByEmail(options, tenantId, payload.email.trim());
-  if (user === undefined || user.IsActive !== 1) {
-    return err("User not found or inactive");
+  if (user === undefined) {
+    return err("Your username or password is incorrect");
+  }
+  if (user.IsActive !== 1) {
+    return err("Account is deactivated");
   }
 
-  await revokeAllApiKeys(options, tenantId, user.Id);
+  const activeApiKey = await getActiveApiKey(options, tenantId, user.Id);
+  if (activeApiKey?.RawKey !== undefined && activeApiKey.RawKey !== null && activeApiKey.RawKey !== "") {
+    return ok({
+      api_key: activeApiKey.RawKey,
+      email: user.Email,
+      user: includeProfile ? user : undefined,
+    });
+  }
 
   const rawKey = generateApiKey();
   const keyHash = hashApiKey(rawKey);
@@ -161,7 +171,6 @@ export const fetchJwtApiKey = async (
   return ok({
     api_key: rawKey,
     email: user.Email,
-    user_id: user.Id,
     user: includeProfile ? user : undefined,
   });
 };

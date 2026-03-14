@@ -25,16 +25,24 @@ const nowMilliseconds = (): long => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds
 
 export const listDevelopmentUsers = async (
   options: DbContextOptions,
-  tenantId: string,
   realmUrl: string,
 ): Promise<{ direct_admins: Record<string, unknown>[]; direct_users: Record<string, unknown>[] }> => {
   const db = new JotsterDbContext(options);
   try {
-    const tenantId0 = tenantId;
     const users = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.IsActive === (1 as int))
+      .OrderBy((entry) => entry.Email)
       .ToListAsync();
+
+    const hostWithoutProtocol = realmUrl.startsWith("http://") ? realmUrl.substring("http://".length) : realmUrl;
+    const slashIndex = hostWithoutProtocol.indexOf("/");
+    const authority = slashIndex >= 0 ? hostWithoutProtocol.substring(0, slashIndex) : hostWithoutProtocol;
+    const colonIndex = authority.lastIndexOf(":");
+    const hostname = colonIndex > 0 ? authority.substring(0, colonIndex) : authority;
+    const port = colonIndex > 0 ? authority.substring(colonIndex + 1) : "";
+    const hostParts = hostname.split(".");
+    const rootHost = hostParts.length > 2 ? hostParts.slice(1).join(".") : hostname;
+    const hostWithPort = port === "" ? rootHost : `${rootHost}:${port}`;
 
     const directAdmins = new List<Record<string, unknown>>();
     const directUsers = new List<Record<string, unknown>>();
@@ -44,9 +52,17 @@ export const listDevelopmentUsers = async (
         continue;
       }
 
+      const tenantId = user.TenantId;
+      const tenant = await db.Tenants
+        .Where((entry) => entry.Id === tenantId)
+        .FirstOrDefaultAsync();
+      if (tenant === undefined || tenant === null || tenant.Active !== (1 as int)) {
+        continue;
+      }
+
       const payload: Record<string, unknown> = {
         email: user.Email,
-        realm_url: realmUrl,
+        realm_url: `http://${tenant.Subdomain}.${hostWithPort}`,
       };
 
       if (user.Role <= (200 as int)) {
