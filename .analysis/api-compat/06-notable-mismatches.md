@@ -21,3 +21,5 @@
   - custom-profile-field required/editable metadata
   - `realm_linkifiers` client-capability gating for `/register` state and queue events
   - stream `typing` event gating for clients without `stream_typing_notifications`
+  - `user_settings` event emission with Zulip-compatible `property` / `value` payloads
+  - sender-side stream typing suppression when `send_stream_typing_notifications` is disabled

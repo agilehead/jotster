@@ -81,6 +81,13 @@ export const sendTypingDomain = async (
           return err("Not subscribed to this channel");
         }
       }
+
+      const setting = await db0.UserSettings
+        .Where((entry) => entry.UserId === userId0)
+        .FirstOrDefaultAsync();
+      if (setting !== undefined && setting !== null && setting.SendStreamTypingNotifications !== 1) {
+        return ok(undefined);
+      }
     } finally {
       db.Dispose();
     }

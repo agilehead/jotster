@@ -33,10 +33,13 @@ This report now confirms route presence and direct endpoint test coverage for ev
   - `channel_folder`
   - `user_group`
   - `custom_profile_fields`
+  - `user_settings`
 - Persisted-object event parity is now explicitly covered for:
   - `navigation_view`
   - `saved_snippets`
   - `reminders`
   - `scheduled_messages`
+- Sender-side behavior parity is now explicitly covered for:
+  - stream `typing` event suppression when `send_stream_typing_notifications` is disabled
 - Current full suite status on this branch:
-  - `npm test` → `306 passing`
+  - `npm test` → `309 passing`
