@@ -19,11 +19,12 @@ export const addAlertWords = async (
     const userId0 = userId;
     const existing = await db0.AlertWords
       .Where((aw) => aw.TenantId === tenantId0).Where((aw) => aw.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
-    const existingWords: Record<string, boolean> = {};
-    for (let i = 0; i < existing.length; i++) {
-      existingWords[existing[i].Word] = true;
+    const existingWords: string[] = [];
+    for (let i = 0; i < existing.Count; i++) {
+      const existingWord = existing[i];
+      existingWords.push(existingWord.Word);
     }
 
     for (let i = 0; i < words.length; i++) {
@@ -31,7 +32,15 @@ export const addAlertWords = async (
       if (wordLower.length === 0) {
         continue;
       }
-      if (existingWords[wordLower] === true) {
+
+      let alreadyExists = false;
+      for (let j = 0; j < existingWords.length; j++) {
+        if (existingWords[j] === wordLower) {
+          alreadyExists = true;
+          break;
+        }
+      }
+      if (alreadyExists) {
         continue;
       }
 
@@ -42,7 +51,7 @@ export const addAlertWords = async (
       alertWord.Word = wordLower;
       alertWord.CreatedAt = now;
       db.AlertWords.Add(alertWord);
-      existingWords[wordLower] = true;
+      existingWords.push(wordLower);
     }
 
     await db.SaveChangesAsync();

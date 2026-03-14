@@ -1,4 +1,5 @@
 import "./test-setup.js";
+import "./tests/utils/api-client.test.js";
 
 // Auth tests
 import "./tests/auth/server-settings.test.js";

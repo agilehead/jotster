@@ -20,6 +20,29 @@ const GC_INTERVAL_MS = 60000;
 const QUEUE_EXPIRY_MS = 600000; // 10 minutes
 const LONG_POLL_TIMEOUT_MS = 90000;
 
+const hasKey = (list: List<string>, key: string): boolean => {
+  for (let i = 0; i < list.Count; i++) {
+    if (list[i] === key) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const getQueue = (key: string): EventQueue | undefined => {
+  if (!hasKey(queueKeyList, key)) {
+    return undefined;
+  }
+  return queues[key];
+};
+
+const getUserQueueIds = (key: string): string[] | undefined => {
+  if (!hasKey(userKeyList, key)) {
+    return undefined;
+  }
+  return userQueueIndex[key];
+};
+
 const removeFromKeyList = (list: List<string>, key: string): void => {
   const newList = new List<string>();
   for (let i = 0; i < list.Count; i++) {
@@ -35,7 +58,10 @@ const removeFromKeyList = (list: List<string>, key: string): void => {
 
 const injectHeartbeat = (): void => {
   for (let i = 0; i < queueKeyList.Count; i++) {
-    const queue = queues[queueKeyList[i]];
+    const queue = getQueue(queueKeyList[i]);
+    if (queue === undefined) {
+      continue;
+    }
     queue.lastEventId = (queue.lastEventId + 1) as int;
     const evt: QueueEvent = { id: queue.lastEventId, type: "heartbeat" };
     queue.events.Add(evt);
@@ -52,7 +78,10 @@ const gcQueues = (): void => {
   // Snapshot keys to avoid modifying list during iteration
   const keys = queueKeyList.ToArray();
   for (let i = 0; i < keys.length; i++) {
-    const queue = queues[keys[i]];
+    const queue = getQueue(keys[i]);
+    if (queue === undefined) {
+      continue;
+    }
     if (Convert.ToInt64(now) - Convert.ToInt64(queue.lastAccessTime) > QUEUE_EXPIRY_MS) {
       // Signal waiter so blocked long-poll returns
       if (queue.waiterResolve !== undefined) {
@@ -65,7 +94,7 @@ const gcQueues = (): void => {
       removeFromKeyList(queueKeyList, keys[i]);
       // Remove from user index
       const userKey = queue.tenantId + ":" + queue.userId;
-      const userQueues = userQueueIndex[userKey];
+      const userQueues = getUserQueueIds(userKey);
       if (userQueues !== undefined) {
         const newList = new List<string>();
         for (let j = 0; j < userQueues.length; j++) {
@@ -150,7 +179,7 @@ export function registerQueue(tenantId: string, userId: string, params: Register
   queueKeyList.Add(queueId);
 
   const userKey = tenantId + ":" + userId;
-  const existing = userQueueIndex[userKey];
+  const existing = getUserQueueIds(userKey);
   if (existing !== undefined) {
     const updatedList = new List<string>();
     for (let ei = 0; ei < existing.length; ei++) {
@@ -173,7 +202,7 @@ export async function getEventsFromQueue(
   lastEventId: int,
   dontBlock: boolean,
 ): Promise<{ events: QueueEvent[] } | { error: string; code?: string }> {
-  const queue = queues[queueId];
+  const queue = getQueue(queueId);
   if (queue === undefined) {
     return {
       error: "Bad event queue id: " + queueId,
@@ -236,7 +265,7 @@ export function deleteQueueById(
   userId: string,
   queueId: string,
 ): { success: boolean; error?: string } {
-  const queue = queues[queueId];
+  const queue = getQueue(queueId);
   if (queue === undefined) {
     return {
       success: false,
@@ -265,7 +294,7 @@ export function deleteQueueById(
 
   // Remove from userQueueIndex
   const userKey = tenantId + ":" + userId;
-  const userQueues = userQueueIndex[userKey];
+  const userQueues = getUserQueueIds(userKey);
   if (userQueues !== undefined) {
     const newList = new List<string>();
     for (let i = 0; i < userQueues.length; i++) {
@@ -287,13 +316,13 @@ export function deleteQueueById(
 export function dispatchEvent(tenantId: string, event: DomainEvent, targetUserIds: string[]): void {
   for (let u = 0; u < targetUserIds.length; u++) {
     const userKey = tenantId + ":" + targetUserIds[u];
-    const queueIds = userQueueIndex[userKey];
+    const queueIds = getUserQueueIds(userKey);
     if (queueIds === undefined) {
       continue;
     }
 
     for (let q = 0; q < queueIds.length; q++) {
-      const queue = queues[queueIds[q]];
+      const queue = getQueue(queueIds[q]);
       if (queue === undefined) {
         continue;
       }

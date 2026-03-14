@@ -7,9 +7,9 @@
   "outputName": "jotster",
   "optimize": "speed",
   "output": {
-    "nativeAot": true,
-    "trimmed": true,
-    "singleFile": true
+    "nativeAot": false,
+    "trimmed": false,
+    "singleFile": false
   },
   "buildOptions": {
     "stripSymbols": true,

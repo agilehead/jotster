@@ -24,5 +24,9 @@ export const handleGetUser = async (
     return;
   }
 
-  res.json({ user: mapUserToResponse(result.data) });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["user"] = mapUserToResponse(result.data);
+  res.json(payload);
 };

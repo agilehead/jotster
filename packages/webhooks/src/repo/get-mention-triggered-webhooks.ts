@@ -13,11 +13,12 @@ export const getMentionTriggeredWebhooks = async (
     const triggerType0 = "mention";
     const result = await db0.OutgoingWebhooks
       .Where((w) => w.TenantId === tenantId0).Where((w) => w.TriggerType === triggerType0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const webhooks = new List<OutgoingWebhook>();
-    for (let i = 0; i < result.length; i++) {
-      webhooks.Add(result[i]);
+    for (let i = 0; i < result.Count; i++) {
+      const webhook = result[i];
+      webhooks.Add(webhook);
     }
     return webhooks.ToArray();
   } finally {

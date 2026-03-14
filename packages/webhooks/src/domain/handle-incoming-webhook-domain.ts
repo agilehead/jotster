@@ -12,6 +12,18 @@ interface IncomingWebhookInput {
   body: Record<string, unknown>;
 }
 
+const getBodyString = (body: Record<string, unknown>, key: string): string | undefined => {
+  for (const [entryKey, entryValue] of Object.entries(body)) {
+    if (entryKey === key) {
+      if (typeof entryValue === "string") {
+        return entryValue as string;
+      }
+      return undefined;
+    }
+  }
+  return undefined;
+};
+
 export const handleIncomingWebhookDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
@@ -51,18 +63,18 @@ export const handleIncomingWebhookDomain = async (
 
   if (input.integrationName === "generic" || input.integrationName === undefined) {
     // Generic format: read topic + content from body or params
-    topic = (input.topic ?? input.body["topic"] as string ?? "").trim();
-    content = (input.content ?? input.body["content"] as string ?? "").trim();
-    stream = (input.stream ?? input.body["stream"] as string ?? "").trim();
+    topic = (input.topic ?? getBodyString(input.body, "topic") ?? "").trim();
+    content = (input.content ?? getBodyString(input.body, "content") ?? "").trim();
+    stream = (input.stream ?? getBodyString(input.body, "stream") ?? "").trim();
   } else {
     // For other integrations, fall back to generic format for MVP
-    topic = (input.topic ?? input.body["topic"] as string ?? input.integrationName).trim();
-    content = (input.content ?? input.body["content"] as string ?? "").trim();
-    stream = (input.stream ?? input.body["stream"] as string ?? "").trim();
+    topic = (input.topic ?? getBodyString(input.body, "topic") ?? input.integrationName).trim();
+    content = (input.content ?? getBodyString(input.body, "content") ?? "").trim();
+    stream = (input.stream ?? getBodyString(input.body, "stream") ?? "").trim();
 
     // If content is still empty, try to extract a reasonable default
     if (content.length === 0) {
-      const text = input.body["text"] as string | undefined;
+      const text = getBodyString(input.body, "text");
       if (text !== undefined) {
         content = text.trim();
       }

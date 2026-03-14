@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField, toOptionalRecord } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { setBotStorage } from "@jotster/webhooks/Jotster.Webhooks.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -16,18 +16,21 @@ export const handleSetBotStorage = async (
   }
 
   const user = authResult.data;
+  if (user.isBot !== 1) {
+    res.status(403).json({ result: "error", msg: "Only bot users can access bot storage" });
+    return;
+  }
+
   const body = getBodyObject(req);
 
-  const storage = body["storage"] as string | undefined;
+  const storage = getOptionalStringField(body, "storage");
   if (storage === undefined) {
     res.status(400).json({ result: "error", msg: "Missing 'storage' parameter" });
     return;
   }
 
-  let entries: Record<string, string>;
-  try {
-    entries = JSON.parse(storage) as Record<string, string>;
-  } catch (_e) {
+  const entries = toOptionalRecord(storage);
+  if (entries === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid 'storage' parameter: expected JSON object" });
     return;
   }
@@ -35,7 +38,12 @@ export const handleSetBotStorage = async (
   const keys = Object.keys(entries);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    const value = entries[key];
+    const rawValue = entries[key];
+    if (typeof rawValue !== "string") {
+      res.status(400).json({ result: "error", msg: "Invalid 'storage' parameter: values must be strings" });
+      return;
+    }
+    const value = rawValue as string;
     await setBotStorage(app.options, user.userId, key, value);
   }
 

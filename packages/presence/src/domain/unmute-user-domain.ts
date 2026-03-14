@@ -21,7 +21,8 @@ export const unmuteUserDomain = async (
   const allMuted = await getMutedUsers(options, user.tenantId, user.userId);
   const mutedUserIds = new List<string>();
   for (let i = 0; i < allMuted.length; i++) {
-    mutedUserIds.Add(allMuted[i].MutedUserId);
+    const mutedEntry = allMuted[i];
+    mutedUserIds.Add(mutedEntry.MutedUserId);
   }
 
   dispatchEventToUser(user.tenantId, user.userId, {

@@ -3,7 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalIntField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalIntField, getOptionalStringArrayField, getOptionalStringField, hasField } from "../helpers/body.ts";
 
 export const handleUpdateChannelFolder = async (
   req: Request,
@@ -26,13 +26,15 @@ export const handleUpdateChannelFolder = async (
     ordering?: int;
   } = {};
 
-  if (body["name"] !== undefined) {
-    updates.name = body["name"] as string;
+  const name = getOptionalStringField(body, "name");
+  if (name !== undefined) {
+    updates.name = name;
   }
-  if (body["channels"] !== undefined) {
-    updates.channels = body["channels"] as string[];
+  const channels = getOptionalStringArrayField(body, "channels");
+  if (channels !== undefined) {
+    updates.channels = channels;
   }
-  if (body["ordering"] !== undefined) {
+  if (hasField(body, "ordering")) {
     const ordering = getOptionalIntField(body, "ordering");
     if (ordering === undefined) {
       res.status(400).json({ result: "error", msg: "Invalid ordering" });

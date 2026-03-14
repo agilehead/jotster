@@ -2,7 +2,9 @@ import type { Knex } from "knex";
 import { createApiClient, type ApiClient } from "./api-client.js";
 import crypto from "crypto";
 
-const SERVER_BASE_URL = "http://localhost:9877";
+function getServerBaseUrl(): string {
+  return process.env.JOTSTER_TEST_BASE_URL ?? "http://localhost:9877";
+}
 
 /**
  * Seed a tenant directly into the database and return its ID.
@@ -29,6 +31,16 @@ export async function seedTenant(
     updated_at: now,
   });
   return id;
+}
+
+async function getTenantHostHeader(db: Knex, tenantId: string, serverBaseUrl: string): Promise<string> {
+  const row = await db("tenant").select("subdomain").where({ id: tenantId }).first();
+  const subdomain = row?.subdomain as string | undefined;
+  if (!subdomain) {
+    throw new Error(`Tenant ${tenantId} not found while constructing test client host header`);
+  }
+  const port = new URL(serverBaseUrl).port;
+  return port === "" ? `${subdomain}.test.local` : `${subdomain}.test.local:${port}`;
 }
 
 /**
@@ -87,7 +99,9 @@ export async function seedUser(
     created_at: now,
   });
 
-  const client = createApiClient(SERVER_BASE_URL, email, apiKey);
+  const serverBaseUrl = getServerBaseUrl();
+  const hostHeader = await getTenantHostHeader(db, tenantId, serverBaseUrl);
+  const client = createApiClient(serverBaseUrl, email, apiKey, hostHeader);
   return { userId, email, apiKey, client };
 }
 

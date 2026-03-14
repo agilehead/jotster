@@ -14,5 +14,5 @@ export const handleGetServerSettings = async (
   }
 
   const settings = getServerSettings(tenantResult.data);
-  res.json(settings);
+  res.json({ result: "success", msg: "", ...settings });
 };

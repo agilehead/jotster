@@ -6,3 +6,7 @@ export class ServerConfig {
   singleTenantId: string = "";
   uploadsDir: string = "";
 }
+
+export function createServerConfig(): ServerConfig {
+  return new ServerConfig();
+}

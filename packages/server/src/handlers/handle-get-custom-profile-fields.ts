@@ -21,5 +21,9 @@ export const handleGetCustomProfileFields = async (
     return;
   }
 
-  res.json({ custom_fields: result.data });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["custom_fields"] = result.data;
+  res.json(payload);
 };

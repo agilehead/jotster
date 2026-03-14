@@ -3,7 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { sendInvitationsDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
+import { getBodyObject, getOptionalField, getOptionalStringArrayField, getOptionalStringField, hasField, toOptionalInt } from "../helpers/body.ts";
 
 export const handleSendInvites = async (
   req: Request,
@@ -19,34 +19,22 @@ export const handleSendInvites = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const inviteeEmailsRaw = body["invitee_emails"] as string;
-  if (!inviteeEmailsRaw) {
+  let inviteeEmails = getOptionalStringArrayField(body, "invitee_emails");
+  const inviteeEmail = getOptionalStringField(body, "invitee_emails");
+  if (inviteeEmails === undefined && inviteeEmail !== undefined && inviteeEmail.trim().length > 0) {
+    inviteeEmails = [inviteeEmail];
+  }
+  if (inviteeEmails === undefined || inviteeEmails.length === 0) {
     res.status(400).json({ result: "error", msg: "Missing invitee_emails" });
     return;
   }
 
-  // Parse invitee_emails - it's a JSON string array
-  let inviteeEmails: string[];
-  try {
-    inviteeEmails = JSON.parse(inviteeEmailsRaw) as string[];
-  } catch {
-    res.status(400).json({ result: "error", msg: "Invalid invitee_emails format" });
-    return;
-  }
-
   // Parse stream_ids (channel_ids) if provided
-  let channelIds: string[] = [];
-  const streamIdsRaw = body["stream_ids"] as string;
-  if (streamIdsRaw) {
-    try {
-      channelIds = JSON.parse(streamIdsRaw) as string[];
-    } catch {
-      // Ignore parse errors, use empty array
-    }
-  }
+  const channelIds = getOptionalStringArrayField(body, "stream_ids") ?? [];
 
-  const parsedInviteAsRole = toOptionalInt(body["invite_as"]);
-  if (body["invite_as"] !== undefined && parsedInviteAsRole === undefined) {
+  const inviteAsValue = getOptionalField(body, "invite_as");
+  const parsedInviteAsRole = toOptionalInt(inviteAsValue);
+  if (hasField(body, "invite_as") && parsedInviteAsRole === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid invite_as" });
     return;
   }

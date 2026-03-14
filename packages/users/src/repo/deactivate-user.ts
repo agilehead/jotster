@@ -29,10 +29,11 @@ export const deactivateUser = async (
     // Revoke all active API keys for this user
     const keys = await db0.ApiKeys
       .Where((k) => k.TenantId === tenantId0).Where((k) => k.UserId === userId0).Where((k) => k.RevokedAt === undefined)
-      .ToArrayAsync();
+      .ToListAsync();
 
-    for (let i = 0; i < keys.length; i++) {
-      keys[i].RevokedAt = now;
+    for (let i = 0; i < keys.Count; i++) {
+      const key = keys[i];
+      key.RevokedAt = now;
     }
 
     await db0.SaveChangesAsync();

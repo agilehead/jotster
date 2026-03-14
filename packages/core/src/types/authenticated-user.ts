@@ -3,4 +3,6 @@ export class AuthenticatedUser {
   userId: string = "";
   email: string = "";
   role: number = 0;
+  isBot: number = 0;
+  botType?: number;
 }

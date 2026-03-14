@@ -13,10 +13,11 @@ export const removeAllTokensForUser = async (
     const userId0 = userId;
     const tokens = await db0.PushDeviceTokens
       .Where((x) => x.TenantId === tenantId0).Where((x) => x.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
-    for (let i = 0; i < tokens.length; i++) {
-      db.PushDeviceTokens.Remove(tokens[i]);
+    for (let i = 0; i < tokens.Count; i++) {
+      const token = tokens[i];
+      db.PushDeviceTokens.Remove(token);
     }
 
     await db.SaveChangesAsync();

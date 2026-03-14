@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalFlagIntField, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { registerQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { buildInitialState } from "../helpers/build-initial-state.ts";
@@ -20,27 +20,31 @@ export const handleRegisterQueue = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const eventTypesRaw = body["event_types"] as string | undefined;
-  const fetchEventTypesRaw = body["fetch_event_types"] as string | undefined;
+  const eventTypesRaw = getOptionalStringField(body, "event_types");
+  const fetchEventTypesRaw = getOptionalStringField(body, "fetch_event_types");
 
   const eventTypes = eventTypesRaw ? JSON.parse(eventTypesRaw) as string[] : undefined;
   const fetchEventTypes = fetchEventTypesRaw ? JSON.parse(fetchEventTypesRaw) as string[] : undefined;
 
-  const clientCapabilitiesRaw = body["client_capabilities"] as string | undefined;
+  const clientCapabilitiesRaw = getOptionalStringField(body, "client_capabilities");
   const clientCapabilities = clientCapabilitiesRaw
     ? (JSON.parse(clientCapabilitiesRaw) as RegisterParams["clientCapabilities"])
     : undefined;
 
-  const narrowRaw = body["narrow"] as string | undefined;
+  const narrowRaw = getOptionalStringField(body, "narrow");
   const narrow = narrowRaw ? (JSON.parse(narrowRaw) as RegisterParams["narrow"]) : undefined;
+  const applyMarkdown = getOptionalFlagIntField(body, "apply_markdown");
+  const clientGravatar = getOptionalFlagIntField(body, "client_gravatar");
+  const slimPresence = getOptionalFlagIntField(body, "slim_presence");
+  const allPublicStreams = getOptionalFlagIntField(body, "all_public_streams");
 
   const params: RegisterParams = {
     eventTypes,
     fetchEventTypes,
-    applyMarkdown: body["apply_markdown"] !== false,
-    clientGravatar: body["client_gravatar"] !== false,
-    slimPresence: body["slim_presence"] === true,
-    allPublicStreams: body["all_public_streams"] === true,
+    applyMarkdown: applyMarkdown === undefined ? true : applyMarkdown === 1,
+    clientGravatar: clientGravatar === undefined ? true : clientGravatar === 1,
+    slimPresence: slimPresence === 1,
+    allPublicStreams: allPublicStreams === 1,
     narrow,
     clientCapabilities,
   };

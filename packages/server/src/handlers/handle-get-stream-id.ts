@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getChannelIdByName } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getOptionalStringField } from "../helpers/body.ts";
 
 export const handleGetStreamId = async (
   req: Request,
@@ -15,7 +16,7 @@ export const handleGetStreamId = async (
   }
 
   const user = authResult.data;
-  const streamName = req.query["stream"] as string;
+  const streamName = getOptionalStringField(req.query as Record<string, unknown>, "stream");
 
   if (!streamName) {
     res.status(400).json({ result: "error", msg: "Missing required parameter: stream" });
@@ -28,5 +29,9 @@ export const handleGetStreamId = async (
     return;
   }
 
-  res.json({ stream_id: result.data });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["stream_id"] = result.data;
+  res.json(payload);
 };

@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { registerDeviceDomain } from "@jotster/notifications/Jotster.Notifications.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -18,13 +18,13 @@ export const handleRegisterApnsToken = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const token = body["token"] as string;
+  const token = getOptionalStringField(body, "token");
   if (!token) {
     res.status(400).json({ result: "error", msg: "Missing required field: token" });
     return;
   }
 
-  const appid = body["appid"] as string | undefined;
+  const appid = getOptionalStringField(body, "appid");
 
   const result = await registerDeviceDomain(app.options, user, "apns", token, appid);
   if (!result.success) {

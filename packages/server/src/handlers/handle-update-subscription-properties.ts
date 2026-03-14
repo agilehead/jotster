@@ -1,8 +1,47 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField, toOptionalFlagInt } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateSubscriptionPropertiesDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+
+const getOptionalObjectField = (source: unknown, key: string): unknown => {
+  if (source === undefined || source === null || typeof source !== "object" || Array.isArray(source)) {
+    return undefined;
+  }
+
+  for (const [entryKey, entryValue] of Object.entries(source)) {
+    if (entryKey === key) {
+      return entryValue;
+    }
+  }
+
+  return undefined;
+};
+const FLAG_PROPERTIES = [
+  "pin_to_top",
+  "is_muted",
+  "desktop_notifications",
+  "push_notifications",
+  "audible_notifications",
+  "email_notifications",
+  "wildcard_mentions_notify",
+];
+
+const toSubscriptionPropertyValue = (property: string, value: unknown): string | undefined => {
+  if (property === "color") {
+    return typeof value === "string" ? (value as string) : undefined;
+  }
+
+  for (let i = 0; i < FLAG_PROPERTIES.length; i++) {
+    if (FLAG_PROPERTIES[i] === property) {
+      const flag = toOptionalFlagInt(value);
+      return flag === undefined ? undefined : flag.toString();
+    }
+  }
+
+  return undefined;
+};
 
 export const handleUpdateSubscriptionProperties = async (
   req: Request,
@@ -18,20 +57,45 @@ export const handleUpdateSubscriptionProperties = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const subscriptionDataRaw = body["subscription_data"] as string;
+  const subscriptionDataRaw = getOptionalStringField(body, "subscription_data");
   if (!subscriptionDataRaw) {
     res.status(400).json({ result: "error", msg: "Missing required field: subscription_data" });
     return;
   }
 
-  const rawUpdates = JSON.parse(subscriptionDataRaw) as { stream_id: string; property: string; value: unknown }[];
-  const updates = rawUpdates.map((update) => ({
-    streamId: update.stream_id,
-    property: update.property,
-    propValue: String(update.value ?? ""),
-  }));
+  const parsed = JSON.parse(subscriptionDataRaw) as unknown;
+  if (!Array.isArray(parsed)) {
+    res.status(400).json({ result: "error", msg: "subscription_data must be an array" });
+    return;
+  }
 
-  const result = await updateSubscriptionPropertiesDomain(app.options, user, updates);
+  const parsedArray = parsed as unknown[];
+  const updates = new List<{ streamId: string; property: string; propValue: string }>();
+  for (let i = 0; i < parsedArray.length; i++) {
+    const update = parsedArray[i];
+    const streamIdValue = getOptionalObjectField(update, "stream_id");
+    const propertyValue = getOptionalObjectField(update, "property");
+    const rawValue = getOptionalObjectField(update, "value");
+    const streamId = typeof streamIdValue === "string" ? (streamIdValue as string) : undefined;
+    const property = typeof propertyValue === "string" ? (propertyValue as string) : undefined;
+    if (streamId === undefined || property === undefined) {
+      res.status(400).json({ result: "error", msg: "Invalid subscription update payload" });
+      return;
+    }
+
+    const propValue = toSubscriptionPropertyValue(property, rawValue);
+    if (propValue === undefined) {
+      res.status(400).json({ result: "error", msg: `Invalid value for property: ${property}` });
+      return;
+    }
+    updates.Add({
+      streamId,
+      property,
+      propValue,
+    });
+  }
+
+  const result = await updateSubscriptionPropertiesDomain(app.options, user, updates.ToArray());
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

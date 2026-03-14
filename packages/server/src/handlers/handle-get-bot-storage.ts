@@ -15,6 +15,10 @@ export const handleGetBotStorage = async (
   }
 
   const user = authResult.data;
+  if (user.isBot !== 1) {
+    res.status(403).json({ result: "error", msg: "Only bot users can access bot storage" });
+    return;
+  }
 
   const entries = await getBotStorage(app.options, user.userId);
 

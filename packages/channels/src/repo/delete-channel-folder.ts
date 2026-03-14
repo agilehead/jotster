@@ -21,10 +21,11 @@ export const deleteChannelFolder = async (
     // Remove all items in the folder
     const items = await db0.ChannelFolderItems
       .Where((item) => item.ChannelFolderId === folderId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
-    for (let i = 0; i < items.length; i++) {
-      db0.ChannelFolderItems.Remove(items[i]);
+    for (let i = 0; i < items.Count; i++) {
+      const item = items[i];
+      db0.ChannelFolderItems.Remove(item);
     }
 
     // Remove the folder itself

@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateRealmDomainDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalBooleanField } from "../helpers/body.ts";
 
 export const handleUpdateRealmDomain = async (
   req: Request,
@@ -16,9 +17,9 @@ export const handleUpdateRealmDomain = async (
 
   const user = authResult.data;
   const domain = req.params["domain"] as string;
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
 
-  const allowSubdomains = body["allow_subdomains"] === true;
+  const allowSubdomains = getOptionalBooleanField(body, "allow_subdomains") ?? false;
 
   const result = await updateRealmDomainDomain(app.options, user, domain, allowSubdomains);
   if (!result.success) {

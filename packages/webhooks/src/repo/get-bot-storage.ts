@@ -12,11 +12,12 @@ export const getBotStorage = async (
     const botUserId0 = botUserId;
     const result = await db0.BotStorages
       .Where((s) => s.BotUserId === botUserId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const entries = new List<BotStorage>();
-    for (let i = 0; i < result.length; i++) {
-      entries.Add(result[i]);
+    for (let i = 0; i < result.Count; i++) {
+      const entry = result[i];
+      entries.Add(entry);
     }
     return entries.ToArray();
   } finally {

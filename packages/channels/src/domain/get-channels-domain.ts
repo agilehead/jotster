@@ -25,11 +25,12 @@ export const getChannelsDomain = async (
     const userId0 = user.userId;
     const subs = await db0.Subscriptions
       .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const subscribedChannelIds = new List<string>();
-    for (let i = 0; i < subs.length; i++) {
-      subscribedChannelIds.Add(subs[i].ChannelId);
+    for (let i = 0; i < subs.Count; i++) {
+      const sub = subs[i];
+      subscribedChannelIds.Add(sub.ChannelId);
     }
 
     const zero = 0 as int;

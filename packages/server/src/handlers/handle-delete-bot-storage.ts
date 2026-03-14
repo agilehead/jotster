@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteBotStorage } from "@jotster/webhooks/Jotster.Webhooks.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -16,13 +16,15 @@ export const handleDeleteBotStorage = async (
   }
 
   const user = authResult.data;
-  const body = getBodyObject(req);
-
-  const key = body["key"] as string | undefined ?? req.query["key"] as string | undefined;
-  if (key === undefined || key.trim().length === 0) {
-    res.status(400).json({ result: "error", msg: "Missing 'key' parameter" });
+  if (user.isBot !== 1) {
+    res.status(403).json({ result: "error", msg: "Only bot users can access bot storage" });
     return;
   }
+
+  const body = getBodyObject(req);
+  const query = req.query as Record<string, unknown>;
+
+  const key = getOptionalStringField(body, "key") ?? getOptionalStringField(query, "key");
 
   const deleted = await deleteBotStorage(app.options, user.userId, key);
   if (!deleted) {

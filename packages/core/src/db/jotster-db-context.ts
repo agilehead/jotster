@@ -1,8 +1,9 @@
 import { asinterface } from "@tsonic/core/lang.js";
 import type { ExtensionMethods as Linq } from "@tsonic/dotnet/System.Linq.js";
 import type { ExtensionMethods as Ef } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { DbContext, DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import { DbContext, DbContextOptions, ModelBuilder } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { DbSet } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import type { EntityTypeBuilder, PropertyBuilder } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.Metadata.Builders.js";
 
 import type { Tenant } from "./entities/tenant.ts";
 import type { User } from "./entities/user.ts";
@@ -44,6 +45,46 @@ import type { DataExport } from "./entities/data-export.ts";
 import type { PushDeviceToken } from "./entities/push-device-token.ts";
 
 type DbSetQuery<T> = Ef<Linq<DbSet<T>>>;
+type RelationalEntityTypeBuilder = Ef<EntityTypeBuilder>;
+type RelationalPropertyBuilder = Ef<PropertyBuilder>;
+
+function toSnakeCase(name: string): string {
+  let result = "";
+
+  for (let index = 0; index < name.length; index++) {
+    const current = name[index];
+    const previous = index > 0 ? name[index - 1] : undefined;
+    const next = index + 1 < name.length ? name[index + 1] : undefined;
+    const isUpper =
+      current >= "A" && current <= "Z";
+    const previousIsLowerOrDigit =
+      previous !== undefined &&
+      ((previous >= "a" && previous <= "z") || (previous >= "0" && previous <= "9"));
+    const nextIsLower =
+      next !== undefined && next >= "a" && next <= "z";
+
+    if (isUpper && (previousIsLowerOrDigit || nextIsLower) && index > 0) {
+      result += "_";
+    }
+
+    result += current.toLowerCase();
+  }
+
+  return result;
+}
+
+function configureRelationalNames(builder: EntityTypeBuilder): void {
+  const relationalBuilder = asinterface<RelationalEntityTypeBuilder>(builder);
+  const tableName = toSnakeCase(relationalBuilder.Metadata.ClrType.Name ?? "");
+  relationalBuilder.ToTable(tableName);
+
+  for (const property of relationalBuilder.Metadata.ClrType.GetProperties()) {
+    const propertyBuilder = asinterface<RelationalPropertyBuilder>(
+      relationalBuilder.Property(property.PropertyType, property.Name)
+    );
+    propertyBuilder.HasColumnName(toSnakeCase(property.Name));
+  }
+}
 
 export class JotsterDbContext extends DbContext {
   get Tenants(): DbSetQuery<Tenant> {
@@ -201,4 +242,51 @@ export class JotsterDbContext extends DbContext {
   constructor(options: DbContextOptions) {
     super(options);
   }
+
+  override OnModelCreating(modelBuilder: ModelBuilder): void {
+    super.OnModelCreating(modelBuilder);
+
+    configureRelationalNames(modelBuilder.Entity<Tenant>());
+    configureRelationalNames(modelBuilder.Entity<User>());
+    configureRelationalNames(modelBuilder.Entity<UserSetting>());
+    configureRelationalNames(modelBuilder.Entity<ApiKey>());
+    configureRelationalNames(modelBuilder.Entity<Channel>());
+    configureRelationalNames(modelBuilder.Entity<DefaultChannel>());
+    configureRelationalNames(modelBuilder.Entity<DefaultChannelGroup>());
+    configureRelationalNames(modelBuilder.Entity<DefaultChannelGroupItem>());
+    configureRelationalNames(modelBuilder.Entity<Subscription>());
+    configureRelationalNames(modelBuilder.Entity<Message>());
+    configureRelationalNames(modelBuilder.Entity<MessageEditHistory>());
+    configureRelationalNames(modelBuilder.Entity<MessageFlag>());
+    configureRelationalNames(modelBuilder.Entity<DmGroup>());
+    configureRelationalNames(modelBuilder.Entity<DmGroupMember>());
+    configureRelationalNames(modelBuilder.Entity<Reaction>());
+    configureRelationalNames(modelBuilder.Entity<Presence>());
+    configureRelationalNames(modelBuilder.Entity<UserStatus>());
+    configureRelationalNames(modelBuilder.Entity<UserGroup>());
+    configureRelationalNames(modelBuilder.Entity<UserGroupMember>());
+    configureRelationalNames(modelBuilder.Entity<UserGroupSubgroup>());
+    configureRelationalNames(modelBuilder.Entity<MutedUser>());
+    configureRelationalNames(modelBuilder.Entity<UserTopic>());
+    configureRelationalNames(modelBuilder.Entity<ChannelFolder>());
+    configureRelationalNames(modelBuilder.Entity<ChannelFolderItem>());
+    configureRelationalNames(modelBuilder.Entity<Attachment>());
+    configureRelationalNames(modelBuilder.Entity<AttachmentMessage>());
+    configureRelationalNames(modelBuilder.Entity<CustomEmoji>());
+    configureRelationalNames(modelBuilder.Entity<CustomProfileField>());
+    configureRelationalNames(modelBuilder.Entity<CustomProfileFieldValue>());
+    configureRelationalNames(modelBuilder.Entity<Draft>());
+    configureRelationalNames(modelBuilder.Entity<AlertWord>());
+    configureRelationalNames(modelBuilder.Entity<RealmDomain>());
+    configureRelationalNames(modelBuilder.Entity<TenantUserSettingDefault>());
+    configureRelationalNames(modelBuilder.Entity<Invitation>());
+    configureRelationalNames(modelBuilder.Entity<OutgoingWebhook>());
+    configureRelationalNames(modelBuilder.Entity<BotStorage>());
+    configureRelationalNames(modelBuilder.Entity<DataExport>());
+    configureRelationalNames(modelBuilder.Entity<PushDeviceToken>());
+  }
+}
+
+export function createJotsterDbContext(options: DbContextOptions): JotsterDbContext {
+  return new JotsterDbContext(options);
 }

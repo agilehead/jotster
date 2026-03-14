@@ -12,11 +12,12 @@ export const getUserGroupMembers = async (
     const groupId0 = groupId;
     const members = await db0.UserGroupMembers
       .Where((m) => m.UserGroupId === groupId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const ids = new List<string>();
-    for (let i = 0; i < members.length; i++) {
-      ids.Add(members[i].UserId);
+    for (let i = 0; i < members.Count; i++) {
+      const member = members[i];
+      ids.Add(member.UserId);
     }
     return ids.ToArray();
   } finally {

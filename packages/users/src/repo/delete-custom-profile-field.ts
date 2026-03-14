@@ -23,10 +23,11 @@ export const deleteCustomProfileField = async (
     // Delete all values associated with this field
     const values = await db0.CustomProfileFieldValues
       .Where((v) => v.FieldId === fieldId0).Where((v) => v.TenantId === tenantId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
-    for (let i = 0; i < values.length; i++) {
-      db0.CustomProfileFieldValues.Remove(values[i]);
+    for (let i = 0; i < values.Count; i++) {
+      const value = values[i];
+      db0.CustomProfileFieldValues.Remove(value);
     }
 
     db0.CustomProfileFields.Remove(field);

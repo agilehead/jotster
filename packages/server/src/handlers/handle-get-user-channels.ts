@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserChannelsDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getOptionalStringField } from "../helpers/body.ts";
 
 export const handleGetUserChannels = async (
   req: Request,
@@ -16,7 +17,7 @@ export const handleGetUserChannels = async (
 
   const user = authResult.data;
   const targetUserId = req.params["user_id"] as string;
-  const includeSubscribers = (req.query["include_subscribers"] as string ?? "0") === "1";
+  const includeSubscribers = (getOptionalStringField(req.query as Record<string, unknown>, "include_subscribers") ?? "0") === "1";
 
   const result = await getUserChannelsDomain(app.options, user, targetUserId, includeSubscribers);
   if (!result.success) {
@@ -24,5 +25,9 @@ export const handleGetUserChannels = async (
     return;
   }
 
-  res.json({ subscriptions: result.data });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["channels"] = result.data;
+  res.json(payload);
 };

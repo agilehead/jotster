@@ -42,11 +42,11 @@ export const getTopicsDomain = async (
     const channelId1 = channelId;
     const messages = await db0.Messages
       .Where((m) => m.ChannelId === channelId1)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const topicMap: Record<string, string> = {};
     const topicKeys = new List<string>();
-    for (let i = 0; i < messages.length; i++) {
+    for (let i = 0; i < messages.Count; i++) {
       const msg = messages[i];
       const topic = msg.Topic ?? "";
       if (topicMap[topic] === undefined) {

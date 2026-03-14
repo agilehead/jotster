@@ -36,5 +36,9 @@ export const handleGetUserGroups = async (
     user_groups.Add(g);
   }
 
-  res.json({ user_groups: user_groups.ToArray() });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["user_groups"] = user_groups.ToArray();
+  res.json(payload);
 };

@@ -1,5 +1,6 @@
 import { Environment } from "@tsonic/dotnet/System.js";
-import { ServerConfig } from "./server-config.ts";
+import { createServerConfig } from "./server-config.ts";
+import type { ServerConfig } from "./server-config.ts";
 
 export function loadConfig(): ServerConfig {
   const mode = Environment.GetEnvironmentVariable("JOTSTER_MODE") ?? "multi-tenant";
@@ -9,7 +10,7 @@ export function loadConfig(): ServerConfig {
   const singleTenantId = Environment.GetEnvironmentVariable("JOTSTER_SINGLE_TENANT") ?? "";
   const uploadsDir = Environment.GetEnvironmentVariable("JOTSTER_UPLOADS_DIR") ?? "";
 
-  const config = new ServerConfig();
+  const config = createServerConfig();
   config.mode = mode === "single-tenant" ? "single-tenant" : "multi-tenant";
   config.listenUrl = listenUrl;
   config.database = database;

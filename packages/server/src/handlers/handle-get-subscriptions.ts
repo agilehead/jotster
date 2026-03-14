@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getSubscriptionsDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getOptionalStringField } from "../helpers/body.ts";
 
 export const handleGetSubscriptions = async (
   req: Request,
@@ -15,7 +16,7 @@ export const handleGetSubscriptions = async (
   }
 
   const user = authResult.data;
-  const includeSubscribers = (req.query["include_subscribers"] as string ?? "1") === "1";
+  const includeSubscribers = (getOptionalStringField(req.query as Record<string, unknown>, "include_subscribers") ?? "1") === "1";
 
   const result = await getSubscriptionsDomain(app.options, user, includeSubscribers);
   if (!result.success) {
@@ -23,5 +24,9 @@ export const handleGetSubscriptions = async (
     return;
   }
 
-  res.json({ subscriptions: result.data });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["subscriptions"] = result.data;
+  res.json(payload);
 };

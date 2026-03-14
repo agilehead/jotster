@@ -14,11 +14,12 @@ export const getChannelSubscribers = async (
     const channelId0 = channelId;
     const subs = await db0.Subscriptions
       .Where((s) => s.TenantId === tenantId0).Where((s) => s.ChannelId === channelId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const ids = new List<string>();
-    for (let i = 0; i < subs.length; i++) {
-      ids.Add(subs[i].UserId);
+    for (let i = 0; i < subs.Count; i++) {
+      const sub = subs[i];
+      ids.Add(sub.UserId);
     }
     return ids.ToArray();
   } finally {

@@ -1,11 +1,12 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Subscription } from "@jotster/core/Jotster.Core.js";
+import type { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getSubscriptionsForUser = async (
   options: DbContextOptions,
   tenantId: string,
   userId: string
-): Promise<Subscription[]> => {
+): Promise<List<Subscription>> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
@@ -13,7 +14,7 @@ export const getSubscriptionsForUser = async (
     const userId0 = userId;
     const result = await db0.Subscriptions
       .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
     return result;
   } finally {
     db.Dispose();
