@@ -911,11 +911,27 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleUpdateNavigationViewCompat(req, res, ctx);
   });
 
+  app.patch("/api/v1/navigation_views/:fragment_head/:fragment_tail/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateNavigationViewCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/navigation_views/:fragment_head/:fragment_tail/:fragment_rest", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateNavigationViewCompat(req, res, ctx);
+  });
+
   app.patch("/api/v1/navigation_views/:fragment_head/:fragment_tail", async (req: Request, res: Response, _next: NextFunction) => {
     await handleUpdateNavigationViewCompat(req, res, ctx);
   });
 
   app.delete("/api/v1/navigation_views/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteNavigationViewCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/navigation_views/:fragment_head/:fragment_tail/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteNavigationViewCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/navigation_views/:fragment_head/:fragment_tail/:fragment_rest", async (req: Request, res: Response, _next: NextFunction) => {
     await handleDeleteNavigationViewCompat(req, res, ctx);
   });
 

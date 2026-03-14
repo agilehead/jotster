@@ -18,7 +18,13 @@ import {
   updateSavedSnippet,
   updateScheduledMessage,
 } from "../helpers/compat-db.ts";
-import { getBodyObject, getOptionalBooleanField, getOptionalStringArrayField, getOptionalStringField } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalBooleanField,
+  getOptionalStringArrayField,
+  getOptionalStringField,
+  hasField,
+} from "../helpers/body.ts";
 import {
   mapNavigationViewToCompatResponse,
   mapReminderToCompatResponse,
@@ -29,13 +35,17 @@ import { requireAuth } from "../helpers/require-auth.ts";
 
 const getWildcardFragment = (req: Request): string => {
   const wildcard = req.params["0"] as string | undefined;
+  const head = req.params["fragment_head"] as string | undefined;
+  const tail = req.params["fragment_tail"] as string | undefined;
+  const rest = req.params["fragment_rest"] as string | undefined;
+  if (head !== undefined && tail !== undefined && wildcard !== undefined && wildcard.length > 0) {
+    return `${head}/${tail}/${wildcard}`;
+  }
+
   if (wildcard !== undefined && wildcard.length > 0) {
     return wildcard;
   }
 
-  const head = req.params["fragment_head"] as string | undefined;
-  const tail = req.params["fragment_tail"] as string | undefined;
-  const rest = req.params["fragment_rest"] as string | undefined;
   if (head !== undefined && tail !== undefined) {
     return rest !== undefined && rest.length > 0
       ? `${head}/${tail}/${rest}`
@@ -90,6 +100,77 @@ const getScheduledMessageRecipientArray = (body: Record<string, unknown>): strin
   return getOptionalStringArrayField(body, "to");
 };
 
+const BUILT_IN_NAVIGATION_VIEW_FRAGMENTS = new Set<string>([
+  "inbox",
+  "recent",
+  "feed",
+  "drafts",
+  "narrow/has/reaction/sender/me",
+  "narrow/is/mentioned",
+  "narrow/is/starred",
+  "scheduled",
+  "reminders",
+]);
+
+const SAVED_SNIPPET_MAX_TITLE_LENGTH = 60;
+
+const getTrimmedOptionalString = (value: string | undefined): string | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? undefined : trimmed;
+};
+
+const isBuiltInNavigationView = (fragment: string): boolean => {
+  return BUILT_IN_NAVIGATION_VIEW_FRAGMENTS.has(fragment);
+};
+
+const isPastOrPresentUnixSeconds = (value: string): boolean => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return false;
+  }
+  return parsed <= Date.now() / 1000;
+};
+
+const hasEmailLikeRecipient = (
+  toValueText: string | undefined,
+  toValueArray: string[] | undefined,
+): boolean => {
+  if (toValueArray !== undefined) {
+    for (let i = 0; i < toValueArray.length; i++) {
+      if (toValueArray[i].includes("@")) {
+        return true;
+      }
+    }
+  }
+
+  if (toValueText === undefined) {
+    return false;
+  }
+
+  if (toValueText.includes("@")) {
+    return true;
+  }
+
+  try {
+    const parsed = JSON.parse(toValueText) as unknown;
+    if (!Array.isArray(parsed)) {
+      return false;
+    }
+    const entries = parsed as unknown[];
+    for (let i = 0; i < entries.length; i++) {
+      if (typeof entries[i] === "string" && (entries[i] as string).includes("@")) {
+        return true;
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
+};
+
 export const handleGetNavigationViewsCompat = async (
   req: Request,
   res: Response,
@@ -119,10 +200,30 @@ export const handleCreateNavigationViewCompat = async (
   }
 
   const body = getBodyObject(req);
-  const fragment = getOptionalStringField(body, "fragment");
-  if (fragment === undefined || fragment.trim().length === 0) {
+  const fragment = getTrimmedOptionalString(getOptionalStringField(body, "fragment"));
+  if (fragment === undefined) {
     res.status(400).json({ result: "error", msg: "fragment cannot be blank", code: "BAD_REQUEST" });
     return;
+  }
+
+  const name = getTrimmedOptionalString(getOptionalStringField(body, "name"));
+  if (isBuiltInNavigationView(fragment)) {
+    if (name !== undefined) {
+      res.status(400).json({ result: "error", msg: "Built-in views cannot have a custom name.", code: "BAD_REQUEST" });
+      return;
+    }
+  } else if (name === undefined) {
+    res.status(400).json({ result: "error", msg: "Custom views must have a valid name.", code: "BAD_REQUEST" });
+    return;
+  }
+
+  const existingViews = await listNavigationViews(app.options, requester);
+  for (let i = 0; i < existingViews.length; i++) {
+    const existing = existingViews[i];
+    if (existing.Fragment === fragment || (name !== undefined && existing.Name === name)) {
+      res.status(400).json({ result: "error", msg: "Navigation view already exists.", code: "BAD_REQUEST" });
+      return;
+    }
   }
 
   const ok = await createNavigationView(
@@ -130,7 +231,7 @@ export const handleCreateNavigationViewCompat = async (
     requester,
     fragment,
     getOptionalBooleanField(body, "is_pinned") === true,
-    getOptionalStringField(body, "name"),
+    name,
   );
   if (!ok) {
     res.status(400).json({ result: "error", msg: "Navigation view already exists.", code: "BAD_REQUEST" });
@@ -152,12 +253,28 @@ export const handleUpdateNavigationViewCompat = async (
 
   const body = getBodyObject(req);
   const fragment = getWildcardFragment(req);
+  const providedName = getOptionalStringField(body, "name");
+  const name = getTrimmedOptionalString(providedName);
+  if (isBuiltInNavigationView(fragment) && name !== undefined) {
+    res.status(400).json({ result: "error", msg: "Built-in views cannot have a custom name.", code: "BAD_REQUEST" });
+    return;
+  }
+  if (name !== undefined) {
+    const existingViews = await listNavigationViews(app.options, requester);
+    for (let i = 0; i < existingViews.length; i++) {
+      const existing = existingViews[i];
+      if (existing.Fragment !== fragment && existing.Name === name) {
+        res.status(400).json({ result: "error", msg: "Navigation view already exists.", code: "BAD_REQUEST" });
+        return;
+      }
+    }
+  }
   const ok = await updateNavigationView(
     app.options,
     requester,
     fragment,
     getOptionalBooleanField(body, "is_pinned"),
-    getOptionalStringField(body, "name"),
+    name,
   );
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Navigation view does not exist.", code: "BAD_REQUEST" });
@@ -215,10 +332,18 @@ export const handleCreateSavedSnippetCompat = async (
   }
 
   const body = getBodyObject(req);
-  const title = getOptionalStringField(body, "title");
-  const content = getOptionalStringField(body, "content");
+  const title = getTrimmedOptionalString(getOptionalStringField(body, "title"));
+  const content = getTrimmedOptionalString(getOptionalStringField(body, "content"));
   if (title === undefined || content === undefined) {
     res.status(400).json({ result: "error", msg: "Missing required field", code: "BAD_REQUEST" });
+    return;
+  }
+  if (title.length > SAVED_SNIPPET_MAX_TITLE_LENGTH) {
+    res.status(400).json({
+      result: "error",
+      msg: `title is too long (limit: ${SAVED_SNIPPET_MAX_TITLE_LENGTH} characters)`,
+      code: "BAD_REQUEST",
+    });
     return;
   }
 
@@ -242,12 +367,21 @@ export const handleUpdateSavedSnippetCompat = async (
   }
 
   const body = getBodyObject(req);
+  const title = getTrimmedOptionalString(getOptionalStringField(body, "title"));
+  if (title !== undefined && title.length > SAVED_SNIPPET_MAX_TITLE_LENGTH) {
+    res.status(400).json({
+      result: "error",
+      msg: `title is too long (limit: ${SAVED_SNIPPET_MAX_TITLE_LENGTH} characters)`,
+      code: "BAD_REQUEST",
+    });
+    return;
+  }
   const ok = await updateSavedSnippet(
     app.options,
     requester,
     req.params["saved_snippet_id"] as string,
-    getOptionalStringField(body, "title"),
-    getOptionalStringField(body, "content"),
+    title,
+    getTrimmedOptionalString(getOptionalStringField(body, "content")),
   );
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Saved snippet does not exist.", code: "BAD_REQUEST" });
@@ -311,6 +445,10 @@ export const handleCreateReminderCompat = async (
     res.status(400).json({ result: "error", msg: "Missing required field", code: "BAD_REQUEST" });
     return;
   }
+  if (isPastOrPresentUnixSeconds(scheduledDeliveryTimestamp)) {
+    res.status(400).json({ result: "error", msg: "Scheduled delivery time must be in the future.", code: "BAD_REQUEST" });
+    return;
+  }
 
   const reminderId = await createReminder(
     app.options,
@@ -320,7 +458,7 @@ export const handleCreateReminderCompat = async (
     getOptionalStringField(body, "note"),
   );
   if (reminderId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid reminder request", code: "BAD_REQUEST" });
+    res.status(400).json({ result: "error", msg: "Invalid message(s)", code: "BAD_REQUEST" });
     return;
   }
 
@@ -382,9 +520,18 @@ export const handleCreateScheduledMessageCompat = async (
     res.status(400).json({ result: "error", msg: "Missing required field", code: "BAD_REQUEST" });
     return;
   }
+  if (isPastOrPresentUnixSeconds(scheduledDeliveryTimestamp)) {
+    res.status(400).json({ result: "error", msg: "Scheduled delivery time must be in the future.", code: "BAD_REQUEST" });
+    return;
+  }
 
   const toValueText = getScheduledMessageRecipientText(body);
   const toValueArray = getScheduledMessageRecipientArray(body);
+  const normalizedType = type === "channel" ? "stream" : (type === "private" ? "direct" : type);
+  if (normalizedType === "direct" && hasEmailLikeRecipient(toValueText, toValueArray)) {
+    res.status(400).json({ result: "error", msg: 'to["int"] is not an integer', code: "BAD_REQUEST" });
+    return;
+  }
   const scheduledMessageId = await createScheduledMessage(
     app.options,
     requester,
@@ -414,16 +561,51 @@ export const handleUpdateScheduledMessageCompat = async (
   }
 
   const body = getBodyObject(req);
+  const hasType = hasField(body, "type");
+  const hasTo = hasField(body, "to");
+  const hasTopic = hasField(body, "topic");
+  const hasContent = hasField(body, "content");
+  const hasScheduledDeliveryTimestamp = hasField(body, "scheduled_delivery_timestamp");
+  if (!hasType && !hasTo && !hasTopic && !hasContent && !hasScheduledDeliveryTimestamp) {
+    res.status(400).json({ result: "error", msg: "Nothing to change", code: "BAD_REQUEST" });
+    return;
+  }
+
+  const type = getOptionalStringField(body, "type");
+  if (type !== undefined && !hasTo) {
+    res.status(400).json({ result: "error", msg: "Recipient required when updating type of scheduled message.", code: "BAD_REQUEST" });
+    return;
+  }
+
+  const normalizedType = type === "channel" ? "stream" : (type === "private" ? "direct" : type);
+  if (normalizedType === "stream" && type !== undefined && !hasTopic) {
+    res.status(400).json({ result: "error", msg: "Topic required when updating scheduled message type to channel.", code: "BAD_REQUEST" });
+    return;
+  }
+
+  const toValueText = getScheduledMessageRecipientText(body);
+  const toValueArray = getScheduledMessageRecipientArray(body);
+  if (normalizedType === "direct" && (toValueText !== undefined || toValueArray !== undefined) && hasEmailLikeRecipient(toValueText, toValueArray)) {
+    res.status(400).json({ result: "error", msg: 'to["int"] is not an integer', code: "BAD_REQUEST" });
+    return;
+  }
+
+  const scheduledDeliveryTimestamp = getOptionalStringField(body, "scheduled_delivery_timestamp");
+  if (scheduledDeliveryTimestamp !== undefined && isPastOrPresentUnixSeconds(scheduledDeliveryTimestamp)) {
+    res.status(400).json({ result: "error", msg: "Scheduled delivery time must be in the future.", code: "BAD_REQUEST" });
+    return;
+  }
+
   const ok = await updateScheduledMessage(
     app.options,
     requester,
     req.params["scheduled_message_id"] as string,
-    getOptionalStringField(body, "type"),
-    getScheduledMessageRecipientText(body),
-    getScheduledMessageRecipientArray(body),
+    type,
+    toValueText,
+    toValueArray,
     getOptionalStringField(body, "content"),
     getOptionalStringField(body, "topic"),
-    getOptionalStringField(body, "scheduled_delivery_timestamp"),
+    scheduledDeliveryTimestamp,
   );
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Scheduled message does not exist", code: "BAD_REQUEST" });

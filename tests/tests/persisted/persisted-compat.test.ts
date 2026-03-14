@@ -35,6 +35,65 @@ describe("Persisted compatibility endpoints", () => {
     expect(deleteRes.status).to.equal(200);
   });
 
+  it("POST /api/v1/navigation_views should reject invalid built-in and custom naming combinations", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client } = await seedUser(db, tenantId);
+
+    const builtInNamedRes = await client.post("/navigation_views", {
+      fragment: "recent",
+      is_pinned: "true",
+      name: "Recent view",
+    });
+    expect(builtInNamedRes.status).to.equal(400);
+    expect(builtInNamedRes.body.msg).to.equal("Built-in views cannot have a custom name.");
+    expect(builtInNamedRes.body.code).to.equal("BAD_REQUEST");
+
+    const customWithoutNameRes = await client.post("/navigation_views", {
+      fragment: "narrow/view",
+      is_pinned: "true",
+    });
+    expect(customWithoutNameRes.status).to.equal(400);
+    expect(customWithoutNameRes.body.msg).to.equal("Custom views must have a valid name.");
+    expect(customWithoutNameRes.body.code).to.equal("BAD_REQUEST");
+  });
+
+  it("POST /api/v1/navigation_views and PATCH /api/v1/navigation_views/{fragment} should reject duplicate custom names", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client } = await seedUser(db, tenantId);
+
+    const firstRes = await client.post("/navigation_views", {
+      fragment: "narrow/is/alerted",
+      is_pinned: "true",
+      name: "Alert Words",
+    });
+    expect(firstRes.status).to.equal(200);
+
+    const duplicateCreateRes = await client.post("/navigation_views", {
+      fragment: "narrow/is/attachment",
+      is_pinned: "true",
+      name: "Alert Words",
+    });
+    expect(duplicateCreateRes.status).to.equal(400);
+    expect(duplicateCreateRes.body.msg).to.equal("Navigation view already exists.");
+    expect(duplicateCreateRes.body.code).to.equal("BAD_REQUEST");
+
+    await client.post("/navigation_views", {
+      fragment: "narrow/is/attachment",
+      is_pinned: "true",
+      name: "Attachments",
+    });
+
+    const duplicateUpdateRes = await client.patch("/navigation_views/narrow/is/attachment", {
+      name: "Alert Words",
+      is_pinned: "false",
+    });
+    expect(duplicateUpdateRes.status).to.equal(400);
+    expect(duplicateUpdateRes.body.msg).to.equal("Navigation view already exists.");
+    expect(duplicateUpdateRes.body.code).to.equal("BAD_REQUEST");
+  });
+
   it("POST /api/v1/saved_snippets, GET /api/v1/saved_snippets, PATCH /api/v1/saved_snippets/{saved_snippet_id}, and DELETE /api/v1/saved_snippets/{saved_snippet_id} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -59,6 +118,39 @@ describe("Persisted compatibility endpoints", () => {
 
     const deleteRes = await client.delete(`/saved_snippets/${snippetId}`);
     expect(deleteRes.status).to.equal(200);
+  });
+
+  it("POST /api/v1/saved_snippets should reject titles longer than Zulip's limit", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client } = await seedUser(db, tenantId);
+
+    const res = await client.post("/saved_snippets", {
+      title: "A".repeat(120),
+      content: "**Welcome** to the organization.",
+    });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.msg).to.equal("title is too long (limit: 60 characters)");
+    expect(res.body.code).to.equal("BAD_REQUEST");
+  });
+
+  it("PATCH /api/v1/saved_snippets/{saved_snippet_id} should allow a no-op request", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client } = await seedUser(db, tenantId);
+
+    const createRes = await client.post("/saved_snippets", {
+      title: "Snippet",
+      content: "console.log('hi')",
+    });
+    const snippetId = createRes.body.saved_snippet_id as string;
+
+    const res = await client.patch(`/saved_snippets/${snippetId}`);
+
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("success");
+    expect(res.body.msg).to.equal("");
   });
 
   it("POST /api/v1/reminders, GET /api/v1/reminders, and DELETE /api/v1/reminders/{reminder_id} should work", async () => {
@@ -90,6 +182,35 @@ describe("Persisted compatibility endpoints", () => {
     expect(deleteRes.status).to.equal(200);
   });
 
+  it("POST /api/v1/reminders should reject past timestamps and invalid message ids", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client, userId } = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "reminders-errors" });
+    const messageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "follow-up",
+      content: "Reminder message",
+    });
+    await seedSubscription(db, tenantId, userId, channelId);
+
+    const pastRes = await client.post("/reminders", {
+      message_id: messageId,
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) - 3600}`,
+    });
+    expect(pastRes.status).to.equal(400);
+    expect(pastRes.body.msg).to.equal("Scheduled delivery time must be in the future.");
+    expect(pastRes.body.code).to.equal("BAD_REQUEST");
+
+    const invalidMessageRes = await client.post("/reminders", {
+      message_id: "missing-message",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 3600}`,
+    });
+    expect(invalidMessageRes.status).to.equal(400);
+    expect(invalidMessageRes.body.msg).to.equal("Invalid message(s)");
+    expect(invalidMessageRes.body.code).to.equal("BAD_REQUEST");
+  });
+
   it("POST /api/v1/scheduled_messages, GET /api/v1/scheduled_messages, PATCH /api/v1/scheduled_messages/{scheduled_message_id}, and DELETE /api/v1/scheduled_messages/{scheduled_message_id} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -117,5 +238,76 @@ describe("Persisted compatibility endpoints", () => {
 
     const deleteRes = await sender.client.delete(`/scheduled_messages/${scheduledMessageId}`);
     expect(deleteRes.status).to.equal(200);
+  });
+
+  it("POST /api/v1/scheduled_messages should reject email recipients for direct messages and timestamps in the past", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+    const recipient = await seedUser(db, tenantId);
+
+    const invalidRecipientRes = await sender.client.post("/scheduled_messages", {
+      type: "direct",
+      to: JSON.stringify([recipient.email]),
+      content: "Scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+    });
+    expect(invalidRecipientRes.status).to.equal(400);
+    expect(invalidRecipientRes.body.msg).to.equal('to["int"] is not an integer');
+    expect(invalidRecipientRes.body.code).to.equal("BAD_REQUEST");
+
+    const pastTimestampRes = await sender.client.post("/scheduled_messages", {
+      type: "private",
+      to: JSON.stringify([recipient.userId]),
+      content: "Scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) - 7200}`,
+    });
+    expect(pastTimestampRes.status).to.equal(400);
+    expect(pastTimestampRes.body.msg).to.equal("Scheduled delivery time must be in the future.");
+    expect(pastTimestampRes.body.code).to.equal("BAD_REQUEST");
+  });
+
+  it("PATCH /api/v1/scheduled_messages/{scheduled_message_id} should enforce Zulip's mutation preconditions", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+    const recipient = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "scheduled-errors" });
+    await seedSubscription(db, tenantId, sender.userId, channelId);
+
+    const createRes = await sender.client.post("/scheduled_messages", {
+      type: "private",
+      to: JSON.stringify([recipient.userId]),
+      content: "Scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+    });
+    const scheduledMessageId = createRes.body.scheduled_message_id as string;
+
+    const noOpRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`);
+    expect(noOpRes.status).to.equal(400);
+    expect(noOpRes.body.msg).to.equal("Nothing to change");
+    expect(noOpRes.body.code).to.equal("BAD_REQUEST");
+
+    const missingRecipientRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
+      type: "direct",
+    });
+    expect(missingRecipientRes.status).to.equal(400);
+    expect(missingRecipientRes.body.msg).to.equal("Recipient required when updating type of scheduled message.");
+    expect(missingRecipientRes.body.code).to.equal("BAD_REQUEST");
+
+    const missingTopicRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
+      type: "channel",
+      to: JSON.stringify([channelId]),
+    });
+    expect(missingTopicRes.status).to.equal(400);
+    expect(missingTopicRes.body.msg).to.equal("Topic required when updating scheduled message type to channel.");
+    expect(missingTopicRes.body.code).to.equal("BAD_REQUEST");
+
+    const pastTimestampRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) - 7200}`,
+    });
+    expect(pastTimestampRes.status).to.equal(400);
+    expect(pastTimestampRes.body.msg).to.equal("Scheduled delivery time must be in the future.");
+    expect(pastTimestampRes.body.code).to.equal("BAD_REQUEST");
   });
 });
