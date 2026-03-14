@@ -20,5 +20,11 @@ export const handleRegenerateApiKey = async (
     return;
   }
 
-  res.json({ result: "success", msg: "", ...result.data });
+  res.json({
+    result: "success",
+    msg: "",
+    api_key: result.data.api_key,
+    email: result.data.email,
+    user_id: result.data.user_id,
+  });
 };

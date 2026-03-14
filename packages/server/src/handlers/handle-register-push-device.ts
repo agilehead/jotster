@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { registerDeviceDomain } from "@jotster/notifications/Jotster.Notifications.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -18,19 +18,19 @@ export const handleRegisterPushDevice = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const token = body["token"] as string;
+  const token = getOptionalStringField(body, "token");
   if (!token) {
     res.status(400).json({ result: "error", msg: "Missing required field: token" });
     return;
   }
 
-  const kind = body["kind"] as string;
+  const kind = getOptionalStringField(body, "kind");
   if (!kind) {
     res.status(400).json({ result: "error", msg: "Missing required field: kind" });
     return;
   }
 
-  const iosAppId = body["ios_app_id"] as string | undefined;
+  const iosAppId = getOptionalStringField(body, "ios_app_id");
 
   const result = await registerDeviceDomain(app.options, user, kind, token, iosAppId);
   if (!result.success) {

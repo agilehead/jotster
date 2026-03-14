@@ -44,30 +44,33 @@ export const getTopicsDomain = async (
       .Where((m) => m.ChannelId === channelId1)
       .ToListAsync();
 
-    const topicMap: Record<string, string> = {};
+    const topicMap: Record<string, { maxId: string; createdAt: number }> = {};
     const topicKeys = new List<string>();
     for (let i = 0; i < messages.Count; i++) {
       const msg = messages[i];
       const topic = msg.Topic ?? "";
+      const createdAt = Number(msg.CreatedAt);
       if (topicMap[topic] === undefined) {
         topicKeys.Add(topic);
-        topicMap[topic] = msg.Id;
-      } else if (msg.Id > topicMap[topic]) {
-        topicMap[topic] = msg.Id;
+        topicMap[topic] = { maxId: msg.Id, createdAt };
+      } else if (createdAt > topicMap[topic].createdAt) {
+        topicMap[topic] = { maxId: msg.Id, createdAt };
       }
     }
 
     const topics = new List<{ name: string; maxId: string }>();
     for (let i = 0; i < topicKeys.Count; i++) {
       const name = topicKeys[i];
-      const maxId = topicMap[name];
+      const maxId = topicMap[name].maxId;
       topics.Add({ name: name, maxId: maxId });
     }
 
-    // Sort by maxId descending
+    // Sort by newest message first
     topics.Sort((a, b) => {
-      if (a.maxId > b.maxId) return -1;
-      if (a.maxId < b.maxId) return 1;
+      const aCreatedAt = topicMap[a.name].createdAt;
+      const bCreatedAt = topicMap[b.name].createdAt;
+      if (aCreatedAt > bCreatedAt) return -1;
+      if (aCreatedAt < bCreatedAt) return 1;
       return 0;
     });
 
