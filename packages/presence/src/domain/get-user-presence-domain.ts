@@ -1,20 +1,12 @@
-import type { long } from "@tsonic/core/types.js";
-import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { getUserPresence } from "../repo/get-user-presence.ts";
-
-const PRESENCE_STALE_THRESHOLD_MS = 300000 as long; // 5 minutes in ms
-
-interface ClientPresence {
-  status: string;
-  timestamp: long;
-}
+import { buildLegacyUserPresenceMap } from "./presence-contract.ts";
 
 interface UserPresenceResult {
-  presence: Record<string, ClientPresence>;
+  presence: Record<string, unknown>;
 }
 
 export const getUserPresenceDomain = async (
@@ -52,38 +44,7 @@ export const getUserPresenceDomain = async (
   }
 
   const allPresences = await getUserPresence(options, user.tenantId, targetUserId);
-  const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
-
-  // Filter out stale entries and build presence map
-  const presence: Record<string, ClientPresence> = {};
-  let latestTimestamp = 0 as long;
-  let aggregatedStatus = "offline";
-
-  for (let i = 0; i < allPresences.length; i++) {
-    const p = allPresences[i];
-    const age = (Convert.ToDouble(now) - Convert.ToDouble(p.Timestamp)) as long;
-    if (Convert.ToDouble(age) > Convert.ToDouble(PRESENCE_STALE_THRESHOLD_MS)) {
-      continue;
-    }
-
-    presence[p.ClientName] = {
-      status: p.Status,
-      timestamp: p.Timestamp,
-    };
-
-    if (Convert.ToDouble(p.Timestamp) > Convert.ToDouble(latestTimestamp)) {
-      latestTimestamp = p.Timestamp;
-      aggregatedStatus = p.Status;
-    }
-  }
-
-  // Add aggregated entry
-  if (aggregatedStatus !== "offline") {
-    presence["aggregated"] = {
-      status: aggregatedStatus,
-      timestamp: latestTimestamp,
-    };
-  }
+  const presence = buildLegacyUserPresenceMap(allPresences);
 
   return ok({ presence });
 };
