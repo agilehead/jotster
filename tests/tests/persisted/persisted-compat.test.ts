@@ -94,6 +94,21 @@ describe("Persisted compatibility endpoints", () => {
     expect(duplicateUpdateRes.body.code).to.equal("BAD_REQUEST");
   });
 
+  it("PATCH /api/v1/navigation_views/{fragment} should return Zulip-compatible not found errors", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client } = await seedUser(db, tenantId);
+
+    const res = await client.patch("/navigation_views/narrow/is/nonexistent", {
+      name: "Missing view",
+    });
+
+    expect(res.status).to.equal(404);
+    expect(res.body.result).to.equal("error");
+    expect(res.body.msg).to.equal("Navigation view does not exist.");
+    expect(res.body.code).to.equal("NOT_FOUND");
+  });
+
   it("POST /api/v1/saved_snippets, GET /api/v1/saved_snippets, PATCH /api/v1/saved_snippets/{saved_snippet_id}, and DELETE /api/v1/saved_snippets/{saved_snippet_id} should work", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -176,10 +191,52 @@ describe("Persisted compatibility endpoints", () => {
 
     const listRes = await client.get("/reminders");
     expect(listRes.status).to.equal(200);
-    expect((listRes.body.reminders as Array<Record<string, unknown>>)[0].reminder_id).to.equal(reminderId);
+    const reminders = listRes.body.reminders as Array<Record<string, unknown>>;
+    expect(reminders[0].reminder_id).to.equal(reminderId);
+    expect(reminders[0].type).to.equal("private");
+    expect(reminders[0].to).to.deep.equal([userId]);
+    expect(reminders[0].content).to.equal("Follow up");
+    expect(reminders[0].reminder_target_message_id).to.equal(messageId);
 
     const deleteRes = await client.delete(`/reminders/${reminderId}`);
     expect(deleteRes.status).to.equal(200);
+  });
+
+  it("GET /api/v1/reminders should return reminders ordered by scheduled_delivery_timestamp ascending", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client, userId } = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "reminder-ordering" });
+    await seedSubscription(db, tenantId, userId, channelId);
+    const firstMessageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "follow-up",
+      content: "Reminder one",
+    });
+    const secondMessageId = await seedMessage(db, tenantId, userId, {
+      channelId,
+      topic: "follow-up",
+      content: "Reminder two",
+    });
+
+    await client.post("/reminders", {
+      message_id: secondMessageId,
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+      note: "Later",
+    });
+    await client.post("/reminders", {
+      message_id: firstMessageId,
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 3600}`,
+      note: "Sooner",
+    });
+
+    const res = await client.get("/reminders");
+    expect(res.status).to.equal(200);
+    const reminders = res.body.reminders as Array<Record<string, unknown>>;
+    expect(reminders).to.have.length(2);
+    expect(reminders[0].content).to.equal("Sooner");
+    expect(reminders[1].content).to.equal("Later");
+    expect((reminders[0].scheduled_delivery_timestamp as number) < (reminders[1].scheduled_delivery_timestamp as number)).to.equal(true);
   });
 
   it("POST /api/v1/reminders should reject past timestamps and invalid message ids", async () => {
@@ -267,6 +324,71 @@ describe("Persisted compatibility endpoints", () => {
     expect(pastTimestampRes.body.code).to.equal("BAD_REQUEST");
   });
 
+  it("POST /api/v1/scheduled_messages should reject non-existent direct-message users and channels with Zulip-compatible errors", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+
+    const invalidUserId = "missing-user";
+    const invalidDirectRes = await sender.client.post("/scheduled_messages", {
+      type: "direct",
+      to: JSON.stringify([invalidUserId]),
+      content: "Scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+    });
+    expect(invalidDirectRes.status).to.equal(400);
+    expect(invalidDirectRes.body.msg).to.equal(`Invalid user ID ${invalidUserId}`);
+    expect(invalidDirectRes.body.code).to.equal("BAD_REQUEST");
+
+    const invalidChannelId = "missing-channel";
+    const invalidChannelRes = await sender.client.post("/scheduled_messages", {
+      type: "stream",
+      to: invalidChannelId,
+      topic: "Support",
+      content: "Scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+    });
+    expect(invalidChannelRes.status).to.equal(400);
+    expect(invalidChannelRes.body.msg).to.equal(`Channel with ID '${invalidChannelId}' does not exist`);
+    expect(invalidChannelRes.body.code).to.equal("STREAM_DOES_NOT_EXIST");
+    expect(invalidChannelRes.body.stream_id).to.equal(invalidChannelId);
+  });
+
+  it("GET /api/v1/scheduled_messages should return messages ordered by scheduled_delivery_timestamp with Zulip-compatible shapes", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+    const recipient = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "scheduled-shapes" });
+    await seedSubscription(db, tenantId, sender.userId, channelId);
+
+    await sender.client.post("/scheduled_messages", {
+      type: "private",
+      to: JSON.stringify([recipient.userId]),
+      content: "Direct scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+    });
+    await sender.client.post("/scheduled_messages", {
+      type: "stream",
+      to: channelId,
+      topic: "Support",
+      content: "Stream scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 3600}`,
+    });
+
+    const res = await sender.client.get("/scheduled_messages");
+    expect(res.status).to.equal(200);
+    const scheduledMessages = res.body.scheduled_messages as Array<Record<string, unknown>>;
+    expect(scheduledMessages).to.have.length(2);
+    expect(scheduledMessages[0].type).to.equal("stream");
+    expect(scheduledMessages[0].to).to.equal(channelId);
+    expect(scheduledMessages[0].topic).to.equal("Support");
+    expect(scheduledMessages[1].type).to.equal("private");
+    expect(scheduledMessages[1].to).to.deep.equal([recipient.userId]);
+    expect(scheduledMessages[1]).to.not.have.property("topic");
+    expect((scheduledMessages[0].scheduled_delivery_timestamp as number) < (scheduledMessages[1].scheduled_delivery_timestamp as number)).to.equal(true);
+  });
+
   it("PATCH /api/v1/scheduled_messages/{scheduled_message_id} should enforce Zulip's mutation preconditions", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -309,5 +431,40 @@ describe("Persisted compatibility endpoints", () => {
     expect(pastTimestampRes.status).to.equal(400);
     expect(pastTimestampRes.body.msg).to.equal("Scheduled delivery time must be in the future.");
     expect(pastTimestampRes.body.code).to.equal("BAD_REQUEST");
+  });
+
+  it("PATCH /api/v1/scheduled_messages/{scheduled_message_id} should reject non-existent direct-message users and channels with Zulip-compatible errors", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+    const recipient = await seedUser(db, tenantId);
+
+    const createRes = await sender.client.post("/scheduled_messages", {
+      type: "private",
+      to: JSON.stringify([recipient.userId]),
+      content: "Scheduled hello",
+      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+    });
+    const scheduledMessageId = createRes.body.scheduled_message_id as string;
+
+    const invalidUserId = "missing-user";
+    const invalidDirectRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
+      type: "direct",
+      to: JSON.stringify([invalidUserId]),
+    });
+    expect(invalidDirectRes.status).to.equal(400);
+    expect(invalidDirectRes.body.msg).to.equal(`Invalid user ID ${invalidUserId}`);
+    expect(invalidDirectRes.body.code).to.equal("BAD_REQUEST");
+
+    const invalidChannelId = "missing-channel";
+    const invalidChannelRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
+      type: "stream",
+      to: invalidChannelId,
+      topic: "Support",
+    });
+    expect(invalidChannelRes.status).to.equal(400);
+    expect(invalidChannelRes.body.msg).to.equal(`Channel with ID '${invalidChannelId}' does not exist`);
+    expect(invalidChannelRes.body.code).to.equal("STREAM_DOES_NOT_EXIST");
+    expect(invalidChannelRes.body.stream_id).to.equal(invalidChannelId);
   });
 });

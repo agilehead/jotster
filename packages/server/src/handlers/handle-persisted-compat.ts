@@ -277,7 +277,7 @@ export const handleUpdateNavigationViewCompat = async (
     name,
   );
   if (!ok) {
-    res.status(404).json({ result: "error", msg: "Navigation view does not exist.", code: "BAD_REQUEST" });
+    res.status(404).json({ result: "error", msg: "Navigation view does not exist.", code: "NOT_FOUND" });
     return;
   }
 
@@ -542,12 +542,29 @@ export const handleCreateScheduledMessageCompat = async (
     getOptionalStringField(body, "topic"),
     scheduledDeliveryTimestamp,
   );
-  if (scheduledMessageId === undefined) {
+  if (!scheduledMessageId.ok && scheduledMessageId.errorCode === "invalid_stream") {
+    res.status(400).json({
+      result: "error",
+      msg: `Channel with ID '${scheduledMessageId.streamId}' does not exist`,
+      code: "STREAM_DOES_NOT_EXIST",
+      stream_id: scheduledMessageId.streamId,
+    });
+    return;
+  }
+  if (!scheduledMessageId.ok && scheduledMessageId.errorCode === "invalid_user") {
+    res.status(400).json({
+      result: "error",
+      msg: `Invalid user ID ${scheduledMessageId.userId}`,
+      code: "BAD_REQUEST",
+    });
+    return;
+  }
+  if (!scheduledMessageId.ok) {
     res.status(400).json({ result: "error", msg: "Invalid scheduled message request", code: "BAD_REQUEST" });
     return;
   }
 
-  res.json({ result: "success", msg: "", scheduled_message_id: scheduledMessageId });
+  res.json({ result: "success", msg: "", scheduled_message_id: scheduledMessageId.scheduledMessageId });
 };
 
 export const handleUpdateScheduledMessageCompat = async (
@@ -607,8 +624,29 @@ export const handleUpdateScheduledMessageCompat = async (
     getOptionalStringField(body, "topic"),
     scheduledDeliveryTimestamp,
   );
-  if (!ok) {
+  if (!ok.ok && ok.errorCode === "invalid_stream") {
+    res.status(400).json({
+      result: "error",
+      msg: `Channel with ID '${ok.streamId}' does not exist`,
+      code: "STREAM_DOES_NOT_EXIST",
+      stream_id: ok.streamId,
+    });
+    return;
+  }
+  if (!ok.ok && ok.errorCode === "invalid_user") {
+    res.status(400).json({
+      result: "error",
+      msg: `Invalid user ID ${ok.userId}`,
+      code: "BAD_REQUEST",
+    });
+    return;
+  }
+  if (!ok.ok && ok.notFound === true) {
     res.status(404).json({ result: "error", msg: "Scheduled message does not exist", code: "BAD_REQUEST" });
+    return;
+  }
+  if (!ok.ok) {
+    res.status(400).json({ result: "error", msg: "Invalid scheduled message request", code: "BAD_REQUEST" });
     return;
   }
 

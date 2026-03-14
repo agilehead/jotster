@@ -95,18 +95,25 @@ export const mapReminderToCompatResponse = (
 
 export const mapScheduledMessageToCompatResponse = (
   scheduledMessage: ScheduledMessage,
-): Record<string, unknown> => ({
-  scheduled_message_id: scheduledMessage.Id,
-  type: scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
-  to: scheduledMessage.Type === "stream"
-    ? (scheduledMessage.ChannelId ?? "")
-    : parseStringArray(scheduledMessage.RecipientIdsJson),
-  topic: scheduledMessage.Type === "stream" ? (scheduledMessage.Topic ?? "") : undefined,
-  content: scheduledMessage.Content,
-  rendered_content: scheduledMessage.RenderedContent,
-  scheduled_delivery_timestamp: toUnixSeconds(scheduledMessage.ScheduledDeliveryTimestamp),
-  failed: scheduledMessage.Failed === 1,
-});
+): Record<string, unknown> => {
+  const response: Record<string, unknown> = {
+    scheduled_message_id: scheduledMessage.Id,
+    type: scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
+    to: scheduledMessage.Type === "stream"
+      ? (scheduledMessage.ChannelId ?? "")
+      : parseStringArray(scheduledMessage.RecipientIdsJson),
+    content: scheduledMessage.Content,
+    rendered_content: scheduledMessage.RenderedContent,
+    scheduled_delivery_timestamp: toUnixSeconds(scheduledMessage.ScheduledDeliveryTimestamp),
+    failed: scheduledMessage.Failed === 1,
+  };
+
+  if (scheduledMessage.Type === "stream") {
+    response["topic"] = scheduledMessage.Topic ?? "";
+  }
+
+  return response;
+};
 
 export const mapLinkifierToCompatResponse = (linkifier: Linkifier): Record<string, unknown> => ({
   pattern: linkifier.Pattern,
