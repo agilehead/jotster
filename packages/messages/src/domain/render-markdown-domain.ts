@@ -32,7 +32,7 @@ const renderInline = (text: string): string => {
         result = result + text[i];
         i = i + 1;
       } else {
-        const code = escapeHtml(text.substring(start, end - start));
+        const code = escapeHtml(text.substring(start, end));
         result = result + "<code>" + code + "</code>";
         i = end + 1;
       }
@@ -44,7 +44,7 @@ const renderInline = (text: string): string => {
         result = result + text[i];
         i = i + 1;
       } else {
-        const bold = escapeHtml(text.substring(start, end - start));
+        const bold = escapeHtml(text.substring(start, end));
         result = result + "<strong>" + bold + "</strong>";
         i = end + 2;
       }
@@ -62,7 +62,7 @@ const renderInline = (text: string): string => {
         result = result + text[i];
         i = i + 1;
       } else {
-        const italic = escapeHtml(text.substring(start, end - start));
+        const italic = escapeHtml(text.substring(start, end));
         result = result + "<em>" + italic + "</em>";
         i = end + 1;
       }

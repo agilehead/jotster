@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { resolveTenant, devFetchApiKey } from "@jotster/auth/Jotster.Auth.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
@@ -15,7 +15,7 @@ export const handleDevFetchApiKey = async (
   }
 
   const body = getBodyObject(req);
-  const username = (body["username"] as string | undefined) ?? (body["direct_email"] as string | undefined);
+  const username = getOptionalStringField(body, "username") ?? getOptionalStringField(body, "direct_email");
   if (!username) {
     res.status(400).json({ result: "error", msg: "Missing username", code: "BAD_REQUEST" });
     return;
@@ -27,5 +27,11 @@ export const handleDevFetchApiKey = async (
     return;
   }
 
-  res.json({ result: "success", msg: "", ...result.data });
+  res.json({
+    result: "success",
+    msg: "",
+    api_key: result.data.api_key,
+    email: result.data.email,
+    user_id: result.data.user_id,
+  });
 };

@@ -58,6 +58,53 @@ describe("Invitations", () => {
     });
   });
 
+  describe("POST /api/v1/invites/:invite_id/resend", () => {
+    it("should resend a pending invitation", async () => {
+      const db = testDb.getDb();
+      const tenantId = await seedTenant(db);
+      const { client } = await seedUser(db, tenantId, { role: 200 });
+
+      await client.post("/invites", {
+        invitee_emails: "resend@test.com",
+        stream_ids: "[]",
+      });
+
+      const invitation = await db("invitation")
+        .select("id")
+        .where({ tenant_id: tenantId, email: "resend@test.com", status: "pending" })
+        .first();
+      const inviteId = invitation?.id as string;
+
+      const res = await client.post(`/invites/${inviteId}/resend`);
+
+      expect(res.status).to.equal(200);
+      expect(res.body.result).to.equal("success");
+    });
+  });
+
+  describe("DELETE /api/v1/invites/multiuse/:invite_id", () => {
+    it("should revoke a multiuse invitation link", async () => {
+      const db = testDb.getDb();
+      const tenantId = await seedTenant(db);
+      const { client } = await seedUser(db, tenantId, { role: 200 });
+
+      const createRes = await client.post("/invites/multiuse");
+      expect(createRes.status).to.equal(200);
+
+      const invitation = await db("invitation")
+        .select("id")
+        .where({ tenant_id: tenantId, is_multiuse: 1, status: "pending" })
+        .orderBy("created_at", "desc")
+        .first();
+      const inviteId = invitation?.id as string;
+
+      const res = await client.delete(`/invites/multiuse/${inviteId}`);
+
+      expect(res.status).to.equal(200);
+      expect(res.body.result).to.equal("success");
+    });
+  });
+
   describe("DELETE /api/v1/invites/:invite_id", () => {
     it("should revoke an invitation", async () => {
       const db = testDb.getDb();

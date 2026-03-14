@@ -121,4 +121,38 @@ describe("Message compatibility endpoints", () => {
     expect(thumbnailRes.status).to.equal(200);
     expect(thumbnailRes.body.has_thumbnail).to.equal(false);
   });
+
+  it("should render markdown and return read receipts for a message", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+    const reader = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "render-and-read-receipts" });
+    await seedSubscription(db, tenantId, sender.userId, channelId);
+    await seedSubscription(db, tenantId, reader.userId, channelId);
+
+    const renderRes = await sender.client.post("/messages/render", {
+      content: "**Rendered** _message_",
+    });
+    expect(renderRes.status).to.equal(200);
+    expect(renderRes.body.result).to.equal("success");
+    expect(renderRes.body.rendered).to.be.a("string");
+    expect(renderRes.body.rendered).to.contain("Rendered");
+
+    const messageId = await seedMessage(db, tenantId, sender.userId, {
+      channelId,
+      topic: "receipts",
+      content: "Track my readers",
+    });
+    await db("message_flag").insert({
+      user_id: reader.userId,
+      message_id: messageId,
+      flag: "read",
+    });
+
+    const receiptsRes = await sender.client.get(`/messages/${messageId}/read_receipts`);
+    expect(receiptsRes.status).to.equal(200);
+    expect(receiptsRes.body.result).to.equal("success");
+    expect(receiptsRes.body.user_ids).to.deep.equal([reader.userId]);
+  });
 });
