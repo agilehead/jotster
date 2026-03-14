@@ -1,5 +1,6 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { NavigationView, Reminder, SavedSnippet, ScheduledMessage } from "@jotster/core/Jotster.Core.js";
+import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import {
   createNavigationView,
@@ -238,6 +239,20 @@ export const handleCreateNavigationViewCompat = async (
     return;
   }
 
+  const createdViews = await listNavigationViews(app.options, requester);
+  for (let i = 0; i < createdViews.length; i++) {
+    if (createdViews[i].Fragment === fragment) {
+      dispatchEventToUser(requester.tenantId, requester.userId, {
+        type: "navigation_view",
+        op: "add",
+        data: {
+          navigation_view: mapNavigationViewToCompatResponse(createdViews[i]),
+        },
+      });
+      break;
+    }
+  }
+
   res.json({ result: "success", msg: "" });
 };
 
@@ -281,6 +296,28 @@ export const handleUpdateNavigationViewCompat = async (
     return;
   }
 
+  const updatedViews = await listNavigationViews(app.options, requester);
+  for (let i = 0; i < updatedViews.length; i++) {
+    if (updatedViews[i].Fragment === fragment) {
+      const data: Record<string, unknown> = {};
+      if (hasField(body, "is_pinned")) {
+        data.is_pinned = updatedViews[i].IsPinned === 1;
+      }
+      if (hasField(body, "name")) {
+        data.name = updatedViews[i].Name ?? null;
+      }
+      dispatchEventToUser(requester.tenantId, requester.userId, {
+        type: "navigation_view",
+        op: "update",
+        data: {
+          fragment,
+          data,
+        },
+      });
+      break;
+    }
+  }
+
   res.json({ result: "success", msg: "" });
 };
 
@@ -294,11 +331,20 @@ export const handleDeleteNavigationViewCompat = async (
     return;
   }
 
-  const ok = await deleteNavigationView(app.options, requester, getWildcardFragment(req));
+  const fragment = getWildcardFragment(req);
+  const ok = await deleteNavigationView(app.options, requester, fragment);
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Navigation view does not exist.", code: "BAD_REQUEST" });
     return;
   }
+
+  dispatchEventToUser(requester.tenantId, requester.userId, {
+    type: "navigation_view",
+    op: "remove",
+    data: {
+      fragment,
+    },
+  });
 
   res.json({ result: "success", msg: "" });
 };
@@ -353,6 +399,20 @@ export const handleCreateSavedSnippetCompat = async (
     return;
   }
 
+  const createdSnippets = await listSavedSnippets(app.options, requester);
+  for (let i = 0; i < createdSnippets.length; i++) {
+    if (createdSnippets[i].Id === snippetId) {
+      dispatchEventToUser(requester.tenantId, requester.userId, {
+        type: "saved_snippets",
+        op: "add",
+        data: {
+          saved_snippet: mapSavedSnippetToCompatResponse(createdSnippets[i]),
+        },
+      });
+      break;
+    }
+  }
+
   res.json({ result: "success", msg: "", saved_snippet_id: snippetId });
 };
 
@@ -376,16 +436,31 @@ export const handleUpdateSavedSnippetCompat = async (
     });
     return;
   }
+  const snippetId = req.params["saved_snippet_id"] as string;
   const ok = await updateSavedSnippet(
     app.options,
     requester,
-    req.params["saved_snippet_id"] as string,
+    snippetId,
     title,
     getTrimmedOptionalString(getOptionalStringField(body, "content")),
   );
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Saved snippet does not exist.", code: "BAD_REQUEST" });
     return;
+  }
+
+  const updatedSnippets = await listSavedSnippets(app.options, requester);
+  for (let i = 0; i < updatedSnippets.length; i++) {
+    if (updatedSnippets[i].Id === snippetId) {
+      dispatchEventToUser(requester.tenantId, requester.userId, {
+        type: "saved_snippets",
+        op: "update",
+        data: {
+          saved_snippet: mapSavedSnippetToCompatResponse(updatedSnippets[i]),
+        },
+      });
+      break;
+    }
   }
 
   res.json({ result: "success", msg: "" });
@@ -401,11 +476,20 @@ export const handleDeleteSavedSnippetCompat = async (
     return;
   }
 
-  const ok = await deleteSavedSnippet(app.options, requester, req.params["saved_snippet_id"] as string);
+  const snippetId = req.params["saved_snippet_id"] as string;
+  const ok = await deleteSavedSnippet(app.options, requester, snippetId);
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Saved snippet does not exist.", code: "BAD_REQUEST" });
     return;
   }
+
+  dispatchEventToUser(requester.tenantId, requester.userId, {
+    type: "saved_snippets",
+    op: "remove",
+    data: {
+      saved_snippet_id: snippetId,
+    },
+  });
 
   res.json({ result: "success", msg: "" });
 };
@@ -462,6 +546,20 @@ export const handleCreateReminderCompat = async (
     return;
   }
 
+  const reminders = await listReminders(app.options, requester);
+  for (let i = 0; i < reminders.length; i++) {
+    if (reminders[i].Id === reminderId) {
+      dispatchEventToUser(requester.tenantId, requester.userId, {
+        type: "reminders",
+        op: "add",
+        data: {
+          reminders: [mapReminderToCompatResponse(reminders[i], requester.userId)],
+        },
+      });
+      break;
+    }
+  }
+
   res.json({ result: "success", msg: "", reminder_id: reminderId });
 };
 
@@ -475,11 +573,20 @@ export const handleDeleteReminderCompat = async (
     return;
   }
 
-  const ok = await deleteReminder(app.options, requester, req.params["reminder_id"] as string);
+  const reminderId = req.params["reminder_id"] as string;
+  const ok = await deleteReminder(app.options, requester, reminderId);
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Reminder does not exist", code: "BAD_REQUEST" });
     return;
   }
+
+  dispatchEventToUser(requester.tenantId, requester.userId, {
+    type: "reminders",
+    op: "remove",
+    data: {
+      reminder_id: reminderId,
+    },
+  });
 
   res.json({ result: "success", msg: "" });
 };
@@ -564,6 +671,20 @@ export const handleCreateScheduledMessageCompat = async (
     return;
   }
 
+  const createdMessages = await listScheduledMessages(app.options, requester);
+  for (let i = 0; i < createdMessages.length; i++) {
+    if (createdMessages[i].Id === scheduledMessageId.scheduledMessageId) {
+      dispatchEventToUser(requester.tenantId, requester.userId, {
+        type: "scheduled_messages",
+        op: "add",
+        data: {
+          scheduled_messages: [mapScheduledMessageToCompatResponse(createdMessages[i])],
+        },
+      });
+      break;
+    }
+  }
+
   res.json({ result: "success", msg: "", scheduled_message_id: scheduledMessageId.scheduledMessageId });
 };
 
@@ -613,10 +734,11 @@ export const handleUpdateScheduledMessageCompat = async (
     return;
   }
 
+  const scheduledMessageId = req.params["scheduled_message_id"] as string;
   const ok = await updateScheduledMessage(
     app.options,
     requester,
-    req.params["scheduled_message_id"] as string,
+    scheduledMessageId,
     type,
     toValueText,
     toValueArray,
@@ -650,6 +772,20 @@ export const handleUpdateScheduledMessageCompat = async (
     return;
   }
 
+  const updatedMessages = await listScheduledMessages(app.options, requester);
+  for (let i = 0; i < updatedMessages.length; i++) {
+    if (updatedMessages[i].Id === scheduledMessageId) {
+      dispatchEventToUser(requester.tenantId, requester.userId, {
+        type: "scheduled_messages",
+        op: "update",
+        data: {
+          scheduled_message: mapScheduledMessageToCompatResponse(updatedMessages[i]),
+        },
+      });
+      break;
+    }
+  }
+
   res.json({ result: "success", msg: "" });
 };
 
@@ -663,11 +799,20 @@ export const handleDeleteScheduledMessageCompat = async (
     return;
   }
 
-  const ok = await deleteScheduledMessage(app.options, requester, req.params["scheduled_message_id"] as string);
+  const scheduledMessageId = req.params["scheduled_message_id"] as string;
+  const ok = await deleteScheduledMessage(app.options, requester, scheduledMessageId);
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Scheduled message does not exist", code: "BAD_REQUEST" });
     return;
   }
+
+  dispatchEventToUser(requester.tenantId, requester.userId, {
+    type: "scheduled_messages",
+    op: "remove",
+    data: {
+      scheduled_message_id: scheduledMessageId,
+    },
+  });
 
   res.json({ result: "success", msg: "" });
 };

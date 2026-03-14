@@ -32,7 +32,7 @@ export interface QueueEvent {
   id: int;
   type: string;
   op?: string;
-  [key: string]: unknown;
+  data?: Record<string, unknown>;
 }
 
 export interface EventQueue {

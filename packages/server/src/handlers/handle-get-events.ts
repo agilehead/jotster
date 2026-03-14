@@ -3,7 +3,32 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getEventsFromQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getOptionalStringField, toOptionalInt } from "../helpers/body.ts";
+import { copyRecord, getOptionalStringField, toOptionalInt } from "../helpers/body.ts";
+
+const serializeQueueEvent = (value: object): Record<string, unknown> => {
+  const sourceEvent = copyRecord(value);
+  const serialized: Record<string, unknown> = {};
+  for (const [key, payloadValue] of Object.entries(sourceEvent)) {
+    if (key === "data") {
+      continue;
+    }
+    serialized[key] = payloadValue;
+  }
+
+  const payload = sourceEvent["data"];
+  if (payload !== undefined && payload !== null && typeof payload === "object" && !Array.isArray(payload)) {
+    const payloadRecord = copyRecord(payload as object);
+    for (const [key, payloadValue] of Object.entries(payloadRecord)) {
+      if (key === "op" && serialized["op"] === undefined && typeof payloadValue === "string") {
+        serialized["op"] = payloadValue;
+        continue;
+      }
+      serialized[key] = payloadValue;
+    }
+  }
+
+  return serialized;
+};
 
 export const handleGetEvents = async (
   req: Request,
@@ -53,5 +78,11 @@ export const handleGetEvents = async (
     return;
   }
 
-  res.json({ result: "success", msg: "", events: result["events"] });
+  const events = result["events"];
+  const serializedEvents: Record<string, unknown>[] = [];
+  for (let i = 0; i < events.length; i++) {
+    serializedEvents.push(serializeQueueEvent(events[i] as unknown as object));
+  }
+
+  res.json({ result: "success", msg: "", events: serializedEvents });
 };

@@ -350,6 +350,13 @@ export function dispatchEvent(tenantId: string, event: DomainEvent, targetUserId
       if (event.op !== undefined) {
         queueEvent.op = event.op;
       }
+      queueEvent.data = event.data;
+      for (const [key, value] of Object.entries(event.data)) {
+        if (key === "op" && queueEvent.op === undefined && typeof value === "string") {
+          queueEvent.op = value as string;
+          break;
+        }
+      }
       queue.events.Add(queueEvent);
 
       // Signal waiter if any

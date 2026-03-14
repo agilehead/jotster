@@ -10,7 +10,7 @@ export const getBodyObject = (req: Request): Record<string, unknown> => {
   return body as Record<string, unknown>;
 };
 
-const copyRecord = (value: object): Record<string, unknown> => {
+export const copyRecord = (value: object): Record<string, unknown> => {
   const result: Record<string, unknown> = {};
   for (const [entryKey, entryValue] of Object.entries(value)) {
     result[entryKey] = entryValue;
