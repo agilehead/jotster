@@ -1,6 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { Linkifier } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import {
   createLinkifier,
   listLinkifiers,
@@ -30,6 +31,16 @@ const mapLinkifiers = (entries: Linkifier[]): Record<string, unknown>[] => {
     result.push(mapLinkifierToCompatResponse(entries[i]));
   }
   return result;
+};
+
+const dispatchRealmLinkifiersEvent = async (app: AppContext, tenantId: string): Promise<void> => {
+  const linkifiers = await listLinkifiers(app.options, tenantId);
+  dispatchEventToTenant(tenantId, {
+    type: "realm_linkifiers",
+    data: {
+      realm_linkifiers: mapLinkifiers(linkifiers),
+    },
+  });
 };
 
 const rejectNonAdmin = (res: Response): void => {
@@ -115,6 +126,8 @@ export const handleReorderLinkifiersCompat = async (
     return;
   }
 
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
+
   res.json({ result: "success", msg: "" });
 };
 
@@ -154,6 +167,8 @@ export const handleCreateLinkifierCompat = async (
     return;
   }
 
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
+
   res.json({ result: "success", msg: "", id });
 };
 
@@ -184,6 +199,8 @@ export const handleUpdateLinkifierCompat = async (
     return;
   }
 
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
+
   res.json({ result: "success", msg: "" });
 };
 
@@ -206,6 +223,8 @@ export const handleDeleteLinkifierCompat = async (
     res.status(404).json({ result: "error", msg: "Linkifier does not exist.", code: "BAD_REQUEST" });
     return;
   }
+
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
 
   res.json({ result: "success", msg: "" });
 };

@@ -43,6 +43,15 @@ const getUserQueueIds = (key: string): string[] | undefined => {
   return userQueueIndex[key];
 };
 
+const hasObjectKey = (value: Record<string, unknown>, key: string): boolean => {
+  for (const [entryKey] of Object.entries(value)) {
+    if (entryKey === key) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const removeFromKeyList = (list: List<string>, key: string): void => {
   const newList = new List<string>();
   for (let i = 0; i < list.Count; i++) {
@@ -339,6 +348,18 @@ export function dispatchEvent(tenantId: string, event: DomainEvent, targetUserId
         if (!matched) {
           continue;
         }
+      }
+
+      if (event.type === "realm_linkifiers" && queue.clientCapabilities.linkifierUrlTemplate !== true) {
+        continue;
+      }
+
+      if (
+        event.type === "typing"
+        && hasObjectKey(event.data, "stream_id")
+        && queue.clientCapabilities.streamTypingNotifications !== true
+      ) {
+        continue;
       }
 
       // Build QueueEvent

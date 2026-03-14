@@ -374,10 +374,12 @@ export const buildInitialState = async (
   }
 
   if (shouldInclude("realm_linkifiers")) {
-    const linkifiers = await listLinkifiers(options, tenantId);
     const realmLinkifiers: Record<string, unknown>[] = [];
-    for (let i = 0; i < linkifiers.length; i++) {
-      realmLinkifiers.push(mapLinkifierToCompatResponse(linkifiers[i]));
+    if (params.clientCapabilities?.linkifierUrlTemplate === true) {
+      const linkifiers = await listLinkifiers(options, tenantId);
+      for (let i = 0; i < linkifiers.length; i++) {
+        realmLinkifiers.push(mapLinkifierToCompatResponse(linkifiers[i]));
+      }
     }
     state.realm_linkifiers = realmLinkifiers;
   }

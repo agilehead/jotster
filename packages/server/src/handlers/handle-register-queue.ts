@@ -1,6 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import {
   getBodyObject,
+  getOptionalBooleanField,
   getOptionalFlagIntField,
   getOptionalJsonObjectField,
   getOptionalStringField,
@@ -10,6 +11,40 @@ import { registerQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { buildInitialState } from "../helpers/build-initial-state.ts";
 import type { RegisterParams } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
+
+const normalizeClientCapabilities = (
+  value: Record<string, unknown> | undefined,
+): RegisterParams["clientCapabilities"] | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const normalized: RegisterParams["clientCapabilities"] = {};
+
+  if (getOptionalBooleanField(value, "notification_settings_null") === true) {
+    normalized.notificationSettingsNull = true;
+  }
+  if (getOptionalBooleanField(value, "bulk_message_deletion") === true) {
+    normalized.bulkMessageDeletion = true;
+  }
+  if (getOptionalBooleanField(value, "user_avatar_url_field_optional") === true) {
+    normalized.userAvatarUrlFieldOptional = true;
+  }
+  if (getOptionalBooleanField(value, "stream_typing_notifications") === true) {
+    normalized.streamTypingNotifications = true;
+  }
+  if (getOptionalBooleanField(value, "user_settings_object") === true) {
+    normalized.userSettingsObject = true;
+  }
+  if (getOptionalBooleanField(value, "linkifier_url_template") === true) {
+    normalized.linkifierUrlTemplate = true;
+  }
+  if (getOptionalBooleanField(value, "group_setting_value") === true) {
+    normalized.groupSettingValue = true;
+  }
+
+  return normalized;
+};
 
 export const handleRegisterQueue = async (
   req: Request,
@@ -32,11 +67,13 @@ export const handleRegisterQueue = async (
   const fetchEventTypes = fetchEventTypesRaw ? JSON.parse(fetchEventTypesRaw) as string[] : undefined;
 
   const clientCapabilitiesRaw = getOptionalStringField(body, "client_capabilities");
-  const clientCapabilities = clientCapabilitiesRaw
-    ? (JSON.parse(clientCapabilitiesRaw) as RegisterParams["clientCapabilities"])
-    : undefined;
   const clientCapabilitiesObject = getOptionalJsonObjectField(body, "client_capabilities");
-  const includeDeactivatedGroups = clientCapabilitiesObject?.["include_deactivated_groups"] === true;
+  const clientCapabilities = clientCapabilitiesObject !== undefined
+    ? normalizeClientCapabilities(clientCapabilitiesObject)
+    : clientCapabilitiesRaw
+      ? (JSON.parse(clientCapabilitiesRaw) as RegisterParams["clientCapabilities"])
+      : undefined;
+  const includeDeactivatedGroups = getOptionalBooleanField(clientCapabilitiesObject ?? {}, "include_deactivated_groups") === true;
 
   const narrowRaw = getOptionalStringField(body, "narrow");
   const narrow = narrowRaw ? (JSON.parse(narrowRaw) as RegisterParams["narrow"]) : undefined;

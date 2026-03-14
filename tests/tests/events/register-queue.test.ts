@@ -121,6 +121,7 @@ describe("POST /api/v1/register", function () {
         "scheduled_messages",
         "realm_linkifiers",
       ]),
+      client_capabilities: JSON.stringify({ linkifier_url_template: true }),
     });
 
     expect(registerRes.status).to.equal(200);
@@ -179,6 +180,41 @@ describe("POST /api/v1/register", function () {
     expect(createdGroup!.deactivated).to.equal(false);
 
     expect(registerRes.body.realm_linkifiers).to.deep.equal([
+      {
+        pattern: "#(?<id>\\d+)",
+        url_template: "https://tracker.example.com/{id}",
+        id: linkifierRes.body.id,
+        example_input: "#42",
+        reverse_template: null,
+        alternative_url_templates: [],
+      },
+    ]);
+  });
+
+  it("should return an empty realm_linkifiers register payload unless linkifier_url_template support is declared", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+
+    const linkifierRes = await admin.client.post("/realm/filters", {
+      pattern: "#(?<id>\\d+)",
+      url_template: "https://tracker.example.com/{id}",
+      example_input: "#42",
+    });
+    expect(linkifierRes.status).to.equal(200);
+
+    const defaultRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["realm_linkifiers"]),
+    });
+    expect(defaultRes.status).to.equal(200);
+    expect(defaultRes.body.realm_linkifiers).to.deep.equal([]);
+
+    const capableRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["realm_linkifiers"]),
+      client_capabilities: JSON.stringify({ linkifier_url_template: true }),
+    });
+    expect(capableRes.status).to.equal(200);
+    expect(capableRes.body.realm_linkifiers).to.deep.equal([
       {
         pattern: "#(?<id>\\d+)",
         url_template: "https://tracker.example.com/{id}",

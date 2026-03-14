@@ -24,16 +24,19 @@ This report now confirms route presence and direct endpoint test coverage for ev
 
 ## Current semantic depth
 
+- Client-capability parity is now explicitly covered for:
+  - `realm_linkifiers` initial-state suppression and event suppression unless `linkifier_url_template` is declared
+  - stream `typing` events suppression unless `stream_typing_notifications` is declared
 - Event payload parity is now explicitly covered for:
   - `alert_words`
   - `drafts`
   - `channel_folder`
   - `user_group`
   - `custom_profile_fields`
-- Persisted-object parity is already covered for:
+- Persisted-object event parity is now explicitly covered for:
   - `navigation_view`
   - `saved_snippets`
   - `reminders`
   - `scheduled_messages`
 - Current full suite status on this branch:
-  - `npm test` → `292 passing`
+  - `npm test` → `306 passing`

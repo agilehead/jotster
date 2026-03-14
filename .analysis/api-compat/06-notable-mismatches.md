@@ -19,3 +19,5 @@
   - channel-folder update/reorder event payloads
   - user-group update event nesting
   - custom-profile-field required/editable metadata
+  - `realm_linkifiers` client-capability gating for `/register` state and queue events
+  - stream `typing` event gating for clients without `stream_typing_notifications`

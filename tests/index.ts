@@ -36,6 +36,10 @@ import "./tests/messages/reactions.test.js";
 // Event queue tests
 import "./tests/events/register-queue.test.js";
 import "./tests/events/get-events.test.js";
+import "./tests/events/client-capabilities.test.js";
+import "./tests/events/linkifier-events.test.js";
+import "./tests/events/persisted-events.test.js";
+import "./tests/events/semantic-compat.test.js";
 
 // Presence, typing, status, muting tests
 import "./tests/presence/presence.test.js";
