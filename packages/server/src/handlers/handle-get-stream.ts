@@ -38,5 +38,9 @@ export const handleGetStream = async (
   stream["message_retention_days"] = ch.MessageRetentionDays ?? null;
   stream["is_archived"] = ch.IsArchived === 1;
 
-  res.json({ stream });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["stream"] = stream;
+  res.json(payload);
 };

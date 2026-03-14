@@ -28,5 +28,5 @@ export const handleGetRealmDomains = async (
     result.Add(obj);
   }
 
-  res.json({ result: "success", msg: "", realm_domains: result.ToArray() });
+  res.json({ result: "success", msg: "", domains: result.ToArray() });
 };

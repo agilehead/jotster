@@ -20,19 +20,20 @@ export const getChannelFolders = async (
 
     const folders = await db0.ChannelFolders
       .Where((f) => f.TenantId === tenantId0).Where((f) => f.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const result = new List<ChannelFolderWithItems>();
-    for (let i = 0; i < folders.length; i++) {
+    for (let i = 0; i < folders.Count; i++) {
       const folder = folders[i];
       const folderId0 = folder.Id;
       const items = await db0.ChannelFolderItems
         .Where((item) => item.ChannelFolderId === folderId0)
-        .ToArrayAsync();
+        .ToListAsync();
 
       const itemList = new List<ChannelFolderItem>();
-      for (let j = 0; j < items.length; j++) {
-        itemList.Add(items[j]);
+      for (let j = 0; j < items.Count; j++) {
+        const item = items[j];
+        itemList.Add(item);
       }
 
       result.Add({ folder, items: itemList.ToArray() });

@@ -136,9 +136,9 @@ export const getMessagesDomain = async (
     const userId0 = user.userId;
     const allFlags = await db2_0.MessageFlags
       .Where((f) => f.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
-    for (let i = 0; i < allFlags.length; i++) {
+    for (let i = 0; i < allFlags.Count; i++) {
       const flag = allFlags[i];
       let keyExists = false;
       for (let k = 0; k < userFlagMapKeys.Count; k++) {

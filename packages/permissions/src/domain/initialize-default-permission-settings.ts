@@ -36,12 +36,13 @@ export const initializeDefaultPermissionSettings = async (
     // Fetch system groups for this tenant
     const systemGroups = await db0.UserGroups
       .Where((g) => g.TenantId === tenantId0).Where((g) => g.IsSystemGroup === one)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Build name → id lookup
     const nameToId: Record<string, string> = {};
-    for (let i = 0; i < systemGroups.length; i++) {
-      nameToId[systemGroups[i].Name] = systemGroups[i].Id;
+    for (let i = 0; i < systemGroups.Count; i++) {
+      const systemGroup = systemGroups[i];
+      nameToId[systemGroup.Name] = systemGroup.Id;
     }
 
     // Map each default setting name to the group ID

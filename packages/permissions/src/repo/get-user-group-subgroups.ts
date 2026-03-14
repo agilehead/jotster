@@ -12,11 +12,12 @@ export const getUserGroupSubgroups = async (
     const groupId0 = groupId;
     const subgroups = await db0.UserGroupSubgroups
       .Where((s) => s.ParentGroupId === groupId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const ids = new List<string>();
-    for (let i = 0; i < subgroups.length; i++) {
-      ids.Add(subgroups[i].SubgroupId);
+    for (let i = 0; i < subgroups.Count; i++) {
+      const subgroup = subgroups[i];
+      ids.Add(subgroup.SubgroupId);
     }
     return ids.ToArray();
   } finally {

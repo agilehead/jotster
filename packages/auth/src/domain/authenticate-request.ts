@@ -42,5 +42,7 @@ export const authenticateRequest = async (
   authUser.userId = user.Id;
   authUser.email = user.Email;
   authUser.role = user.Role;
+  authUser.isBot = user.IsBot;
+  authUser.botType = user.BotType ?? undefined;
   return ok(authUser);
 };

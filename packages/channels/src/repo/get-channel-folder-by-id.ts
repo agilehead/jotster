@@ -26,11 +26,12 @@ export const getChannelFolderById = async (
 
     const items = await db0.ChannelFolderItems
       .Where((item) => item.ChannelFolderId === folderId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const itemList = new List<ChannelFolderItem>();
-    for (let i = 0; i < items.length; i++) {
-      itemList.Add(items[i]);
+    for (let i = 0; i < items.Count; i++) {
+      const item = items[i];
+      itemList.Add(item);
     }
 
     return { folder, items: itemList.ToArray() };

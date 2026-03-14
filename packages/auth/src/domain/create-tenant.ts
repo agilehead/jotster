@@ -22,8 +22,8 @@ export const createTenantAdmin = async (
     subdomain: string;
     name: string;
     description?: string;
-    adminEmail: string;
-    adminPassword: string;
+    adminEmail?: string;
+    adminPassword?: string;
   }
 ): Promise<Result<Tenant, string>> => {
   if (config.rootToken.length === 0 || rootToken !== config.rootToken) {
@@ -43,25 +43,27 @@ export const createTenantAdmin = async (
 
   const db = new JotsterDbContext(options);
   try {
-    const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-    const user = new User();
-    user.Id = generateId();
-    user.TenantId = tenant.Id;
-    user.Email = input.adminEmail;
-    user.FullName = "Admin";
-    user.PasswordHash = hashPassword(input.adminPassword);
-    user.Role = 100 as int;
-    user.AvatarSource = "G";
-    user.IsBot = 0 as int;
-    user.IsActive = 1 as int;
-    user.Timezone = "UTC";
-    user.DateJoined = now;
-    user.IsBillingAdmin = 0 as int;
-    user.DeliveryEmail = input.adminEmail;
-    user.CreatedAt = now;
-    user.UpdatedAt = now;
-    db.Users.Add(user);
-    await db.SaveChangesAsync();
+    if (input.adminEmail !== undefined && input.adminPassword !== undefined) {
+      const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      const user = new User();
+      user.Id = generateId();
+      user.TenantId = tenant.Id;
+      user.Email = input.adminEmail;
+      user.FullName = "Admin";
+      user.PasswordHash = hashPassword(input.adminPassword);
+      user.Role = 100 as int;
+      user.AvatarSource = "G";
+      user.IsBot = 0 as int;
+      user.IsActive = 1 as int;
+      user.Timezone = "UTC";
+      user.DateJoined = now;
+      user.IsBillingAdmin = 0 as int;
+      user.DeliveryEmail = input.adminEmail;
+      user.CreatedAt = now;
+      user.UpdatedAt = now;
+      db.Users.Add(user);
+      await db.SaveChangesAsync();
+    }
   } finally {
     db.Dispose();
   }

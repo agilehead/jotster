@@ -24,5 +24,9 @@ export const handleGetUsers = async (
     members.Add(mapUserToResponse(data[i]));
   }
 
-  res.json({ members: members.ToArray() });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["members"] = members.ToArray();
+  res.json(payload);
 };

@@ -20,30 +20,32 @@ export const markAllAsReadDomain = async (
     // Get all read message IDs for this user
     const readFlags = await db0.MessageFlags
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const readMessageIds = new List<string>();
-    for (let i = 0; i < readFlags.length; i++) {
-      readMessageIds.Add(readFlags[i].MessageId);
+    for (let i = 0; i < readFlags.Count; i++) {
+      const readFlagEntry = readFlags[i];
+      readMessageIds.Add(readFlagEntry.MessageId);
     }
 
     // Get all messages in the tenant
     const allMessages = await db0.Messages
       .Where((m) => m.TenantId === tenantId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Find unread message IDs
     const unreadIds = new List<string>();
-    for (let i = 0; i < allMessages.length; i++) {
+    for (let j = 0; j < allMessages.Count; j++) {
+      const message = allMessages[j];
       let isRead = false;
-      for (let j = 0; j < readMessageIds.Count; j++) {
-        if (readMessageIds[j] === allMessages[i].Id) {
+      for (let k = 0; k < readMessageIds.Count; k++) {
+        if (readMessageIds[k] === message.Id) {
           isRead = true;
           break;
         }
       }
       if (!isRead) {
-        unreadIds.Add(allMessages[i].Id);
+        unreadIds.Add(message.Id);
       }
     }
 

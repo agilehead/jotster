@@ -25,11 +25,12 @@ export const getReadReceipts = async (
 
     const flags = await db0.MessageFlags
       .Where((f) => f.MessageId === messageId0).Where((f) => f.Flag === readFlag)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const userIds = new List<string>();
-    for (let i = 0; i < flags.length; i++) {
-      userIds.Add(flags[i].UserId);
+    for (let i = 0; i < flags.Count; i++) {
+      const flag = flags[i];
+      userIds.Add(flag.UserId);
     }
     return userIds.ToArray();
   } finally {

@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createUserGroupDomain } from "@jotster/permissions/Jotster.Permissions.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalStringArrayField, getOptionalStringField } from "../helpers/body.ts";
 
 export const handleCreateUserGroup = async (
   req: Request,
@@ -15,22 +16,24 @@ export const handleCreateUserGroup = async (
   }
 
   const user = authResult.data;
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
 
-  const name = body["name"] as string | undefined;
+  const name = getOptionalStringField(body, "name");
   if (!name) {
     res.status(400).json({ result: "error", msg: "Missing required field: name" });
     return;
   }
 
+  const members = getOptionalStringArrayField(body, "members");
   const result = await createUserGroupDomain(app.options, user, ({
     name,
-    description: body["description"] as string | undefined,
-    canAddMembersGroupId: body["can_add_members_group"] as string | undefined,
-    canJoinGroupId: body["can_join_group"] as string | undefined,
-    canLeaveGroupId: body["can_leave_group"] as string | undefined,
-    canManageGroupId: body["can_manage_group"] as string | undefined,
-    canMentionGroupId: body["can_mention_group"] as string | undefined,
+    description: getOptionalStringField(body, "description"),
+    members,
+    canAddMembersGroupId: getOptionalStringField(body, "can_add_members_group"),
+    canJoinGroupId: getOptionalStringField(body, "can_join_group"),
+    canLeaveGroupId: getOptionalStringField(body, "can_leave_group"),
+    canManageGroupId: getOptionalStringField(body, "can_manage_group"),
+    canMentionGroupId: getOptionalStringField(body, "can_mention_group"),
   }));
 
   if (!result.success) {
@@ -44,7 +47,7 @@ export const handleCreateUserGroup = async (
   g["name"] = group.Name;
   g["description"] = group.Description;
   g["is_system_group"] = group.IsSystemGroup === 1;
-  g["members"] = [];
+  g["members"] = members ?? ([] as string[]);
   g["direct_subgroup_ids"] = [];
   g["can_add_members_group"] = group.CanAddMembersGroupId ?? null;
   g["can_join_group"] = group.CanJoinGroupId ?? null;

@@ -22,5 +22,8 @@ export const handleGetOwnProfile = async (
     return;
   }
 
-  res.json(mapUserToResponse(result.data));
+  const payload = mapUserToResponse(result.data);
+  payload["result"] = "success";
+  payload["msg"] = "";
+  res.json(payload);
 };

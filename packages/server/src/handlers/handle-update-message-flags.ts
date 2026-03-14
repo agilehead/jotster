@@ -1,8 +1,24 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalJsonArrayField, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateFlagsDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
+
+const toStringArray = (value: unknown[] | undefined): string[] | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const result: string[] = [];
+  for (let i = 0; i < value.length; i++) {
+    const entry = value[i];
+    if (typeof entry !== "string") {
+      return undefined;
+    }
+    result.push(entry as string);
+  }
+  return result;
+};
 
 export const handleUpdateMessageFlags = async (
   req: Request,
@@ -18,10 +34,13 @@ export const handleUpdateMessageFlags = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const messagesRaw = body["messages"] as string;
-  const parsedMessages = JSON.parse(messagesRaw) as string[];
-  const op = body["op"] as string;
-  const flag = body["flag"] as string;
+  const parsedMessages = toStringArray(getOptionalJsonArrayField(body, "messages"));
+  const op = getOptionalStringField(body, "op");
+  const flag = getOptionalStringField(body, "flag");
+  if (parsedMessages === undefined || op === undefined || flag === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid message flags payload" });
+    return;
+  }
 
   const result = await updateFlagsDomain(app.options, user, { messages: parsedMessages, op, flag });
   if (!result.success) {

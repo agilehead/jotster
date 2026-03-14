@@ -1,9 +1,52 @@
 import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, toOptionalFlagInt, toOptionalInt } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalFlagIntField,
+  getOptionalIntField,
+  getOptionalJsonArrayField,
+} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createChannelDomain } from "@jotster/channels/Jotster.Channels.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
+
+const getOptionalObjectField = (source: unknown, key: string): unknown => {
+  if (source === undefined || source === null || typeof source !== "object" || Array.isArray(source)) {
+    return undefined;
+  }
+
+  for (const [entryKey, entryValue] of Object.entries(source)) {
+    if (entryKey === key) {
+      return entryValue;
+    }
+  }
+
+  return undefined;
+};
+
+const toSubscriptionEntries = (value: unknown[] | undefined): { name: string; description?: string }[] | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const entries = new List<{ name: string; description?: string }>();
+  for (let i = 0; i < value.length; i++) {
+    const entry = value[i];
+    if (entry === undefined || entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+      return undefined;
+    }
+    const nameValue = getOptionalObjectField(entry, "name");
+    const name = typeof nameValue === "string" ? (nameValue as string) : undefined;
+    if (name === undefined) {
+      return undefined;
+    }
+    const descriptionValue = getOptionalObjectField(entry, "description");
+    const description = typeof descriptionValue === "string" ? (descriptionValue as string) : undefined;
+    entries.Add({ name, description });
+  }
+  return entries.ToArray();
+};
 
 export const handleCreateChannel = async (
   req: Request,
@@ -19,7 +62,7 @@ export const handleCreateChannel = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const subscriptions = body["subscriptions"] as { name: string; description?: string }[];
+  const subscriptions = toSubscriptionEntries(getOptionalJsonArrayField(body, "subscriptions"));
   if (!subscriptions || subscriptions.length === 0) {
     res.status(400).json({ result: "error", msg: "Missing required field: subscriptions" });
     return;
@@ -28,10 +71,10 @@ export const handleCreateChannel = async (
   const entry = subscriptions[0];
   const name = entry.name;
   const description = entry.description;
-  const isPrivate = toOptionalFlagInt(body["invite_only"]);
-  const isWebPublic = toOptionalFlagInt(body["is_web_public"]);
-  const historyPublicToSubscribers = toOptionalFlagInt(body["history_public_to_subscribers"]);
-  const messageRetentionDays = toOptionalInt(body["message_retention_days"]);
+  const isPrivate = getOptionalFlagIntField(body, "invite_only");
+  const isWebPublic = getOptionalFlagIntField(body, "is_web_public");
+  const historyPublicToSubscribers = getOptionalFlagIntField(body, "history_public_to_subscribers");
+  const messageRetentionDays = getOptionalIntField(body, "message_retention_days");
 
   const input: {
     name: string;

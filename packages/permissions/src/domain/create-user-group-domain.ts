@@ -2,11 +2,13 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import type { Result, AuthenticatedUser, UserGroup } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { addUserGroupMembers } from "../repo/add-user-group-members.ts";
 import { createUserGroup } from "../repo/create-user-group.ts";
 
 interface CreateUserGroupDomainInput {
   name: string;
   description?: string;
+  members?: string[];
   canAddMembersGroupId?: string;
   canJoinGroupId?: string;
   canLeaveGroupId?: string;
@@ -44,6 +46,11 @@ export const createUserGroupDomain = async (
     canMentionGroupId: input.canMentionGroupId,
   });
 
+  const members = input.members ?? [];
+  if (members.length > 0) {
+    await addUserGroupMembers(options, group.Id, members);
+  }
+
   dispatchEventToTenant(user.tenantId, {
     type: "user_group",
     data: {
@@ -53,7 +60,7 @@ export const createUserGroupDomain = async (
         name: group.Name,
         description: group.Description,
         is_system_group: group.IsSystemGroup === 1,
-        members: [],
+        members,
         direct_subgroup_ids: [],
         can_add_members_group: group.CanAddMembersGroupId ?? null,
         can_join_group: group.CanJoinGroupId ?? null,

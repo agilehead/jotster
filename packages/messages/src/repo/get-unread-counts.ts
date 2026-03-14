@@ -37,30 +37,32 @@ export const getUnreadCounts = async (
     // Get all "read" flags for this user to know which messages are read
     const readFlags = await db0.MessageFlags
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const readMessageIds = new List<string>();
-    for (let i = 0; i < readFlags.length; i++) {
-      readMessageIds.Add(readFlags[i].MessageId);
+    for (let i = 0; i < readFlags.Count; i++) {
+      const readFlagEntry = readFlags[i];
+      readMessageIds.Add(readFlagEntry.MessageId);
     }
 
     // Get subscribed channel IDs for this user
     const subscriptions = await db0.Subscriptions
       .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Collect unread channel messages
     const channelUnreadMap: Record<string, ChannelUnread> = {};
     const channelUnreadMapKeys = new List<string>();
-    for (let i = 0; i < subscriptions.length; i++) {
-      const channelId0 = subscriptions[i].ChannelId;
+    for (let subscriptionIndex = 0; subscriptionIndex < subscriptions.Count; subscriptionIndex++) {
+      const subscription = subscriptions[subscriptionIndex];
+      const channelId0 = subscription.ChannelId;
       const streamType = "stream";
       const channelMessages = await db0.Messages
         .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Type === streamType)
-        .ToArrayAsync();
+        .ToListAsync();
 
-      for (let j = 0; j < channelMessages.length; j++) {
-        const msg = channelMessages[j];
+      for (let channelMessageIndex = 0; channelMessageIndex < channelMessages.Count; channelMessageIndex++) {
+        const msg = channelMessages[channelMessageIndex];
         let isRead = false;
         for (let ri = 0; ri < readMessageIds.Count; ri++) {
           if (readMessageIds[ri] === msg.Id) {
@@ -99,20 +101,21 @@ export const getUnreadCounts = async (
     // Get DM groups for this user
     const dmMemberships = await db0.DmGroupMembers
       .Where((m) => m.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Collect unread DM messages
     const dmUnreadMap: Record<string, DmUnread> = {};
     const dmUnreadMapKeys = new List<string>();
-    for (let i = 0; i < dmMemberships.length; i++) {
-      const dmGroupId0 = dmMemberships[i].DmGroupId;
+    for (let membershipIndex = 0; membershipIndex < dmMemberships.Count; membershipIndex++) {
+      const membership = dmMemberships[membershipIndex];
+      const dmGroupId0 = membership.DmGroupId;
       const directType = "direct";
       const dmMessages = await db0.Messages
         .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.Type === directType)
-        .ToArrayAsync();
+        .ToListAsync();
 
-      for (let j = 0; j < dmMessages.length; j++) {
-        const msg = dmMessages[j];
+      for (let dmMessageIndex = 0; dmMessageIndex < dmMessages.Count; dmMessageIndex++) {
+        const msg = dmMessages[dmMessageIndex];
         let isRead = false;
         for (let ri = 0; ri < readMessageIds.Count; ri++) {
           if (readMessageIds[ri] === msg.Id) {
@@ -149,11 +152,12 @@ export const getUnreadCounts = async (
     // Get mentions (messages flagged as "mentioned" for this user)
     const mentionFlags = await db0.MessageFlags
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === starFlag)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const mentions = new List<string>();
-    for (let i = 0; i < mentionFlags.length; i++) {
-      const mentionMsgId = mentionFlags[i].MessageId;
+    for (let mentionIndex = 0; mentionIndex < mentionFlags.Count; mentionIndex++) {
+      const mentionFlag = mentionFlags[mentionIndex];
+      const mentionMsgId = mentionFlag.MessageId;
       let isMentionRead = false;
       for (let ri = 0; ri < readMessageIds.Count; ri++) {
         if (readMessageIds[ri] === mentionMsgId) {

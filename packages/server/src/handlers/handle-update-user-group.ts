@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateUserGroupDomain } from "@jotster/permissions/Jotster.Permissions.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalStringField, hasField } from "../helpers/body.ts";
 
 export const handleUpdateUserGroup = async (
   req: Request,
@@ -17,7 +18,7 @@ export const handleUpdateUserGroup = async (
   const user = authResult.data;
   const groupId = req.params["group_id"] as string;
 
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
   const updates: {
     name?: string;
     description?: string;
@@ -28,13 +29,15 @@ export const handleUpdateUserGroup = async (
     canMentionGroupId?: string;
   } = {};
 
-  if (body["name"] !== undefined) updates.name = body["name"] as string;
-  if (body["description"] !== undefined) updates.description = body["description"] as string;
-  if (body["can_add_members_group"] !== undefined) updates.canAddMembersGroupId = body["can_add_members_group"] as string;
-  if (body["can_join_group"] !== undefined) updates.canJoinGroupId = body["can_join_group"] as string;
-  if (body["can_leave_group"] !== undefined) updates.canLeaveGroupId = body["can_leave_group"] as string;
-  if (body["can_manage_group"] !== undefined) updates.canManageGroupId = body["can_manage_group"] as string;
-  if (body["can_mention_group"] !== undefined) updates.canMentionGroupId = body["can_mention_group"] as string;
+  const name = getOptionalStringField(body, "name");
+  if (name !== undefined) updates.name = name;
+  const description = getOptionalStringField(body, "description");
+  if (description !== undefined) updates.description = description;
+  if (hasField(body, "can_add_members_group")) updates.canAddMembersGroupId = getOptionalStringField(body, "can_add_members_group");
+  if (hasField(body, "can_join_group")) updates.canJoinGroupId = getOptionalStringField(body, "can_join_group");
+  if (hasField(body, "can_leave_group")) updates.canLeaveGroupId = getOptionalStringField(body, "can_leave_group");
+  if (hasField(body, "can_manage_group")) updates.canManageGroupId = getOptionalStringField(body, "can_manage_group");
+  if (hasField(body, "can_mention_group")) updates.canMentionGroupId = getOptionalStringField(body, "can_mention_group");
 
   const result = await updateUserGroupDomain(app.options, user, groupId, updates);
   if (!result.success) {

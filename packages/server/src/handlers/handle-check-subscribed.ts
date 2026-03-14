@@ -24,5 +24,9 @@ export const handleCheckSubscribed = async (
     return;
   }
 
-  res.json({ is_subscribed: result.data });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["is_subscribed"] = result.data;
+  res.json(payload);
 };

@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalJsonArrayField, getOptionalStringField, toOptionalRecord, toOptionalStringArray } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createDraftsDomain } from "@jotster/drafts/Jotster.Drafts.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
@@ -19,17 +19,38 @@ export const handleCreateDrafts = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const drafts = body["drafts"] as { type: string; to: string; topic?: string; content: string }[];
+  const drafts = getOptionalJsonArrayField(body, "drafts");
 
-  if (drafts === undefined || drafts === null) {
+  if (drafts === undefined) {
     res.status(400).json({ result: "error", msg: "Missing 'drafts' field" });
     return;
   }
 
   const inputs = new List<{ type: string; to: string; topic?: string; content: string }>();
   for (let i = 0; i < drafts.length; i++) {
-    const d = drafts[i];
-    inputs.Add({ type: d.type, to: d.to, topic: d.topic, content: d.content });
+    const draft = toOptionalRecord(drafts[i]);
+    if (draft === undefined) {
+      res.status(400).json({ result: "error", msg: "Invalid draft payload" });
+      return;
+    }
+
+    const type = getOptionalStringField(draft, "type");
+    const topic = getOptionalStringField(draft, "topic");
+    const content = getOptionalStringField(draft, "content");
+    const toString = getOptionalStringField(draft, "to");
+    const toArray = toOptionalStringArray(draft["to"]);
+    if (type === undefined || content === undefined) {
+      res.status(400).json({ result: "error", msg: "Invalid draft payload" });
+      return;
+    }
+
+    const to = type === "stream" ? (toString ?? toArray?.[0]) : (toString ?? (toArray !== undefined ? JSON.stringify(toArray) : undefined));
+    if (to === undefined) {
+      res.status(400).json({ result: "error", msg: "Invalid draft payload" });
+      return;
+    }
+
+    inputs.Add({ type, to, topic, content });
   }
 
   const result = await createDraftsDomain(

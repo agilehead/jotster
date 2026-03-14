@@ -1,3 +1,4 @@
+import type { int } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
@@ -5,7 +6,7 @@ export const countUserSubscriptions = async (
   options: DbContextOptions,
   tenantId: string,
   userId: string
-): Promise<number> => {
+): Promise<int> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
@@ -13,8 +14,8 @@ export const countUserSubscriptions = async (
     const userId0 = userId;
     const result = await db0.Subscriptions
       .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
-      .ToArrayAsync();
-    return result.length;
+      .ToListAsync();
+    return result.Count;
   } finally {
     db.Dispose();
   }

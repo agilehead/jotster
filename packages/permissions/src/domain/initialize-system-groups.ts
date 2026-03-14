@@ -29,12 +29,13 @@ export const initializeSystemGroups = async (
     // Fetch existing system groups for this tenant
     const existing = await db0.UserGroups
       .Where((g) => g.TenantId === tenantId0).Where((g) => g.IsSystemGroup === one)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Build a set of existing group names
     const existingNames: Record<string, boolean> = {};
-    for (let i = 0; i < existing.length; i++) {
-      existingNames[existing[i].Name] = true;
+    for (let i = 0; i < existing.Count; i++) {
+      const group = existing[i];
+      existingNames[group.Name] = true;
     }
 
     const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;

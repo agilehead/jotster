@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { initiateExportDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 
 export const handleCreateExport = async (
   req: Request,
@@ -15,8 +16,8 @@ export const handleCreateExport = async (
   }
 
   const user = authResult.data;
-  const body = req.body as Record<string, unknown>;
-  const exportType = (body["export_type"] as string) ?? "full";
+  const body = getBodyObject(req);
+  const exportType = getOptionalStringField(body, "export_type") ?? "full";
 
   const result = await initiateExportDomain(app.options, user, exportType);
   if (!result.success) {

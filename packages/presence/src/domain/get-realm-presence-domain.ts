@@ -96,12 +96,13 @@ export const getRealmPresenceDomain = async (
     const tenantId0 = user.tenantId;
     const users = await db0.Users
       .Where((u) => u.TenantId === tenantId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Build userId -> email map
     const emailMap: Record<string, string> = {};
-    for (let i = 0; i < users.length; i++) {
-      emailMap[users[i].Id] = users[i].Email;
+    for (let i = 0; i < users.Count; i++) {
+      const currentUser = users[i];
+      emailMap[currentUser.Id] = currentUser.Email;
     }
 
     const presences: Record<string, Record<string, ClientPresence>> = {};

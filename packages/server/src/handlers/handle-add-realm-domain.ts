@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { addRealmDomainDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalBooleanField, getOptionalStringField } from "../helpers/body.ts";
 
 export const handleAddRealmDomain = async (
   req: Request,
@@ -15,15 +16,15 @@ export const handleAddRealmDomain = async (
   }
 
   const user = authResult.data;
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
 
-  const domain = body["domain"] as string;
+  const domain = getOptionalStringField(body, "domain");
   if (!domain) {
     res.status(400).json({ result: "error", msg: "Missing domain" });
     return;
   }
 
-  const allowSubdomains = body["allow_subdomains"] === true;
+  const allowSubdomains = getOptionalBooleanField(body, "allow_subdomains") ?? false;
 
   const result = await addRealmDomainDomain(app.options, user, domain, allowSubdomains);
   if (!result.success) {

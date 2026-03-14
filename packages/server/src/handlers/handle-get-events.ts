@@ -3,7 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getEventsFromQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { toOptionalInt } from "../helpers/body.ts";
+import { getOptionalStringField, toOptionalInt } from "../helpers/body.ts";
 
 export const handleGetEvents = async (
   req: Request,
@@ -17,14 +17,15 @@ export const handleGetEvents = async (
   }
 
   const user = authResult.data;
+  const query = req.query as Record<string, unknown>;
 
-  const queueId = req.query["queue_id"] as string | undefined;
+  const queueId = getOptionalStringField(query, "queue_id");
   if (!queueId) {
     res.status(400).json({ result: "error", msg: "Missing required parameter: queue_id" });
     return;
   }
 
-  const lastEventIdRaw = req.query["last_event_id"] as string | undefined;
+  const lastEventIdRaw = getOptionalStringField(query, "last_event_id");
   if (lastEventIdRaw === undefined) {
     res.status(400).json({ result: "error", msg: "Missing required parameter: last_event_id" });
     return;
@@ -35,7 +36,7 @@ export const handleGetEvents = async (
     return;
   }
 
-  const dontBlock = req.query["dont_block"] === "true";
+  const dontBlock = getOptionalStringField(query, "dont_block") === "true";
 
   const result = await getEventsFromQueue(user.tenantId, user.userId, queueId, lastEventId, dontBlock);
 

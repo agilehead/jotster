@@ -152,7 +152,7 @@ export const buildInitialState = async (
 
     const subscriptions = new List<Record<string, unknown>>();
 
-    for (let i = 0; i < userSubs.length; i++) {
+    for (let i = 0; i < userSubs.Count; i++) {
       const sub = userSubs[i];
       const ch = channelMap[sub.ChannelId];
       if (ch === undefined) {

@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteQueueById } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -17,8 +17,9 @@ export const handleDeleteQueue = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
+  const query = req.query as Record<string, unknown>;
 
-  const queueId = (body["queue_id"] ?? req.query["queue_id"]) as string | undefined;
+  const queueId = getOptionalStringField(body, "queue_id") ?? getOptionalStringField(query, "queue_id");
   if (!queueId) {
     res.status(400).json({ result: "error", msg: "Missing required parameter: queue_id" });
     return;

@@ -11,6 +11,6 @@
   },
   "scripts": {
     "typecheck": "cd ../.. && ${TSONIC_BIN:-tsonic} restore --project core && cd packages/core && tsc -p tsconfig.json",
-    "build": "cd ../.. && ${TSONIC_BIN:-tsonic} build --project core"
+    "build": "cd ../.. && ${TSONIC_BIN:-tsonic} build --project core && bash ./scripts/generate-ef-compiled-model.sh"
   }
 }

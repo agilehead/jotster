@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringArrayField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { removeAlertWordsDomain } from "@jotster/notifications/Jotster.Notifications.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -18,13 +18,11 @@ export const handleRemoveAlertWords = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const alertWordsRaw = body["alert_words"] as string;
-  if (!alertWordsRaw) {
+  const words = getOptionalStringArrayField(body, "alert_words");
+  if (words === undefined) {
     res.status(400).json({ result: "error", msg: "Missing required field: alert_words" });
     return;
   }
-
-  const words = JSON.parse(alertWordsRaw) as string[];
 
   const result = await removeAlertWordsDomain(app.options, user, words);
   if (!result.success) {

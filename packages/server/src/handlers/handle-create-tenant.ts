@@ -1,6 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { createTenantAdmin } from "@jotster/auth/Jotster.Auth.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 
 export const handleCreateTenant = async (
   req: Request,
@@ -10,15 +11,15 @@ export const handleCreateTenant = async (
   const authHeader = req.get("authorization") ?? "";
   const rootToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7).trim() : "";
 
-  const body = req.body as Record<string, unknown>;
-  const subdomain = body["subdomain"] as string | undefined;
-  const name = body["name"] as string | undefined;
-  const description = body["description"] as string | undefined;
-  const adminEmail = body["admin_email"] as string | undefined;
-  const adminPassword = body["admin_password"] as string | undefined;
+  const body = getBodyObject(req);
+  const subdomain = getOptionalStringField(body, "subdomain");
+  const name = getOptionalStringField(body, "name");
+  const description = getOptionalStringField(body, "description");
+  const adminEmail = getOptionalStringField(body, "admin_email");
+  const adminPassword = getOptionalStringField(body, "admin_password");
 
-  if (!subdomain || !name || !adminEmail || !adminPassword) {
-    res.status(400).json({ result: "error", msg: "Missing required fields: subdomain, name, admin_email, admin_password" });
+  if (!subdomain || !name) {
+    res.status(400).json({ result: "error", msg: "Missing required fields: subdomain, name" });
     return;
   }
 

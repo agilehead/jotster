@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalStringArrayField, getOptionalStringField } from "../helpers/body.ts";
 
 export const handleCreateChannelFolder = async (
   req: Request,
@@ -15,15 +16,15 @@ export const handleCreateChannelFolder = async (
   }
 
   const user = authResult.data;
-  const body = req.body as Record<string, unknown>;
+  const body = getBodyObject(req);
 
-  const name = body["name"] as string | undefined;
+  const name = getOptionalStringField(body, "name");
   if (name === undefined || name === null) {
     res.status(400).json({ result: "error", msg: "Missing required field: name" });
     return;
   }
 
-  const channels = body["channels"] as string[] | undefined;
+  const channels = getOptionalStringArrayField(body, "channels");
 
   const result = await createChannelFolderDomain(app.options, user, ({
     name,

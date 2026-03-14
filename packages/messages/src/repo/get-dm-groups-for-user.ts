@@ -16,11 +16,12 @@ export const getDmGroupsForUser = async (
     // Get all DmGroupMember rows for this user
     const memberships = await db0.DmGroupMembers
       .Where((m) => m.UserId === userId0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     const groups = new List<DmGroup>();
-    for (let i = 0; i < memberships.length; i++) {
-      const dmGroupId0 = memberships[i].DmGroupId;
+    for (let i = 0; i < memberships.Count; i++) {
+      const membership = memberships[i];
+      const dmGroupId0 = membership.DmGroupId;
       const group = await db0.DmGroups
         .Where((g) => g.Id === dmGroupId0).Where((g) => g.TenantId === tenantId0)
         .FirstOrDefaultAsync();

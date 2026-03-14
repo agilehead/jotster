@@ -17,21 +17,6 @@ export const registerDeviceDomain = async (
     return err("Token must not be empty");
   }
 
-  // For APNs tokens, validate hex format
-  if (kind === "apns") {
-    const trimmedToken = token.trim();
-    for (let i = 0; i < trimmedToken.length; i++) {
-      const c = trimmedToken[i];
-      const isHex =
-        (c >= "0" && c <= "9") ||
-        (c >= "a" && c <= "f") ||
-        (c >= "A" && c <= "F");
-      if (!isHex) {
-        return err("Invalid APNs token: must be hexadecimal");
-      }
-    }
-  }
-
   // Check if same token is registered to a different user — if so, unregister from other user first
   const existingTokens = await getTokensByToken(options, user.tenantId, token);
   for (let i = 0; i < existingTokens.length; i++) {

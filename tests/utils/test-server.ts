@@ -1,13 +1,14 @@
 import { spawn, type ChildProcess } from "child_process";
 import { existsSync } from "fs";
+import net from "net";
 import path from "path";
 import { TEST_DB_PATH } from "./test-environment.js";
 
-const SERVER_PORT = 9877;
 const SERVER_HOST = "127.0.0.1";
 const BUILD_OUTPUT_DIR = path.resolve("packages/server/generated/bin/Release/net10.0/linux-x64");
 const NATIVE_BINARY_PATH = path.join(BUILD_OUTPUT_DIR, "jotster");
 const MANAGED_BINARY_PATH = path.join(BUILD_OUTPUT_DIR, "jotster.dll");
+const TEST_BASE_URL_ENV = "JOTSTER_TEST_BASE_URL";
 
 type LaunchTarget = {
   command: string;
@@ -35,14 +36,33 @@ function resolveLaunchTarget(): LaunchTarget | null {
   return null;
 }
 
+async function allocatePort(): Promise<number> {
+  return await new Promise<number>((resolve, reject) => {
+    const server = net.createServer();
+    server.on("error", reject);
+    server.listen(0, SERVER_HOST, () => {
+      const address = server.address();
+      if (address === null || typeof address === "string") {
+        server.close(() => reject(new Error("Failed to allocate test server port.")));
+        return;
+      }
+
+      const { port } = address;
+      server.close((closeErr) => {
+        if (closeErr) {
+          reject(closeErr);
+          return;
+        }
+        resolve(port);
+      });
+    });
+  });
+}
+
 export class TestServer {
   private process: ChildProcess | null = null;
-  private baseUrl: string;
+  private baseUrl = "";
   private recentOutput: string[] = [];
-
-  constructor() {
-    this.baseUrl = `http://${SERVER_HOST}:${SERVER_PORT}`;
-  }
 
   async start(): Promise<void> {
     const launchTarget = resolveLaunchTarget();
@@ -51,6 +71,9 @@ export class TestServer {
         `Server build output not found. Checked ${NATIVE_BINARY_PATH} and ${MANAGED_BINARY_PATH}. Run the server build before tests.`,
       );
     }
+    const port = await allocatePort();
+    this.baseUrl = `http://${SERVER_HOST}:${port}`;
+    process.env[TEST_BASE_URL_ENV] = this.baseUrl;
 
     this.process = spawn(launchTarget.command, launchTarget.args, {
       env: {
@@ -70,10 +93,22 @@ export class TestServer {
   }
 
   async stop(): Promise<void> {
-    if (this.process) {
-      this.process.kill("SIGTERM");
-      this.process = null;
+    const child = this.process;
+    this.process = null;
+    delete process.env[TEST_BASE_URL_ENV];
+
+    if (child === null) {
+      return;
     }
+
+    child.stdout?.removeAllListeners("data");
+    child.stderr?.removeAllListeners("data");
+
+    if (child.exitCode !== null || child.signalCode !== null) {
+      return;
+    }
+
+    await this.terminate(child);
   }
 
   getBaseUrl(): string {
@@ -112,6 +147,38 @@ export class TestServer {
     this.recentOutput.push(chunk);
     if (this.recentOutput.length > 20) {
       this.recentOutput.shift();
+    }
+  }
+
+  private async terminate(child: ChildProcess): Promise<void> {
+    const waitForExit = () =>
+      new Promise<void>((resolve, reject) => {
+        const onExit = () => {
+          child.off("error", onError);
+          resolve();
+        };
+        const onError = (error: Error) => {
+          child.off("exit", onExit);
+          reject(error);
+        };
+
+        child.once("exit", onExit);
+        child.once("error", onError);
+      });
+
+    child.kill("SIGTERM");
+
+    try {
+      await Promise.race([
+        waitForExit(),
+        new Promise<void>((_, reject) => {
+          setTimeout(() => reject(new Error("Timed out waiting for test server to stop.")), 5000);
+        }),
+      ]);
+      return;
+    } catch {
+      child.kill("SIGKILL");
+      await waitForExit();
     }
   }
 }

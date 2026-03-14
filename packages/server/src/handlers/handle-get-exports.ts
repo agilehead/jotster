@@ -16,13 +16,17 @@ export const handleGetExports = async (
   }
 
   const user = authResult.data;
+  if (user.role > 200) {
+    res.status(403).json({ result: "error", msg: "Admin required" });
+    return;
+  }
 
   const exports = await getExports(app.options, user.tenantId);
 
   const entries: Record<string, unknown>[] = [];
   for (let i = 0; i < exports.length; i++) {
     const e = exports[i];
-    entries[entries.length] = {
+    const entry: Record<string, unknown> = {
       id: e.Id,
       acting_user_id: e.RequesterId,
       export_time: ClrMath.Floor(Convert.ToDouble(e.CreatedAt) / 1000),
@@ -32,6 +36,7 @@ export const handleGetExports = async (
       pending: e.Status === "pending" || e.Status === "in_progress",
       export_type: e.ExportType,
     };
+    entries.push(entry);
   }
 
   res.json({ result: "success", msg: "", exports: entries });

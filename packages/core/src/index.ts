@@ -1,3 +1,5 @@
+import "./db/design-time-dbcontext-factory.ts";
+
 // Types
 export { ok, err } from "./types/result.ts";
 export type { Result, Ok, Err } from "./types/result.ts";

@@ -1,10 +1,92 @@
 import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, toOptionalFlagInt, toOptionalInt } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalFlagIntField,
+  getOptionalIntField,
+  getOptionalJsonArrayField,
+} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { subscribeDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
+
+const getOptionalObjectField = (source: unknown, key: string): unknown => {
+  if (source === undefined || source === null || typeof source !== "object" || Array.isArray(source)) {
+    return undefined;
+  }
+
+  for (const [entryKey, entryValue] of Object.entries(source)) {
+    if (entryKey === key) {
+      return entryValue;
+    }
+  }
+
+  return undefined;
+};
+
+const toSubscriptionEntries = (value: unknown[] | undefined): { name: string; description?: string }[] | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const result = new List<{ name: string; description?: string }>();
+  for (let i = 0; i < value.length; i++) {
+    const entry = value[i];
+    if (entry === undefined || entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+      return undefined;
+    }
+    const nameValue = getOptionalObjectField(entry, "name");
+    const name = typeof nameValue === "string" ? (nameValue as string) : undefined;
+    if (name === undefined) {
+      return undefined;
+    }
+    const descriptionValue = getOptionalObjectField(entry, "description");
+    const description = typeof descriptionValue === "string" ? (descriptionValue as string) : undefined;
+    result.Add({ name, description });
+  }
+  return result.ToArray();
+};
+
+const toStringArray = (value: unknown[] | undefined): string[] | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const result = new List<string>();
+  for (let i = 0; i < value.length; i++) {
+    const entry = value[i];
+    if (typeof entry !== "string") {
+      return undefined;
+    }
+    result.Add(entry as string);
+  }
+  return result.ToArray();
+};
+
+const appendChannels = (
+  target: Record<string, string[]>,
+  email: string,
+  channels: string[]
+): void => {
+  const merged = new List<string>();
+  const existing = getOptionalObjectField(target, email);
+  if (existing !== undefined && Array.isArray(existing)) {
+    const existingValues = existing as unknown[];
+    for (let i = 0; i < existingValues.length; i++) {
+      const entry = existingValues[i];
+      if (typeof entry === "string") {
+        merged.Add(entry as string);
+      }
+    }
+  }
+
+  for (let i = 0; i < channels.length; i++) {
+    merged.Add(channels[i]);
+  }
+
+  target[email] = merged.ToArray();
+};
 
 export const handleSubscribe = async (
   req: Request,
@@ -20,21 +102,18 @@ export const handleSubscribe = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const subscriptionsRaw = body["subscriptions"] as string;
-  if (!subscriptionsRaw) {
+  const subscriptions = toSubscriptionEntries(getOptionalJsonArrayField(body, "subscriptions"));
+  if (!subscriptions || subscriptions.length === 0) {
     res.status(400).json({ result: "error", msg: "Missing required field: subscriptions" });
     return;
   }
 
-  const subscriptions = JSON.parse(subscriptionsRaw) as { name: string; description?: string }[];
+  const principals = toStringArray(getOptionalJsonArrayField(body, "principals"));
 
-  const principalsRaw = body["principals"] as string | undefined;
-  const principals = principalsRaw ? JSON.parse(principalsRaw) as string[] : undefined;
-
-  const inviteOnly = toOptionalFlagInt(body["invite_only"]);
-  const isWebPublic = toOptionalFlagInt(body["is_web_public"]);
-  const historyPublicToSubscribers = toOptionalFlagInt(body["history_public_to_subscribers"]);
-  const messageRetentionDays = toOptionalInt(body["message_retention_days"]);
+  const inviteOnly = getOptionalFlagIntField(body, "invite_only");
+  const isWebPublic = getOptionalFlagIntField(body, "is_web_public");
+  const historyPublicToSubscribers = getOptionalFlagIntField(body, "history_public_to_subscribers");
+  const messageRetentionDays = getOptionalIntField(body, "message_retention_days");
 
   const createParams: {
     isPrivate?: int;
@@ -59,41 +138,19 @@ export const handleSubscribe = async (
       return;
     }
 
-    const subscribed = result.data.subscribed as Record<string, string[]>;
-    const alreadySubscribed = result.data.alreadySubscribed as Record<string, string[]>;
+    const subscribed = result.data.subscribed;
+    const alreadySubscribed = result.data.alreadySubscribed;
 
-    const subscribedKeys = Object.keys(subscribed);
+    const subscribedKeys = subscribed.Keys;
     for (let j = 0; j < subscribedKeys.length; j++) {
       const key = subscribedKeys[j];
-      if (!mergedSubscribed[key]) {
-        mergedSubscribed[key] = [];
-      }
-      const values = subscribed[key];
-      const mergedSubList = new List<string>();
-      for (let mi = 0; mi < mergedSubscribed[key].length; mi++) {
-        mergedSubList.Add(mergedSubscribed[key][mi]);
-      }
-      for (let k = 0; k < values.length; k++) {
-        mergedSubList.Add(values[k]);
-      }
-      mergedSubscribed[key] = mergedSubList.ToArray();
+      appendChannels(mergedSubscribed, key, subscribed[key]);
     }
 
-    const alreadyKeys = Object.keys(alreadySubscribed);
+    const alreadyKeys = alreadySubscribed.Keys;
     for (let j = 0; j < alreadyKeys.length; j++) {
       const key = alreadyKeys[j];
-      if (!mergedAlreadySubscribed[key]) {
-        mergedAlreadySubscribed[key] = [];
-      }
-      const values = alreadySubscribed[key];
-      const mergedAlreadyList = new List<string>();
-      for (let mi = 0; mi < mergedAlreadySubscribed[key].length; mi++) {
-        mergedAlreadyList.Add(mergedAlreadySubscribed[key][mi]);
-      }
-      for (let k = 0; k < values.length; k++) {
-        mergedAlreadyList.Add(values[k]);
-      }
-      mergedAlreadySubscribed[key] = mergedAlreadyList.ToArray();
+      appendChannels(mergedAlreadySubscribed, key, alreadySubscribed[key]);
     }
   }
 

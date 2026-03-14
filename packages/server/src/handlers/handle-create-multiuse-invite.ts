@@ -3,7 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createMultiuseLinkDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
+import { getBodyObject, getOptionalField, getOptionalStringArrayField, hasField, toOptionalInt } from "../helpers/body.ts";
 
 export const handleCreateMultiuseInvite = async (
   req: Request,
@@ -19,19 +19,10 @@ export const handleCreateMultiuseInvite = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  // Parse stream_ids (channel_ids) if provided
-  let channelIds: string[] = [];
-  const streamIdsRaw = body["stream_ids"] as string;
-  if (streamIdsRaw) {
-    try {
-      channelIds = JSON.parse(streamIdsRaw) as string[];
-    } catch {
-      // Ignore parse errors, use empty array
-    }
-  }
+  const channelIds = getOptionalStringArrayField(body, "stream_ids") ?? [];
 
-  const parsedInviteAsRole = toOptionalInt(body["invite_as"]);
-  if (body["invite_as"] !== undefined && parsedInviteAsRole === undefined) {
+  const parsedInviteAsRole = toOptionalInt(getOptionalField(body, "invite_as"));
+  if (hasField(body, "invite_as") && parsedInviteAsRole === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid invite_as" });
     return;
   }

@@ -68,7 +68,7 @@ describe("GET /api/v1/events", function () {
       const res = await client.get("/events", {
         queue_id: queueId,
         last_event_id: String(lastEventId),
-      });
+      }, { signal: controller.signal });
 
       // If the server responds before the timeout, validate the response
       expect(res.status).to.equal(200);

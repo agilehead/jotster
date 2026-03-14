@@ -39,10 +39,11 @@ export const updateChannelFolder = async (
       // Remove existing items
       const existingItems = await db0.ChannelFolderItems
         .Where((item) => item.ChannelFolderId === folderId0)
-        .ToArrayAsync();
+        .ToListAsync();
 
-      for (let i = 0; i < existingItems.length; i++) {
-        db0.ChannelFolderItems.Remove(existingItems[i]);
+      for (let i = 0; i < existingItems.Count; i++) {
+        const existingItem = existingItems[i];
+        db0.ChannelFolderItems.Remove(existingItem);
       }
 
       // Add new items

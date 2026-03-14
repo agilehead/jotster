@@ -3,6 +3,7 @@ import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getChannelsDomain } from "@jotster/channels/Jotster.Channels.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getOptionalStringField } from "../helpers/body.ts";
 
 export const handleGetStreams = async (
   req: Request,
@@ -16,7 +17,7 @@ export const handleGetStreams = async (
   }
 
   const user = authResult.data;
-  const includeArchived = (req.query["include_archived"] as string ?? "0") === "1";
+  const includeArchived = (getOptionalStringField(req.query as Record<string, unknown>, "include_archived") ?? "0") === "1";
 
   const channels = await getChannelsDomain(app.options, user, includeArchived);
 
@@ -39,5 +40,9 @@ export const handleGetStreams = async (
     streams.Add(s);
   }
 
-  res.json({ streams: streams.ToArray() });
+  const payload: Record<string, unknown> = {};
+  payload["result"] = "success";
+  payload["msg"] = "";
+  payload["streams"] = streams.ToArray();
+  res.json(payload);
 };

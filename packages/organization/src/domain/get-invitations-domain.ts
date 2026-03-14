@@ -11,17 +11,15 @@ export const getInvitationsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser
 ): Promise<Result<Record<string, unknown>[], string>> => {
-  // Admin can see all, others can only list their own
+  if (user.role > 200) {
+    return err("Admin required");
+  }
+
   const allInvitations = await getInvitations(options, user.tenantId);
 
   const result = new List<Record<string, unknown>>();
   for (let i = 0; i < allInvitations.length; i++) {
     const inv = allInvitations[i];
-
-    // Non-admins can only see their own invitations
-    if (user.role > 200 && inv.InviterId !== user.userId) {
-      continue;
-    }
 
     const obj: Record<string, unknown> = {};
     obj["id"] = inv.Id;

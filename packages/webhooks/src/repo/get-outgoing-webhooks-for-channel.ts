@@ -15,11 +15,11 @@ export const getOutgoingWebhooksForChannel = async (
     const triggerType0 = "channel";
     const allChannelWebhooks = await db0.OutgoingWebhooks
       .Where((w) => w.TenantId === tenantId0).Where((w) => w.TriggerType === triggerType0)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Filter in JS by parsing ChannelIdsJson
     const matched = new List<OutgoingWebhook>();
-    for (let i = 0; i < allChannelWebhooks.length; i++) {
+    for (let i = 0; i < allChannelWebhooks.Count; i++) {
       const webhook = allChannelWebhooks[i];
       if (webhook.ChannelIdsJson !== undefined && webhook.ChannelIdsJson !== null) {
         try {
@@ -28,13 +28,13 @@ export const getOutgoingWebhooksForChannel = async (
             continue;
           }
           for (let j = 0; j < channelIds.length; j++) {
-            if (channelIds[j] === channelId) {
+            const currentChannelId = channelIds[j];
+            if (currentChannelId === channelId) {
               matched.Add(webhook);
               break;
             }
           }
         } catch (_e) {
-          // Invalid JSON, skip this webhook
         }
       }
     }

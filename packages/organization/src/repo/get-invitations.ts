@@ -18,11 +18,11 @@ export const getInvitations = async (
     const result = await db0.Invitations
       .Where((x) => x.TenantId === tenantId0).Where((x) => x.Status === status0)
       .OrderByDescending((x) => x.CreatedAt)
-      .ToArrayAsync();
+      .ToListAsync();
 
     // Filter out expired invitations in application code
     const filtered = new List<Invitation>();
-    for (let i = 0; i < result.length; i++) {
+    for (let i = 0; i < result.Count; i++) {
       const inv = result[i];
       if (inv.ExpiresAt === undefined || inv.ExpiresAt > now0) {
         filtered.Add(inv);

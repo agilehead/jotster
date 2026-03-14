@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { setUserStatusDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -18,10 +18,10 @@ export const handleSetUserStatus = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const statusText = body["status_text"] as string | undefined;
-  const emojiName = body["emoji_name"] as string | undefined;
-  const emojiCode = body["emoji_code"] as string | undefined;
-  const reactionType = body["reaction_type"] as string | undefined;
+  const statusText = getOptionalStringField(body, "status_text");
+  const emojiName = getOptionalStringField(body, "emoji_name");
+  const emojiCode = getOptionalStringField(body, "emoji_code");
+  const reactionType = getOptionalStringField(body, "reaction_type");
 
   const result = await setUserStatusDomain(app.options, user, { statusText, emojiName, emojiCode, reactionType });
   if (!result.success) {

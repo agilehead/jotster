@@ -17,7 +17,7 @@ export const buildExportEventPayload = (exports: DataExport[]): DomainEvent => {
   const entries: ExportEventEntry[] = [];
   for (let i = 0; i < exports.length; i++) {
     const e = exports[i];
-    entries[entries.length] = {
+    const entry: ExportEventEntry = {
       id: e.Id,
       acting_user_id: e.RequesterId,
       export_time: ClrMath.Floor(Convert.ToDouble(e.CreatedAt) / 1000),
@@ -27,6 +27,7 @@ export const buildExportEventPayload = (exports: DataExport[]): DomainEvent => {
       pending: e.Status === "pending" || e.Status === "in_progress",
       export_type: e.ExportType,
     };
+    entries.push(entry);
   }
   return {
     type: "realm_export",
