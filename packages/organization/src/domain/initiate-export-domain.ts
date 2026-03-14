@@ -1,6 +1,6 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
-import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getExports } from "../repo/get-exports.ts";
 import { createExport } from "../repo/create-export.ts";
@@ -12,9 +12,37 @@ export const initiateExportDomain = async (
   user: AuthenticatedUser,
   exportType: string
 ): Promise<Result<string, string>> => {
+  if (
+    exportType !== "public" &&
+    exportType !== "full_with_consent" &&
+    exportType !== "full_without_consent"
+  ) {
+    return err("Invalid export type");
+  }
+
   // Validate user is admin (role <= 200)
   if (user.role > 200) {
     return err("Insufficient permission");
+  }
+
+  if (exportType === "full_without_consent") {
+    const db = new JotsterDbContext(options);
+    try {
+      const tenantId0 = user.tenantId;
+      const tenant = await db.Tenants
+        .Where((entry) => entry.Id === tenantId0)
+        .FirstOrDefaultAsync();
+
+      if (tenant === undefined || tenant === null || tenant.OwnerFullContentAccess !== 1) {
+        return err("Exports of all public and private data are not enabled for this organization.");
+      }
+    } finally {
+      db.Dispose();
+    }
+
+    if (user.role !== 100) {
+      return err("Must be an organization owner");
+    }
   }
 
   // Check no other export with status "pending" or "in_progress" for this tenant

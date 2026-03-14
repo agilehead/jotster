@@ -44,6 +44,7 @@ export class UserSetting {
   SendPrivateTypingNotifications!: int;
   SendStreamTypingNotifications!: int;
   SendReadReceipts!: int;
+  AllowPrivateDataExport!: int;
   EmailAddressVisibility!: int;
   RealmNameInEmailNotificationsPolicy!: int;
   AutomaticallyFollowTopicsPolicy!: int;

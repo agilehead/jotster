@@ -16,6 +16,7 @@ export async function seedTenant(
     subdomain: string;
     name: string;
     settingsJson: string;
+    ownerFullContentAccess: number;
   }>
 ): Promise<string> {
   const id = overrides?.id ?? `tenant_${randomId()}`;
@@ -26,6 +27,7 @@ export async function seedTenant(
     name: overrides?.name ?? "Test Org",
     description: "",
     settings_json: overrides?.settingsJson ?? "{}",
+    owner_full_content_access: overrides?.ownerFullContentAccess ?? 0,
     active: 1,
     created_at: now,
     updated_at: now,
@@ -86,6 +88,60 @@ export async function seedUser(
     delivery_email: email,
     created_at: now,
     updated_at: now,
+  });
+
+  await db("user_setting").insert({
+    user_id: userId,
+    tenant_id: tenantId,
+    twenty_four_hour_time: 0,
+    dense_mode: 0,
+    web_font_size_px: 14,
+    web_line_height_percent: 122,
+    starred_message_counts: 1,
+    fluid_layout_width: 0,
+    high_contrast_mode: 0,
+    color_scheme: 3,
+    translate_emoticons: 1,
+    display_emoji_reaction_users: 1,
+    default_language: "en",
+    default_view: "recent_topics",
+    escape_navigates_to_default_view: 1,
+    left_side_userlist: 0,
+    emojiset: "google",
+    demote_inactive_streams: 1,
+    enable_stream_desktop_notifications: 0,
+    enable_stream_email_notifications: 0,
+    enable_stream_push_notifications: 0,
+    enable_stream_audible_notifications: 0,
+    notification_sound: "zulip",
+    enable_desktop_notifications: 1,
+    enable_sounds: 1,
+    enable_offline_email_notifications: 1,
+    enable_offline_push_notifications: 1,
+    enable_online_push_notifications: 1,
+    enable_followed_topic_desktop_notifications: 1,
+    enable_followed_topic_email_notifications: 0,
+    enable_followed_topic_push_notifications: 1,
+    enable_followed_topic_audible_notifications: 0,
+    email_notifications_batching_period_seconds: 120,
+    enable_drafts_synchronization: 1,
+    message_content_in_email_notifications: 1,
+    pm_content_in_desktop_notifications: 1,
+    wildcard_mentions_notify: 1,
+    presence_enabled: 1,
+    send_private_typing_notifications: 1,
+    send_stream_typing_notifications: 1,
+    send_read_receipts: 1,
+    allow_private_data_export: 0,
+    email_address_visibility: 1,
+    realm_name_in_email_notifications_policy: 1,
+    automatically_follow_topics_policy: 0,
+    automatically_unmute_topics_in_muted_streams_policy: 0,
+    automatically_follow_topics_where_mentioned: 1,
+    user_list_style: 1,
+    web_stream_unreads_count_display_policy: 1,
+    web_navigate_to_sent_message: 1,
+    web_channel_default_view: 1,
   });
 
   // Create an API key for the user

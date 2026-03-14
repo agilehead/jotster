@@ -11,6 +11,7 @@ export class Tenant {
   IconUrl?: string;
   LogoUrl?: string;
   SettingsJson!: string;
+  OwnerFullContentAccess!: int;
   Active!: int;
   CreatedAt!: long;
   UpdatedAt!: long;
