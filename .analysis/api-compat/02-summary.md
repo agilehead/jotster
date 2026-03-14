@@ -21,3 +21,19 @@ The only remaining missing operations are the user-approved scope exclusions:
 ## Caveat
 
 This report now confirms route presence and direct endpoint test coverage for every in-scope Zulip operation. It still does not prove exhaustive response-schema, permission-matrix, or error-message parity beyond the assertions in the Jotster test suite.
+
+## Current semantic depth
+
+- Event payload parity is now explicitly covered for:
+  - `alert_words`
+  - `drafts`
+  - `channel_folder`
+  - `user_group`
+  - `custom_profile_fields`
+- Persisted-object parity is already covered for:
+  - `navigation_view`
+  - `saved_snippets`
+  - `reminders`
+  - `scheduled_messages`
+- Current full suite status on this branch:
+  - `npm test` → `292 passing`

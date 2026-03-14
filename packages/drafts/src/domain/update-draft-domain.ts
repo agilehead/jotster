@@ -1,9 +1,9 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
-import { Convert } from "@tsonic/dotnet/System.js";
 import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { updateDraft } from "../repo/update-draft.ts";
+import { mapDraftToCompatRecord } from "./map-draft-to-compat-record.ts";
 
 interface UpdateDraftDomainInput {
   type?: string;
@@ -37,18 +37,12 @@ export const updateDraftDomain = async (
     return err("Draft not found");
   }
 
-  const formatted: Record<string, unknown> = {};
-  formatted["id"] = draft.Id;
-  formatted["type"] = draft.Type;
-  formatted["to"] = draft.Type === "stream" ? (draft.ChannelId ?? "") : (draft.RecipientIdsJson ?? "[]");
-  formatted["topic"] = draft.Topic ?? "";
-  formatted["content"] = draft.Content;
-  formatted["timestamp"] = Convert.ToDouble(draft.UpdatedAt) / 1000;
-
   dispatchEventToUser(user.tenantId, user.userId, {
     type: "drafts",
     op: "update",
-    data: formatted,
+    data: {
+      draft: mapDraftToCompatRecord(draft),
+    },
   });
 
   return ok(undefined);

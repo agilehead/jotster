@@ -12,6 +12,9 @@ const serializeQueueEvent = (value: object): Record<string, unknown> => {
     if (key === "data") {
       continue;
     }
+    if (key === "op" && (payloadValue === undefined || payloadValue === null)) {
+      continue;
+    }
     serialized[key] = payloadValue;
   }
 

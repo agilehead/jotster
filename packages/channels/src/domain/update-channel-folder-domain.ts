@@ -6,6 +6,7 @@ import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.j
 import { getChannelFolderById } from "../repo/get-channel-folder-by-id.ts";
 import { getChannelFolders } from "../repo/get-channel-folders.ts";
 import { updateChannelFolder } from "../repo/update-channel-folder.ts";
+import { mapChannelFolderUpdateData } from "./map-channel-folder-event.ts";
 
 interface UpdateChannelFolderDomainInput {
   name?: string;
@@ -60,14 +61,9 @@ export const updateChannelFolderDomain = async (
   const folderWithItems = await getChannelFolderById(options, folderId);
 
   if (folderWithItems !== undefined) {
-    const folderObj: Record<string, unknown> = {};
-    folderObj["id"] = updated.Id;
-    folderObj["name"] = updated.Name;
-    folderObj["description"] = updated.Description;
-    folderObj["is_archived"] = updated.IsArchived === 1;
-    folderObj["ordering"] = updated.Ordering;
     const eventData: Record<string, unknown> = {};
-    eventData["channel_folder"] = folderObj;
+    eventData["channel_folder_id"] = updated.Id;
+    eventData["data"] = mapChannelFolderUpdateData(updated, updates);
     dispatchEventToTenant(user.tenantId, {
       type: "channel_folder",
       op: "update",

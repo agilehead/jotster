@@ -5,6 +5,7 @@ import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.j
 import { createChannelFolder } from "../repo/create-channel-folder.ts";
 import { getChannelFolderById } from "../repo/get-channel-folder-by-id.ts";
 import { getChannelFolders } from "../repo/get-channel-folders.ts";
+import { mapChannelFolderToAddEventRecord } from "./map-channel-folder-event.ts";
 
 interface CreateChannelFolderDomainInput {
   name: string;
@@ -45,14 +46,8 @@ export const createChannelFolderDomain = async (
   const folderWithItems = await getChannelFolderById(options, folder.Id);
 
   if (folderWithItems !== undefined) {
-    const folderObj: Record<string, unknown> = {};
-    folderObj["id"] = folder.Id;
-    folderObj["name"] = folder.Name;
-    folderObj["description"] = folder.Description;
-    folderObj["is_archived"] = folder.IsArchived === 1;
-    folderObj["ordering"] = folder.Ordering;
     const eventData: Record<string, unknown> = {};
-    eventData["channel_folder"] = folderObj;
+    eventData["channel_folder"] = mapChannelFolderToAddEventRecord(folder);
     dispatchEventToTenant(user.tenantId, {
       type: "channel_folder",
       op: "add",

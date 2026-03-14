@@ -20,6 +20,8 @@ import {
 import { renderMarkdownDomain, sendMessage, findOrCreateDmGroup, getMessage } from "@jotster/messages/Jotster.Messages.js";
 import { regenerateApiKey } from "@jotster/auth/Jotster.Auth.js";
 import { setUserStatus } from "@jotster/presence/Jotster.Presence.js";
+import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { mapCustomProfileFieldToCompatRecord } from "@jotster/users/Jotster.Users.js";
 
 const nowMilliseconds = (): long => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
@@ -393,6 +395,13 @@ export const reorderChannelFolders = async (
     }
 
     await db.SaveChangesAsync();
+    dispatchEventToTenant(user.tenantId, {
+      type: "channel_folder",
+      op: "reorder",
+      data: {
+        order: orderedIds,
+      },
+    });
     return true;
   } finally {
     db.Dispose();
@@ -526,6 +535,22 @@ export const reorderCustomProfileFields = async (
     }
 
     await db.SaveChangesAsync();
+    const payloadFields: Record<string, unknown>[] = [];
+    for (let i = 0; i < orderedIds.length; i++) {
+      const orderedId = orderedIds[i];
+      for (let j = 0; j < fields.Count; j++) {
+        if (fields[j].Id === orderedId) {
+          payloadFields.push(mapCustomProfileFieldToCompatRecord(fields[j]));
+          break;
+        }
+      }
+    }
+    dispatchEventToTenant(tenantId, {
+      type: "custom_profile_fields",
+      data: {
+        fields: payloadFields,
+      },
+    });
     return true;
   } finally {
     db.Dispose();

@@ -88,15 +88,35 @@ export const updateUserGroupDomain = async (
   } else {
     data["op"] = "update";
     data["group_id"] = groupId;
+    const changedData: Record<string, unknown> = {};
     if (updates.name !== undefined) {
-      data["name"] = updated.Name;
+      changedData["name"] = updated.Name;
     }
     if (updates.description !== undefined) {
-      data["description"] = updated.Description;
+      changedData["description"] = updated.Description;
+    }
+    if (updates.canAddMembersGroupId !== undefined) {
+      changedData["can_add_members_group"] = updated.CanAddMembersGroupId ?? null;
+    }
+    if (updates.canJoinGroupId !== undefined) {
+      changedData["can_join_group"] = updated.CanJoinGroupId ?? null;
+    }
+    if (updates.canLeaveGroupId !== undefined) {
+      changedData["can_leave_group"] = updated.CanLeaveGroupId ?? null;
+    }
+    if (updates.canManageGroupId !== undefined) {
+      changedData["can_manage_group"] = updated.CanManageGroupId ?? null;
+    }
+    if (updates.canMentionGroupId !== undefined) {
+      changedData["can_mention_group"] = updated.CanMentionGroupId ?? null;
+    }
+    if (updates.canRemoveMembersGroupId !== undefined) {
+      changedData["can_remove_members_group"] = updated.CanRemoveMembersGroupId ?? null;
     }
     if (updates.deactivated === false) {
-      data["deactivated"] = updated.IsActive !== 1;
+      changedData["deactivated"] = updated.IsActive !== 1;
     }
+    data["data"] = changedData;
   }
 
   dispatchEventToTenant(user.tenantId, {

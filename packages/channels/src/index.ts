@@ -36,3 +36,4 @@ export { getChannelFoldersDomain } from "./domain/get-channel-folders-domain.ts"
 export { createChannelFolderDomain } from "./domain/create-channel-folder-domain.ts";
 export { updateChannelFolderDomain } from "./domain/update-channel-folder-domain.ts";
 export { deleteChannelFolderDomain } from "./domain/delete-channel-folder-domain.ts";
+export { mapChannelFolderToAddEventRecord, mapChannelFolderUpdateData } from "./domain/map-channel-folder-event.ts";
