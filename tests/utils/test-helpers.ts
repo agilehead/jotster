@@ -15,6 +15,8 @@ export async function seedTenant(
     id: string;
     subdomain: string;
     name: string;
+    description: string;
+    iconUrl: string;
     settingsJson: string;
     ownerFullContentAccess: number;
   }>
@@ -25,7 +27,8 @@ export async function seedTenant(
     id,
     subdomain: overrides?.subdomain ?? `test-${randomId()}`,
     name: overrides?.name ?? "Test Org",
-    description: "",
+    description: overrides?.description ?? "",
+    icon_url: overrides?.iconUrl ?? null,
     settings_json: overrides?.settingsJson ?? "{}",
     owner_full_content_access: overrides?.ownerFullContentAccess ?? 0,
     active: 1,

@@ -226,6 +226,61 @@ describe("POST /api/v1/register", function () {
     ]);
   });
 
+  it("should include custom_profile_fields and realm_user_settings_defaults state when requested", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+
+    const fieldRes = await admin.client.post("/realm/profile_fields", {
+      name: "GitHub",
+      hint: "Your GitHub username",
+      field_type: "7",
+      field_data: "{\"subtype\":\"github\"}",
+      required: "true",
+      editable_by_user: "false",
+      use_for_user_matching: "true",
+      display_in_profile_summary: "true",
+    });
+    expect(fieldRes.status).to.equal(200);
+
+    const settingsRes = await admin.client.patch("/realm/user_settings_defaults", {
+      twenty_four_hour_time: "true",
+      notification_sound: "ding",
+    });
+    expect(settingsRes.status).to.equal(200);
+
+    const registerRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["custom_profile_fields", "realm_user_settings_defaults"]),
+    });
+    expect(registerRes.status).to.equal(200);
+    expect(registerRes.body.custom_profile_fields).to.deep.equal([
+      {
+        id: fieldRes.body.id,
+        name: "GitHub",
+        hint: "Your GitHub username",
+        type: 7,
+        field_data: "{\"subtype\":\"github\"}",
+        order: 1,
+        display_in_profile_summary: true,
+        required: true,
+        editable_by_user: false,
+        use_for_user_matching: true,
+      },
+    ]);
+
+    expect(registerRes.body.realm_user_settings_defaults.twenty_four_hour_time).to.equal(true);
+    expect(registerRes.body.realm_user_settings_defaults.notification_sound).to.equal("ding");
+    expect(registerRes.body.realm_user_settings_defaults.emojiset).to.equal("google");
+    expect(registerRes.body.realm_user_settings_defaults.emojiset_choices).to.deep.equal([
+      { key: "google", text: "Google" },
+      { key: "twitter", text: "Twitter" },
+      { key: "text", text: "Plain text" },
+    ]);
+    expect(registerRes.body.realm_user_settings_defaults.available_notification_sounds).to.include("ding");
+    expect(registerRes.body.realm_user_settings_defaults.available_notification_sounds).to.include("zulip");
+    expect(registerRes.body.realm_user_settings_defaults.resolved_topic_notice_auto_read_policy).to.equal("always");
+  });
+
   it("should omit deactivated groups from register state unless include_deactivated_groups is set", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

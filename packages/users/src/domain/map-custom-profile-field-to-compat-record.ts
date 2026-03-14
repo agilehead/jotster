@@ -14,7 +14,10 @@ export const mapCustomProfileFieldToCompatRecord = (
   if (field.DisplayInProfileSummary === (1 as int)) {
     record["display_in_profile_summary"] = true;
   }
-  record["required"] = false;
-  record["editable_by_user"] = true;
+  record["required"] = field.Required === (1 as int);
+  record["editable_by_user"] = field.EditableByUser === (1 as int);
+  if (field.UseForUserMatching === (1 as int)) {
+    record["use_for_user_matching"] = true;
+  }
   return record;
 };

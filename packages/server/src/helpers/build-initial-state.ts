@@ -17,6 +17,8 @@ import { getSubscriptionsForUser } from "@jotster/subscriptions/Jotster.Subscrip
 import { getChannels, getChannelSubscribers } from "@jotster/channels/Jotster.Channels.js";
 import type { RegisterParams } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getUserGroupsDomain } from "@jotster/permissions/Jotster.Permissions.js";
+import { getUserSettingDefaults } from "@jotster/organization/Jotster.Organization.js";
+import { getCustomProfileFieldsDomain } from "@jotster/users/Jotster.Users.js";
 import {
   listLinkifiers,
   listNavigationViews,
@@ -31,6 +33,7 @@ import {
   mapSavedSnippetToCompatResponse,
   mapScheduledMessageToCompatResponse,
 } from "./compat-mappers.ts";
+import { buildRealmUserSettingDefaultsState } from "./realm-user-setting-defaults.ts";
 
 const mapUserToZulip = (u: {
   Id: string;
@@ -440,13 +443,19 @@ export const buildInitialState = async (
     state.realm_linkifiers = realmLinkifiers;
   }
 
+  if (shouldInclude("realm_user_settings_defaults")) {
+    const defaults = await getUserSettingDefaults(options, tenantId);
+    state.realm_user_settings_defaults = buildRealmUserSettingDefaultsState(defaults);
+  }
+
   // --- Empty/default sections for not-yet-implemented modules ---
   if (shouldInclude("alert_words")) {
     state.alert_words = [];
   }
 
   if (shouldInclude("custom_profile_fields")) {
-    state.custom_profile_fields = [];
+    const fieldsResult = await getCustomProfileFieldsDomain(options, compatRequester);
+    state.custom_profile_fields = fieldsResult.success ? fieldsResult.data : [];
   }
 
   if (shouldInclude("drafts")) {

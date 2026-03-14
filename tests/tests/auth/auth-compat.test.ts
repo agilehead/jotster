@@ -224,6 +224,14 @@ describe("Auth compatibility endpoints", () => {
 
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
+    expect(res.body.msg).to.equal("");
+    expect(Object.keys(res.body).sort()).to.deep.equal([
+      "api_key",
+      "email",
+      "msg",
+      "result",
+      "user_id",
+    ]);
     expect(res.body.email).to.equal(seeded.email);
     expect(res.body.user_id).to.equal(seeded.userId);
     expect(res.body.api_key).to.equal(seeded.apiKey);
@@ -341,13 +349,17 @@ describe("Auth compatibility endpoints", () => {
     const tenantA = await seedTenant(db, { subdomain: "alpha" });
     const tenantB = await seedTenant(db, { subdomain: "beta" });
     const owner = await seedUser(db, tenantA, { role: 100 });
+    const secondOwner = await seedUser(db, tenantA, { role: 200, email: "zeta-admin@test.local" });
     const member = await seedUser(db, tenantB, { role: 400 });
+    const secondMember = await seedUser(db, tenantB, { email: "alpha-member@test.local" });
     const bot = await seedUser(db, tenantB, {
       email: `bot-${Date.now()}@test.local`,
       isBot: 1,
       botType: 1,
       botOwnerId: owner.userId,
     });
+    const inactive = await seedUser(db, tenantB, { email: "inactive@test.local" });
+    await db("user").where({ id: inactive.userId }).update({ is_active: 0 });
 
     const client = await createAnonymousTenantClient(tenantA);
     const res = await client.get("/dev_list_users");
@@ -357,12 +369,27 @@ describe("Auth compatibility endpoints", () => {
 
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
+    expect(res.body.msg).to.equal("");
+    expect(Object.keys(res.body).sort()).to.deep.equal([
+      "direct_admins",
+      "direct_users",
+      "msg",
+      "result",
+    ]);
     const directAdmins = res.body.direct_admins as Array<Record<string, unknown>>;
     const directUsers = res.body.direct_users as Array<Record<string, unknown>>;
-    expect(directAdmins.some((entry) => entry.email === owner.email && entry.realm_url === alphaRealmUrl)).to.equal(true);
-    expect(directUsers.some((entry) => entry.email === member.email && entry.realm_url === betaRealmUrl)).to.equal(true);
+    expect(directAdmins).to.deep.equal([
+      { email: owner.email, realm_url: alphaRealmUrl },
+      { email: secondOwner.email, realm_url: alphaRealmUrl },
+    ]);
+    expect(directUsers).to.deep.equal([
+      { email: secondMember.email, realm_url: betaRealmUrl },
+      { email: member.email, realm_url: betaRealmUrl },
+    ]);
     expect(directAdmins.some((entry) => entry.email === bot.email)).to.equal(false);
     expect(directUsers.some((entry) => entry.email === bot.email)).to.equal(false);
+    expect(directAdmins.some((entry) => entry.email === inactive.email)).to.equal(false);
+    expect(directUsers.some((entry) => entry.email === inactive.email)).to.equal(false);
   });
 
   it("GET /api/v1/dev_list_users should reject when dev auth is disabled", async () => {

@@ -11,6 +11,9 @@ export class CustomProfileField {
   FieldType!: int;
   FieldDataJson!: string;
   DisplayInProfileSummary!: int;
+  Required!: int;
+  EditableByUser!: int;
+  UseForUserMatching!: int;
   Ordering!: int;
   CreatedAt!: long;
 }

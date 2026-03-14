@@ -40,6 +40,14 @@ describe("POST /api/v1/fetch_api_key", () => {
 
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
+    expect(res.body.msg).to.equal("");
+    expect(Object.keys(res.body).sort()).to.deep.equal([
+      "api_key",
+      "email",
+      "msg",
+      "result",
+      "user_id",
+    ]);
     expect(res.body.api_key).to.equal(seeded.apiKey);
     expect(res.body.email).to.equal(seeded.email);
     expect(res.body.user_id).to.equal(seeded.userId);

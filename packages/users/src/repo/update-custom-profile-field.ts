@@ -6,7 +6,17 @@ export const updateCustomProfileField = async (
   options: DbContextOptions,
   tenantId: string,
   fieldId: string,
-  updates: { name?: string; hint?: string; fieldType?: int; fieldDataJson?: string; displayInProfileSummary?: int; ordering?: int }
+  updates: {
+    name?: string;
+    hint?: string;
+    fieldType?: int;
+    fieldDataJson?: string;
+    displayInProfileSummary?: int;
+    required?: int;
+    editableByUser?: int;
+    useForUserMatching?: int;
+    ordering?: int;
+  }
 ): Promise<CustomProfileField | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -35,6 +45,15 @@ export const updateCustomProfileField = async (
     }
     if (updates.displayInProfileSummary !== undefined) {
       field.DisplayInProfileSummary = updates.displayInProfileSummary;
+    }
+    if (updates.required !== undefined) {
+      field.Required = updates.required;
+    }
+    if (updates.editableByUser !== undefined) {
+      field.EditableByUser = updates.editableByUser;
+    }
+    if (updates.useForUserMatching !== undefined) {
+      field.UseForUserMatching = updates.useForUserMatching;
     }
     if (updates.ordering !== undefined) {
       field.Ordering = updates.ordering;

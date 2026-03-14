@@ -430,7 +430,7 @@ describe("Semantic Zulip event compatibility", function () {
     });
   });
 
-  it("should emit custom_profile_fields events with required and editable_by_user metadata", async () => {
+  it("should emit custom_profile_fields events with Zulip-compatible metadata", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
@@ -440,6 +440,9 @@ describe("Semantic Zulip event compatibility", function () {
       name: "Phone number",
       hint: "Work phone",
       field_type: "1",
+      required: "true",
+      editable_by_user: "false",
+      use_for_user_matching: "true",
     });
     expect(createRes.status).to.equal(200);
     const firstFieldId = createRes.body.id as string;
@@ -454,8 +457,9 @@ describe("Semantic Zulip event compatibility", function () {
         type: 1,
         field_data: "",
         order: 1,
-        required: false,
-        editable_by_user: true,
+        required: true,
+        editable_by_user: false,
+        use_for_user_matching: true,
       },
     ]);
 
@@ -472,8 +476,9 @@ describe("Semantic Zulip event compatibility", function () {
           type: 1,
           field_data: "",
           order: 1,
-          required: false,
-          editable_by_user: true,
+          required: true,
+          editable_by_user: false,
+          use_for_user_matching: true,
         },
       ],
     });
@@ -498,8 +503,9 @@ describe("Semantic Zulip event compatibility", function () {
           field_data: "",
           order: 1,
           display_in_profile_summary: true,
-          required: false,
-          editable_by_user: true,
+          required: true,
+          editable_by_user: false,
+          use_for_user_matching: true,
         },
       ],
     });
@@ -545,8 +551,9 @@ describe("Semantic Zulip event compatibility", function () {
           field_data: "",
           order: 1,
           display_in_profile_summary: true,
-          required: false,
-          editable_by_user: true,
+          required: true,
+          editable_by_user: false,
+          use_for_user_matching: true,
         },
       ],
     });
@@ -572,5 +579,37 @@ describe("Semantic Zulip event compatibility", function () {
         },
       ],
     });
+  });
+
+  it("should emit realm_user_settings_defaults update events per property", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+    const { queueId, lastEventId } = await registerQueue(admin.client, ["realm_user_settings_defaults"]);
+
+    const updateRes = await admin.client.patch("/realm/user_settings_defaults", {
+      twenty_four_hour_time: "true",
+      notification_sound: "ding",
+    });
+    expect(updateRes.status).to.equal(200);
+
+    const events = await getEvents(admin.client, queueId, lastEventId);
+    expect(events).to.have.length(2);
+    expect(events).to.deep.equal([
+      {
+        id: events[0].id,
+        type: "realm_user_settings_defaults",
+        op: "update",
+        property: "twenty_four_hour_time",
+        value: true,
+      },
+      {
+        id: events[1].id,
+        type: "realm_user_settings_defaults",
+        op: "update",
+        property: "notification_sound",
+        value: "ding",
+      },
+    ]);
   });
 });

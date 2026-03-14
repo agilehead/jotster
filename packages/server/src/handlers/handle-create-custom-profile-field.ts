@@ -17,12 +17,16 @@ export const handleCreateCustomProfileField = async (
   }
 
   const user = authResult.data;
+  if (user.role > 200) {
+    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    return;
+  }
   const body = getBodyObject(req);
 
   const name = getOptionalStringField(body, "name");
   const fieldType = getOptionalIntField(body, "field_type");
 
-  if (!name || fieldType === undefined) {
+  if (name === undefined || fieldType === undefined) {
     res.status(400).json({ result: "error", msg: "Missing required fields: name, field_type" });
     return;
   }
@@ -34,6 +38,21 @@ export const handleCreateCustomProfileField = async (
     res.status(400).json({ result: "error", msg: "Invalid display_in_profile_summary" });
     return;
   }
+  const required = getOptionalFlagIntField(body, "required");
+  if (hasField(body, "required") && required === undefined) {
+    res.status(400).json({ result: "error", msg: "required is not valid JSON" });
+    return;
+  }
+  const editableByUser = getOptionalFlagIntField(body, "editable_by_user");
+  if (hasField(body, "editable_by_user") && editableByUser === undefined) {
+    res.status(400).json({ result: "error", msg: "editable_by_user is not valid JSON" });
+    return;
+  }
+  const useForUserMatching = getOptionalFlagIntField(body, "use_for_user_matching");
+  if (hasField(body, "use_for_user_matching") && useForUserMatching === undefined) {
+    res.status(400).json({ result: "error", msg: "use_for_user_matching is not valid JSON" });
+    return;
+  }
 
   const result = await createCustomProfileFieldDomain(app.options, user, ({
     name,
@@ -41,6 +60,9 @@ export const handleCreateCustomProfileField = async (
     fieldType,
     fieldDataJson: fieldData,
     displayInProfileSummary,
+    required,
+    editableByUser,
+    useForUserMatching,
   }));
 
   if (!result.success) {

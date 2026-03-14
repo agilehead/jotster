@@ -13,6 +13,9 @@ interface CreateFieldInput {
   fieldType: int;
   fieldDataJson?: string;
   displayInProfileSummary?: int;
+  required?: int;
+  editableByUser?: int;
+  useForUserMatching?: int;
 }
 
 export const createCustomProfileFieldDomain = async (
@@ -25,13 +28,35 @@ export const createCustomProfileFieldDomain = async (
   }
 
   if (input.name.trim().length === 0) {
-    return err("Name is required");
+    return err("Label cannot be blank.");
+  }
+
+  if (input.displayInProfileSummary === (1 as int) && input.fieldType === (6 as int)) {
+    return err("Field type not supported for display in profile summary.");
+  }
+
+  if (input.useForUserMatching === (1 as int) && input.fieldType !== (1 as int) && input.fieldType !== (7 as int)) {
+    return err("Field type not supported for use for user matching.");
+  }
+
+  let displayInSummaryCount = 0 as int;
+  const existing = await getCustomProfileFields(options, actingUser.tenantId);
+  for (let i = 0; i < existing.length; i++) {
+    if (existing[i].DisplayInProfileSummary === (1 as int)) {
+      displayInSummaryCount = (displayInSummaryCount + 1) as int;
+    }
+  }
+
+  if (input.displayInProfileSummary === (1 as int) && displayInSummaryCount >= (2 as int)) {
+    return err("Only 2 custom profile fields can be displayed in the profile summary.");
   }
 
   // Determine ordering: place at end
-  const existing = await getCustomProfileFields(options, actingUser.tenantId);
   let maxOrdering = 0 as int;
   for (let i = 0; i < existing.length; i++) {
+    if (existing[i].Name === input.name.trim()) {
+      return err("A field with that label already exists.");
+    }
     if (existing[i].Ordering > maxOrdering) {
       maxOrdering = existing[i].Ordering;
     }
@@ -45,6 +70,9 @@ export const createCustomProfileFieldDomain = async (
     fieldType: input.fieldType,
     fieldDataJson: input.fieldDataJson ?? "",
     displayInProfileSummary: input.displayInProfileSummary ?? (0 as int),
+    required: input.required ?? (0 as int),
+    editableByUser: input.editableByUser ?? (1 as int),
+    useForUserMatching: input.useForUserMatching ?? (0 as int),
     ordering: nextOrdering,
   });
 

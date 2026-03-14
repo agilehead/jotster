@@ -17,7 +17,7 @@ export const deleteCustomProfileFieldDomain = async (
 
   const deleted = await deleteCustomProfileField(options, actingUser.tenantId, fieldId);
   if (!deleted) {
-    return err("Custom profile field not found");
+    return err("Field id " + fieldId + " not found.");
   }
 
   // Re-fetch remaining fields to broadcast current state
