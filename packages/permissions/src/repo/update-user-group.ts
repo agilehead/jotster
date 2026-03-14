@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, UserGroup } from "@jotster/core/Jotster.Core.js";
@@ -11,6 +11,8 @@ interface UpdateUserGroupInput {
   canLeaveGroupId?: string;
   canManageGroupId?: string;
   canMentionGroupId?: string;
+  canRemoveMembersGroupId?: string;
+  deactivated?: boolean;
 }
 
 export const updateUserGroup = async (
@@ -50,6 +52,12 @@ export const updateUserGroup = async (
     }
     if (updates.canMentionGroupId !== undefined) {
       group.CanMentionGroupId = updates.canMentionGroupId;
+    }
+    if (updates.canRemoveMembersGroupId !== undefined) {
+      group.CanRemoveMembersGroupId = updates.canRemoveMembersGroupId;
+    }
+    if (updates.deactivated === false) {
+      group.IsActive = 1 as int;
     }
 
     group.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;

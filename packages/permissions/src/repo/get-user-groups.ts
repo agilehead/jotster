@@ -4,16 +4,20 @@ import { JotsterDbContext, UserGroup } from "@jotster/core/Jotster.Core.js";
 
 export const getUserGroups = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: string,
+  includeDeactivated?: boolean,
 ): Promise<UserGroup[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    const one = 1 as int;
-    const result = await db0.UserGroups
-      .Where((g) => g.TenantId === tenantId0).Where((g) => g.IsActive === one)
-      .ToArrayAsync();
+    let query = db0.UserGroups
+      .Where((g) => g.TenantId === tenantId0);
+    if (includeDeactivated !== true) {
+      const one = 1 as int;
+      query = query.Where((g) => g.IsActive === one);
+    }
+    const result = await query.ToArrayAsync();
     return result;
   } finally {
     db.Dispose();

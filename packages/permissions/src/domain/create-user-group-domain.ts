@@ -14,6 +14,7 @@ interface CreateUserGroupDomainInput {
   canLeaveGroupId?: string;
   canManageGroupId?: string;
   canMentionGroupId?: string;
+  canRemoveMembersGroupId?: string;
 }
 
 export const createUserGroupDomain = async (
@@ -37,6 +38,7 @@ export const createUserGroupDomain = async (
 
   const group = await createUserGroup(options, {
     tenantId: user.tenantId,
+    creatorId: user.userId,
     name,
     description: input.description,
     canAddMembersGroupId: input.canAddMembersGroupId,
@@ -44,6 +46,7 @@ export const createUserGroupDomain = async (
     canLeaveGroupId: input.canLeaveGroupId,
     canManageGroupId: input.canManageGroupId,
     canMentionGroupId: input.canMentionGroupId,
+    canRemoveMembersGroupId: input.canRemoveMembersGroupId,
   });
 
   const members = input.members ?? [];
@@ -67,6 +70,10 @@ export const createUserGroupDomain = async (
         can_leave_group: group.CanLeaveGroupId ?? null,
         can_manage_group: group.CanManageGroupId ?? null,
         can_mention_group: group.CanMentionGroupId ?? null,
+        can_remove_members_group: group.CanRemoveMembersGroupId ?? null,
+        creator_id: group.CreatorId ?? null,
+        date_created: group.CreatedAt,
+        deactivated: group.IsActive !== 1,
       },
     },
   });

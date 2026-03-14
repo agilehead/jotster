@@ -34,6 +34,7 @@ export const handleCreateUserGroup = async (
     canLeaveGroupId: getOptionalStringField(body, "can_leave_group"),
     canManageGroupId: getOptionalStringField(body, "can_manage_group"),
     canMentionGroupId: getOptionalStringField(body, "can_mention_group"),
+    canRemoveMembersGroupId: getOptionalStringField(body, "can_remove_members_group"),
   }));
 
   if (!result.success) {
@@ -49,11 +50,15 @@ export const handleCreateUserGroup = async (
   g["is_system_group"] = group.IsSystemGroup === 1;
   g["members"] = members ?? ([] as string[]);
   g["direct_subgroup_ids"] = [];
+  g["creator_id"] = group.CreatorId ?? null;
+  g["date_created"] = group.CreatedAt;
   g["can_add_members_group"] = group.CanAddMembersGroupId ?? null;
   g["can_join_group"] = group.CanJoinGroupId ?? null;
   g["can_leave_group"] = group.CanLeaveGroupId ?? null;
   g["can_manage_group"] = group.CanManageGroupId ?? null;
   g["can_mention_group"] = group.CanMentionGroupId ?? null;
+  g["can_remove_members_group"] = group.CanRemoveMembersGroupId ?? null;
+  g["deactivated"] = group.IsActive !== 1;
 
   res.json({ result: "success", msg: "", group: g });
 };

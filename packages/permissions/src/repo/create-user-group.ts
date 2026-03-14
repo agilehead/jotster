@@ -5,6 +5,7 @@ import { JotsterDbContext, UserGroup, generateId } from "@jotster/core/Jotster.C
 
 interface CreateUserGroupInput {
   tenantId: string;
+  creatorId?: string;
   name: string;
   description?: string;
   canAddMembersGroupId?: string;
@@ -12,6 +13,7 @@ interface CreateUserGroupInput {
   canLeaveGroupId?: string;
   canManageGroupId?: string;
   canMentionGroupId?: string;
+  canRemoveMembersGroupId?: string;
 }
 
 export const createUserGroup = async (
@@ -26,11 +28,13 @@ export const createUserGroup = async (
   group.Name = input.name;
   group.Description = input.description ?? "";
   group.IsSystemGroup = 0 as int;
+  group.CreatorId = input.creatorId;
   group.CanAddMembersGroupId = input.canAddMembersGroupId;
   group.CanJoinGroupId = input.canJoinGroupId;
   group.CanLeaveGroupId = input.canLeaveGroupId;
   group.CanManageGroupId = input.canManageGroupId;
   group.CanMentionGroupId = input.canMentionGroupId;
+  group.CanRemoveMembersGroupId = input.canRemoveMembersGroupId ?? input.canManageGroupId;
   group.IsActive = 1 as int;
   group.CreatedAt = now;
   group.UpdatedAt = now;

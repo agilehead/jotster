@@ -9,11 +9,13 @@ export class UserGroup {
   Name!: string;
   Description!: string;
   IsSystemGroup!: int;
+  CreatorId?: string;
   CanAddMembersGroupId?: string;
   CanJoinGroupId?: string;
   CanLeaveGroupId?: string;
   CanManageGroupId?: string;
   CanMentionGroupId?: string;
+  CanRemoveMembersGroupId?: string;
   IsActive!: int;
   CreatedAt!: long;
   UpdatedAt!: long;
