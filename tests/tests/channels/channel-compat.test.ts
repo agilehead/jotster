@@ -118,10 +118,14 @@ describe("Channel compatibility endpoints", () => {
 
     const membersRes = await owner.client.get(`/streams/${channelId}/members`);
     expect(membersRes.status).to.equal(200);
+    expect(membersRes.body.result).to.equal("success");
+    expect(membersRes.body.msg).to.equal("");
     expect((membersRes.body.subscribers as string[]).slice().sort()).to.deep.equal([owner.userId, other.userId].sort());
 
     const topicsRes = await owner.client.get(`/users/me/${channelId}/topics`);
     expect(topicsRes.status).to.equal(200);
+    expect(topicsRes.body.result).to.equal("success");
+    expect(topicsRes.body.msg).to.equal("");
     const topics = topicsRes.body.topics as Array<Record<string, unknown>>;
     expect(topics).to.have.length(2);
     expect(topics[0].name).to.equal("random");

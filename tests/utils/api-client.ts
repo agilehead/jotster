@@ -8,8 +8,21 @@ export type ApiResponse = {
   body: Record<string, unknown>;
 };
 
+export type BinaryApiResponse = {
+  status: number;
+  body: Buffer;
+  headers: Record<string, string | string[] | undefined>;
+};
+
 type RequestOptions = {
   signal?: AbortSignal;
+};
+
+export type MultipartFile = {
+  content: Buffer;
+  contentType: string;
+  filename: string;
+  fieldName?: string;
 };
 
 const toFormFieldValue = (value: unknown): string => {
@@ -112,8 +125,58 @@ export class ApiClient {
     return this.request(new URL(`${this.baseUrl}${path}`), "GET", undefined, options);
   }
 
+  async getRawBuffer(path: string, options?: RequestOptions): Promise<BinaryApiResponse> {
+    return this.requestBuffer(new URL(`${this.baseUrl}${path}`), "GET", undefined, options);
+  }
+
   async patchRaw(path: string, data?: Record<string, unknown>, options?: RequestOptions): Promise<ApiResponse> {
     return this.request(new URL(`${this.baseUrl}${path}`), "PATCH", data, options);
+  }
+
+  async postMultipart(
+    path: string,
+    fields: Record<string, unknown> | undefined,
+    file: MultipartFile,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
+    const boundary = "----jotster-test-boundary-" + Math.random().toString(16).slice(2);
+    const buffers: Buffer[] = [];
+
+    for (const [key, value] of Object.entries(fields ?? {})) {
+      buffers.push(Buffer.from(`--${boundary}\r\n`));
+      buffers.push(Buffer.from(`Content-Disposition: form-data; name="${key}"\r\n\r\n`));
+      buffers.push(Buffer.from(toFormFieldValue(value)));
+      buffers.push(Buffer.from("\r\n"));
+    }
+
+    const fieldName = file.fieldName ?? "filename";
+    buffers.push(Buffer.from(`--${boundary}\r\n`));
+    buffers.push(
+      Buffer.from(
+        `Content-Disposition: form-data; name="${fieldName}"; filename="${file.filename}"\r\n`,
+      ),
+    );
+    buffers.push(Buffer.from(`Content-Type: ${file.contentType}\r\n\r\n`));
+    buffers.push(file.content);
+    buffers.push(Buffer.from(`\r\n--${boundary}--\r\n`));
+
+    const response = await this.requestBuffer(
+      new URL(`${this.baseUrl}${ZULIP_API_BASE}${path}`),
+      "POST",
+      {
+        payload: Buffer.concat(buffers),
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${boundary}`,
+        },
+      },
+      options,
+    );
+
+    const text = response.body.toString("utf8");
+    return {
+      status: response.status,
+      body: JSON.parse(text) as Record<string, unknown>,
+    };
   }
 
   private async request(
@@ -122,22 +185,59 @@ export class ApiClient {
     data?: Record<string, unknown>,
     options?: RequestOptions,
   ): Promise<ApiResponse> {
-    const payload = data
-      ? new URLSearchParams(
-          Object.entries(data).map(([key, value]) => [key, toFormFieldValue(value)]),
-        ).toString()
-      : undefined;
-    const headers = this.withAuthHeaders(
+    const payload = data === undefined
+      ? undefined
+      : Buffer.from(
+          new URLSearchParams(
+            Object.entries(data).map(([key, value]) => [key, toFormFieldValue(value)]),
+          ).toString(),
+        );
+    const response = await this.requestBuffer(
+      url,
+      method,
       payload === undefined
         ? undefined
         : {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": Buffer.byteLength(payload).toString(),
+            payload,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          },
+      options,
+    );
+    const text = response.body.toString("utf8");
+    if (text === "") {
+      return { status: response.status, body: {} };
+    }
+
+    return {
+      status: response.status,
+      body: JSON.parse(text) as Record<string, unknown>,
+    };
+  }
+
+  private async requestBuffer(
+    url: URL,
+    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
+    request:
+      | {
+          payload: Buffer;
+          headers?: Record<string, string>;
+        }
+      | undefined,
+    options?: RequestOptions,
+  ): Promise<BinaryApiResponse> {
+    const transport = url.protocol === "https:" ? https : http;
+    const headers = this.withAuthHeaders(
+      request === undefined
+        ? undefined
+        : {
+            ...(request.headers ?? {}),
+            "Content-Length": request.payload.byteLength.toString(),
           },
     );
-    const transport = url.protocol === "https:" ? https : http;
 
-    return await new Promise<ApiResponse>((resolve, reject) => {
+    return await new Promise<BinaryApiResponse>((resolve, reject) => {
       const req = transport.request(
         {
           protocol: url.protocol,
@@ -154,33 +254,19 @@ export class ApiClient {
             chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
           });
           res.on("end", () => {
-            const text = Buffer.concat(chunks).toString("utf8");
-            if (text === "") {
-              resolve({ status: res.statusCode ?? 0, body: {} });
-              return;
-            }
-
-            try {
-              resolve({
-                status: res.statusCode ?? 0,
-                body: JSON.parse(text) as Record<string, unknown>,
-              });
-            } catch (error) {
-              reject(
-                new Error(
-                  `Failed to parse JSON response for ${method} ${url.toString()}: ${text}`,
-                  { cause: error },
-                ),
-              );
-            }
+            resolve({
+              status: res.statusCode ?? 0,
+              body: Buffer.concat(chunks),
+              headers: res.headers,
+            });
           });
         },
       );
 
       req.on("error", reject);
 
-      if (payload !== undefined) {
-        req.write(payload);
+      if (request !== undefined) {
+        req.write(request.payload);
       }
 
       req.end();

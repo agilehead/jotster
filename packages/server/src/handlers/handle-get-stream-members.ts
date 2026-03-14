@@ -23,5 +23,5 @@ export const handleGetStreamMembers = async (
     return;
   }
 
-  res.json({ subscribers: result.data });
+  res.json({ result: "success", msg: "", subscribers: result.data });
 };

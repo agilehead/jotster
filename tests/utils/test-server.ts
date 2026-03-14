@@ -2,7 +2,7 @@ import { spawn, type ChildProcess } from "child_process";
 import { existsSync } from "fs";
 import net from "net";
 import path from "path";
-import { TEST_DB_PATH } from "./test-environment.js";
+import { TEST_DB_PATH, TEST_UPLOADS_DIR } from "./test-environment.js";
 
 const SERVER_HOST = "127.0.0.1";
 const BUILD_OUTPUT_DIR = path.resolve("packages/server/generated/bin/Release/net10.0/linux-x64");
@@ -80,6 +80,7 @@ export class TestServer {
         ...process.env,
         JOTSTER_LISTEN_URL: this.baseUrl,
         JOTSTER_DB: TEST_DB_PATH,
+        JOTSTER_UPLOADS_DIR: TEST_UPLOADS_DIR,
         JOTSTER_ROOT_TOKEN: "test-root-token",
         JOTSTER_JWT_SECRET: "test-jwt-secret",
         JOTSTER_MODE: "multi-tenant",

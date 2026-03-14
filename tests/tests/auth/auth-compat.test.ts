@@ -82,8 +82,8 @@ describe("Auth compatibility endpoints", () => {
 
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
-    expect(res.body.email).to.equal(seeded.email);
-    expect(res.body.user_id).to.equal(seeded.userId);
+    expect(res.body).to.not.have.property("email");
+    expect(res.body).to.not.have.property("user_id");
     const regeneratedKey = res.body.api_key as string;
     expect(regeneratedKey).to.be.a("string").and.not.equal("");
     expect(regeneratedKey).to.not.equal(seeded.apiKey);

@@ -6,13 +6,17 @@ import { Convert } from "@tsonic/dotnet/System.js";
 import { getUserAttachments } from "../repo/get-user-attachments.ts";
 import { getAttachmentMessages } from "../repo/get-attachment-messages.ts";
 
-interface AttachmentInfo {
-  id: string;
-  name: string;
-  path_id: string;
-  size: number;
-  create_time: number;
-  messages: { id: string }[];
+export class AttachmentMessageInfo {
+  id!: string;
+}
+
+export class AttachmentInfo {
+  id!: string;
+  name!: string;
+  path_id!: string;
+  size!: number;
+  create_time!: number;
+  messages!: AttachmentMessageInfo[];
 }
 
 export const getAttachmentsDomain = async (
@@ -25,18 +29,20 @@ export const getAttachmentsDomain = async (
   for (let i = 0; i < attachments.length; i++) {
     const a = attachments[i];
     const links = await getAttachmentMessages(options, a.Id);
-    const messages = new List<{ id: string }>();
+    const messages = new List<AttachmentMessageInfo>();
     for (let j = 0; j < links.length; j++) {
-      messages.Add({ id: links[j].MessageId });
+      const message = new AttachmentMessageInfo();
+      message.id = links[j].MessageId;
+      messages.Add(message);
     }
-    result.Add({
-      id: a.Id,
-      name: a.FileName,
-      path_id: a.PathId,
-      size: a.Size,
-      create_time: Convert.ToDouble(a.CreatedAt) / 1000,
-      messages: messages.ToArray(),
-    });
+    const item = new AttachmentInfo();
+    item.id = a.Id;
+    item.name = a.FileName;
+    item.path_id = a.PathId;
+    item.size = a.Size;
+    item.create_time = Convert.ToDouble(a.CreatedAt) / 1000;
+    item.messages = messages.ToArray();
+    result.Add(item);
   }
 
   return ok({ attachments: result.ToArray() });
