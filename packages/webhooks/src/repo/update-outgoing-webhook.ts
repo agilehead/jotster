@@ -13,8 +13,8 @@ interface UpdateOutgoingWebhookInput {
 
 export const updateOutgoingWebhook = async (
   options: DbContextOptions,
-  tenantId: string,
-  botUserId: string,
+  tenantId: long,
+  botUserId: long,
   input: UpdateOutgoingWebhookInput
 ): Promise<OutgoingWebhook | undefined> => {
   const db = new JotsterDbContext(options);

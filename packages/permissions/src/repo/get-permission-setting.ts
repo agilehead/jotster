@@ -1,7 +1,7 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, parseId } from "@jotster/core/Jotster.Core.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 
@@ -26,9 +26,9 @@ const PERMISSION_DEFAULTS: Record<string, string> = {
 
 export const getPermissionSetting = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   settingName: string
-): Promise<Result<string, string>> => {
+): Promise<Result<long, string>> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
@@ -62,7 +62,11 @@ export const getPermissionSetting = async (
     const value = settings[settingName];
 
     if (value !== undefined) {
-      return ok(value);
+      const parsed = parseId(value);
+      if (parsed === undefined) {
+        return err("Invalid group ID in settings: " + value);
+      }
+      return ok(parsed as long);
     }
 
     // Setting not found — resolve from defaults

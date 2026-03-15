@@ -16,18 +16,18 @@ const createJwt = (payload: Record<string, unknown>, secret: string): string => 
 
 const getBaseUrl = (): string => process.env.JOTSTER_TEST_BASE_URL ?? "http://localhost:9877";
 
-const getTenantHostHeader = async (tenantId: string, baseUrl = getBaseUrl()): Promise<string> => {
+const getTenantHostHeader = async (tenantId: number, baseUrl = getBaseUrl()): Promise<string> => {
   const row = await testDb.getDb()("tenant").select("subdomain").where({ id: tenantId }).first();
   const subdomain = row?.subdomain as string;
   const port = new URL(baseUrl).port;
   return port === "" ? `${subdomain}.test.local` : `${subdomain}.test.local:${port}`;
 };
 
-const createTenantClient = async (tenantId: string, email: string, apiKey: string, baseUrl = getBaseUrl()) => {
+const createTenantClient = async (tenantId: number, email: string, apiKey: string, baseUrl = getBaseUrl()) => {
   return createApiClient(baseUrl, email, apiKey, await getTenantHostHeader(tenantId, baseUrl));
 };
 
-const createAnonymousTenantClient = async (tenantId: string, baseUrl = getBaseUrl()) => {
+const createAnonymousTenantClient = async (tenantId: number, baseUrl = getBaseUrl()) => {
   return createApiClient(baseUrl, "", "", await getTenantHostHeader(tenantId, baseUrl));
 };
 

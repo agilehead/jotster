@@ -1,8 +1,9 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserChannelsDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getOptionalStringField } from "../helpers/body.ts";
+import { getOptionalStringField, toLong} from "../helpers/body.ts";
 
 export const handleGetUserChannels = async (
   req: Request,
@@ -16,10 +17,14 @@ export const handleGetUserChannels = async (
   }
 
   const user = authResult.data;
-  const targetUserId = req.params["user_id"] as string;
+  const targetUserId = parseId(req.params["user_id"] as string);
+  if (targetUserId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid user_id" });
+    return;
+  }
   const includeSubscribers = (getOptionalStringField(req.query as Record<string, unknown>, "include_subscribers") ?? "0") === "1";
 
-  const result = await getUserChannelsDomain(app.options, user, targetUserId, includeSubscribers);
+  const result = await getUserChannelsDomain(app.options, user, toLong(targetUserId), includeSubscribers);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

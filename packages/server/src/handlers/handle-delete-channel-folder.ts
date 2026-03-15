@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleDeleteChannelFolder = async (
@@ -15,9 +17,13 @@ export const handleDeleteChannelFolder = async (
   }
 
   const user = authResult.data;
-  const folderId = req.params["folder_id"] as string;
+  const folderId = parseId(req.params["folder_id"] as string);
+  if (folderId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid folder_id" });
+    return;
+  }
 
-  const result = await deleteChannelFolderDomain(app.options, user, folderId);
+  const result = await deleteChannelFolderDomain(app.options, user, toLong(folderId));
   if (!result.success) {
     if (result.error === "Must be an organization administrator") {
       res.status(400).json({ result: "error", msg: result.error, code: "UNAUTHORIZED_PRINCIPAL" });

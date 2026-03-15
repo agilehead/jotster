@@ -109,8 +109,8 @@ describe("Message compatibility endpoints", () => {
     });
     expect(matchingRes.status).to.equal(200);
     const messages = matchingRes.body.messages as Record<string, Record<string, unknown>>;
-    expect(Object.keys(messages)).to.deep.equal([matchingMessageId]);
-    expect(messages[matchingMessageId].match_subject).to.equal("incident");
+    expect(Object.keys(messages)).to.deep.equal([`${matchingMessageId}`]);
+    expect(messages[`${matchingMessageId}`].match_subject).to.equal("incident");
   });
 
   it("messages narrow compat endpoints should reject invalid payloads", async () => {

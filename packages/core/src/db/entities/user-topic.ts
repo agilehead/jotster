@@ -5,9 +5,9 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class UserTopic {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
-  ChannelId!: string;
+  TenantId!: long;
+  UserId!: long;
+  ChannelId!: long;
   Topic!: string;
   VisibilityPolicy!: int;
   UpdatedAt!: long;

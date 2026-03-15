@@ -30,7 +30,7 @@ describe("DELETE /api/v1/users/{user_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const res = await client.delete("/users/nonexistent_id_999");
+    const res = await client.delete("/users/999999");
     expect(res.body.result).to.equal("error");
     expect(res.body.code).to.equal("BAD_REQUEST");
   });

@@ -4,8 +4,7 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Tenant {
-  Id!: string;
-  PublicId!: long;
+  Id!: long;
   Subdomain!: string;
   Name!: string;
   Description!: string;

@@ -6,7 +6,7 @@ import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 const getBaseUrl = (): string => process.env.JOTSTER_TEST_BASE_URL ?? "http://localhost:9877";
 
-const getTenantHostHeader = async (tenantId: string): Promise<string> => {
+const getTenantHostHeader = async (tenantId: number): Promise<string> => {
   const db = testDb.getDb();
   const row = await db("tenant").select("subdomain").where({ id: tenantId }).first();
   const subdomain = row?.subdomain as string;
@@ -14,11 +14,11 @@ const getTenantHostHeader = async (tenantId: string): Promise<string> => {
   return port === "" ? `${subdomain}.test.local` : `${subdomain}.test.local:${port}`;
 };
 
-const createAnonymousTenantClient = async (tenantId: string) => {
+const createAnonymousTenantClient = async (tenantId: number) => {
   return createApiClient(getBaseUrl(), "", "", await getTenantHostHeader(tenantId));
 };
 
-const setPassword = async (userId: string, password: string): Promise<void> => {
+const setPassword = async (userId: number, password: string): Promise<void> => {
   const salt = "testsalt";
   const digest = crypto.createHash("sha256").update(`${salt}:${password}`, "utf8").digest("hex");
   await testDb.getDb()("user").where({ id: userId }).update({ password_hash: `${salt}:${digest}` });

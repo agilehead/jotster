@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -7,7 +8,7 @@ import { deleteDraft } from "../repo/delete-draft.ts";
 export const deleteDraftDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  draftId: string
+  draftId: long
 ): Promise<Result<void, string>> => {
   const result = await deleteDraft(options, user.tenantId, user.userId, draftId);
   if (!result) {

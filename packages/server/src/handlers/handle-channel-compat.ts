@@ -1,20 +1,39 @@
+import type { long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { createChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { deleteTopicMessages, getStreamEmailAddress, reorderChannelFolders } from "../helpers/compat-db.ts";
-import { getBodyObject, getOptionalStringField, toOptionalStringArray } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField, toOptionalStringArray, toLong} from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
-const parseOrder = (value: unknown): string[] | undefined => {
-  if (Array.isArray(value)) {
-    const values = value as unknown[];
-    const result: string[] = [];
-    for (let i = 0; i < values.length; i++) {
-      result.push(`${values[i] ?? ""}`);
+const parseOrder = (value: unknown): long[] | undefined => {
+  const strings = toOptionalStringArray(value);
+  if (strings === undefined) {
+    if (Array.isArray(value)) {
+      const values = value as unknown[];
+      const result: long[] = [];
+      for (let i = 0; i < values.length; i++) {
+        const parsed = parseInt(`${values[i] ?? ""}`);
+        if (isNaN(parsed) || parsed < 1) {
+          return undefined;
+        }
+        result.push(Convert.ToInt64(parsed));
+      }
+      return result;
     }
-    return result;
+    return undefined;
   }
-  return toOptionalStringArray(value);
+  const result: long[] = [];
+  for (let i = 0; i < strings.length; i++) {
+    const parsed = parseId(strings[i]);
+    if (parsed === undefined) {
+      return undefined;
+    }
+    result.push(toLong(parsed));
+  }
+  return result;
 };
 
 export const handleCreateChannelFolderCompat = async (
@@ -95,7 +114,12 @@ export const handleGetStreamEmailAddressCompat = async (
     return;
   }
 
-  const emailAddress = await getStreamEmailAddress(app.options, requester.tenantId, req.params["stream_id"] as string);
+  const streamId = parseId(req.params["stream_id"] as string);
+  if (streamId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
+    return;
+  }
+  const emailAddress = await getStreamEmailAddress(app.options, requester.tenantId, toLong(streamId));
   if (emailAddress === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
     return;
@@ -121,10 +145,15 @@ export const handleDeleteTopicCompat = async (
     return;
   }
 
+  const deleteStreamId = parseId(req.params["stream_id"] as string);
+  if (deleteStreamId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
+    return;
+  }
   const complete = await deleteTopicMessages(
     app.options,
     requester.tenantId,
-    req.params["stream_id"] as string,
+    toLong(deleteStreamId),
     topicName,
   );
   if (!complete) {

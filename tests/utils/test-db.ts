@@ -71,6 +71,8 @@ export class TestDatabase {
     for (const table of TABLE_NAMES) {
       await this.db(table).del();
     }
+    // Reset autoincrement counters so IDs start from 1 in each test
+    await this.db.raw("DELETE FROM sqlite_sequence");
     await this.db.raw("PRAGMA foreign_keys = ON");
   }
 

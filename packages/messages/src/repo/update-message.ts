@@ -7,13 +7,13 @@ interface UpdateMessageInput {
   content?: string;
   renderedContent?: string;
   topic?: string;
-  channelId?: string;
+  channelId?: long;
 }
 
 export const updateMessage = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string,
+  tenantId: long,
+  messageId: long,
   updates: UpdateMessageInput
 ): Promise<Message | undefined> => {
   const db = new JotsterDbContext(options);

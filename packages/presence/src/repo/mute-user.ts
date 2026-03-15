@@ -5,9 +5,9 @@ import { JotsterDbContext, MutedUser, generateId } from "@jotster/core/Jotster.C
 
 export const muteUser = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  mutedUserId: string
+  tenantId: long,
+  userId: long,
+  mutedUserId: long
 ): Promise<MutedUser> => {
   const db = new JotsterDbContext(options);
   try {

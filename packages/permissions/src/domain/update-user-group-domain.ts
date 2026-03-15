@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser, UserGroup } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,19 +9,19 @@ import { updateUserGroup } from "../repo/update-user-group.ts";
 interface UpdateUserGroupDomainInput {
   name?: string;
   description?: string;
-  canAddMembersGroupId?: string;
-  canJoinGroupId?: string;
-  canLeaveGroupId?: string;
-  canManageGroupId?: string;
-  canMentionGroupId?: string;
-  canRemoveMembersGroupId?: string;
+  canAddMembersGroupId?: long;
+  canJoinGroupId?: long;
+  canLeaveGroupId?: long;
+  canManageGroupId?: long;
+  canMentionGroupId?: long;
+  canRemoveMembersGroupId?: long;
   deactivated?: boolean;
 }
 
 export const updateUserGroupDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  groupId: string,
+  groupId: long,
   updates: UpdateUserGroupDomainInput
 ): Promise<Result<UserGroup, string>> => {
   if (user.role > 200) {

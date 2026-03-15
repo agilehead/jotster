@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, ApiKey, generateId } from "@jotster/core/Jotster.Core.js";
 
 export const createApiKey = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   keyHash: string,
   rawKey?: string
 ): Promise<ApiKey> => {

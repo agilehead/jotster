@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DataExport } from "@jotster/core/Jotster.Core.js";
 import type { DomainEvent } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { Math as ClrMath, Convert } from "@tsonic/dotnet/System.js";
 
 interface ExportEventEntry {
-  id: string;
-  acting_user_id: string;
+  id: long;
+  acting_user_id: long;
   export_time: number;
   deleted_timestamp: number | null;
   failed_timestamp: number | null;

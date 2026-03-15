@@ -111,7 +111,7 @@ describe("Persisted object event compatibility", function () {
       content: "Welcome to the organization.",
     });
     expect(createRes.status).to.equal(200);
-    const snippetId = createRes.body.saved_snippet_id as string;
+    const snippetId = createRes.body.saved_snippet_id as number;
 
     const createEvents = await getEvents(user.client, queueId, lastEventId);
     expect(createEvents).to.have.length(1);
@@ -181,7 +181,7 @@ describe("Persisted object event compatibility", function () {
       note: "Remember this",
     });
     expect(createRes.status).to.equal(200);
-    const reminderId = createRes.body.reminder_id as string;
+    const reminderId = createRes.body.reminder_id as number;
 
     const createEvents = await getEvents(user.client, queueId, lastEventId);
     expect(createEvents).to.have.length(1);
@@ -233,7 +233,7 @@ describe("Persisted object event compatibility", function () {
       scheduled_delivery_timestamp: scheduledDeliveryTimestamp,
     });
     expect(createRes.status).to.equal(200);
-    const scheduledMessageId = createRes.body.scheduled_message_id as string;
+    const scheduledMessageId = createRes.body.scheduled_message_id as number;
 
     const createEvents = await getEvents(user.client, queueId, lastEventId);
     expect(createEvents).to.have.length(1);

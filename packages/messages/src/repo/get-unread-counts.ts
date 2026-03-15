@@ -1,30 +1,30 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 interface ChannelUnread {
-  channelId: string;
+  channelId: long;
   topic: string;
-  unreadMessageIds: string[];
+  unreadMessageIds: long[];
 }
 
 interface DmUnread {
   dmGroupId: string;
-  unreadMessageIds: string[];
+  unreadMessageIds: long[];
 }
 
 interface UnreadCounts {
   channelUnreads: ChannelUnread[];
   dmUnreads: DmUnread[];
-  mentions: string[];
+  mentions: long[];
   count: int;
 }
 
 export const getUnreadCounts = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string
+  tenantId: long,
+  userId: long
 ): Promise<UnreadCounts> => {
   const db = new JotsterDbContext(options);
   try {
@@ -39,7 +39,7 @@ export const getUnreadCounts = async (
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
       .ToListAsync();
 
-    const readMessageIds = new List<string>();
+    const readMessageIds = new List<long>();
     for (let i = 0; i < readFlags.Count; i++) {
       const readFlagEntry = readFlags[i];
       readMessageIds.Add(readFlagEntry.MessageId);
@@ -71,7 +71,8 @@ export const getUnreadCounts = async (
           }
         }
         if (!isRead) {
-          const key = msg.ChannelId! + ":" + (msg.Topic ?? "");
+          const msgChannelId = channelId0;
+          const key = msgChannelId.toString() + ":" + (msg.Topic ?? "");
           let keyExists = false;
           for (let ki = 0; ki < channelUnreadMapKeys.Count; ki++) {
             if (channelUnreadMapKeys[ki] === key) {
@@ -80,15 +81,15 @@ export const getUnreadCounts = async (
             }
           }
           if (!keyExists) {
-            const emptyIds: string[] = [];
+            const emptyIds: long[] = [];
             channelUnreadMap[key] = {
-              channelId: msg.ChannelId!,
+              channelId: msgChannelId,
               topic: msg.Topic ?? "",
               unreadMessageIds: emptyIds,
             };
             channelUnreadMapKeys.Add(key);
           }
-          const chUnreadList = new List<string>();
+          const chUnreadList = new List<long>();
           for (let ci = 0; ci < channelUnreadMap[key].unreadMessageIds.length; ci++) {
             chUnreadList.Add(channelUnreadMap[key].unreadMessageIds[ci]);
           }
@@ -132,14 +133,14 @@ export const getUnreadCounts = async (
             }
           }
           if (!dmKeyExists) {
-            const emptyIds: string[] = [];
+            const emptyIds: long[] = [];
             dmUnreadMap[msg.DmGroupId!] = {
               dmGroupId: msg.DmGroupId!,
               unreadMessageIds: emptyIds,
             };
             dmUnreadMapKeys.Add(msg.DmGroupId!);
           }
-          const dmUnreadList = new List<string>();
+          const dmUnreadList = new List<long>();
           for (let di = 0; di < dmUnreadMap[msg.DmGroupId!].unreadMessageIds.length; di++) {
             dmUnreadList.Add(dmUnreadMap[msg.DmGroupId!].unreadMessageIds[di]);
           }
@@ -154,7 +155,7 @@ export const getUnreadCounts = async (
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === starFlag)
       .ToListAsync();
 
-    const mentions = new List<string>();
+    const mentions = new List<long>();
     for (let mentionIndex = 0; mentionIndex < mentionFlags.Count; mentionIndex++) {
       const mentionFlag = mentionFlags[mentionIndex];
       const mentionMsgId = mentionFlag.MessageId;

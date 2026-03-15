@@ -5,8 +5,8 @@ import { JotsterDbContext, Presence } from "@jotster/core/Jotster.Core.js";
 
 export const updatePresence = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   clientName: string,
   status: string,
   pingOnly?: boolean

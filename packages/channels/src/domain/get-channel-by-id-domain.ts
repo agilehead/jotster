@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, Channel, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -7,7 +7,7 @@ import { getChannelById } from "../repo/get-channel-by-id.ts";
 export const getChannelByIdDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: string
+  channelId: long
 ): Promise<Result<Channel, string>> => {
   const channel = await getChannelById(options, channelId);
   if (channel === undefined) {

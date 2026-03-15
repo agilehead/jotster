@@ -1,8 +1,9 @@
+import type { long } from "@tsonic/core/types.js";
 import { attributes as A } from "@tsonic/core/lang.js";
 import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotations.js";
 
 export class TenantUserSettingDefault {
-  TenantId!: string;
+  TenantId!: long;
   SettingsJson!: string;
 }
 

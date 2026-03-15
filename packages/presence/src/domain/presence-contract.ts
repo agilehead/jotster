@@ -90,7 +90,7 @@ export const getPresenceLastUpdateId = (
 export const buildModernPresenceMap = (
   entries: Presence[],
 ): Record<string, unknown> => {
-  const userIds: string[] = [];
+  const userIds: long[] = [];
   const activeTimestamps: long[] = [];
   const idleTimestamps: long[] = [];
   const hasActiveTimestamps: boolean[] = [];
@@ -139,7 +139,7 @@ export const buildModernPresenceMap = (
     if (hasIdleTimestamps[i]) {
       presence["idle_timestamp"] = idleTimestamps[i] as unknown;
     }
-    presences[userIds[i]] = presence as unknown;
+    presences[Convert.ToString(userIds[i])] = presence as unknown;
   }
 
   return presences;

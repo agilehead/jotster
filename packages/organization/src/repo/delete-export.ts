@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
 
 export const deleteExport = async (
   options: DbContextOptions,
-  exportId: string
+  exportId: long
 ): Promise<Result<boolean, string>> => {
   const db = new JotsterDbContext(options);
   try {

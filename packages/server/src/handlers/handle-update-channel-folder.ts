@@ -2,8 +2,9 @@ import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalStringField, hasField, toOptionalFlagInt } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField, hasField, toOptionalFlagInt, toLong} from "../helpers/body.ts";
 
 export const handleUpdateChannelFolder = async (
   req: Request,
@@ -17,7 +18,11 @@ export const handleUpdateChannelFolder = async (
   }
 
   const user = authResult.data;
-  const folderId = req.params["folder_id"] as string;
+  const folderId = parseId(req.params["folder_id"] as string);
+  if (folderId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid folder_id" });
+    return;
+  }
   const body = getBodyObject(req);
 
   const updates: {
@@ -43,7 +48,7 @@ export const handleUpdateChannelFolder = async (
     updates.isArchived = isArchived;
   }
 
-  const result = await updateChannelFolderDomain(app.options, user, folderId, updates);
+  const result = await updateChannelFolderDomain(app.options, user, toLong(folderId), updates);
   if (!result.success) {
     if (result.error === "Must be an organization administrator") {
       res.status(400).json({ result: "error", msg: result.error, code: "UNAUTHORIZED_PRINCIPAL" });

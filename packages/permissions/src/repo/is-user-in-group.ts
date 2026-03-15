@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
@@ -8,9 +8,9 @@ import { ok, err } from "@jotster/core/Jotster.Core.js";
 
 export const isUserInGroup = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  groupId: string
+  tenantId: long,
+  userId: long,
+  groupId: long
 ): Promise<Result<boolean, string>> => {
   const db = new JotsterDbContext(options);
   try {

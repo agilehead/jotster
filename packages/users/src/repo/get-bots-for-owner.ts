@@ -1,11 +1,11 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, User } from "@jotster/core/Jotster.Core.js";
 
 export const getBotsForOwner = async (
   options: DbContextOptions,
-  tenantId: string,
-  ownerId: string
+  tenantId: long,
+  ownerId: long
 ): Promise<User[]> => {
   const db = new JotsterDbContext(options);
   try {

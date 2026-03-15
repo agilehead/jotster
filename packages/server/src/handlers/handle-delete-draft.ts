@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteDraftDomain } from "@jotster/drafts/Jotster.Drafts.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleDeleteDraft = async (
@@ -15,9 +17,13 @@ export const handleDeleteDraft = async (
   }
 
   const user = authResult.data;
-  const draftId = req.params["draft_id"] as string;
+  const draftId = parseId(req.params["draft_id"] as string);
+  if (draftId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid draft_id" });
+    return;
+  }
 
-  const result = await deleteDraftDomain(app.options, user, draftId);
+  const result = await deleteDraftDomain(app.options, user, toLong(draftId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

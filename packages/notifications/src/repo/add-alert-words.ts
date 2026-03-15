@@ -5,8 +5,8 @@ import { JotsterDbContext, AlertWord, generateId } from "@jotster/core/Jotster.C
 
 export const addAlertWords = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   words: string[]
 ): Promise<void> => {
   const db = new JotsterDbContext(options);

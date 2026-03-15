@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Draft } from "@jotster/core/Jotster.Core.js";
 
 export const getDraftById = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  draftId: string
+  tenantId: long,
+  userId: long,
+  draftId: long
 ): Promise<Draft | undefined> => {
   const db = new JotsterDbContext(options);
   try {

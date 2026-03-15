@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, ok } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -65,7 +66,7 @@ export const getSubscriptionsDomain = async (
 
       if (includeSubscribers) {
         const channelSubs = await getSubscriptionsForChannel(options, user.tenantId, channel.Id);
-        const subscriberList = new List<string>();
+        const subscriberList = new List<long>();
         for (let j = 0; j < channelSubs.Count; j++) {
           const channelSub = channelSubs[j];
           subscriberList.Add(channelSub.UserId);

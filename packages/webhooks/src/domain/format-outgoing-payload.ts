@@ -1,17 +1,17 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 
 interface MessageData {
-  messageId: string;
-  senderId: string;
+  messageId: long;
+  senderId: long;
   senderEmail: string;
   senderFullName: string;
   type: string;
-  channelId?: string;
+  channelId?: long;
   channelName?: string;
   topic?: string;
   content: string;
   timestamp: number;
-  botUserId: string;
+  botUserId: long;
   token: string;
 }
 
@@ -49,7 +49,7 @@ export const formatOutgoingPayload = (
     // Slack-compatible format (interfaceType === 2)
     payload["token"] = data.token;
     payload["team_id"] = "";
-    payload["channel_id"] = data.channelId ?? "";
+    payload["channel_id"] = data.channelId !== undefined ? data.channelId : "";
     payload["channel_name"] = data.channelName ?? "";
     payload["user_id"] = data.senderId;
     payload["user_name"] = data.senderFullName;

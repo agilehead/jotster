@@ -5,7 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class RealmDomain {
   Id!: string;
-  TenantId!: string;
+  TenantId!: long;
   Domain!: string;
   AllowSubdomains!: int;
   CreatedAt!: long;

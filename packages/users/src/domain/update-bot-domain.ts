@@ -8,8 +8,8 @@ import { getUser } from "../repo/get-user.ts";
 export const updateBotDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  botId: string,
-  updates: { fullName?: string; botOwnerId?: string }
+  botId: long,
+  updates: { fullName?: string; botOwnerId?: long }
 ): Promise<Result<User, string>> => {
   const bot = await getUser(options, botId);
   if (bot === undefined) {

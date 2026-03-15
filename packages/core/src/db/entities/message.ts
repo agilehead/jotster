@@ -4,12 +4,11 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Message {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
-  SenderId!: string;
+  Id!: long;
+  TenantId!: long;
+  SenderId!: long;
   Type!: string;
-  ChannelId?: string;
+  ChannelId?: long;
   Topic?: string;
   DmGroupId?: string;
   Content!: string;

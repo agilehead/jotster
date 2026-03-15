@@ -1,13 +1,13 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Message, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Message } from "@jotster/core/Jotster.Core.js";
 
 interface SendMessageInput {
-  tenantId: string;
-  senderId: string;
+  tenantId: long;
+  senderId: long;
   type: string;
-  channelId?: string;
+  channelId?: long;
   topic?: string;
   dmGroupId?: string;
   content: string;
@@ -24,8 +24,6 @@ export const sendMessage = async (
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const message = new Message();
-  message.Id = generateId();
-  message.PublicId = await allocatePublicId(options, "message");
   message.TenantId = input.tenantId;
   message.SenderId = input.senderId;
   message.Type = input.type;

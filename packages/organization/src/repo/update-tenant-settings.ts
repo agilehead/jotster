@@ -6,7 +6,7 @@ import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export const updateTenantSettings = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   settings: Record<string, unknown>
 ): Promise<Tenant | undefined> => {
   const db = new JotsterDbContext(options);

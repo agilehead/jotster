@@ -5,7 +5,7 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const deactivateUserGroup = async (
   options: DbContextOptions,
-  groupId: string
+  groupId: long
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {

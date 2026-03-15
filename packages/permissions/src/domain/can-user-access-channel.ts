@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
@@ -6,10 +7,10 @@ import { isUserSubscribedToChannel } from "../repo/is-user-subscribed-to-channel
 
 export const canUserAccessChannel = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   userRole: number,
-  channelId: string
+  channelId: long
 ): Promise<Result<boolean, string>> => {
   const channel = await getChannelForAccessCheck(options, tenantId, channelId);
 

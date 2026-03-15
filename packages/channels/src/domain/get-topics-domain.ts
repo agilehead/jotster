@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,8 +8,8 @@ import { getChannelById } from "../repo/get-channel-by-id.ts";
 export const getTopicsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: string
-): Promise<Result<{ name: string; maxId: string }[], string>> => {
+  channelId: long
+): Promise<Result<{ name: string; maxId: long }[], string>> => {
   const channel = await getChannelById(options, channelId);
   if (channel === undefined) {
     return err("Channel not found");
@@ -44,7 +44,7 @@ export const getTopicsDomain = async (
       .Where((m) => m.ChannelId === channelId1)
       .ToListAsync();
 
-    const topicMap: Record<string, { maxId: string; createdAt: number }> = {};
+    const topicMap: Record<string, { maxId: long; createdAt: number }> = {};
     const topicKeys = new List<string>();
     for (let i = 0; i < messages.Count; i++) {
       const msg = messages[i];
@@ -58,7 +58,7 @@ export const getTopicsDomain = async (
       }
     }
 
-    const topics = new List<{ name: string; maxId: string }>();
+    const topics = new List<{ name: string; maxId: long }>();
     for (let i = 0; i < topicKeys.Count; i++) {
       const name = topicKeys[i];
       const maxId = topicMap[name].maxId;

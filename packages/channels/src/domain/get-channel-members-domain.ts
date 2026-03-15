@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,8 +8,8 @@ import { getChannelSubscribers } from "../repo/get-channel-subscribers.ts";
 export const getChannelMembersDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: string
-): Promise<Result<string[], string>> => {
+  channelId: long
+): Promise<Result<long[], string>> => {
   const channel = await getChannelById(options, channelId);
   if (channel === undefined) {
     return err("Channel not found");

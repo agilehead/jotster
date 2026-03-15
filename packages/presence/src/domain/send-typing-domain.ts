@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -7,8 +8,8 @@ import { dispatchEventToTenant, dispatchEventToUser } from "@jotster/event-queue
 interface SendTypingParams {
   op: string;
   type?: string;
-  to?: string[];
-  streamId?: string;
+  to?: long[];
+  streamId?: long;
   topic?: string;
 }
 

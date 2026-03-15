@@ -6,7 +6,7 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getInvitations = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long
 ): Promise<Invitation[]> => {
   const db = new JotsterDbContext(options);
   try {

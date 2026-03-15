@@ -5,7 +5,7 @@ import { JotsterDbContext, RealmDomain, generateId } from "@jotster/core/Jotster
 
 export const addRealmDomain = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   domain: string,
   allowSubdomains: int
 ): Promise<RealmDomain | undefined> => {

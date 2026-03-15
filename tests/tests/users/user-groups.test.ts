@@ -2,10 +2,10 @@ import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
-const getGroupIdByName = async (client: Awaited<ReturnType<typeof seedUser>>["client"], name: string): Promise<string> => {
+const getGroupIdByName = async (client: Awaited<ReturnType<typeof seedUser>>["client"], name: string): Promise<number> => {
   const listRes = await client.get("/user_groups");
   const groups = listRes.body.user_groups as Array<{
-    id: string;
+    id: number;
     name: string;
   }>;
   const group = groups.find((entry) => entry.name === name);
@@ -42,7 +42,7 @@ describe("GET /api/v1/user_groups", () => {
     expect(createRes.body.group.can_remove_members_group).to.equal("role:members");
     expect(createRes.body.group.deactivated).to.equal(false);
 
-    const groupId = createRes.body.group.id as string;
+    const groupId = createRes.body.group.id as number;
     const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
     expect(deactivateRes.status).to.equal(200);
 
@@ -152,7 +152,7 @@ describe("PATCH /api/v1/user_groups/{user_group_id}", () => {
       name: "reactivate-me",
       description: "Dormant group",
     });
-    const groupId = createRes.body.group.id as string;
+    const groupId = createRes.body.group.id as number;
 
     const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
     expect(deactivateRes.status).to.equal(200);

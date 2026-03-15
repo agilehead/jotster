@@ -4,8 +4,8 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import { JotsterDbContext, OutgoingWebhook, generateId } from "@jotster/core/Jotster.Core.js";
 
 interface CreateOutgoingWebhookInput {
-  tenantId: string;
-  botUserId: string;
+  tenantId: long;
+  botUserId: long;
   url: string;
   token: string;
   triggerType: string;

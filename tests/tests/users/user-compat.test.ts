@@ -75,7 +75,7 @@ describe("User compatibility endpoints", () => {
     expect(memberRes.body.msg).to.equal("Insufficient permission");
     expect(memberRes.body.code).to.equal("BAD_REQUEST");
 
-    const missingUserRes = await admin.client.post("/users/missing-user/status", {
+    const missingUserRes = await admin.client.post("/users/999999/status", {
       status_text: "reviewing",
     });
     expect(missingUserRes.status).to.equal(400);
@@ -136,13 +136,13 @@ describe("User compatibility endpoints", () => {
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
 
-    const getRes = await admin.client.get("/bots/missing-bot/api_key");
+    const getRes = await admin.client.get("/bots/999999/api_key");
     expect(getRes.status).to.equal(400);
     expect(getRes.body.result).to.equal("error");
     expect(getRes.body.msg).to.equal("No such bot");
     expect(getRes.body.code).to.equal("BAD_REQUEST");
 
-    const regenerateRes = await admin.client.post("/bots/missing-bot/api_key/regenerate");
+    const regenerateRes = await admin.client.post("/bots/999999/api_key/regenerate");
     expect(regenerateRes.status).to.equal(400);
     expect(regenerateRes.body.result).to.equal("error");
     expect(regenerateRes.body.msg).to.equal("No such bot");

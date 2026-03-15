@@ -157,7 +157,7 @@ describe("DELETE /api/v1/channel_folders/{channel_folder_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const res = await client.delete("/channel_folders/nonexistent_folder_id");
+    const res = await client.delete("/channel_folders/999999");
     expect(res.body.result).to.equal("error");
   });
 });

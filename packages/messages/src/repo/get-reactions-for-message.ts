@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Reaction } from "@jotster/core/Jotster.Core.js";
 
 export const getReactionsForMessage = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string
+  tenantId: long,
+  messageId: long
 ): Promise<Reaction[]> => {
   const db = new JotsterDbContext(options);
   try {

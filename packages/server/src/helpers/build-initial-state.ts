@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import {
@@ -36,7 +37,7 @@ import {
 import { buildRealmUserSettingDefaultsState } from "./realm-user-setting-defaults.ts";
 
 const mapUserToZulip = (u: {
-  Id: string;
+  Id: number;
   Email: string;
   FullName: string;
   AvatarUrl?: string;
@@ -46,7 +47,7 @@ const mapUserToZulip = (u: {
   DateJoined: number;
   Timezone: string;
   BotType?: number;
-  BotOwnerId?: string;
+  BotOwnerId?: number;
 }): Record<string, unknown> => {
   const obj: Record<string, unknown> = {};
   obj.user_id = u.Id;
@@ -69,8 +70,8 @@ const mapUserToZulip = (u: {
 
 export const buildInitialState = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   fetchEventTypes: string[] | undefined,
   params: RegisterParams,
   includeDeactivatedGroups: boolean,
@@ -187,7 +188,7 @@ export const buildInitialState = async (
     const allChannels = await getChannels(options, tenantId, params.clientCapabilities?.archivedChannels === true);
 
     const subscriptions = new List<Record<string, unknown>>();
-    const subscribedChannelIds: string[] = [];
+    const subscribedChannelIds: long[] = [];
 
     for (let i = 0; i < userSubs.Count; i++) {
       const sub = userSubs[i];

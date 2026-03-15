@@ -1,12 +1,13 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getReadReceipts = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string
-): Promise<string[]> => {
+  tenantId: long,
+  messageId: long
+): Promise<long[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
@@ -27,7 +28,7 @@ export const getReadReceipts = async (
       .Where((f) => f.MessageId === messageId0).Where((f) => f.Flag === readFlag)
       .ToListAsync();
 
-    const userIds = new List<string>();
+    const userIds = new List<long>();
     for (let i = 0; i < flags.Count; i++) {
       const flag = flags[i];
       userIds.Add(flag.UserId);

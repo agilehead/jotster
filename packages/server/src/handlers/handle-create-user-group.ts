@@ -1,8 +1,32 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { createUserGroupDomain } from "@jotster/permissions/Jotster.Permissions.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalStringArrayField, getOptionalStringField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringArrayField, getOptionalStringField, toLong} from "../helpers/body.ts";
+
+const parseOptionalId = (value: string | undefined): long | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  return parseId(value);
+};
+
+const parseIdArray = (values: string[] | undefined): long[] | undefined => {
+  if (values === undefined) {
+    return undefined;
+  }
+  const result: long[] = [];
+  for (let i = 0; i < values.length; i++) {
+    const parsed = parseId(values[i]);
+    if (parsed === undefined) {
+      return undefined;
+    }
+    result.push(toLong(parsed));
+  }
+  return result;
+};
 
 export const handleCreateUserGroup = async (
   req: Request,
@@ -24,17 +48,17 @@ export const handleCreateUserGroup = async (
     return;
   }
 
-  const members = getOptionalStringArrayField(body, "members");
+  const members = parseIdArray(getOptionalStringArrayField(body, "members"));
   const result = await createUserGroupDomain(app.options, user, ({
     name,
     description: getOptionalStringField(body, "description"),
     members,
-    canAddMembersGroupId: getOptionalStringField(body, "can_add_members_group"),
-    canJoinGroupId: getOptionalStringField(body, "can_join_group"),
-    canLeaveGroupId: getOptionalStringField(body, "can_leave_group"),
-    canManageGroupId: getOptionalStringField(body, "can_manage_group"),
-    canMentionGroupId: getOptionalStringField(body, "can_mention_group"),
-    canRemoveMembersGroupId: getOptionalStringField(body, "can_remove_members_group"),
+    canAddMembersGroupId: parseOptionalId(getOptionalStringField(body, "can_add_members_group")),
+    canJoinGroupId: parseOptionalId(getOptionalStringField(body, "can_join_group")),
+    canLeaveGroupId: parseOptionalId(getOptionalStringField(body, "can_leave_group")),
+    canManageGroupId: parseOptionalId(getOptionalStringField(body, "can_manage_group")),
+    canMentionGroupId: parseOptionalId(getOptionalStringField(body, "can_mention_group")),
+    canRemoveMembersGroupId: parseOptionalId(getOptionalStringField(body, "can_remove_members_group")),
   }));
 
   if (!result.success) {
@@ -48,7 +72,7 @@ export const handleCreateUserGroup = async (
   g["name"] = group.Name;
   g["description"] = group.Description;
   g["is_system_group"] = group.IsSystemGroup === 1;
-  g["members"] = members ?? ([] as string[]);
+  g["members"] = members ?? ([] as long[]);
   g["direct_subgroup_ids"] = [];
   g["creator_id"] = group.CreatorId ?? null;
   g["date_created"] = group.CreatedAt;

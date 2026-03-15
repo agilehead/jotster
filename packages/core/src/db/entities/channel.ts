@@ -4,18 +4,17 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Channel {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
+  Id!: long;
+  TenantId!: long;
   Name!: string;
   Description!: string;
   RenderedDescription!: string;
   IsPrivate!: int;
   IsWebPublic!: int;
   HistoryPublicToSubscribers!: int;
-  CreatorId?: string;
+  CreatorId?: long;
   MessageRetentionDays?: int;
-  FirstMessageId?: string;
+  FirstMessageId?: long;
   IsArchived!: int;
   CreatedAt!: long;
   UpdatedAt!: long;

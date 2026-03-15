@@ -1,18 +1,20 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 
+
 export const checkMessageForAlertWords = (
   content: string,
-  alertWords: { UserId: string; Word: string }[]
-): string[] => {
+  alertWords: { UserId: long; Word: string }[]
+): long[] => {
   const contentLower = content.toLowerCase();
-  const matchedUserIds = new List<string>();
+  const matchedUserIds = new List<long>();
   const seen: Record<string, boolean> = {};
 
   for (let i = 0; i < alertWords.length; i++) {
     const aw = alertWords[i];
-    if (seen[aw.UserId] === true) {
+    const userIdKey = Convert.ToString(aw.UserId);
+    if (seen[userIdKey] === true) {
       continue;
     }
 
@@ -26,7 +28,7 @@ export const checkMessageForAlertWords = (
       const afterOk = afterIdx >= contentLower.length || !isAlphaNumeric(contentLower, afterIdx);
       if (beforeOk && afterOk) {
         matchedUserIds.Add(aw.UserId);
-        seen[aw.UserId] = true;
+        seen[userIdKey] = true;
       }
     }
   }

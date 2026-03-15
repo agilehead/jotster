@@ -1,12 +1,12 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Invitation, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Invitation, generateId } from "@jotster/core/Jotster.Core.js";
 import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 interface CreateMultiuseInvitationInput {
-  tenantId: string;
-  inviterId: string;
+  tenantId: long;
+  inviterId: long;
   channelIds: string[];
   invitedAsRole: int;
   expiresAt?: long;
@@ -19,8 +19,6 @@ export const createMultiuseInvitation = async (
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const invitation = new Invitation();
-  invitation.Id = generateId();
-  invitation.PublicId = await allocatePublicId(options, "invitation");
   invitation.TenantId = input.tenantId;
   invitation.InviterId = input.inviterId;
   invitation.IsMultiuse = 1 as int;

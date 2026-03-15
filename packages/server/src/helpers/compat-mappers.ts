@@ -81,7 +81,7 @@ export const mapSavedSnippetToCompatResponse = (snippet: SavedSnippet): Record<s
 
 export const mapReminderToCompatResponse = (
   reminder: Reminder,
-  userId: string,
+  userId: number,
 ): Record<string, unknown> => ({
   reminder_id: reminder.Id,
   type: "private",
@@ -100,7 +100,7 @@ export const mapScheduledMessageToCompatResponse = (
     scheduled_message_id: scheduledMessage.Id,
     type: scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
     to: scheduledMessage.Type === "stream"
-      ? (scheduledMessage.ChannelId ?? "")
+      ? (scheduledMessage.ChannelId ?? null)
       : parseStringArray(scheduledMessage.RecipientIdsJson),
     content: scheduledMessage.Content,
     rendered_content: scheduledMessage.RenderedContent,

@@ -1,10 +1,12 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { AuthenticatedUser, Message, User } from "@jotster/core/Jotster.Core.js";
-import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, parseId } from "@jotster/core/Jotster.Core.js";
 import { addMessageFlags, getMessage, removeMessageFlags } from "@jotster/messages/Jotster.Messages.js";
 import { getUser } from "@jotster/users/Jotster.Users.js";
+import { toLong } from "./body.ts";
 
 type NarrowFilter = {
   op: string;
@@ -13,10 +15,10 @@ type NarrowFilter = {
 };
 
 type ResolvedNarrow = {
-  streamId?: string;
+  streamId?: long;
   topic?: string;
   dmGroupId?: string;
-  senderId?: string;
+  senderId?: long;
   unreadOnly: boolean;
 };
 
@@ -136,9 +138,9 @@ const toStringValue = (value: unknown): string | undefined => {
 
 const resolveSenderId = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   operand: unknown,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   const candidate = toStringValue(operand);
   if (candidate === undefined) {
     return undefined;
@@ -149,12 +151,12 @@ const resolveSenderId = async (
     return user?.Id;
   }
 
-  return candidate;
+  return parseId(candidate);
 };
 
 const getUserByEmailInTenant = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   email: string,
 ): Promise<User | undefined> => {
   const db = new JotsterDbContext(options);
@@ -225,27 +227,32 @@ const resolveNarrow = async (
 
 const resolveChannelIdentifier = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   operand: string,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
-    const operand0 = operand;
 
-    let channel = await db.Channels
-      .Where((entry) => entry.TenantId === tenantId0)
-      .Where((entry) => entry.Id === operand0)
-      .FirstOrDefaultAsync();
-
-    if (channel === undefined || channel === null) {
-      channel = await db.Channels
+    const operandId = parseId(operand);
+    if (operandId !== undefined) {
+      const operandId0 = operandId;
+      const channel = await db.Channels
         .Where((entry) => entry.TenantId === tenantId0)
-        .Where((entry) => entry.Name === operand0)
+        .Where((entry) => entry.Id === operandId0)
         .FirstOrDefaultAsync();
+      if (channel !== undefined && channel !== null) {
+        return channel.Id;
+      }
     }
 
-    return channel?.Id;
+    const operand0 = operand;
+    const channelByName = await db.Channels
+      .Where((entry) => entry.TenantId === tenantId0)
+      .Where((entry) => entry.Name === operand0)
+      .FirstOrDefaultAsync();
+
+    return channelByName?.Id;
   } finally {
     db.Dispose();
   }
@@ -266,15 +273,15 @@ const sortMessagesChronologically = (messages: Message[]): Message[] => {
   return copy;
 };
 
-const collectMessageIds = (messages: Message[]): string[] => {
-  const result = new List<string>();
+const collectMessageIds = (messages: Message[]): long[] => {
+  const result = new List<long>();
   for (let i = 0; i < messages.length; i++) {
     result.Add(messages[i].Id);
   }
   return result.ToArray();
 };
 
-const containsId = (values: string[], candidate: string): boolean => {
+const containsLongId = (values: long[], candidate: long): boolean => {
   for (let i = 0; i < values.length; i++) {
     if (values[i] === candidate) {
       return true;
@@ -356,7 +363,7 @@ export const getMatchingMessagesForNarrow = async (
       .Where((entry) => entry.Flag === readFlag)
       .ToListAsync();
 
-    const readIds: string[] = [];
+    const readIds: long[] = [];
     for (let i = 0; i < flags.Count; i++) {
       readIds.push(flags[i].MessageId);
     }
@@ -364,7 +371,7 @@ export const getMatchingMessagesForNarrow = async (
     const unreadMessages: Message[] = [];
     for (let i = 0; i < sortedMessages.length; i++) {
       const message = sortedMessages[i];
-      if (!containsId(readIds, message.Id)) {
+      if (!containsLongId(readIds, message.Id)) {
         unreadMessages.push(message);
       }
     }
@@ -390,9 +397,12 @@ const findAnchorIndex = (messages: Message[], anchor: string): number => {
     return 0;
   }
 
-  for (let i = 0; i < messages.length; i++) {
-    if (messages[i].Id === anchor) {
-      return i;
+  const anchorId = parseId(anchor);
+  if (anchorId !== undefined) {
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].Id === anchorId) {
+        return i;
+      }
     }
   }
 
@@ -458,11 +468,11 @@ export const updateFlagsForNarrow = async (
 
 const getIdsThatWouldChange = async (
   options: DbContextOptions,
-  userId: string,
-  messageIds: string[],
+  userId: long,
+  messageIds: long[],
   flag: string,
   op: string,
-): Promise<string[]> => {
+): Promise<long[]> => {
   if (messageIds.length === 0) {
     return [];
   }
@@ -476,15 +486,15 @@ const getIdsThatWouldChange = async (
       .Where((entry) => entry.Flag === flag0)
       .ToListAsync();
 
-    const existingIds: string[] = [];
+    const existingIds: long[] = [];
     for (let i = 0; i < existingFlags.Count; i++) {
       existingIds.push(existingFlags[i].MessageId);
     }
 
-    const changed: string[] = [];
+    const changed: long[] = [];
     for (let i = 0; i < messageIds.length; i++) {
       const messageId = messageIds[i];
-      const exists = containsId(existingIds, messageId);
+      const exists = containsLongId(existingIds, messageId);
       if ((op === "add" && !exists) || (op === "remove" && exists)) {
         changed.push(messageId);
       }
@@ -499,10 +509,10 @@ const getIdsThatWouldChange = async (
 export const markStreamAsRead = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  streamId: string,
+  streamId: long,
 ): Promise<void> => {
   const messages = await getMatchingMessagesForNarrow(options, user, [
-    { operator: "channel", operand: streamId },
+    { operator: "channel", operand: `${streamId}` },
     { operator: "is", operand: "unread" },
   ]);
   if (messages === undefined) {
@@ -514,11 +524,11 @@ export const markStreamAsRead = async (
 export const markTopicAsRead = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  streamId: string,
+  streamId: long,
   topic: string,
 ): Promise<void> => {
   const messages = await getMatchingMessagesForNarrow(options, user, [
-    { operator: "channel", operand: streamId },
+    { operator: "channel", operand: `${streamId}` },
     { operator: "topic", operand: topic },
     { operator: "is", operand: "unread" },
   ]);
@@ -531,7 +541,7 @@ export const markTopicAsRead = async (
 export const getMessagesMatchingNarrow = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageIds: string[],
+  messageIds: long[],
   narrowValue: unknown,
 ): Promise<MessagesMatchingNarrowResult> => {
   const matchingMessages = await getMatchingMessagesForNarrow(options, user, narrowValue);
@@ -539,7 +549,7 @@ export const getMessagesMatchingNarrow = async (
     return { error: "Invalid narrow" };
   }
 
-  const matchingIds: string[] = [];
+  const matchingIds: long[] = [];
   for (let i = 0; i < matchingMessages.length; i++) {
     matchingIds.push(matchingMessages[i].Id);
   }
@@ -547,7 +557,7 @@ export const getMessagesMatchingNarrow = async (
   const resultEntries: string[] = [];
   for (let i = 0; i < messageIds.length; i++) {
     const messageId = messageIds[i];
-    if (!containsId(matchingIds, messageId)) {
+    if (!containsLongId(matchingIds, messageId)) {
       continue;
     }
 

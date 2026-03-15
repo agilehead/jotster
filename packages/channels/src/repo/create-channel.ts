@@ -1,16 +1,16 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Channel, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Channel } from "@jotster/core/Jotster.Core.js";
 
 interface CreateChannelInput {
-  tenantId: string;
+  tenantId: long;
   name: string;
   description?: string;
   isPrivate?: int;
   isWebPublic?: int;
   historyPublicToSubscribers?: int;
-  creatorId?: string;
+  creatorId?: long;
   messageRetentionDays?: int;
 }
 
@@ -21,8 +21,6 @@ export const createChannel = async (
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const channel = new Channel();
-  channel.Id = generateId();
-  channel.PublicId = await allocatePublicId(options, "channel");
   channel.TenantId = input.tenantId;
   channel.Name = input.name;
   channel.Description = input.description ?? "";

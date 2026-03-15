@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,7 +10,7 @@ import { buildExportEventPayload } from "./build-export-event-payload.ts";
 export const deleteExportDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  exportId: string
+  exportId: long
 ): Promise<Result<boolean, string>> => {
   // Validate user is admin (role <= 200)
   if (user.role > 200) {

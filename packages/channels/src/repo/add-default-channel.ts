@@ -5,8 +5,8 @@ import { JotsterDbContext, DefaultChannel, generateId } from "@jotster/core/Jots
 
 export const addDefaultChannel = async (
   options: DbContextOptions,
-  tenantId: string,
-  channelId: string
+  tenantId: long,
+  channelId: long
 ): Promise<DefaultChannel> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

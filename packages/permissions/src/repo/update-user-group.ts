@@ -6,18 +6,18 @@ import { JotsterDbContext, UserGroup } from "@jotster/core/Jotster.Core.js";
 interface UpdateUserGroupInput {
   name?: string;
   description?: string;
-  canAddMembersGroupId?: string;
-  canJoinGroupId?: string;
-  canLeaveGroupId?: string;
-  canManageGroupId?: string;
-  canMentionGroupId?: string;
-  canRemoveMembersGroupId?: string;
+  canAddMembersGroupId?: long;
+  canJoinGroupId?: long;
+  canLeaveGroupId?: long;
+  canManageGroupId?: long;
+  canMentionGroupId?: long;
+  canRemoveMembersGroupId?: long;
   deactivated?: boolean;
 }
 
 export const updateUserGroup = async (
   options: DbContextOptions,
-  groupId: string,
+  groupId: long,
   updates: UpdateUserGroupInput
 ): Promise<UserGroup | undefined> => {
   const db = new JotsterDbContext(options);

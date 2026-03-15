@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -11,7 +12,7 @@ export const initiateExportDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   exportType: string
-): Promise<Result<string, string>> => {
+): Promise<Result<long, string>> => {
   if (
     exportType !== "public" &&
     exportType !== "full_with_consent" &&

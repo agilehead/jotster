@@ -5,12 +5,12 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class MessageEditHistory {
   Id!: string;
-  MessageId!: string;
-  UserId!: string;
+  MessageId!: long;
+  UserId!: long;
   PrevContent?: string;
   PrevRenderedContent?: string;
   PrevTopic?: string;
-  PrevChannelId?: string;
+  PrevChannelId?: long;
   Timestamp!: long;
 }
 

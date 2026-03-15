@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export async function revokeAllApiKeys(
   options: DbContextOptions,
-  tenantId: string,
-  userId: string
+  tenantId: long,
+  userId: long
 ): Promise<void> {
   const db = new JotsterDbContext(options);
   try {

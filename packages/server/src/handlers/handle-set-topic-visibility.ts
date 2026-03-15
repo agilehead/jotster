@@ -1,6 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, toLong} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { setTopicVisibilityDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { toOptionalInt } from "../helpers/body.ts";
@@ -19,7 +20,7 @@ export const handleSetTopicVisibility = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const streamId = body["stream_id"] as string;
+  const streamId = parseId(`${body["stream_id"] ?? ""}`);
   const topic = body["topic"] as string;
   const visibilityPolicy = toOptionalInt(body["visibility_policy"]);
   if (visibilityPolicy === undefined) {
@@ -28,7 +29,7 @@ export const handleSetTopicVisibility = async (
   }
 
   const result = await setTopicVisibilityDomain(app.options, user, {
-    channelId: streamId,
+    channelId: toLong(streamId),
     topic,
     visibilityPolicy,
   });

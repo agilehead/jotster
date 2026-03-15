@@ -1,19 +1,19 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, UserGroup, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, UserGroup } from "@jotster/core/Jotster.Core.js";
 
 interface CreateUserGroupInput {
-  tenantId: string;
-  creatorId?: string;
+  tenantId: long;
+  creatorId?: long;
   name: string;
   description?: string;
-  canAddMembersGroupId?: string;
-  canJoinGroupId?: string;
-  canLeaveGroupId?: string;
-  canManageGroupId?: string;
-  canMentionGroupId?: string;
-  canRemoveMembersGroupId?: string;
+  canAddMembersGroupId?: long;
+  canJoinGroupId?: long;
+  canLeaveGroupId?: long;
+  canManageGroupId?: long;
+  canMentionGroupId?: long;
+  canRemoveMembersGroupId?: long;
 }
 
 export const createUserGroup = async (
@@ -23,8 +23,6 @@ export const createUserGroup = async (
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const group = new UserGroup();
-  group.Id = generateId();
-  group.PublicId = await allocatePublicId(options, "user_group");
   group.TenantId = input.tenantId;
   group.Name = input.name;
   group.Description = input.description ?? "";

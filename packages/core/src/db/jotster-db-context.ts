@@ -49,7 +49,6 @@ import type { BotStorage } from "./entities/bot-storage.ts";
 import type { DataExport } from "./entities/data-export.ts";
 import type { PushDeviceToken } from "./entities/push-device-token.ts";
 import type { ClientDevice } from "./entities/client-device.ts";
-import type { PublicIdCounter } from "./entities/public-id-counter.ts";
 
 type DbSetQuery<T> = Ef<Linq<DbSet<T>>>;
 type RelationalEntityTypeBuilder = Ef<EntityTypeBuilder>;
@@ -270,10 +269,6 @@ export class JotsterDbContext extends DbContext {
     return asinterface<DbSetQuery<ClientDevice>>(this.Set<ClientDevice>());
   }
 
-  get PublicIdCounters(): DbSetQuery<PublicIdCounter> {
-    return asinterface<DbSetQuery<PublicIdCounter>>(this.Set<PublicIdCounter>());
-  }
-
   constructor(options: DbContextOptions) {
     super(options);
   }
@@ -325,7 +320,6 @@ export class JotsterDbContext extends DbContext {
     configureRelationalNames(modelBuilder.Entity<DataExport>());
     configureRelationalNames(modelBuilder.Entity<PushDeviceToken>());
     configureRelationalNames(modelBuilder.Entity<ClientDevice>());
-    configureRelationalNames(modelBuilder.Entity<PublicIdCounter>());
   }
 }
 

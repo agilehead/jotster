@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -30,7 +30,7 @@ export const handleSlackIncomingDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   input: SlackIncomingInput
-): Promise<Result<{ id: string }, string>> => {
+): Promise<Result<{ id: long }, string>> => {
   // Verify the user is a bot of type 2 (incoming webhook bot)
   const db = new JotsterDbContext(options);
   try {

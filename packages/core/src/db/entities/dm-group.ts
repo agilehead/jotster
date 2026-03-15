@@ -5,7 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class DmGroup {
   Id!: string;
-  TenantId!: string;
+  TenantId!: long;
   GroupHash!: string;
   CreatedAt!: long;
 }

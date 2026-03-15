@@ -5,8 +5,8 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class DefaultChannel {
   Id!: string;
-  TenantId!: string;
-  ChannelId!: string;
+  TenantId!: long;
+  ChannelId!: long;
   CreatedAt!: long;
 }
 

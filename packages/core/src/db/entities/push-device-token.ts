@@ -5,8 +5,8 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class PushDeviceToken {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  TenantId!: long;
+  UserId!: long;
   Kind!: string;
   Token!: string;
   IosAppId?: string;

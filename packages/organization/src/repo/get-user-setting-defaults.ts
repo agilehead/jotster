@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export const getUserSettingDefaults = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long
 ): Promise<Record<string, unknown>> => {
   const db = new JotsterDbContext(options);
   try {

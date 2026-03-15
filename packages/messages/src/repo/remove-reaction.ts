@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const removeReaction = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string,
-  userId: string,
+  tenantId: long,
+  messageId: long,
+  userId: long,
   emojiCode: string,
   reactionType: string
 ): Promise<boolean> => {

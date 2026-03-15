@@ -35,7 +35,7 @@ export const createCustomEmojiDomain = async (
     authorId: user.userId,
   });
 
-  const emojiDir = path.join(uploadsDir, user.tenantId, "emoji", emoji.Id);
+  const emojiDir = path.join(uploadsDir, String(user.tenantId), "emoji", String(emoji.Id));
   if (!fs.existsSync(emojiDir)) {
     fs.mkdirSync(emojiDir, { recursive: true });
   }

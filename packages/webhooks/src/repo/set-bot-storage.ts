@@ -1,9 +1,10 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, BotStorage } from "@jotster/core/Jotster.Core.js";
 
 export const setBotStorage = async (
   options: DbContextOptions,
-  botUserId: string,
+  botUserId: long,
   key: string,
   value: string
 ): Promise<BotStorage> => {

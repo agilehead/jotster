@@ -5,7 +5,7 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const archiveChannel = async (
   options: DbContextOptions,
-  channelId: string
+  channelId: long
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {

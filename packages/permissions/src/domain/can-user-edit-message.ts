@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
@@ -5,10 +6,10 @@ import { getMessageForPermissionCheck } from "../repo/get-message-for-permission
 
 export const canUserEditMessage = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   userRole: number,
-  messageId: string,
+  messageId: long,
   editContentLimitSeconds: number,
   allowMessageEditing: boolean,
   now: number

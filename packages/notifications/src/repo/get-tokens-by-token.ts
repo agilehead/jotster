@@ -1,9 +1,10 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, PushDeviceToken } from "@jotster/core/Jotster.Core.js";
 
 export const getTokensByToken = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   token: string
 ): Promise<PushDeviceToken[]> => {
   const db = new JotsterDbContext(options);

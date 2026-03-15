@@ -1,13 +1,13 @@
 import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Draft, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Draft } from "@jotster/core/Jotster.Core.js";
 
 interface CreateDraftInput {
-  tenantId: string;
-  userId: string;
+  tenantId: long;
+  userId: long;
   type: string;
-  channelId?: string;
+  channelId?: long;
   topic?: string;
   recipientIdsJson?: string;
   content: string;
@@ -20,8 +20,6 @@ export const createDraft = async (
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const draft = new Draft();
-  draft.Id = generateId();
-  draft.PublicId = await allocatePublicId(options, "draft");
   draft.TenantId = input.tenantId;
   draft.UserId = input.userId;
   draft.Type = input.type;

@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { Request } from "@tsonic/express/index.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 
@@ -215,4 +215,54 @@ export const getOptionalIntField = (body: Record<string, unknown>, key: string):
 
 export const getOptionalFlagIntField = (body: Record<string, unknown>, key: string): int | undefined => {
   return toOptionalFlagInt(getOptionalField(body, key));
+};
+
+export const toOptionalLong = (value: unknown): long | undefined => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || value < 1) {
+      return undefined;
+    }
+    return Convert.ToInt64(value);
+  }
+  if (typeof value === "string") {
+    const trimmed = (value as string).trim();
+    if (trimmed.length === 0) {
+      return undefined;
+    }
+    const parsed = parseInt(trimmed, 10);
+    if (Number.isNaN(parsed) || parsed < 1) {
+      return undefined;
+    }
+    return Convert.ToInt64(parsed);
+  }
+  return undefined;
+};
+
+export const toLong = (value: long | undefined): long => {
+  if (value === undefined) {
+    return Convert.ToInt64(0);
+  }
+  return Convert.ToInt64(value);
+};
+
+export const getOptionalLongField = (body: Record<string, unknown>, key: string): long | undefined => {
+  return toOptionalLong(getOptionalField(body, key));
+};
+
+export const toLongArray = (values: string[] | undefined): long[] | undefined => {
+  if (values === undefined) {
+    return undefined;
+  }
+  const result: long[] = [];
+  for (let i = 0; i < values.length; i++) {
+    const parsed = toOptionalLong(values[i]);
+    if (parsed === undefined) {
+      return undefined;
+    }
+    result.push(toLong(parsed));
+  }
+  return result;
 };

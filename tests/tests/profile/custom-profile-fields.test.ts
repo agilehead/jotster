@@ -197,7 +197,7 @@ describe("PATCH /api/v1/realm/profile_fields/:field_id", () => {
       field_type: "1",
     });
     expect(createRes.status).to.equal(200);
-    const fieldId = createRes.body.id as string;
+    const fieldId = createRes.body.id as number;
 
     const memberRes = await member.client.patch(`/realm/profile_fields/${fieldId}`, {
       name: "Nope",

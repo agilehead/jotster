@@ -5,6 +5,8 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { timers } from "@tsonic/nodejs/index.js";
 import type { EventQueue, QueueEvent, DomainEvent, RegisterParams, ClientCapabilities } from "./types.ts";
 
+const toLongKey = (id: long): string => Convert.ToString(id);
+
 // Module-level state (singleton)
 // We maintain parallel lists of keys for iteration since Object.keys() isn't available in Tsonic
 const queues: Record<string, EventQueue> = {};
@@ -102,7 +104,7 @@ const gcQueues = (): void => {
       delete queues[keys[i]];
       removeFromKeyList(queueKeyList, keys[i]);
       // Remove from user index
-      const userKey = queue.tenantId + ":" + queue.userId;
+      const userKey = toLongKey(queue.tenantId) + ":" + toLongKey(queue.userId);
       const userQueues = getUserQueueIds(userKey);
       if (userQueues !== undefined) {
         const newList = new List<string>();
@@ -162,7 +164,7 @@ export function initRegistry(): void {
   }
 }
 
-export function registerQueue(tenantId: string, userId: string, params: RegisterParams): string {
+export function registerQueue(tenantId: long, userId: long, params: RegisterParams): string {
   const nowSec = ClrMath.Floor(Convert.ToDouble(DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
   const queueId = Convert.ToString(nowSec) + ":" + Convert.ToString(nextQueueSeq);
   nextQueueSeq = nextQueueSeq + 1;
@@ -187,7 +189,7 @@ export function registerQueue(tenantId: string, userId: string, params: Register
   queues[queueId] = queue;
   queueKeyList.Add(queueId);
 
-  const userKey = tenantId + ":" + userId;
+  const userKey = toLongKey(tenantId) + ":" + toLongKey(userId);
   const existing = getUserQueueIds(userKey);
   if (existing !== undefined) {
     const updatedList = new List<string>();
@@ -205,8 +207,8 @@ export function registerQueue(tenantId: string, userId: string, params: Register
 }
 
 export async function getEventsFromQueue(
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   queueId: string,
   lastEventId: int,
   dontBlock: boolean,
@@ -270,8 +272,8 @@ export async function getEventsFromQueue(
 }
 
 export function deleteQueueById(
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   queueId: string,
 ): { success: boolean; error?: string } {
   const queue = getQueue(queueId);
@@ -302,7 +304,7 @@ export function deleteQueueById(
   removeFromKeyList(queueKeyList, queueId);
 
   // Remove from userQueueIndex
-  const userKey = tenantId + ":" + userId;
+  const userKey = toLongKey(tenantId) + ":" + toLongKey(userId);
   const userQueues = getUserQueueIds(userKey);
   if (userQueues !== undefined) {
     const newList = new List<string>();
@@ -322,9 +324,9 @@ export function deleteQueueById(
   return { success: true };
 }
 
-export function dispatchEvent(tenantId: string, event: DomainEvent, targetUserIds: string[]): void {
+export function dispatchEvent(tenantId: long, event: DomainEvent, targetUserIds: long[]): void {
   for (let u = 0; u < targetUserIds.length; u++) {
-    const userKey = tenantId + ":" + targetUserIds[u];
+    const userKey = toLongKey(tenantId) + ":" + toLongKey(targetUserIds[u]);
     const queueIds = getUserQueueIds(userKey);
     if (queueIds === undefined) {
       continue;
@@ -390,19 +392,19 @@ export function dispatchEvent(tenantId: string, event: DomainEvent, targetUserId
   }
 }
 
-export function dispatchEventToUser(tenantId: string, userId: string, event: DomainEvent): void {
+export function dispatchEventToUser(tenantId: long, userId: long, event: DomainEvent): void {
   dispatchEvent(tenantId, event, [userId]);
 }
 
-export function dispatchEventToTenant(tenantId: string, event: DomainEvent): void {
-  const prefix = tenantId + ":";
-  const targetUserIds = new List<string>();
+export function dispatchEventToTenant(tenantId: long, event: DomainEvent): void {
+  const prefix = toLongKey(tenantId) + ":";
+  const targetUserIds = new List<long>();
 
   for (let i = 0; i < userKeyList.Count; i++) {
     const key = userKeyList[i];
     if (key.length > prefix.length && key.substring(0, prefix.length) === prefix) {
-      const userId = key.substring(prefix.length);
-      targetUserIds.Add(userId);
+      const userIdStr = key.substring(prefix.length);
+      targetUserIds.Add(Convert.ToInt64(userIdStr));
     }
   }
 

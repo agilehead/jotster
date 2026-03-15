@@ -6,7 +6,7 @@ import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
 
 export const updateExportStatus = async (
   options: DbContextOptions,
-  exportId: string,
+  exportId: long,
   status: string,
   url?: string,
   errorMessage?: string

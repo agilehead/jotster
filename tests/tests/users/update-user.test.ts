@@ -50,7 +50,7 @@ describe("PATCH /api/v1/users/{user_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const res = await client.patch("/users/nonexistent_id_999", {
+    const res = await client.patch("/users/999999", {
       full_name: "Ghost",
     });
 

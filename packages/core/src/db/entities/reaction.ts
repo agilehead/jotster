@@ -5,9 +5,9 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class Reaction {
   Id!: string;
-  TenantId!: string;
-  MessageId!: string;
-  UserId!: string;
+  TenantId!: long;
+  MessageId!: long;
+  UserId!: long;
   EmojiName!: string;
   EmojiCode!: string;
   ReactionType!: string;

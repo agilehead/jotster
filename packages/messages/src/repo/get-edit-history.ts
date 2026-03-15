@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, MessageEditHistory } from "@jotster/core/Jotster.Core.js";
 
 export const getEditHistory = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string
+  tenantId: long,
+  messageId: long
 ): Promise<MessageEditHistory[]> => {
   const db = new JotsterDbContext(options);
   try {

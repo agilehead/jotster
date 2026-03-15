@@ -156,24 +156,25 @@ describe("GET /api/v1/users/{user_id}", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db, { subdomain: "profile-data" });
     const target = await seedUser(db, tenantId, { fullName: "Profile Target" });
-    const fieldId = `cpf_${Date.now()}`;
     const valueId = `cpfv_${Date.now()}`;
     const now = Date.now();
 
-    await db("custom_profile_field").insert({
-      id: fieldId,
-      tenant_id: tenantId,
-      name: "Phone number",
-      hint: "",
-      field_type: 1,
-      field_data_json: "{}",
-      ordering: 0,
-      required: 1,
-      editable_by_user: 1,
-      use_for_user_matching: 0,
-      display_in_profile_summary: 0,
-      created_at: now,
-    });
+    const [fieldRow] = await db("custom_profile_field")
+      .insert({
+        tenant_id: tenantId,
+        name: "Phone number",
+        hint: "",
+        field_type: 1,
+        field_data_json: "{}",
+        ordering: 0,
+        required: 1,
+        editable_by_user: 1,
+        use_for_user_matching: 0,
+        display_in_profile_summary: 0,
+        created_at: now,
+      })
+      .returning("id");
+    const fieldId = typeof fieldRow === "object" ? (fieldRow as Record<string, unknown>).id as number : fieldRow as number;
     await db("custom_profile_field_value").insert({
       id: valueId,
       tenant_id: tenantId,
@@ -205,7 +206,7 @@ describe("GET /api/v1/users/{user_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
 
-    const res = await client.get("/users/nonexistent_id_999");
+    const res = await client.get("/users/999999");
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 404]);
     expect(res.body.code).to.equal("BAD_REQUEST");

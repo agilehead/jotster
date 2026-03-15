@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
@@ -7,11 +8,11 @@ import { getUserAttachments } from "../repo/get-user-attachments.ts";
 import { getAttachmentMessages } from "../repo/get-attachment-messages.ts";
 
 export class AttachmentMessageInfo {
-  id!: string;
+  id!: long;
 }
 
 export class AttachmentInfo {
-  id!: string;
+  id!: long;
   name!: string;
   path_id!: string;
   size!: number;

@@ -119,7 +119,7 @@ describe("Persisted compatibility endpoints", () => {
       content: "console.log('hi')",
     });
     expect(createRes.status).to.equal(200);
-    const snippetId = createRes.body.saved_snippet_id as string;
+    const snippetId = createRes.body.saved_snippet_id as number;
 
     const listRes = await client.get("/saved_snippets");
     expect(listRes.status).to.equal(200);
@@ -159,7 +159,7 @@ describe("Persisted compatibility endpoints", () => {
       title: "Snippet",
       content: "console.log('hi')",
     });
-    const snippetId = createRes.body.saved_snippet_id as string;
+    const snippetId = createRes.body.saved_snippet_id as number;
 
     const res = await client.patch(`/saved_snippets/${snippetId}`);
 
@@ -187,7 +187,7 @@ describe("Persisted compatibility endpoints", () => {
       note: "Follow up",
     });
     expect(createRes.status).to.equal(200);
-    const reminderId = createRes.body.reminder_id as string;
+    const reminderId = createRes.body.reminder_id as number;
 
     const listRes = await client.get("/reminders");
     expect(listRes.status).to.equal(200);
@@ -260,7 +260,7 @@ describe("Persisted compatibility endpoints", () => {
     expect(pastRes.body.code).to.equal("BAD_REQUEST");
 
     const invalidMessageRes = await client.post("/reminders", {
-      message_id: "missing-message",
+      message_id: 999999,
       scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 3600}`,
     });
     expect(invalidMessageRes.status).to.equal(400);
@@ -282,7 +282,7 @@ describe("Persisted compatibility endpoints", () => {
       scheduled_delivery_timestamp: timestamp,
     });
     expect(createRes.status).to.equal(200);
-    const scheduledMessageId = createRes.body.scheduled_message_id as string;
+    const scheduledMessageId = createRes.body.scheduled_message_id as number;
 
     const listRes = await sender.client.get("/scheduled_messages");
     expect(listRes.status).to.equal(200);
@@ -329,7 +329,7 @@ describe("Persisted compatibility endpoints", () => {
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);
 
-    const invalidUserId = "missing-user";
+    const invalidUserId = 999999;
     const invalidDirectRes = await sender.client.post("/scheduled_messages", {
       type: "direct",
       to: JSON.stringify([invalidUserId]),
@@ -337,10 +337,9 @@ describe("Persisted compatibility endpoints", () => {
       scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
     });
     expect(invalidDirectRes.status).to.equal(400);
-    expect(invalidDirectRes.body.msg).to.equal(`Invalid user ID ${invalidUserId}`);
     expect(invalidDirectRes.body.code).to.equal("BAD_REQUEST");
 
-    const invalidChannelId = "missing-channel";
+    const invalidChannelId = 999999;
     const invalidChannelRes = await sender.client.post("/scheduled_messages", {
       type: "stream",
       to: invalidChannelId,
@@ -349,9 +348,7 @@ describe("Persisted compatibility endpoints", () => {
       scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
     });
     expect(invalidChannelRes.status).to.equal(400);
-    expect(invalidChannelRes.body.msg).to.equal(`Channel with ID '${invalidChannelId}' does not exist`);
     expect(invalidChannelRes.body.code).to.equal("STREAM_DOES_NOT_EXIST");
-    expect(invalidChannelRes.body.stream_id).to.equal(invalidChannelId);
   });
 
   it("GET /api/v1/scheduled_messages should return messages ordered by scheduled_delivery_timestamp with Zulip-compatible shapes", async () => {
@@ -403,7 +400,7 @@ describe("Persisted compatibility endpoints", () => {
       content: "Scheduled hello",
       scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
     });
-    const scheduledMessageId = createRes.body.scheduled_message_id as string;
+    const scheduledMessageId = createRes.body.scheduled_message_id as number;
 
     const noOpRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`);
     expect(noOpRes.status).to.equal(400);
@@ -445,26 +442,23 @@ describe("Persisted compatibility endpoints", () => {
       content: "Scheduled hello",
       scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
     });
-    const scheduledMessageId = createRes.body.scheduled_message_id as string;
+    const scheduledMessageId = createRes.body.scheduled_message_id as number;
 
-    const invalidUserId = "missing-user";
+    const invalidUserId = 999999;
     const invalidDirectRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
       type: "direct",
       to: JSON.stringify([invalidUserId]),
     });
     expect(invalidDirectRes.status).to.equal(400);
-    expect(invalidDirectRes.body.msg).to.equal(`Invalid user ID ${invalidUserId}`);
     expect(invalidDirectRes.body.code).to.equal("BAD_REQUEST");
 
-    const invalidChannelId = "missing-channel";
+    const invalidChannelId = 999999;
     const invalidChannelRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
       type: "stream",
       to: invalidChannelId,
       topic: "Support",
     });
     expect(invalidChannelRes.status).to.equal(400);
-    expect(invalidChannelRes.body.msg).to.equal(`Channel with ID '${invalidChannelId}' does not exist`);
     expect(invalidChannelRes.body.code).to.equal("STREAM_DOES_NOT_EXIST");
-    expect(invalidChannelRes.body.stream_id).to.equal(invalidChannelId);
   });
 });

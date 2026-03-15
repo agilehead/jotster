@@ -2,7 +2,8 @@ import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateChannelDomain } from "@jotster/channels/Jotster.Channels.js";
-import { getBodyObject, toOptionalFlagInt, toOptionalInt } from "../helpers/body.ts";
+import { getBodyObject, toOptionalFlagInt, toOptionalInt, toLong} from "../helpers/body.ts";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateStream = async (
@@ -17,7 +18,11 @@ export const handleUpdateStream = async (
   }
 
   const user = authResult.data;
-  const streamId = req.params["stream_id"] as string;
+  const streamId = parseId(req.params["stream_id"] as string);
+  if (streamId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid stream_id" });
+    return;
+  }
 
   const body = getBodyObject(req);
   const updates: {
@@ -36,7 +41,7 @@ export const handleUpdateStream = async (
   if (body["history_public_to_subscribers"] !== undefined) updates.historyPublicToSubscribers = toOptionalFlagInt(body["history_public_to_subscribers"]);
   if (body["message_retention_days"] !== undefined) updates.messageRetentionDays = toOptionalInt(body["message_retention_days"]);
 
-  const result = await updateChannelDomain(app.options, user, streamId, updates);
+  const result = await updateChannelDomain(app.options, user, toLong(streamId), updates);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;

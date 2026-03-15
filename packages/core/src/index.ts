@@ -12,8 +12,7 @@ export { loadConfig } from "./config/load-config.ts";
 
 // Utilities
 export { generateId } from "./generate-id.ts";
-export { allocatePublicId, parsePublicId, publicIdToNumber } from "./public-ids.ts";
-export type { PublicEntityType } from "./public-ids.ts";
+export { parseId } from "./public-ids.ts";
 
 // Constants
 export {
@@ -75,4 +74,3 @@ export { BotStorage } from "./db/entities/bot-storage.ts";
 export { DataExport } from "./db/entities/data-export.ts";
 export { PushDeviceToken } from "./db/entities/push-device-token.ts";
 export { ClientDevice } from "./db/entities/client-device.ts";
-export { PublicIdCounter } from "./db/entities/public-id-counter.ts";

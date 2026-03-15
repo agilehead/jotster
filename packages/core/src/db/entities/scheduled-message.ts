@@ -4,12 +4,11 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class ScheduledMessage {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
-  UserId!: string;
+  Id!: long;
+  TenantId!: long;
+  UserId!: long;
   Type!: string;
-  ChannelId?: string;
+  ChannelId?: long;
   Topic?: string;
   RecipientIdsJson?: string;
   Content!: string;

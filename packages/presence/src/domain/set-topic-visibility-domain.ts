@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +8,7 @@ import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js"
 import { setTopicVisibility } from "../repo/set-topic-visibility.ts";
 
 interface SetTopicVisibilityParams {
-  channelId: string;
+  channelId: long;
   topic: string;
   visibilityPolicy: int;
 }

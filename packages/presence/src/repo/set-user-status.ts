@@ -5,8 +5,8 @@ import { JotsterDbContext, UserStatus } from "@jotster/core/Jotster.Core.js";
 
 export const setUserStatus = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   statusText: string,
   emojiName?: string,
   emojiCode?: string,

@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteExportDomain } from "@jotster/organization/Jotster.Organization.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleDeleteExport = async (
@@ -15,9 +17,13 @@ export const handleDeleteExport = async (
   }
 
   const user = authResult.data;
-  const exportId = req.params["export_id"] as string;
+  const exportId = parseId(req.params["export_id"] as string);
+  if (exportId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid export_id" });
+    return;
+  }
 
-  const result = await deleteExportDomain(app.options, user, exportId);
+  const result = await deleteExportDomain(app.options, user, toLong(exportId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

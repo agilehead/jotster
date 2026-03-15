@@ -4,12 +4,11 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class CustomEmoji {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
+  Id!: long;
+  TenantId!: long;
   Name!: string;
   FileName!: string;
-  AuthorId!: string;
+  AuthorId!: long;
   IsActive!: int;
   CreatedAt!: long;
 }

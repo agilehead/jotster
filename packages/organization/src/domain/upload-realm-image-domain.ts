@@ -1,5 +1,6 @@
 import { fs, path } from "@tsonic/nodejs/index.js";
 import type { UploadedFile } from "@tsonic/express/index.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err, generateId } from "@jotster/core/Jotster.Core.js";
@@ -26,7 +27,8 @@ export const uploadRealmImageDomain = async (
   const ext = path.extname(fileName);
   const pathId = generateId() + ext;
 
-  const dirPath = path.join(uploadsDir, user.tenantId);
+  const tenantIdStr = Convert.ToString(user.tenantId);
+  const dirPath = path.join(uploadsDir, tenantIdStr);
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
@@ -34,7 +36,7 @@ export const uploadRealmImageDomain = async (
   const filePath = path.join(dirPath, pathId);
   await file.save(filePath);
 
-  const url = "/user_uploads/" + user.tenantId + "/" + pathId;
+  const url = "/user_uploads/" + tenantIdStr + "/" + pathId;
 
   const settingKey = imageType === "icon" ? "icon_url" : "logo_url";
   const settings: Record<string, unknown> = {};

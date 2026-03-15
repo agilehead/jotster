@@ -19,8 +19,8 @@ describe("Organization compatibility endpoints", () => {
       field_type: "1",
     });
 
-    const firstId = first.body.id as string;
-    const secondId = second.body.id as string;
+    const firstId = first.body.id as number;
+    const secondId = second.body.id as number;
 
     const reorderRes = await client.patch("/realm/profile_fields", {
       order: JSON.stringify([secondId, firstId]),
@@ -30,7 +30,7 @@ describe("Organization compatibility endpoints", () => {
     const rows = await db("custom_profile_field")
       .select("id", "ordering")
       .whereIn("id", [firstId, secondId]);
-    const ordering = new Map(rows.map((row) => [row.id as string, row.ordering as number]));
+    const ordering = new Map(rows.map((row) => [row.id as number, row.ordering as number]));
     expect(ordering.get(firstId)).to.equal(1);
     expect(ordering.get(secondId)).to.equal(0);
   });
@@ -79,8 +79,8 @@ describe("Organization compatibility endpoints", () => {
     expect(first.status).to.equal(200);
     expect(second.status).to.equal(200);
 
-    const firstId = first.body.id as string;
-    const secondId = second.body.id as string;
+    const firstId = first.body.id as number;
+    const secondId = second.body.id as number;
 
     const listRes = await client.get("/realm/linkifiers");
     expect(listRes.status).to.equal(200);
@@ -128,7 +128,7 @@ describe("Organization compatibility endpoints", () => {
       url_template: "https://tracker.example.com/{id}",
       example_input: "#123",
     });
-    const filterId = createRes.body.id as string;
+    const filterId = createRes.body.id as number;
 
     const missingOrderRes = await admin.client.patch("/realm/linkifiers");
     expect(missingOrderRes.status).to.equal(400);
@@ -142,7 +142,7 @@ describe("Organization compatibility endpoints", () => {
     expect(memberReorderRes.body.msg).to.equal("Must be an organization administrator");
     expect(memberReorderRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
 
-    const missingFilterUpdateRes = await admin.client.patch("/realm/filters/missing-filter", {
+    const missingFilterUpdateRes = await admin.client.patch("/realm/filters/999999", {
       pattern: "BUG-(?<id>\\d+)",
     });
     expect(missingFilterUpdateRes.status).to.equal(404);
@@ -165,7 +165,7 @@ describe("Organization compatibility endpoints", () => {
     });
 
     expect(res.status).to.equal(200);
-    expect(res.body.message_id).to.be.a("string");
+    expect(res.body.message_id).to.be.a("number");
   });
 
   it("POST /api/v1/realm/test_welcome_bot_custom_message should require admin auth and a message payload", async () => {

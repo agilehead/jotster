@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteAttachmentDomain } from "@jotster/uploads/Jotster.Uploads.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleDeleteAttachment = async (
@@ -15,11 +17,15 @@ export const handleDeleteAttachment = async (
   }
 
   const user = authResult.data;
-  const attachmentId = req.params["attachment_id"] as string;
+  const attachmentId = parseId(req.params["attachment_id"] as string);
+  if (attachmentId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid attachment_id" });
+    return;
+  }
 
   const uploadsDir = app.config.uploadsDir || "./uploads";
 
-  const result = await deleteAttachmentDomain(app.options, user, uploadsDir, attachmentId);
+  const result = await deleteAttachmentDomain(app.options, user, uploadsDir, toLong(attachmentId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

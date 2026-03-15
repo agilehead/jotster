@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, DmGroup } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getDmGroupsForUser = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string
+  tenantId: long,
+  userId: long
 ): Promise<DmGroup[]> => {
   const db = new JotsterDbContext(options);
   try {

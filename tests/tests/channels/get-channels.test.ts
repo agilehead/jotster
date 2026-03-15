@@ -136,7 +136,7 @@ describe("GET /api/v1/streams/{stream_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
 
-    const res = await client.get("/streams/nonexistent_id_999");
+    const res = await client.get("/streams/999999");
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 404]);
     expect(res.body.code).to.equal("BAD_REQUEST");

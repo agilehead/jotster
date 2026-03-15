@@ -4,11 +4,10 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Reminder {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
-  UserId!: string;
-  MessageId!: string;
+  Id!: long;
+  TenantId!: long;
+  UserId!: long;
+  MessageId!: long;
   Note?: string;
   Content!: string;
   RenderedContent!: string;

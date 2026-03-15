@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +9,7 @@ import { removeMessageFlags } from "../repo/remove-message-flags.ts";
 const VALID_FLAGS = ["read", "starred", "mentioned", "wildcard_mentioned", "has_alert_word", "historical"];
 
 interface UpdateFlagsDomainInput {
-  messages: string[];
+  messages: long[];
   op: string;
   flag: string;
 }
@@ -17,7 +18,7 @@ export const updateFlagsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   params: UpdateFlagsDomainInput
-): Promise<Result<{ messages: string[] }, string>> => {
+): Promise<Result<{ messages: long[] }, string>> => {
   // Validate op
   if (params.op !== "add" && params.op !== "remove") {
     return err("Invalid operation: must be 'add' or 'remove'");

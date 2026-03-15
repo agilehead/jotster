@@ -1,4 +1,5 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
@@ -25,7 +26,7 @@ const PERMISSION_DEFAULTS: Record<string, string> = {
 
 export const initializeDefaultPermissionSettings = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long
 ): Promise<Result<Record<string, string>, string>> => {
   const db = new JotsterDbContext(options);
   try {
@@ -42,7 +43,7 @@ export const initializeDefaultPermissionSettings = async (
     const nameToId: Record<string, string> = {};
     for (let i = 0; i < systemGroups.Count; i++) {
       const systemGroup = systemGroups[i];
-      nameToId[systemGroup.Name] = systemGroup.Id;
+      nameToId[systemGroup.Name] = Convert.ToString(systemGroup.Id);
     }
 
     // Map each default setting name to the group ID

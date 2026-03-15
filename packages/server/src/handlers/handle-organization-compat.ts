@@ -1,5 +1,7 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { Linkifier } from "@jotster/core/Jotster.Core.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import {
@@ -11,11 +13,26 @@ import {
   updateLinkifier,
   deleteLinkifier,
 } from "../helpers/compat-db.ts";
-import { getBodyObject, getOptionalStringArrayField, getOptionalStringField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringArrayField, getOptionalStringField, toLong} from "../helpers/body.ts";
 import { mapLinkifierToCompatResponse } from "../helpers/compat-mappers.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
-const normalizeFilterId = (filterId: string): string => filterId;
+const normalizeFilterId = (filterId: string): long | undefined => parseId(filterId);
+
+const parseIdArray = (values: string[] | undefined): long[] | undefined => {
+  if (values === undefined) {
+    return undefined;
+  }
+  const result: long[] = [];
+  for (let i = 0; i < values.length; i++) {
+    const parsed = parseId(values[i]);
+    if (parsed === undefined) {
+      return undefined;
+    }
+    result.push(toLong(parsed));
+  }
+  return result;
+};
 const getAlternativeUrlTemplatesJson = (body: Record<string, unknown>): string => {
   const explicit = getOptionalStringField(body, "alternative_url_templates");
   if (explicit !== undefined) {
@@ -33,7 +50,7 @@ const mapLinkifiers = (entries: Linkifier[]): Record<string, unknown>[] => {
   return result;
 };
 
-const dispatchRealmLinkifiersEvent = async (app: AppContext, tenantId: string): Promise<void> => {
+const dispatchRealmLinkifiersEvent = async (app: AppContext, tenantId: long): Promise<void> => {
   const linkifiers = await listLinkifiers(app.options, tenantId);
   dispatchEventToTenant(tenantId, {
     type: "realm_linkifiers",
@@ -66,13 +83,13 @@ export const handleReorderProfileFieldsCompat = async (
   }
 
   const body = getBodyObject(req);
-  const order = getOptionalStringArrayField(body, "order");
-  if (order === undefined || order.length === 0) {
+  const orderIds = parseIdArray(getOptionalStringArrayField(body, "order"));
+  if (orderIds === undefined || orderIds.length === 0) {
     res.status(400).json({ result: "error", msg: "Missing order", code: "BAD_REQUEST" });
     return;
   }
 
-  const ok = await reorderCustomProfileFields(app.options, requester.tenantId, order);
+  const ok = await reorderCustomProfileFields(app.options, requester.tenantId, orderIds);
   if (!ok) {
     res.status(400).json({ result: "error", msg: "Invalid order mapping", code: "BAD_REQUEST" });
     return;
@@ -114,7 +131,7 @@ export const handleReorderLinkifiersCompat = async (
   }
 
   const body = getBodyObject(req);
-  const orderedIds = getOptionalStringArrayField(body, "ordered_linkifier_ids");
+  const orderedIds = parseIdArray(getOptionalStringArrayField(body, "ordered_linkifier_ids"));
   if (orderedIds === undefined || orderedIds.length === 0) {
     res.status(400).json({ result: "error", msg: "Missing ordered_linkifier_ids", code: "BAD_REQUEST" });
     return;
@@ -187,7 +204,12 @@ export const handleUpdateLinkifierCompat = async (
   }
 
   const body = getBodyObject(req);
-  const ok = await updateLinkifier(app.options, requester.tenantId, normalizeFilterId(req.params["filter_id"] as string), {
+  const updateFilterId = normalizeFilterId(req.params["filter_id"] as string);
+  if (updateFilterId === undefined) {
+    res.status(404).json({ result: "error", msg: "Linkifier does not exist.", code: "BAD_REQUEST" });
+    return;
+  }
+  const ok = await updateLinkifier(app.options, requester.tenantId, toLong(updateFilterId), {
     pattern: getOptionalStringField(body, "pattern"),
     urlTemplate: getOptionalStringField(body, "url_template"),
     exampleInput: getOptionalStringField(body, "example_input"),
@@ -218,7 +240,12 @@ export const handleDeleteLinkifierCompat = async (
     return;
   }
 
-  const ok = await deleteLinkifier(app.options, requester.tenantId, normalizeFilterId(req.params["filter_id"] as string));
+  const deleteFilterId = normalizeFilterId(req.params["filter_id"] as string);
+  if (deleteFilterId === undefined) {
+    res.status(404).json({ result: "error", msg: "Linkifier does not exist.", code: "BAD_REQUEST" });
+    return;
+  }
+  const ok = await deleteLinkifier(app.options, requester.tenantId, toLong(deleteFilterId));
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Linkifier does not exist.", code: "BAD_REQUEST" });
     return;

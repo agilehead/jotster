@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getUserGroupMembers = async (
   options: DbContextOptions,
-  groupId: string
-): Promise<string[]> => {
+  groupId: long
+): Promise<long[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
@@ -14,7 +15,7 @@ export const getUserGroupMembers = async (
       .Where((m) => m.UserGroupId === groupId0)
       .ToListAsync();
 
-    const ids = new List<string>();
+    const ids = new List<long>();
     for (let i = 0; i < members.Count; i++) {
       const member = members[i];
       ids.Add(member.UserId);

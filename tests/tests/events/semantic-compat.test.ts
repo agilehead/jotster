@@ -93,7 +93,7 @@ describe("Semantic Zulip event compatibility", function () {
       ]),
     });
     expect(createRes.status).to.equal(200);
-    const draftId = (createRes.body.ids as string[])[0];
+    const draftId = (createRes.body.ids as number[])[0];
 
     const listRes = await user.client.get("/drafts");
     expect(listRes.status).to.equal(200);
@@ -179,7 +179,7 @@ describe("Semantic Zulip event compatibility", function () {
       description: "Frontend discussions",
     });
     expect(createRes.status).to.equal(200);
-    const firstFolderId = createRes.body.channel_folder_id as string;
+    const firstFolderId = createRes.body.channel_folder_id as number;
 
     const createEvents = await getEvents(admin.client, queueId, lastEventId);
     expect(createEvents).to.have.length(1);
@@ -226,7 +226,7 @@ describe("Semantic Zulip event compatibility", function () {
       description: "Backend discussions",
     });
     expect(secondRes.status).to.equal(200);
-    const secondFolderId = secondRes.body.channel_folder_id as string;
+    const secondFolderId = secondRes.body.channel_folder_id as number;
 
     const secondCreateEvents = await getEvents(admin.client, queueId, updateEvents[0].id as number);
     expect(secondCreateEvents).to.have.length(1);
@@ -269,7 +269,7 @@ describe("Semantic Zulip event compatibility", function () {
       description: "Child group",
     });
     expect(subgroupRes.status).to.equal(200);
-    const subgroupId = subgroupRes.body.group.id as string;
+    const subgroupId = subgroupRes.body.group.id as number;
 
     const { queueId, lastEventId } = await registerQueue(admin.client, ["user_group"]);
 
@@ -279,7 +279,7 @@ describe("Semantic Zulip event compatibility", function () {
       members: JSON.stringify([admin.userId]),
     });
     expect(createRes.status).to.equal(200);
-    const groupId = createRes.body.group.id as string;
+    const groupId = createRes.body.group.id as number;
 
     const createEvents = await getEvents(admin.client, queueId, lastEventId);
     expect(createEvents).to.have.length(1);
@@ -445,7 +445,7 @@ describe("Semantic Zulip event compatibility", function () {
       use_for_user_matching: "true",
     });
     expect(createRes.status).to.equal(200);
-    const firstFieldId = createRes.body.id as string;
+    const firstFieldId = createRes.body.id as number;
 
     const listRes = await admin.client.get("/realm/profile_fields");
     expect(listRes.status).to.equal(200);
@@ -517,7 +517,7 @@ describe("Semantic Zulip event compatibility", function () {
       field_data: "{\"subtype\":\"github\"}",
     });
     expect(secondRes.status).to.equal(200);
-    const secondFieldId = secondRes.body.id as string;
+    const secondFieldId = secondRes.body.id as number;
 
     const secondCreateEvents = await getEvents(admin.client, queueId, updateEvents[0].id as number);
     expect(secondCreateEvents).to.have.length(1);

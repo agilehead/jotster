@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
 import { HMACSHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
@@ -123,7 +124,7 @@ const verifyJwt = (token: string, secret: string): JwtVerificationResult => {
 export const fetchJwtApiKey = async (
   options: DbContextOptions,
   config: ServerConfig,
-  tenantId: string,
+  tenantId: long,
   token: string,
   includeProfile: boolean,
 ): Promise<Result<{ api_key: string; email: string; user?: User }, string>> => {

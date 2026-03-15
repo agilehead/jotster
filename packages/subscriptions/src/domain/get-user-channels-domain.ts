@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +9,7 @@ import { getSubscriptionsForChannel } from "../repo/get-subscriptions-for-channe
 export const getUserChannelsDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  targetUserId: string,
+  targetUserId: long,
   includeSubscribers: boolean
 ): Promise<Result<Record<string, unknown>[], string>> => {
   // Must be admin or self (role <= 200 or actingUser.userId === targetUserId)
@@ -69,7 +70,7 @@ export const getUserChannelsDomain = async (
 
       if (includeSubscribers) {
         const channelSubs = await getSubscriptionsForChannel(options, actingUser.tenantId, channel.Id);
-        const subscriberList = new List<string>();
+        const subscriberList = new List<long>();
         for (let j = 0; j < channelSubs.Count; j++) {
           const channelSub = channelSubs[j];
           subscriberList.Add(channelSub.UserId);

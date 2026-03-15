@@ -5,8 +5,8 @@ import { JotsterDbContext, PushDeviceToken, generateId } from "@jotster/core/Jot
 
 export const registerPushToken = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   kind: string,
   token: string,
   iosAppId: string | undefined

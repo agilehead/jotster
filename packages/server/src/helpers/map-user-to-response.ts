@@ -42,7 +42,7 @@ export const buildUserResponse = async (
     if (value.RenderedValue !== undefined && value.RenderedValue !== null) {
       valuePayload["rendered_value"] = value.RenderedValue;
     }
-    profileData[value.FieldId] = valuePayload;
+    profileData[`${value.FieldId}`] = valuePayload;
   }
 
   resp["profile_data"] = profileData;

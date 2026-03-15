@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getSingleMessageDomain } from "@jotster/messages/Jotster.Messages.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetSingleMessage = async (
@@ -15,9 +17,13 @@ export const handleGetSingleMessage = async (
   }
 
   const user = authResult.data;
-  const messageId = req.params["message_id"] as string;
+  const messageId = parseId(req.params["message_id"] as string);
+  if (messageId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid message_id" });
+    return;
+  }
 
-  const result = await getSingleMessageDomain(app.options, user, messageId);
+  const result = await getSingleMessageDomain(app.options, user, toLong(messageId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;

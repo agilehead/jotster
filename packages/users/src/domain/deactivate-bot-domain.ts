@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +8,7 @@ import { deactivateUser } from "../repo/deactivate-user.ts";
 export const deactivateBotDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  botId: string
+  botId: long
 ): Promise<Result<boolean, string>> => {
   const bot = await getUser(options, botId);
   if (bot === undefined) {

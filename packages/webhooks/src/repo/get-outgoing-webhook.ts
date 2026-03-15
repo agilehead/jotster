@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, OutgoingWebhook } from "@jotster/core/Jotster.Core.js";
 
 export const getOutgoingWebhook = async (
   options: DbContextOptions,
-  tenantId: string,
-  botUserId: string
+  tenantId: long,
+  botUserId: long
 ): Promise<OutgoingWebhook | undefined> => {
   const db = new JotsterDbContext(options);
   try {

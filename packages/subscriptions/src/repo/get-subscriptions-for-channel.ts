@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Subscription } from "@jotster/core/Jotster.Core.js";
 import type { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getSubscriptionsForChannel = async (
   options: DbContextOptions,
-  tenantId: string,
-  channelId: string
+  tenantId: long,
+  channelId: long
 ): Promise<List<Subscription>> => {
   const db = new JotsterDbContext(options);
   try {

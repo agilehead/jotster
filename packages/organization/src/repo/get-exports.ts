@@ -1,9 +1,10 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, DataExport } from "@jotster/core/Jotster.Core.js";
 
 export const getExports = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long
 ): Promise<DataExport[]> => {
   const db = new JotsterDbContext(options);
   try {

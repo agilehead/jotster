@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -5,7 +6,7 @@ import { getSubscription } from "../repo/get-subscription.ts";
 import { updateSubscriptionProperty } from "../repo/update-subscription-property.ts";
 
 interface SubscriptionPropertyUpdate {
-  streamId: string;
+  streamId: long;
   property: string;
   propValue: string;
 }

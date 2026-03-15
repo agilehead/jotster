@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -6,8 +7,8 @@ import { isUserInGroup } from "../repo/is-user-in-group.ts";
 
 export const checkPermission = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   settingName: string
 ): Promise<Result<boolean, string>> => {
   const settingResult = await getPermissionSetting(options, tenantId, settingName);

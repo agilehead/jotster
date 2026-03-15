@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
@@ -6,10 +6,10 @@ import { ok } from "@jotster/core/Jotster.Core.js";
 
 export const canUserManageChannel = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   userRole: number,
-  channelId: string
+  channelId: long
 ): Promise<Result<boolean, string>> => {
   // Admins can always manage channels
   if (userRole <= 200) {

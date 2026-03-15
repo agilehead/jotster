@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getExportConsents = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
 ): Promise<Record<string, unknown>[]> => {
   const db = new JotsterDbContext(options);
   try {

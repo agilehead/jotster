@@ -63,7 +63,7 @@ describe("Realm linkifier event compatibility", function () {
       example_input: "#123",
     });
     expect(firstCreateRes.status).to.equal(200);
-    const firstId = firstCreateRes.body.id as string;
+    const firstId = firstCreateRes.body.id as number;
 
     const firstCreateEvents = await getEvents(admin.client, queueId, lastEventId);
     expect(firstCreateEvents).to.have.length(1);
@@ -90,7 +90,7 @@ describe("Realm linkifier event compatibility", function () {
       alternative_url_templates: JSON.stringify(["https://bugs.example.com/ticket/{id}"]),
     });
     expect(secondCreateRes.status).to.equal(200);
-    const secondId = secondCreateRes.body.id as string;
+    const secondId = secondCreateRes.body.id as number;
 
     const secondCreateEvents = await getEvents(admin.client, queueId, firstCreateEvents[0].id as number);
     expect(secondCreateEvents).to.have.length(1);

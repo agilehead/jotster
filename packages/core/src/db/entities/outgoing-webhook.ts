@@ -5,8 +5,8 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class OutgoingWebhook {
   Id!: string;
-  TenantId!: string;
-  BotUserId!: string;
+  TenantId!: long;
+  BotUserId!: long;
   Url!: string;
   Token!: string;
   TriggerType!: string;

@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { JotsterDbContext, UserSetting } from "@jotster/core/Jotster.Core.js";
@@ -6,8 +6,8 @@ import { createUserSetting } from "./create-user-setting.ts";
 
 export const updateUserSetting = async (
   options: DbContextOptions,
-  userId: string,
-  tenantId: string,
+  userId: long,
+  tenantId: long,
   updates: Record<string, unknown>,
   updateKeys: List<string>
 ): Promise<UserSetting | undefined> => {

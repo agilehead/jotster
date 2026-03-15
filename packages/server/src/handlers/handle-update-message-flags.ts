@@ -1,21 +1,24 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalJsonArrayField, getOptionalStringField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalJsonArrayField, getOptionalStringField, toLong } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { updateFlagsDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
-const toStringArray = (value: unknown[] | undefined): string[] | undefined => {
+const toLongArray = (value: unknown[] | undefined): long[] | undefined => {
   if (value === undefined) {
     return undefined;
   }
 
-  const result: string[] = [];
+  const result: long[] = [];
   for (let i = 0; i < value.length; i++) {
     const entry = value[i];
-    if (typeof entry !== "string") {
+    const parsed = parseId(`${entry}`);
+    if (parsed === undefined) {
       return undefined;
     }
-    result.push(entry as string);
+    result.push(toLong(parsed));
   }
   return result;
 };
@@ -34,7 +37,7 @@ export const handleUpdateMessageFlags = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const parsedMessages = toStringArray(getOptionalJsonArrayField(body, "messages"));
+  const parsedMessages = toLongArray(getOptionalJsonArrayField(body, "messages"));
   const op = getOptionalStringField(body, "op");
   const flag = getOptionalStringField(body, "flag");
   if (parsedMessages === undefined || op === undefined || flag === undefined) {

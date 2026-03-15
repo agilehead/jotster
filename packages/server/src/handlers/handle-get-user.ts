@@ -3,6 +3,8 @@ import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserByIdDomain } from "@jotster/users/Jotster.Users.js";
 import { resolveUserByEmailPath } from "../helpers/compat-db.ts";
 import { buildUserResponse } from "../helpers/map-user-to-response.ts";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetUser = async (
@@ -25,7 +27,13 @@ export const handleGetUser = async (
     return;
   }
 
-  const result = await getUserByIdDomain(app.options, user.tenantId, identifier);
+  const parsedUserId = parseId(identifier);
+  if (parsedUserId === undefined) {
+    res.status(400).json({ result: "error", msg: "User not found", code: "BAD_REQUEST" });
+    return;
+  }
+
+  const result = await getUserByIdDomain(app.options, user.tenantId, toLong(parsedUserId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;

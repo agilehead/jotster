@@ -5,8 +5,8 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class AlertWord {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  TenantId!: long;
+  UserId!: long;
   Word!: string;
   CreatedAt!: long;
 }

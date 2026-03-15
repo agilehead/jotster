@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, OutgoingWebhook } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getMentionTriggeredWebhooks = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long
 ): Promise<OutgoingWebhook[]> => {
   const db = new JotsterDbContext(options);
   try {

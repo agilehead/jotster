@@ -2,6 +2,8 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getTopicsDomain } from "@jotster/channels/Jotster.Channels.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetTopics = async (
@@ -16,9 +18,13 @@ export const handleGetTopics = async (
   }
 
   const user = authResult.data;
-  const streamId = req.params["stream_id"] as string;
+  const streamId = parseId(req.params["stream_id"] as string);
+  if (streamId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid stream_id" });
+    return;
+  }
 
-  const result = await getTopicsDomain(app.options, user, streamId);
+  const result = await getTopicsDomain(app.options, user, toLong(streamId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

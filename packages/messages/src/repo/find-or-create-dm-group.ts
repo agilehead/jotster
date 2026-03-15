@@ -6,11 +6,11 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const findOrCreateDmGroup = async (
   options: DbContextOptions,
-  tenantId: string,
-  userIds: string[]
+  tenantId: long,
+  userIds: long[]
 ): Promise<DmGroup> => {
   // Sort userIds and create hash
-  const sorted = new List<string>();
+  const sorted = new List<long>();
   for (let i = 0; i < userIds.length; i++) {
     sorted.Add(userIds[i]);
   }
@@ -19,7 +19,7 @@ export const findOrCreateDmGroup = async (
   let groupHash = "";
   for (let i = 0; i < sortedArr.length; i++) {
     if (i > 0) { groupHash = groupHash + ","; }
-    groupHash = groupHash + sortedArr[i];
+    groupHash = groupHash + sortedArr[i].toString();
   }
 
   const db = new JotsterDbContext(options);

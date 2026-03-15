@@ -1,10 +1,10 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, UserGroup } from "@jotster/core/Jotster.Core.js";
 
 export const getSystemGroups = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long
 ): Promise<UserGroup[]> => {
   const db = new JotsterDbContext(options);
   try {

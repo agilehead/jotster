@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Channel, Subscription, generateId, allocatePublicId, ok, err } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Channel, ok, err } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { createSubscription } from "../repo/create-subscription.ts";
@@ -45,8 +45,6 @@ export const subscribeDomain = async (
       // Create the channel
       const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
       channel = new Channel();
-      channel.Id = generateId();
-      channel.PublicId = await allocatePublicId(options, "channel");
       channel.TenantId = user.tenantId;
       channel.Name = channelName;
       channel.Description = createParams.description ?? "";
@@ -72,7 +70,7 @@ export const subscribeDomain = async (
     }
 
     // Determine target users
-    const targetUsers = new List<{ id: string; email: string }>();
+    const targetUsers = new List<{ id: long; email: string }>();
 
     if (principals !== undefined && principals.length > 0) {
       // For private channels: only admin or channel creator can subscribe others
@@ -82,15 +80,10 @@ export const subscribeDomain = async (
 
       for (let i = 0; i < principals.length; i++) {
         const principal0 = principals[i];
-        // Try looking up by Id first, then by Email
-        let targetUser = await db0.Users
-          .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === principal0)
+        // Look up by email
+        const targetUser = await db0.Users
+          .Where((u) => u.TenantId === tenantId0).Where((u) => u.Email === principal0)
           .FirstOrDefaultAsync();
-        if (targetUser === undefined || targetUser === null) {
-          targetUser = await db0.Users
-            .Where((u) => u.TenantId === tenantId0).Where((u) => u.Email === principal0)
-            .FirstOrDefaultAsync();
-        }
         if (targetUser !== undefined && targetUser !== null) {
           targetUsers.Add({ id: targetUser.Id, email: targetUser.Email });
         }

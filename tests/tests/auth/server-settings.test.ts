@@ -6,14 +6,14 @@ import { TestServer } from "../../utils/test-server.js";
 
 const getBaseUrl = (): string => process.env.JOTSTER_TEST_BASE_URL ?? "http://localhost:9877";
 
-const getTenantHostHeader = async (tenantId: string, baseUrl = getBaseUrl()): Promise<string> => {
+const getTenantHostHeader = async (tenantId: number, baseUrl = getBaseUrl()): Promise<string> => {
   const row = await testDb.getDb()("tenant").select("subdomain").where({ id: tenantId }).first();
   const subdomain = row?.subdomain as string;
   const port = new URL(baseUrl).port;
   return port === "" ? `${subdomain}.test.local` : `${subdomain}.test.local:${port}`;
 };
 
-const createAnonymousTenantClient = async (tenantId: string, baseUrl = getBaseUrl()) => {
+const createAnonymousTenantClient = async (tenantId: number, baseUrl = getBaseUrl()) => {
   return createApiClient(baseUrl, "", "", await getTenantHostHeader(tenantId, baseUrl));
 };
 

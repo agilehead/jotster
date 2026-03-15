@@ -4,12 +4,12 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import { JotsterDbContext, MessageEditHistory, generateId } from "@jotster/core/Jotster.Core.js";
 
 interface CreateEditHistoryInput {
-  messageId: string;
-  userId: string;
+  messageId: long;
+  userId: long;
   prevContent?: string;
   prevRenderedContent?: string;
   prevTopic?: string;
-  prevChannelId?: string;
+  prevChannelId?: long;
 }
 
 export const createEditHistory = async (

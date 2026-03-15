@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -10,7 +11,7 @@ import { getMutedUsers } from "../repo/get-muted-users.ts";
 export const muteUserDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  mutedUserId: string
+  mutedUserId: long
 ): Promise<Result<void, string>> => {
   // Validate not self-muting
   if (user.userId === mutedUserId) {
@@ -48,7 +49,7 @@ export const muteUserDomain = async (
 
   // Get full list and dispatch event
   const allMuted = await getMutedUsers(options, user.tenantId, user.userId);
-  const mutedUserIds = new List<string>();
+  const mutedUserIds = new List<long>();
   for (let allMutedIndex = 0; allMutedIndex < allMuted.length; allMutedIndex++) {
     const mutedEntry = allMuted[allMutedIndex];
     mutedUserIds.Add(mutedEntry.MutedUserId);

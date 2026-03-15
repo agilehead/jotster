@@ -2,8 +2,9 @@ import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateCustomProfileFieldDomain } from "@jotster/users/Jotster.Users.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalFlagIntField, getOptionalIntField, getOptionalStringField, hasField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalFlagIntField, getOptionalIntField, getOptionalStringField, hasField, toLong} from "../helpers/body.ts";
 
 export const handleUpdateCustomProfileField = async (
   req: Request,
@@ -21,7 +22,11 @@ export const handleUpdateCustomProfileField = async (
     res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
     return;
   }
-  const fieldId = req.params["field_id"] as string;
+  const fieldId = parseId(req.params["field_id"] as string);
+  if (fieldId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid field_id" });
+    return;
+  }
   const body = getBodyObject(req);
 
   const updates: {
@@ -90,7 +95,7 @@ export const handleUpdateCustomProfileField = async (
     updates.ordering = ordering;
   }
 
-  const result = await updateCustomProfileFieldDomain(app.options, user, fieldId, updates);
+  const result = await updateCustomProfileFieldDomain(app.options, user, toLong(fieldId), updates);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;

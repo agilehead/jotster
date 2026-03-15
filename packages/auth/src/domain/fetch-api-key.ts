@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -10,10 +11,10 @@ import { getActiveApiKey } from "../repo/get-active-api-key.ts";
 
 export const fetchApiKey = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   email: string,
   password: string
-): Promise<Result<{ api_key: string; email: string; user_id: string }, string>> => {
+): Promise<Result<{ api_key: string; email: string; user_id: long }, string>> => {
   const user = await getUserByEmail(options, tenantId, email);
   if (user === undefined) {
     return err("Your username or password is incorrect");

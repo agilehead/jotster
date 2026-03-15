@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { CustomProfileField, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -22,7 +22,7 @@ interface UpdateFieldInput {
 export const updateCustomProfileFieldDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  fieldId: string,
+  fieldId: long,
   input: UpdateFieldInput
 ): Promise<Result<CustomProfileField, string>> => {
   if (actingUser.role > 200) {

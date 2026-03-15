@@ -1,10 +1,10 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, CustomEmoji } from "@jotster/core/Jotster.Core.js";
 
 export async function getCustomEmojiByName(
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   name: string
 ): Promise<CustomEmoji | undefined> {
   const db = new JotsterDbContext(options);

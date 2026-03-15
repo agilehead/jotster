@@ -5,7 +5,7 @@ import { JotsterDbContext, Tenant } from "@jotster/core/Jotster.Core.js";
 
 export const updateTenant = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   updates: { name?: string; description?: string; active?: int }
 ): Promise<Tenant | undefined> => {
   const db = new JotsterDbContext(options);

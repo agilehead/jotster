@@ -5,9 +5,9 @@ import { JotsterDbContext, UserTopic, generateId } from "@jotster/core/Jotster.C
 
 export const setTopicVisibility = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  channelId: string,
+  tenantId: long,
+  userId: long,
+  channelId: long,
   topic: string,
   visibilityPolicy: int
 ): Promise<UserTopic | undefined> => {

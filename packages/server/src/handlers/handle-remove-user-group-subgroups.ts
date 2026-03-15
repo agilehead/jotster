@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { removeUserGroupSubgroupsDomain } from "@jotster/permissions/Jotster.Permissions.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong, toLongArray } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleRemoveUserGroupSubgroups = async (
@@ -15,17 +17,21 @@ export const handleRemoveUserGroupSubgroups = async (
   }
 
   const user = authResult.data;
-  const groupId = req.params["group_id"] as string;
+  const groupId = parseId(req.params["group_id"] as string);
+  if (groupId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid group_id" });
+    return;
+  }
 
   const body = req.body as Record<string, unknown>;
-  const del = body["delete"] as string[] | undefined;
+  const delIds = toLongArray(body["delete"] as string[] | undefined);
 
-  if (!del || del.length === 0) {
+  if (delIds === undefined || delIds.length === 0) {
     res.status(400).json({ result: "error", msg: "Missing required field: delete" });
     return;
   }
 
-  const result = await removeUserGroupSubgroupsDomain(app.options, user, groupId, del);
+  const result = await removeUserGroupSubgroupsDomain(app.options, user, toLong(groupId), delIds);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

@@ -4,10 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class DataExport {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
-  RequesterId!: string;
+  Id!: long;
+  TenantId!: long;
+  RequesterId!: long;
   ExportType!: string;
   Status!: string;
   Url?: string;

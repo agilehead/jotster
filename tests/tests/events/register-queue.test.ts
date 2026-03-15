@@ -109,7 +109,7 @@ describe("POST /api/v1/register", function () {
       members: JSON.stringify([admin.userId]),
     });
     expect(groupRes.status).to.equal(200);
-    const groupId = groupRes.body.group.id as string;
+    const groupId = groupRes.body.group.id as number;
 
     const registerRes = await admin.client.post("/register", {
       fetch_event_types: JSON.stringify([
@@ -291,7 +291,7 @@ describe("POST /api/v1/register", function () {
       description: "Hidden by default",
     });
     expect(createRes.status).to.equal(200);
-    const groupId = createRes.body.group.id as string;
+    const groupId = createRes.body.group.id as number;
 
     const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
     expect(deactivateRes.status).to.equal(200);

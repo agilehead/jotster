@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { deleteCustomProfileFieldDomain } from "@jotster/users/Jotster.Users.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleDeleteCustomProfileField = async (
@@ -19,9 +21,13 @@ export const handleDeleteCustomProfileField = async (
     res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
     return;
   }
-  const fieldId = req.params["field_id"] as string;
+  const fieldId = parseId(req.params["field_id"] as string);
+  if (fieldId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid field_id" });
+    return;
+  }
 
-  const result = await deleteCustomProfileFieldDomain(app.options, user, fieldId);
+  const result = await deleteCustomProfileFieldDomain(app.options, user, toLong(fieldId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;

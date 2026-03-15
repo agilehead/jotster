@@ -5,8 +5,8 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const reactivateUser = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string
+  tenantId: long,
+  userId: long
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {

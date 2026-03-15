@@ -61,7 +61,7 @@ describe("Attachments and Uploads", () => {
       expect(fileRes.status).to.equal(200);
       expect(fileRes.body.equals(TEXT_FILE)).to.equal(true);
 
-      const deleteRes = await client.delete(`/attachments/${attachment.id as string}`);
+      const deleteRes = await client.delete(`/attachments/${attachment.id as number}`);
       expect(deleteRes.status).to.equal(200);
       expect(deleteRes.body.result).to.equal("success");
 

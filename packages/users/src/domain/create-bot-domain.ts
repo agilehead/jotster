@@ -12,7 +12,7 @@ export const createBotDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
   input: { fullName: string; shortName: string; botType?: int }
-): Promise<Result<{ userId: string; apiKey: string }, string>> => {
+): Promise<Result<{ userId: long; apiKey: string }, string>> => {
   const botEmail = `${input.shortName}-bot@jotster.local`;
 
   const existing = await getUserByEmail(options, actingUser.tenantId, botEmail);

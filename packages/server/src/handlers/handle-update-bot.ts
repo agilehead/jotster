@@ -1,6 +1,9 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { updateBotDomain } from "@jotster/users/Jotster.Users.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateBot = async (
@@ -15,14 +18,18 @@ export const handleUpdateBot = async (
   }
 
   const user = authResult.data;
-  const botId = req.params["bot_id"] as string;
+  const botId = parseId(req.params["bot_id"] as string);
+  if (botId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid bot_id" });
+    return;
+  }
 
   const body = req.body as Record<string, unknown>;
-  const updates: { fullName?: string; botOwnerId?: string } = {};
+  const updates: { fullName?: string; botOwnerId?: long } = {};
   if (body["full_name"] !== undefined) updates.fullName = body["full_name"] as string;
-  if (body["bot_owner_id"] !== undefined) updates.botOwnerId = body["bot_owner_id"] as string;
+  if (body["bot_owner_id"] !== undefined) updates.botOwnerId = parseId(`${body["bot_owner_id"]}`);
 
-  const result = await updateBotDomain(app.options, user, botId, updates);
+  const result = await updateBotDomain(app.options, user, toLong(botId), updates);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

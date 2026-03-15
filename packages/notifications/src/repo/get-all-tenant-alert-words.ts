@@ -1,9 +1,10 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, AlertWord } from "@jotster/core/Jotster.Core.js";
 
 export const getAllTenantAlertWords = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long
 ): Promise<AlertWord[]> => {
   const db = new JotsterDbContext(options);
   try {

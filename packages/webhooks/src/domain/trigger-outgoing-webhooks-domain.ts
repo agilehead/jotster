@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, OutgoingWebhook } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
@@ -7,18 +7,18 @@ import { getMentionTriggeredWebhooks } from "../repo/get-mention-triggered-webho
 import { formatOutgoingPayload } from "./format-outgoing-payload.ts";
 
 interface TriggerOutgoingWebhooksInput {
-  tenantId: string;
-  messageId: string;
-  senderId: string;
+  tenantId: long;
+  messageId: long;
+  senderId: long;
   senderEmail: string;
   senderFullName: string;
   type: string;
-  channelId?: string;
+  channelId?: long;
   channelName?: string;
   topic?: string;
   content: string;
   timestamp: number;
-  mentionedUserIds?: string[];
+  mentionedUserIds?: long[];
 }
 
 interface OutgoingWebhookDispatch {
@@ -34,10 +34,11 @@ export const triggerOutgoingWebhooksDomain = async (
 
   // 1. Check for channel-triggered webhooks
   if (input.type === "stream" && input.channelId !== undefined) {
+    const chId = input.channelId as long;
     const channelWebhooks = await getOutgoingWebhooksForChannel(
       options,
       input.tenantId,
-      input.channelId
+      chId
     );
 
     for (let i = 0; i < channelWebhooks.length; i++) {
@@ -49,7 +50,7 @@ export const triggerOutgoingWebhooksDomain = async (
           senderEmail: input.senderEmail,
           senderFullName: input.senderFullName,
           type: input.type,
-          channelId: input.channelId,
+          channelId: chId,
           channelName: input.channelName,
           topic: input.topic,
           content: input.content,

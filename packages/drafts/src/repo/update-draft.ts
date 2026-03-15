@@ -5,7 +5,7 @@ import { JotsterDbContext, Draft } from "@jotster/core/Jotster.Core.js";
 
 interface UpdateDraftInput {
   type?: string;
-  channelId?: string;
+  channelId?: long;
   topic?: string;
   recipientIdsJson?: string;
   content?: string;
@@ -13,9 +13,9 @@ interface UpdateDraftInput {
 
 export const updateDraft = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  draftId: string,
+  tenantId: long,
+  userId: long,
+  draftId: long,
   updates: UpdateDraftInput
 ): Promise<Draft | undefined> => {
   const db = new JotsterDbContext(options);

@@ -1,6 +1,8 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalStringField, toOptionalFlagInt } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField, toOptionalFlagInt, toLong} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { updateSubscriptionPropertiesDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
@@ -78,13 +80,14 @@ export const handleUpdateSubscriptionProperties = async (
   }
 
   const parsedArray = parsed as unknown[];
-  const updates = new List<{ streamId: string; property: string; propValue: string }>();
+  const updates = new List<{ streamId: long; property: string; propValue: string }>();
   for (let i = 0; i < parsedArray.length; i++) {
     const update = parsedArray[i];
     const streamIdValue = getOptionalObjectField(update, "stream_id");
     const propertyValue = getOptionalObjectField(update, "property");
     const rawValue = getOptionalObjectField(update, "value");
-    const streamId = streamIdValue === undefined || streamIdValue === null ? undefined : `${streamIdValue}`;
+    const streamIdStr = streamIdValue === undefined || streamIdValue === null ? undefined : `${streamIdValue}`;
+    const streamId = parseId(streamIdStr);
     const property = typeof propertyValue === "string" ? (propertyValue as string) : undefined;
     if (streamId === undefined || property === undefined) {
       res.status(400).json({ result: "error", msg: "Invalid subscription update payload", code: "BAD_REQUEST" });
@@ -97,7 +100,7 @@ export const handleUpdateSubscriptionProperties = async (
       return;
     }
     updates.Add({
-      streamId,
+      streamId: toLong(streamId),
       property,
       propValue,
     });

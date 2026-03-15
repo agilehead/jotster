@@ -1,6 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { unmuteUserDomain } from "@jotster/presence/Jotster.Presence.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUnmuteUser = async (
@@ -15,9 +17,13 @@ export const handleUnmuteUser = async (
   }
 
   const user = authResult.data;
-  const mutedUserId = req.params["muted_user_id"] as string;
+  const mutedUserId = parseId(req.params["muted_user_id"] as string);
+  if (mutedUserId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid muted_user_id" });
+    return;
+  }
 
-  const result = await unmuteUserDomain(app.options, user, mutedUserId);
+  const result = await unmuteUserDomain(app.options, user, toLong(mutedUserId));
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

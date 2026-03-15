@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,8 +8,8 @@ import { getReadReceipts } from "../repo/get-read-receipts.ts";
 export const getReadReceiptsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: string
-): Promise<Result<{ userIds: string[] }, string>> => {
+  messageId: long
+): Promise<Result<{ userIds: long[] }, string>> => {
   // Verify message exists in the tenant
   const message = await getMessage(options, user.tenantId, messageId);
   if (message === undefined) {
@@ -19,7 +19,7 @@ export const getReadReceiptsDomain = async (
   const rawUserIds = await getReadReceipts(options, user.tenantId, messageId);
   const db = new JotsterDbContext(options);
   try {
-    const filteredUserIds: string[] = [];
+    const filteredUserIds: long[] = [];
     const tenantId0 = user.tenantId;
     const requesterId0 = user.userId;
     const senderId0 = message.SenderId;

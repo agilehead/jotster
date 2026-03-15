@@ -4,9 +4,9 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import { JotsterDbContext, Reaction, generateId } from "@jotster/core/Jotster.Core.js";
 
 interface AddReactionInput {
-  tenantId: string;
-  messageId: string;
-  userId: string;
+  tenantId: long;
+  messageId: long;
+  userId: long;
   emojiName: string;
   emojiCode: string;
   reactionType: string;

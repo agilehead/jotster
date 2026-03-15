@@ -1,7 +1,8 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField, toLong} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateSingleSubscriptionDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 const hasOwnField = (source: Record<string, unknown>, key: string): boolean => {
@@ -38,7 +39,11 @@ export const handleUpdateSubscription = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
-  const streamId = req.params["stream_id"] as string;
+  const streamId = parseId(req.params["stream_id"] as string);
+  if (streamId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid stream_id" });
+    return;
+  }
 
   const property = getOptionalStringField(body, "property");
   const value = getObjectField(body, "value");
@@ -53,7 +58,7 @@ export const handleUpdateSubscription = async (
     return;
   }
 
-  const result = await updateSingleSubscriptionDomain(app.options, user, streamId, property, value);
+  const result = await updateSingleSubscriptionDomain(app.options, user, toLong(streamId), property, value);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;

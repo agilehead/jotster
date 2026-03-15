@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,7 +10,7 @@ import { getEditHistory } from "../repo/get-edit-history.ts";
 export const getEditHistoryDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: string
+  messageId: long
 ): Promise<Result<Record<string, unknown>[], string>> => {
   // Verify message exists in the tenant
   const message = await getMessage(options, user.tenantId, messageId);

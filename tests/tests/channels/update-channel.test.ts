@@ -50,7 +50,7 @@ describe("PATCH /api/v1/streams/{stream_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const res = await client.patch("/streams/nonexistent_id_999", {
+    const res = await client.patch("/streams/999999", {
       new_name: "ghost-stream",
     });
 
@@ -87,7 +87,7 @@ describe("DELETE /api/v1/streams/{stream_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const res = await client.delete("/streams/nonexistent_id_999");
+    const res = await client.delete("/streams/999999");
     expect(res.body.result).to.equal("error");
     expect(res.body.code).to.equal("BAD_REQUEST");
   });

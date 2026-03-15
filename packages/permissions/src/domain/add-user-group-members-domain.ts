@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,8 +9,8 @@ import { addUserGroupMembers } from "../repo/add-user-group-members.ts";
 export const addUserGroupMembersDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  groupId: string,
-  userIds: string[]
+  groupId: long,
+  userIds: long[]
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");

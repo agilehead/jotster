@@ -6,8 +6,6 @@ import {
   JotsterDbContext,
   Tenant,
   User,
-  generateId,
-  allocatePublicId,
   ok,
   err,
 } from "@jotster/core/Jotster.Core.js";
@@ -47,8 +45,6 @@ export const createTenantAdmin = async (
     if (input.adminEmail !== undefined && input.adminPassword !== undefined) {
       const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
       const user = new User();
-      user.Id = generateId();
-      user.PublicId = await allocatePublicId(options, "user");
       user.TenantId = tenant.Id;
       user.Email = input.adminEmail;
       user.FullName = "Admin";

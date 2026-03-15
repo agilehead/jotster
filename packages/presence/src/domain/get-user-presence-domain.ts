@@ -1,3 +1,5 @@
+import type { long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -16,15 +18,16 @@ export const getUserPresenceDomain = async (
 ): Promise<Result<UserPresenceResult, string>> => {
   // Resolve user by ID or email
   const db = new JotsterDbContext(options);
-  let targetUserId: string | undefined;
+  let targetUserId: long = 0 as long;
   try {
     const db0 = db;
     const tenantId0 = user.tenantId;
     const target0 = targetUserIdOrEmail;
+    const targetAsLong = Convert.ToInt64(target0);
 
     // Try by ID first
     let targetUser = await db0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === target0)
+      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === targetAsLong)
       .FirstOrDefaultAsync();
 
     if (targetUser === undefined || targetUser === null) {

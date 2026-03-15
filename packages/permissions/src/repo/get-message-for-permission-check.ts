@@ -1,13 +1,14 @@
+import type { long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const getMessageForPermissionCheck = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string
+  tenantId: long,
+  messageId: long
 ): Promise<
-  { senderId: string; channelId: string | undefined; createdAt: number } | undefined
+  { senderId: long; channelId: long | undefined; createdAt: number } | undefined
 > => {
   const db = new JotsterDbContext(options);
   try {

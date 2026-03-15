@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const removeMessageFlags = async (
   options: DbContextOptions,
-  userId: string,
-  messageIds: string[],
+  userId: long,
+  messageIds: long[],
   flag: string
 ): Promise<void> => {
   const db = new JotsterDbContext(options);

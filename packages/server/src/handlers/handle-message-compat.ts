@@ -1,5 +1,6 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { reportMessageForModeration } from "../helpers/compat-db.ts";
 import {
@@ -8,19 +9,23 @@ import {
   markTopicAsRead,
   updateFlagsForNarrow,
 } from "../helpers/message-compat.ts";
-import { getBodyObject, getOptionalIntField, getOptionalStringField, toOptionalStringArray } from "../helpers/body.ts";
+import { getBodyObject, getOptionalIntField, getOptionalStringField, toOptionalStringArray, toLong} from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
-const parseMessageIds = (value: unknown): string[] | undefined => {
-  if (Array.isArray(value)) {
-    const values = value as unknown[];
-    const result: string[] = [];
-    for (let i = 0; i < values.length; i++) {
-      result.push(`${values[i] ?? ""}`);
-    }
-    return result;
+const parseMessageIds = (value: unknown): long[] | undefined => {
+  const strings = toOptionalStringArray(value);
+  if (strings === undefined) {
+    return undefined;
   }
-  return toOptionalStringArray(value);
+  const result: long[] = [];
+  for (let i = 0; i < strings.length; i++) {
+    const parsed = parseId(strings[i]);
+    if (parsed === undefined) {
+      return undefined;
+    }
+    result.push(toLong(parsed));
+  }
+  return result;
 };
 
 const getObjectField = (value: unknown, key: string): unknown => {
@@ -46,13 +51,14 @@ export const handleMarkStreamAsReadCompat = async (
   }
 
   const body = getBodyObject(req);
-  const streamId = getOptionalStringField(body, "stream_id");
+  const streamIdStr = getOptionalStringField(body, "stream_id");
+  const streamId = parseId(streamIdStr);
   if (streamId === undefined) {
     res.status(400).json({ result: "error", msg: "Missing required field: stream_id", code: "BAD_REQUEST" });
     return;
   }
 
-  await markStreamAsRead(app.options, requester, streamId);
+  await markStreamAsRead(app.options, requester, toLong(streamId));
   res.json({ result: "success", msg: "" });
 };
 
@@ -67,14 +73,15 @@ export const handleMarkTopicAsReadCompat = async (
   }
 
   const body = getBodyObject(req);
-  const streamId = getOptionalStringField(body, "stream_id");
+  const topicStreamIdStr = getOptionalStringField(body, "stream_id");
+  const topicStreamId = parseId(topicStreamIdStr);
   const topicName = getOptionalStringField(body, "topic_name");
-  if (streamId === undefined || topicName === undefined) {
+  if (topicStreamId === undefined || topicName === undefined) {
     res.status(400).json({ result: "error", msg: "Missing required field", code: "BAD_REQUEST" });
     return;
   }
 
-  await markTopicAsRead(app.options, requester, streamId, topicName);
+  await markTopicAsRead(app.options, requester, toLong(topicStreamId), topicName);
   res.json({ result: "success", msg: "" });
 };
 
@@ -173,10 +180,15 @@ export const handleReportMessageCompat = async (
     return;
   }
 
+  const reportMessageId = parseId(req.params["message_id"] as string);
+  if (reportMessageId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid message_id", code: "BAD_REQUEST" });
+    return;
+  }
   const result = await reportMessageForModeration(
     app.options,
     requester,
-    req.params["message_id"] as string,
+    toLong(reportMessageId),
     reportType,
     getOptionalStringField(body, "description"),
   );

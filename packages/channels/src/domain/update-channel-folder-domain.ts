@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ChannelFolder, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -17,7 +17,7 @@ interface UpdateChannelFolderDomainInput {
 export const updateChannelFolderDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  folderId: string,
+  folderId: long,
   updates: UpdateChannelFolderDomainInput
 ): Promise<Result<ChannelFolder, string>> => {
   if (user.role > 200) {

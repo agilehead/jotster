@@ -1,10 +1,10 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Channel } from "@jotster/core/Jotster.Core.js";
 
 export const getChannels = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   includeArchived: boolean
 ): Promise<Channel[]> => {
   const db = new JotsterDbContext(options);

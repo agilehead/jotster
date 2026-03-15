@@ -1,8 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { getCustomEmojiById } from "@jotster/emoji/Jotster.Emoji.js";
 import { serveFileDomain } from "@jotster/uploads/Jotster.Uploads.js";
 import { fs, path } from "@tsonic/nodejs/index.js";
+import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleServeFile = async (
@@ -26,7 +29,8 @@ export const handleServeFile = async (
 
   const uploadsDir = app.config.uploadsDir || "./uploads";
 
-  const emojiFile = await tryServeCustomEmoji(app, tenantId, pathId);
+  const tenantIdLong = parseId(tenantId);
+  const emojiFile = tenantIdLong !== undefined ? await tryServeCustomEmoji(app, toLong(tenantIdLong), pathId) : undefined;
   if (emojiFile !== undefined) {
     res.set("Content-Type", emojiFile.contentType);
     res.set("Content-Disposition", "inline; filename=\"" + emojiFile.fileName + "\"");
@@ -48,7 +52,7 @@ export const handleServeFile = async (
 
 const tryServeCustomEmoji = async (
   app: AppContext,
-  tenantId: string,
+  tenantId: long,
   pathId: string,
 ): Promise<{ contentType: string; fileName: string; filePath: string } | undefined> => {
   const segments = pathId.split("/");
@@ -56,13 +60,18 @@ const tryServeCustomEmoji = async (
     return undefined;
   }
 
-  const emoji = await getCustomEmojiById(app.options, tenantId, segments[1]);
+  const emojiId = parseId(segments[1]);
+  if (emojiId === undefined) {
+    return undefined;
+  }
+
+  const emoji = await getCustomEmojiById(app.options, tenantId, toLong(emojiId));
   if (emoji === undefined) {
     return undefined;
   }
 
   const uploadsDir = app.config.uploadsDir || "./uploads";
-  const filePath = path.join(uploadsDir, tenantId, "emoji", emoji.Id, emoji.FileName);
+  const filePath = path.join(uploadsDir, `${tenantId}`, "emoji", `${emoji.Id}`, emoji.FileName);
   if (!fs.existsSync(filePath)) {
     return undefined;
   }

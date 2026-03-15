@@ -1,8 +1,25 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalStringArrayField, getOptionalStringField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringArrayField, getOptionalStringField, toLong} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { sendTypingDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
+
+const parseIdArray = (values: string[] | undefined): long[] | undefined => {
+  if (values === undefined) {
+    return undefined;
+  }
+  const result: long[] = [];
+  for (let i = 0; i < values.length; i++) {
+    const parsed = parseId(values[i]);
+    if (parsed === undefined) {
+      return undefined;
+    }
+    result.push(toLong(parsed));
+  }
+  return result;
+};
 
 export const handleSendTyping = async (
   req: Request,
@@ -24,8 +41,8 @@ export const handleSendTyping = async (
     return;
   }
   const type = getOptionalStringField(body, "type");
-  const parsedTo = getOptionalStringArrayField(body, "to");
-  const streamId = getOptionalStringField(body, "stream_id");
+  const parsedTo = parseIdArray(getOptionalStringArrayField(body, "to"));
+  const streamId = parseId(getOptionalStringField(body, "stream_id"));
   const topic = getOptionalStringField(body, "topic");
 
   const result = await sendTypingDomain(app.options, user, { op, type, to: parsedTo, streamId, topic });

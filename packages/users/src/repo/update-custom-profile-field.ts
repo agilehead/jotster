@@ -1,11 +1,11 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, CustomProfileField } from "@jotster/core/Jotster.Core.js";
 
 export const updateCustomProfileField = async (
   options: DbContextOptions,
-  tenantId: string,
-  fieldId: string,
+  tenantId: long,
+  fieldId: long,
   updates: {
     name?: string;
     hint?: string;

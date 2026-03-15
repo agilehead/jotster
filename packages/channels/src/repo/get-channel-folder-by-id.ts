@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, ChannelFolder, ChannelFolderItem } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
@@ -9,7 +10,7 @@ interface ChannelFolderWithItems {
 
 export const getChannelFolderById = async (
   options: DbContextOptions,
-  folderId: string
+  folderId: long
 ): Promise<ChannelFolderWithItems | undefined> => {
   const db = new JotsterDbContext(options);
   try {

@@ -5,8 +5,8 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class ApiKey {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  TenantId!: long;
+  UserId!: long;
   KeyHash!: string;
   RawKey?: string;
   CreatedAt!: long;

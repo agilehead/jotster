@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser, UserGroup } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,13 +9,13 @@ import { createUserGroup } from "../repo/create-user-group.ts";
 interface CreateUserGroupDomainInput {
   name: string;
   description?: string;
-  members?: string[];
-  canAddMembersGroupId?: string;
-  canJoinGroupId?: string;
-  canLeaveGroupId?: string;
-  canManageGroupId?: string;
-  canMentionGroupId?: string;
-  canRemoveMembersGroupId?: string;
+  members?: long[];
+  canAddMembersGroupId?: long;
+  canJoinGroupId?: long;
+  canLeaveGroupId?: long;
+  canManageGroupId?: long;
+  canMentionGroupId?: long;
+  canRemoveMembersGroupId?: long;
 }
 
 export const createUserGroupDomain = async (

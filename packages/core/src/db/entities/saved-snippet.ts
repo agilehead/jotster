@@ -4,10 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class SavedSnippet {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
-  UserId!: string;
+  Id!: long;
+  TenantId!: long;
+  UserId!: long;
   Title!: string;
   Content!: string;
   CreatedAt!: long;

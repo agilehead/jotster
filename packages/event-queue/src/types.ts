@@ -40,8 +40,8 @@ export interface QueueEvent {
 
 export interface EventQueue {
   queueId: string;
-  tenantId: string;
-  userId: string;
+  tenantId: long;
+  userId: long;
   eventTypes: string[] | undefined;
   lastEventId: int;
   events: List<QueueEvent>;

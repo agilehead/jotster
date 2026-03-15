@@ -4,9 +4,8 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class CustomProfileField {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
+  Id!: long;
+  TenantId!: long;
   Name!: string;
   Hint!: string;
   FieldType!: int;

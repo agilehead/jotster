@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, MutedUser } from "@jotster/core/Jotster.Core.js";
 
 export const getMutedUsers = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string
+  tenantId: long,
+  userId: long
 ): Promise<MutedUser[]> => {
   const db = new JotsterDbContext(options);
   try {

@@ -4,9 +4,9 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import { JotsterDbContext, Subscription, generateId } from "@jotster/core/Jotster.Core.js";
 
 interface CreateSubscriptionInput {
-  tenantId: string;
-  userId: string;
-  channelId: string;
+  tenantId: long;
+  userId: long;
+  channelId: long;
   color?: string;
 }
 

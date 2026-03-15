@@ -261,12 +261,12 @@ describe("PATCH /api/v1/users/me/subscriptions", function () {
       .select("id")
       .where({ tenant_id: tenantId, name: "bulk-new-channel" })
       .first();
-    expect(newChannel?.id).to.be.a("string");
+    expect(newChannel?.id).to.be.a("number");
 
     const addedRows = await db("subscription").where({
       tenant_id: tenantId,
       user_id: userId,
-      channel_id: newChannel!.id as string,
+      channel_id: newChannel!.id as number,
     });
     expect(addedRows).to.have.length(1);
   });

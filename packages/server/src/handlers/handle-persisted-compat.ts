@@ -1,5 +1,7 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { NavigationView, Reminder, SavedSnippet, ScheduledMessage } from "@jotster/core/Jotster.Core.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import {
@@ -24,8 +26,7 @@ import {
   getOptionalBooleanField,
   getOptionalStringArrayField,
   getOptionalStringField,
-  hasField,
-} from "../helpers/body.ts";
+  hasField, toLong} from "../helpers/body.ts";
 import {
   mapNavigationViewToCompatResponse,
   mapReminderToCompatResponse,
@@ -74,7 +75,7 @@ const mapSavedSnippets = (snippets: SavedSnippet[]): Record<string, unknown>[] =
 
 const mapReminders = (
   reminders: Reminder[],
-  userId: string,
+  userId: long,
 ): Record<string, unknown>[] => {
   const result: Record<string, unknown>[] = [];
   for (let i = 0; i < reminders.length; i++) {
@@ -413,7 +414,7 @@ export const handleCreateSavedSnippetCompat = async (
     }
   }
 
-  res.json({ result: "success", msg: "", saved_snippet_id: snippetId });
+  res.json({ result: "success", msg: "", saved_snippet_id: toLong(snippetId) });
 };
 
 export const handleUpdateSavedSnippetCompat = async (
@@ -436,11 +437,15 @@ export const handleUpdateSavedSnippetCompat = async (
     });
     return;
   }
-  const snippetId = req.params["saved_snippet_id"] as string;
+  const snippetId = parseId(req.params["saved_snippet_id"] as string);
+  if (snippetId === undefined) {
+    res.status(404).json({ result: "error", msg: "Saved snippet does not exist.", code: "BAD_REQUEST" });
+    return;
+  }
   const ok = await updateSavedSnippet(
     app.options,
     requester,
-    snippetId,
+    toLong(snippetId),
     title,
     getTrimmedOptionalString(getOptionalStringField(body, "content")),
   );
@@ -476,8 +481,12 @@ export const handleDeleteSavedSnippetCompat = async (
     return;
   }
 
-  const snippetId = req.params["saved_snippet_id"] as string;
-  const ok = await deleteSavedSnippet(app.options, requester, snippetId);
+  const deleteSnippetId = parseId(req.params["saved_snippet_id"] as string);
+  if (deleteSnippetId === undefined) {
+    res.status(404).json({ result: "error", msg: "Saved snippet does not exist.", code: "BAD_REQUEST" });
+    return;
+  }
+  const ok = await deleteSavedSnippet(app.options, requester, toLong(deleteSnippetId));
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Saved snippet does not exist.", code: "BAD_REQUEST" });
     return;
@@ -487,7 +496,7 @@ export const handleDeleteSavedSnippetCompat = async (
     type: "saved_snippets",
     op: "remove",
     data: {
-      saved_snippet_id: snippetId,
+      saved_snippet_id: toLong(deleteSnippetId),
     },
   });
 
@@ -523,9 +532,10 @@ export const handleCreateReminderCompat = async (
   }
 
   const body = getBodyObject(req);
-  const messageId = getOptionalStringField(body, "message_id");
+  const messageIdStr = getOptionalStringField(body, "message_id");
+  const reminderMessageId = parseId(messageIdStr);
   const scheduledDeliveryTimestamp = getOptionalStringField(body, "scheduled_delivery_timestamp");
-  if (messageId === undefined || scheduledDeliveryTimestamp === undefined) {
+  if (reminderMessageId === undefined || scheduledDeliveryTimestamp === undefined) {
     res.status(400).json({ result: "error", msg: "Missing required field", code: "BAD_REQUEST" });
     return;
   }
@@ -537,7 +547,7 @@ export const handleCreateReminderCompat = async (
   const reminderId = await createReminder(
     app.options,
     requester,
-    messageId,
+    toLong(reminderMessageId),
     scheduledDeliveryTimestamp,
     getOptionalStringField(body, "note"),
   );
@@ -560,7 +570,7 @@ export const handleCreateReminderCompat = async (
     }
   }
 
-  res.json({ result: "success", msg: "", reminder_id: reminderId });
+  res.json({ result: "success", msg: "", reminder_id: toLong(reminderId) });
 };
 
 export const handleDeleteReminderCompat = async (
@@ -573,8 +583,12 @@ export const handleDeleteReminderCompat = async (
     return;
   }
 
-  const reminderId = req.params["reminder_id"] as string;
-  const ok = await deleteReminder(app.options, requester, reminderId);
+  const reminderId = parseId(req.params["reminder_id"] as string);
+  if (reminderId === undefined) {
+    res.status(404).json({ result: "error", msg: "Reminder does not exist", code: "BAD_REQUEST" });
+    return;
+  }
+  const ok = await deleteReminder(app.options, requester, toLong(reminderId));
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Reminder does not exist", code: "BAD_REQUEST" });
     return;
@@ -584,7 +598,7 @@ export const handleDeleteReminderCompat = async (
     type: "reminders",
     op: "remove",
     data: {
-      reminder_id: reminderId,
+      reminder_id: toLong(reminderId),
     },
   });
 
@@ -734,11 +748,15 @@ export const handleUpdateScheduledMessageCompat = async (
     return;
   }
 
-  const scheduledMessageId = req.params["scheduled_message_id"] as string;
+  const scheduledMessageId = parseId(req.params["scheduled_message_id"] as string);
+  if (scheduledMessageId === undefined) {
+    res.status(404).json({ result: "error", msg: "Scheduled message does not exist", code: "BAD_REQUEST" });
+    return;
+  }
   const ok = await updateScheduledMessage(
     app.options,
     requester,
-    scheduledMessageId,
+    toLong(scheduledMessageId),
     type,
     toValueText,
     toValueArray,
@@ -799,8 +817,12 @@ export const handleDeleteScheduledMessageCompat = async (
     return;
   }
 
-  const scheduledMessageId = req.params["scheduled_message_id"] as string;
-  const ok = await deleteScheduledMessage(app.options, requester, scheduledMessageId);
+  const deleteScheduledMsgId = parseId(req.params["scheduled_message_id"] as string);
+  if (deleteScheduledMsgId === undefined) {
+    res.status(404).json({ result: "error", msg: "Scheduled message does not exist", code: "BAD_REQUEST" });
+    return;
+  }
+  const ok = await deleteScheduledMessage(app.options, requester, toLong(deleteScheduledMsgId));
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Scheduled message does not exist", code: "BAD_REQUEST" });
     return;
@@ -810,7 +832,7 @@ export const handleDeleteScheduledMessageCompat = async (
     type: "scheduled_messages",
     op: "remove",
     data: {
-      scheduled_message_id: scheduledMessageId,
+      scheduled_message_id: toLong(deleteScheduledMsgId),
     },
   });
 

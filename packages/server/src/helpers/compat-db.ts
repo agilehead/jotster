@@ -5,7 +5,6 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import type { AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import {
   ApiKey,
-  allocatePublicId,
   ChannelFolder,
   ClientDevice,
   JotsterDbContext,
@@ -17,19 +16,21 @@ import {
   ScheduledMessage,
   User,
   UserGroup,
+  parseId,
 } from "@jotster/core/Jotster.Core.js";
 import { renderMarkdownDomain, sendMessage, findOrCreateDmGroup, getMessage } from "@jotster/messages/Jotster.Messages.js";
 import { regenerateApiKey } from "@jotster/auth/Jotster.Auth.js";
 import { setUserStatus } from "@jotster/presence/Jotster.Presence.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { mapCustomProfileFieldToCompatRecord } from "@jotster/users/Jotster.Users.js";
+import { toLong } from "./body.ts";
 
 const nowMilliseconds = (): long => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
 export interface ScheduledMessageCreateResult {
   ok: boolean;
   errorCode?: string;
-  scheduledMessageId?: string;
+  scheduledMessageId?: long;
   streamId?: string;
   userId?: string;
 }
@@ -83,15 +84,15 @@ const parseScheduledRecipientIds = (
 const getScheduledMessageChannelId = (
   toValueText: string | undefined,
   toValueArray: string[] | undefined,
-): string | undefined => {
+): long | undefined => {
   if (toValueText !== undefined) {
     const trimmed = toValueText.trim();
-    return trimmed.length > 0 ? trimmed : undefined;
+    return trimmed.length > 0 ? parseId(trimmed) : undefined;
   }
 
   if (toValueArray !== undefined && toValueArray.length > 0) {
     const first = toValueArray[0].trim();
-    return first.length > 0 ? first : undefined;
+    return first.length > 0 ? parseId(first) : undefined;
   }
 
   return undefined;
@@ -99,8 +100,8 @@ const getScheduledMessageChannelId = (
 
 const validateScheduledMessageChannel = async (
   options: DbContextOptions,
-  tenantId: string,
-  channelId: string,
+  tenantId: long,
+  channelId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -118,8 +119,8 @@ const validateScheduledMessageChannel = async (
 
 const validateScheduledMessageUsers = async (
   options: DbContextOptions,
-  tenantId: string,
-  userIds: string[],
+  tenantId: long,
+  userIds: long[],
 ): Promise<string | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -133,7 +134,7 @@ const validateScheduledMessageUsers = async (
         .Where((entry) => entry.Id === userId0)
         .FirstOrDefaultAsync();
       if (targetUser === undefined || targetUser === null) {
-        return userId;
+        return `${userId}`;
       }
     }
 
@@ -200,7 +201,7 @@ export const listDevelopmentUsers = async (
 
 export const resolveUserByEmailPath = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   email: string,
 ): Promise<User | undefined> => {
   const db = new JotsterDbContext(options);
@@ -221,14 +222,19 @@ export const resolveUserByEmailPath = async (
       return undefined;
     }
 
-    const dummyId = email.substring(4, atIndex);
-    if (dummyId.length === 0) {
+    const dummyIdStr = email.substring(4, atIndex);
+    if (dummyIdStr.length === 0) {
+      return undefined;
+    }
+
+    const dummyId = parseId(dummyIdStr);
+    if (dummyId === undefined) {
       return undefined;
     }
 
     user = await db.Users
       .Where((entry) => entry.TenantId === tenantId0)
-      .Where((entry) => entry.Id === dummyId)
+      .Where((entry) => entry.Id === toLong(dummyId))
       .FirstOrDefaultAsync();
 
     return user ?? undefined;
@@ -239,8 +245,8 @@ export const resolveUserByEmailPath = async (
 
 export const setTargetUserStatus = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   statusText?: string,
   emojiName?: string,
   emojiCode?: string,
@@ -267,8 +273,8 @@ export const setTargetUserStatus = async (
 
 const getActiveApiKey = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
 ): Promise<ApiKey | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -289,7 +295,7 @@ const getActiveApiKey = async (
 export const getBotApiKeyForRequester = async (
   options: DbContextOptions,
   requester: AuthenticatedUser,
-  botId: string,
+  botId: long,
 ): Promise<{ apiKey?: string; error?: string }> => {
   const db = new JotsterDbContext(options);
   try {
@@ -329,7 +335,7 @@ export const getBotApiKeyForRequester = async (
 export const regenerateBotApiKeyForRequester = async (
   options: DbContextOptions,
   requester: AuthenticatedUser,
-  botId: string,
+  botId: long,
 ): Promise<{ apiKey?: string; error?: string }> => {
   const db = new JotsterDbContext(options);
   try {
@@ -364,7 +370,7 @@ export const regenerateBotApiKeyForRequester = async (
 export const reorderChannelFolders = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  orderedIds: string[],
+  orderedIds: long[],
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -378,7 +384,7 @@ export const reorderChannelFolders = async (
     }
 
     for (let i = 0; i < folders.Count; i++) {
-      if (!containsId(orderedIds, folders[i].Id)) {
+      if (!containsLongId(orderedIds, folders[i].Id)) {
         return false;
       }
     }
@@ -411,8 +417,8 @@ export const reorderChannelFolders = async (
 
 export const getStreamEmailAddress = async (
   options: DbContextOptions,
-  tenantId: string,
-  streamId: string,
+  tenantId: long,
+  streamId: long,
 ): Promise<string | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -438,8 +444,8 @@ export const getStreamEmailAddress = async (
 
 export const deleteTopicMessages = async (
   options: DbContextOptions,
-  tenantId: string,
-  streamId: string,
+  tenantId: long,
+  streamId: long,
   topic: string,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
@@ -506,8 +512,8 @@ export const deleteTopicMessages = async (
 
 export const reorderCustomProfileFields = async (
   options: DbContextOptions,
-  tenantId: string,
-  orderedIds: string[],
+  tenantId: long,
+  orderedIds: long[],
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -521,7 +527,7 @@ export const reorderCustomProfileFields = async (
     }
 
     for (let i = 0; i < fields.Count; i++) {
-      if (!containsId(orderedIds, fields[i].Id)) {
+      if (!containsLongId(orderedIds, fields[i].Id)) {
         return false;
       }
     }
@@ -607,9 +613,9 @@ export const removeClientDevice = async (
 
 export const getUserGroupMembershipStatus = async (
   options: DbContextOptions,
-  tenantId: string,
-  groupId: string,
-  userId: string,
+  tenantId: long,
+  groupId: long,
+  userId: long,
   directOnly: boolean,
 ): Promise<boolean | undefined> => {
   const db = new JotsterDbContext(options);
@@ -641,8 +647,8 @@ export const getUserGroupMembershipStatus = async (
 
 const getUserGroupForTenant = async (
   db: JotsterDbContext,
-  tenantId: string,
-  groupId: string,
+  tenantId: long,
+  groupId: long,
 ): Promise<UserGroup | undefined> => {
   const tenantId0 = tenantId;
   const groupId0 = groupId;
@@ -655,8 +661,8 @@ const getUserGroupForTenant = async (
 
 const getTenantUser = async (
   db: JotsterDbContext,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
 ): Promise<User | undefined> => {
   const tenantId0 = tenantId;
   const userId0 = userId;
@@ -669,13 +675,13 @@ const getTenantUser = async (
 
 const getDirectUserGroupMemberIds = async (
   db: JotsterDbContext,
-  groupId: string,
-): Promise<string[]> => {
+  groupId: long,
+): Promise<long[]> => {
   const groupId0 = groupId;
   const memberships = await db.UserGroupMembers
     .Where((entry) => entry.UserGroupId === groupId0)
     .ToListAsync();
-  const result = new List<string>();
+  const result = new List<long>();
   for (let i = 0; i < memberships.Count; i++) {
     result.Add(memberships[i].UserId);
   }
@@ -684,20 +690,20 @@ const getDirectUserGroupMemberIds = async (
 
 const getDirectUserGroupSubgroupIds = async (
   db: JotsterDbContext,
-  groupId: string,
-): Promise<string[]> => {
+  groupId: long,
+): Promise<long[]> => {
   const groupId0 = groupId;
   const subgroups = await db.UserGroupSubgroups
     .Where((entry) => entry.ParentGroupId === groupId0)
     .ToListAsync();
-  const result = new List<string>();
+  const result = new List<long>();
   for (let i = 0; i < subgroups.Count; i++) {
     result.Add(subgroups[i].SubgroupId);
   }
   return result.ToArray();
 };
 
-const containsId = (values: string[], candidate: string): boolean => {
+const containsLongId = (values: long[], candidate: long): boolean => {
   for (let i = 0; i < values.length; i++) {
     if (values[i] === candidate) {
       return true;
@@ -708,17 +714,17 @@ const containsId = (values: string[], candidate: string): boolean => {
 
 const collectNestedUserGroupSubgroupIds = async (
   db: JotsterDbContext,
-  groupId: string,
-): Promise<string[]> => {
-  const seen: string[] = [];
-  const pending: string[] = [groupId];
-  const result: string[] = [];
+  groupId: long,
+): Promise<long[]> => {
+  const seen: long[] = [];
+  const pending: long[] = [groupId];
+  const result: long[] = [];
 
   for (let i = 0; i < pending.length; i++) {
     const subgroupIds = await getDirectUserGroupSubgroupIds(db, pending[i]);
     for (let j = 0; j < subgroupIds.length; j++) {
       const subgroupId = subgroupIds[j];
-      if (containsId(seen, subgroupId)) {
+      if (containsLongId(seen, subgroupId)) {
         continue;
       }
       seen.push(subgroupId);
@@ -732,11 +738,11 @@ const collectNestedUserGroupSubgroupIds = async (
 
 const getUserGroupMembersCompatInternal = async (
   db: JotsterDbContext,
-  tenantId: string,
-  groupId: string,
+  tenantId: long,
+  groupId: long,
   directOnly: boolean,
-): Promise<string[]> => {
-  const groupIds = new List<string>();
+): Promise<long[]> => {
+  const groupIds = new List<long>();
   groupIds.Add(groupId);
 
   if (!directOnly) {
@@ -746,13 +752,13 @@ const getUserGroupMembersCompatInternal = async (
     }
   }
 
-  const seenMembers: string[] = [];
-  const result: string[] = [];
+  const seenMembers: long[] = [];
+  const result: long[] = [];
   for (let i = 0; i < groupIds.Count; i++) {
     const memberIds = await getDirectUserGroupMemberIds(db, groupIds[i]);
     for (let j = 0; j < memberIds.length; j++) {
       const memberId = memberIds[j];
-      if (containsId(seenMembers, memberId)) {
+      if (containsLongId(seenMembers, memberId)) {
         continue;
       }
       const user = await getTenantUser(db, tenantId, memberId);
@@ -769,10 +775,10 @@ const getUserGroupMembersCompatInternal = async (
 
 export const getUserGroupMembersCompat = async (
   options: DbContextOptions,
-  tenantId: string,
-  groupId: string,
+  tenantId: long,
+  groupId: long,
   directOnly: boolean,
-): Promise<string[] | undefined> => {
+): Promise<long[] | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const group = await getUserGroupForTenant(db, tenantId, groupId);
@@ -787,10 +793,10 @@ export const getUserGroupMembersCompat = async (
 
 export const getUserGroupSubgroupsCompat = async (
   options: DbContextOptions,
-  tenantId: string,
-  groupId: string,
+  tenantId: long,
+  groupId: long,
   directOnly: boolean,
-): Promise<string[] | undefined> => {
+): Promise<long[] | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const group = await getUserGroupForTenant(db, tenantId, groupId);
@@ -809,7 +815,7 @@ export const getUserGroupSubgroupsCompat = async (
 export const reportMessageForModeration = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: string,
+  messageId: long,
   reportType: string,
   description?: string,
 ): Promise<{ success: boolean; error?: string }> => {
@@ -832,11 +838,14 @@ export const reportMessageForModeration = async (
       return { success: false, error: "Organization not found" };
     }
 
-    let moderationChannelId: string | undefined;
+    let moderationChannelId: long | undefined;
     try {
       const settings = JSON.parse(tenant.SettingsJson) as Record<string, unknown>;
-      if (typeof settings["moderation_request_channel_id"] === "string") {
-        moderationChannelId = settings["moderation_request_channel_id"] as string;
+      const modChannelSetting = settings["moderation_request_channel_id"];
+      if (typeof modChannelSetting === "string") {
+        moderationChannelId = parseId(modChannelSetting);
+      } else if (typeof modChannelSetting === "number") {
+        moderationChannelId = Convert.ToInt64(modChannelSetting);
       }
     } catch {
       moderationChannelId = undefined;
@@ -880,7 +889,7 @@ export const reportMessageForModeration = async (
   return { success: true };
 };
 
-const getModerationChannelId = async (options: DbContextOptions, tenantId: string): Promise<string> => {
+const getModerationChannelId = async (options: DbContextOptions, tenantId: long): Promise<long | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
@@ -890,8 +899,11 @@ const getModerationChannelId = async (options: DbContextOptions, tenantId: strin
     if (tenant !== undefined && tenant !== null) {
       try {
         const settings = JSON.parse(tenant.SettingsJson) as Record<string, unknown>;
-        if (typeof settings["moderation_request_channel_id"] === "string") {
-          return settings["moderation_request_channel_id"] as string;
+        const modChannelSetting = settings["moderation_request_channel_id"];
+        if (typeof modChannelSetting === "string") {
+          return parseId(modChannelSetting);
+        } else if (typeof modChannelSetting === "number") {
+          return Convert.ToInt64(modChannelSetting);
         }
       } catch {
         // Ignore malformed settings.
@@ -902,7 +914,7 @@ const getModerationChannelId = async (options: DbContextOptions, tenantId: strin
       .Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.Name === "moderation-requests")
       .FirstOrDefaultAsync();
-    return channel?.Id ?? "";
+    return channel?.Id;
   } finally {
     db.Dispose();
   }
@@ -912,7 +924,7 @@ export const sendWelcomeBotTestMessage = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   text: string,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   const rendered = renderMarkdownDomain(text);
   if (!rendered.success) {
     return undefined;
@@ -974,7 +986,7 @@ export const createSavedSnippet = async (
   user: AuthenticatedUser,
   title: string,
   content: string,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   if (title.trim().length === 0 || content.trim().length === 0) {
     return undefined;
   }
@@ -983,8 +995,6 @@ export const createSavedSnippet = async (
   try {
     const now = nowMilliseconds();
     const snippet = new SavedSnippet();
-    snippet.Id = generateId();
-    snippet.PublicId = await allocatePublicId(options, "saved_snippet");
     snippet.TenantId = user.tenantId;
     snippet.UserId = user.userId;
     snippet.Title = title.trim();
@@ -1002,7 +1012,7 @@ export const createSavedSnippet = async (
 export const updateSavedSnippet = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  snippetId: string,
+  snippetId: long,
   title?: string,
   content?: string,
 ): Promise<boolean> => {
@@ -1035,7 +1045,7 @@ export const updateSavedSnippet = async (
 export const deleteSavedSnippet = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  snippetId: string,
+  snippetId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -1096,8 +1106,6 @@ export const createNavigationView = async (
 
     const view = new NavigationView();
     const now = nowMilliseconds();
-    view.Id = generateId();
-    view.PublicId = await allocatePublicId(options, "navigation_view");
     view.TenantId = user.tenantId;
     view.UserId = user.userId;
     view.Fragment = fragment;
@@ -1190,10 +1198,10 @@ export const listReminders = async (
 export const createReminder = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: string,
+  messageId: long,
   scheduledDeliveryTimestampSeconds: string,
   note?: string,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   const message = await getMessage(options, user.tenantId, messageId);
   if (message === undefined) {
     return undefined;
@@ -1207,8 +1215,6 @@ export const createReminder = async (
   try {
     const reminder = new Reminder();
     const now = nowMilliseconds();
-    reminder.Id = generateId();
-    reminder.PublicId = await allocatePublicId(options, "reminder");
     reminder.TenantId = user.tenantId;
     reminder.UserId = user.userId;
     reminder.MessageId = messageId;
@@ -1230,7 +1236,7 @@ export const createReminder = async (
 export const deleteReminder = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  reminderId: string,
+  reminderId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -1296,16 +1302,23 @@ export const createScheduledMessage = async (
     if (channelId === undefined) {
       return { ok: false, errorCode: "invalid_request" };
     }
-    const channelExists = await validateScheduledMessageChannel(options, user.tenantId, channelId);
+    const channelExists = await validateScheduledMessageChannel(options, user.tenantId, toLong(channelId));
     if (!channelExists) {
-      return { ok: false, errorCode: "invalid_stream", streamId: channelId };
+      return { ok: false, errorCode: "invalid_stream", streamId: `${channelId}` };
     }
   } else {
-    const recipientIds = parseScheduledRecipientIds(toValueText, toValueArray);
-    if (recipientIds.length === 0) {
+    const recipientIdStrings = parseScheduledRecipientIds(toValueText, toValueArray);
+    if (recipientIdStrings.length === 0) {
       return { ok: false, errorCode: "invalid_request" };
     }
-    const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientIds);
+    const recipientLongIds: long[] = [];
+    for (let i = 0; i < recipientIdStrings.length; i++) {
+      const parsed = parseId(recipientIdStrings[i]);
+      if (parsed !== undefined) {
+        recipientLongIds.push(toLong(parsed));
+      }
+    }
+    const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientLongIds);
     if (invalidUserId !== undefined) {
       return { ok: false, errorCode: "invalid_user", userId: invalidUserId };
     }
@@ -1313,17 +1326,12 @@ export const createScheduledMessage = async (
 
   const scheduled = new ScheduledMessage();
   const now = nowMilliseconds();
-  scheduled.Id = generateId();
-  scheduled.PublicId = await allocatePublicId(options, "scheduled_message");
   scheduled.TenantId = user.tenantId;
   scheduled.UserId = user.userId;
   scheduled.Type = normalizedType === "private" ? "direct" : normalizedType;
   if (scheduled.Type === "stream") {
-    if (toValueText !== undefined) {
-      scheduled.ChannelId = toValueText;
-    } else {
-      scheduled.ChannelId = toValueArray !== undefined && toValueArray.length > 0 ? toValueArray[0] : "";
-    }
+    const parsedChannelId = getScheduledMessageChannelId(toValueText, toValueArray);
+    scheduled.ChannelId = parsedChannelId !== undefined ? toLong(parsedChannelId) : undefined;
     scheduled.Topic = topic ?? "";
   } else {
     if (toValueArray !== undefined) {
@@ -1354,7 +1362,7 @@ export const createScheduledMessage = async (
 export const updateScheduledMessage = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  scheduledMessageId: string,
+  scheduledMessageId: long,
   type: string | undefined,
   toValueText: string | undefined,
   toValueArray: string[] | undefined,
@@ -1387,16 +1395,23 @@ export const updateScheduledMessage = async (
         if (channelId === undefined) {
           return { ok: false, errorCode: "invalid_request" };
         }
-        const channelExists = await validateScheduledMessageChannel(options, user.tenantId, channelId);
+        const channelExists = await validateScheduledMessageChannel(options, user.tenantId, toLong(channelId));
         if (!channelExists) {
-          return { ok: false, errorCode: "invalid_stream", streamId: channelId };
+          return { ok: false, errorCode: "invalid_stream", streamId: `${channelId}` };
         }
       } else {
-        const recipientIds = parseScheduledRecipientIds(toValueText, toValueArray);
-        if (recipientIds.length === 0) {
+        const recipientIdStrings = parseScheduledRecipientIds(toValueText, toValueArray);
+        if (recipientIdStrings.length === 0) {
           return { ok: false, errorCode: "invalid_request" };
         }
-        const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientIds);
+        const recipientLongIds: long[] = [];
+        for (let i = 0; i < recipientIdStrings.length; i++) {
+          const parsed = parseId(recipientIdStrings[i]);
+          if (parsed !== undefined) {
+            recipientLongIds.push(toLong(parsed));
+          }
+        }
+        const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientLongIds);
         if (invalidUserId !== undefined) {
           return { ok: false, errorCode: "invalid_user", userId: invalidUserId };
         }
@@ -1408,11 +1423,8 @@ export const updateScheduledMessage = async (
     }
     if (toValueText !== undefined || toValueArray !== undefined) {
       if (scheduled.Type === "stream") {
-        if (toValueText !== undefined) {
-          scheduled.ChannelId = toValueText;
-        } else {
-          scheduled.ChannelId = toValueArray !== undefined && toValueArray.length > 0 ? toValueArray[0] : "";
-        }
+        const updateChannelId = getScheduledMessageChannelId(toValueText, toValueArray);
+        scheduled.ChannelId = updateChannelId !== undefined ? toLong(updateChannelId) : undefined;
       } else if (toValueArray !== undefined) {
         scheduled.RecipientIdsJson = JSON.stringify(toValueArray);
       } else if (toValueText !== undefined) {
@@ -1449,7 +1461,7 @@ export const updateScheduledMessage = async (
 export const deleteScheduledMessage = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  scheduledMessageId: string,
+  scheduledMessageId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -1472,7 +1484,7 @@ export const deleteScheduledMessage = async (
 
 export const listLinkifiers = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
 ): Promise<Linkifier[]> => {
   const db = new JotsterDbContext(options);
   try {
@@ -1489,21 +1501,19 @@ export const listLinkifiers = async (
 
 export const createLinkifier = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   pattern: string,
   urlTemplate: string,
   exampleInput?: string,
   reverseTemplate?: string,
   alternativeUrlTemplatesJson?: string,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   if (pattern.trim().length === 0 || urlTemplate.trim().length === 0) {
     return undefined;
   }
   const existing = await listLinkifiers(options, tenantId);
   const linkifier = new Linkifier();
   const now = nowMilliseconds();
-  linkifier.Id = generateId();
-  linkifier.PublicId = await allocatePublicId(options, "linkifier");
   linkifier.TenantId = tenantId;
   linkifier.Pattern = pattern;
   linkifier.UrlTemplate = urlTemplate;
@@ -1527,8 +1537,8 @@ export const createLinkifier = async (
 
 export const updateLinkifier = async (
   options: DbContextOptions,
-  tenantId: string,
-  filterId: string,
+  tenantId: long,
+  filterId: long,
   updates: {
     pattern?: string;
     urlTemplate?: string;
@@ -1575,8 +1585,8 @@ export const updateLinkifier = async (
 
 export const deleteLinkifier = async (
   options: DbContextOptions,
-  tenantId: string,
-  filterId: string,
+  tenantId: long,
+  filterId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -1599,8 +1609,8 @@ export const deleteLinkifier = async (
 
 export const reorderLinkifiers = async (
   options: DbContextOptions,
-  tenantId: string,
-  orderedIds: string[],
+  tenantId: long,
+  orderedIds: long[],
 ): Promise<boolean> => {
   const linkifiers = await listLinkifiers(options, tenantId);
   if (linkifiers.length !== orderedIds.length) {
@@ -1608,7 +1618,7 @@ export const reorderLinkifiers = async (
   }
 
   for (let i = 0; i < linkifiers.length; i++) {
-    if (!containsId(orderedIds, linkifiers[i].Id)) {
+    if (!containsLongId(orderedIds, linkifiers[i].Id)) {
       return false;
     }
   }

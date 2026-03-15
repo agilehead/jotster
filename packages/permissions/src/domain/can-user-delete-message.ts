@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
@@ -6,9 +7,9 @@ import { getMessageForPermissionCheck } from "../repo/get-message-for-permission
 
 export const canUserDeleteMessage = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  messageId: string,
+  tenantId: long,
+  userId: long,
+  messageId: long,
   deleteContentLimitSeconds: number,
   now: number
 ): Promise<Result<boolean, string>> => {

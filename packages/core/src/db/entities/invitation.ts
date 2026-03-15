@@ -4,10 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Invitation {
-  Id!: string;
-  PublicId!: long;
-  TenantId!: string;
-  InviterId!: string;
+  Id!: long;
+  TenantId!: long;
+  InviterId!: long;
   Email?: string;
   IsMultiuse!: int;
   LinkToken!: string;

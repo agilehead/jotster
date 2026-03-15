@@ -11,7 +11,7 @@ interface UpdateChannelFolderInput {
 
 export const updateChannelFolder = async (
   options: DbContextOptions,
-  folderId: string,
+  folderId: long,
   updates: UpdateChannelFolderInput
 ): Promise<ChannelFolder | undefined> => {
   const db = new JotsterDbContext(options);

@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok } from "@jotster/core/Jotster.Core.js";
@@ -22,7 +23,7 @@ export const markAllAsReadDomain = async (
       .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
       .ToListAsync();
 
-    const readMessageIds = new List<string>();
+    const readMessageIds = new List<long>();
     for (let i = 0; i < readFlags.Count; i++) {
       const readFlagEntry = readFlags[i];
       readMessageIds.Add(readFlagEntry.MessageId);
@@ -34,7 +35,7 @@ export const markAllAsReadDomain = async (
       .ToListAsync();
 
     // Find unread message IDs
-    const unreadIds = new List<string>();
+    const unreadIds = new List<long>();
     for (let j = 0; j < allMessages.Count; j++) {
       const message = allMessages[j];
       let isRead = false;

@@ -15,7 +15,7 @@ interface UpdateChannelInput {
 
 export const updateChannel = async (
   options: DbContextOptions,
-  channelId: string,
+  channelId: long,
   updates: UpdateChannelInput
 ): Promise<Channel | undefined> => {
   const db = new JotsterDbContext(options);
