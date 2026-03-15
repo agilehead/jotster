@@ -1,7 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getOwnProfile } from "@jotster/users/Jotster.Users.js";
-import { mapUserToResponse } from "../helpers/map-user-to-response.ts";
+import { buildUserResponse } from "../helpers/map-user-to-response.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetOwnProfile = async (
@@ -22,7 +22,7 @@ export const handleGetOwnProfile = async (
     return;
   }
 
-  const payload = mapUserToResponse(result.data);
+  const payload = await buildUserResponse(app.options, result.data);
   payload["result"] = "success";
   payload["msg"] = "";
   res.json(payload);

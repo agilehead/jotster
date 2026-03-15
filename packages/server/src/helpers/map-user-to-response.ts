@@ -1,4 +1,6 @@
+import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { User } from "@jotster/core/Jotster.Core.js";
+import { getCustomProfileFieldValues } from "@jotster/users/Jotster.Users.js";
 
 export const mapUserToResponse = (u: User): Record<string, unknown> => {
   const resp: Record<string, unknown> = {};
@@ -19,6 +21,30 @@ export const mapUserToResponse = (u: User): Record<string, unknown> => {
   resp["avatar_url"] = u.AvatarUrl ?? null;
   resp["avatar_version"] = 1;
   resp["is_billing_admin"] = u.IsBillingAdmin === 1;
+  resp["is_imported_stub"] = false;
   resp["profile_data"] = {};
+  return resp;
+};
+
+export const buildUserResponse = async (
+  options: DbContextOptions,
+  u: User,
+): Promise<Record<string, unknown>> => {
+  const resp = mapUserToResponse(u);
+  const values = await getCustomProfileFieldValues(options, u.TenantId, u.Id);
+  const profileData: Record<string, unknown> = {};
+
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
+    const valuePayload: Record<string, unknown> = {
+      value: value.Value,
+    };
+    if (value.RenderedValue !== undefined && value.RenderedValue !== null) {
+      valuePayload["rendered_value"] = value.RenderedValue;
+    }
+    profileData[value.FieldId] = valuePayload;
+  }
+
+  resp["profile_data"] = profileData;
   return resp;
 };

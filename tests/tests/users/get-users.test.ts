@@ -146,9 +146,58 @@ describe("GET /api/v1/users/{user_id}", () => {
       timezone: "UTC",
       avatar_version: 1,
       is_billing_admin: false,
+      is_imported_stub: false,
     });
     expect(user.profile_data).to.deep.equal({});
     expect(user).to.not.have.property("avatar_source");
+  });
+
+  it("should include custom profile data for a user by id and email path", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db, { subdomain: "profile-data" });
+    const target = await seedUser(db, tenantId, { fullName: "Profile Target" });
+    const fieldId = `cpf_${Date.now()}`;
+    const valueId = `cpfv_${Date.now()}`;
+    const now = Date.now();
+
+    await db("custom_profile_field").insert({
+      id: fieldId,
+      tenant_id: tenantId,
+      name: "Phone number",
+      hint: "",
+      field_type: 1,
+      field_data_json: "{}",
+      ordering: 0,
+      required: 1,
+      editable_by_user: 1,
+      use_for_user_matching: 0,
+      display_in_profile_summary: 0,
+      created_at: now,
+    });
+    await db("custom_profile_field_value").insert({
+      id: valueId,
+      tenant_id: tenantId,
+      user_id: target.userId,
+      field_id: fieldId,
+      value: "+1-555-0100",
+      rendered_value: "<p>+1-555-0100</p>",
+    });
+
+    const byIdRes = await target.client.get(`/users/${target.userId}`);
+    expect(byIdRes.status).to.equal(200);
+    expect(byIdRes.body.user.is_imported_stub).to.equal(false);
+    expect(byIdRes.body.user.profile_data[fieldId]).to.deep.equal({
+      value: "+1-555-0100",
+      rendered_value: "<p>+1-555-0100</p>",
+    });
+
+    const encodedEmail = encodeURIComponent(target.email);
+    const byEmailRes = await target.client.get(`/users/${encodedEmail}`);
+    expect(byEmailRes.status).to.equal(200);
+    expect(byEmailRes.body.user.profile_data[fieldId]).to.deep.equal({
+      value: "+1-555-0100",
+      rendered_value: "<p>+1-555-0100</p>",
+    });
   });
 
   it("should return error for non-existent user ID", async () => {
@@ -209,6 +258,7 @@ describe("GET /api/v1/users/me", () => {
       avatar_url: "https://cdn.test.local/me.png",
       avatar_version: 1,
       is_billing_admin: false,
+      is_imported_stub: false,
     });
     expect(res.body.profile_data).to.deep.equal({});
     expect(res.body).to.not.have.property("avatar_source");

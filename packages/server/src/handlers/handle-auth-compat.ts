@@ -3,7 +3,7 @@ import { fetchJwtApiKey, resolveTenant } from "@jotster/auth/Jotster.Auth.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { getBodyObject, getOptionalBooleanField, getOptionalStringField } from "../helpers/body.ts";
 import { listDevelopmentUsers } from "../helpers/compat-db.ts";
-import { mapUserToResponse } from "../helpers/map-user-to-response.ts";
+import { buildUserResponse } from "../helpers/map-user-to-response.ts";
 import {
   getDevAuthAvailabilityError,
   getJsonErrorBody,
@@ -43,7 +43,7 @@ export const handleJwtFetchApiKey = async (
     email: result.data.email,
   };
   if (result.data.user !== undefined) {
-    payload["user"] = mapUserToResponse(result.data.user);
+    payload["user"] = await buildUserResponse(app.options, result.data.user);
   }
   res.json(payload);
 };

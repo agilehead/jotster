@@ -39,7 +39,18 @@ This report now confirms route presence and direct endpoint test coverage for ev
   - `saved_snippets`
   - `reminders`
   - `scheduled_messages`
+- User contract parity is now explicitly covered for:
+  - `profile_data` propagation in single-user and JWT profile payloads
+  - `is_imported_stub: false` on exposed user objects
+  - exact bot API key compat error payloads
+- Message/privacy parity is now explicitly covered for:
+  - read-receipt suppression for senders
+  - read-receipt suppression for users with `send_read_receipts = false`
+  - read-receipt suppression across muted-user relationships
+- Subscription contract parity is now explicitly covered for:
+  - `ignored_parameters_unsupported` on bulk subscription-property updates
+  - required-field validation for single-subscription property updates
 - Sender-side behavior parity is now explicitly covered for:
   - stream `typing` event suppression when `send_stream_typing_notifications` is disabled
 - Current full suite status on this branch:
-  - `npm test` → `309 passing`
+  - `npm test` → `323 passing`

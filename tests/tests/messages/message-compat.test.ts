@@ -219,6 +219,57 @@ describe("Message compatibility endpoints", () => {
     expect(receiptsRes.body.user_ids).to.deep.equal([reader.userId]);
   });
 
+  it("GET /api/v1/messages/{message_id}/read_receipts should exclude the sender, muted users, and users with disabled read receipts while still including the requester", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const sender = await seedUser(db, tenantId);
+    const requester = await seedUser(db, tenantId);
+    const hidden = await seedUser(db, tenantId);
+    const mutedByRequester = await seedUser(db, tenantId);
+    const mutedRequester = await seedUser(db, tenantId);
+    const channelId = await seedChannel(db, tenantId, { name: "read-receipt-filtering" });
+    await seedSubscription(db, tenantId, sender.userId, channelId);
+    await seedSubscription(db, tenantId, requester.userId, channelId);
+    await seedSubscription(db, tenantId, hidden.userId, channelId);
+    await seedSubscription(db, tenantId, mutedByRequester.userId, channelId);
+    await seedSubscription(db, tenantId, mutedRequester.userId, channelId);
+
+    const messageId = await seedMessage(db, tenantId, sender.userId, {
+      channelId,
+      topic: "receipts",
+      content: "Visibility test",
+    });
+
+    await db("user_setting").where({ user_id: hidden.userId }).update({ send_read_receipts: 0 });
+    await db("muted_user").insert({
+      id: `muted_${Date.now()}_1`,
+      tenant_id: tenantId,
+      user_id: requester.userId,
+      muted_user_id: mutedByRequester.userId,
+      created_at: Date.now(),
+    });
+    await db("muted_user").insert({
+      id: `muted_${Date.now()}_2`,
+      tenant_id: tenantId,
+      user_id: mutedRequester.userId,
+      muted_user_id: requester.userId,
+      created_at: Date.now(),
+    });
+
+    await db("message_flag").insert([
+      { user_id: sender.userId, message_id: messageId, flag: "read" },
+      { user_id: requester.userId, message_id: messageId, flag: "read" },
+      { user_id: hidden.userId, message_id: messageId, flag: "read" },
+      { user_id: mutedByRequester.userId, message_id: messageId, flag: "read" },
+      { user_id: mutedRequester.userId, message_id: messageId, flag: "read" },
+    ]);
+
+    const receiptsRes = await requester.client.get(`/messages/${messageId}/read_receipts`);
+    expect(receiptsRes.status).to.equal(200);
+    expect(receiptsRes.body.result).to.equal("success");
+    expect(receiptsRes.body.user_ids).to.deep.equal([requester.userId]);
+  });
+
   it("POST /api/v1/messages/render should return BAD_REQUEST when content is missing", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

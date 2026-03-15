@@ -70,6 +70,7 @@ describe("Auth compatibility endpoints", () => {
     expect(res.body.api_key).to.equal(seeded.apiKey);
     expect(res.body).to.not.have.property("user_id");
     expect((res.body.user as Record<string, unknown>).email).to.equal(seeded.email);
+    expect((res.body.user as Record<string, unknown>).is_imported_stub).to.equal(false);
   });
 
   it("POST /api/v1/jwt/fetch_api_key should omit profile by default", async () => {

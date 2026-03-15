@@ -121,10 +121,14 @@ describe("User compatibility endpoints", () => {
     const getRes = await member.client.get(`/bots/${bot.userId}/api_key`);
     expect(getRes.status).to.equal(400);
     expect(getRes.body.result).to.equal("error");
+    expect(getRes.body.msg).to.equal("Insufficient permission");
+    expect(getRes.body.code).to.equal("BAD_REQUEST");
 
     const regenerateRes = await member.client.post(`/bots/${bot.userId}/api_key/regenerate`);
     expect(regenerateRes.status).to.equal(400);
     expect(regenerateRes.body.result).to.equal("error");
+    expect(regenerateRes.body.msg).to.equal("Insufficient permission");
+    expect(regenerateRes.body.code).to.equal("BAD_REQUEST");
   });
 
   it("bot api key compat endpoints should reject unknown bot ids", async () => {
@@ -135,10 +139,14 @@ describe("User compatibility endpoints", () => {
     const getRes = await admin.client.get("/bots/missing-bot/api_key");
     expect(getRes.status).to.equal(400);
     expect(getRes.body.result).to.equal("error");
+    expect(getRes.body.msg).to.equal("No such bot");
+    expect(getRes.body.code).to.equal("BAD_REQUEST");
 
     const regenerateRes = await admin.client.post("/bots/missing-bot/api_key/regenerate");
     expect(regenerateRes.status).to.equal(400);
     expect(regenerateRes.body.result).to.equal("error");
+    expect(regenerateRes.body.msg).to.equal("No such bot");
+    expect(regenerateRes.body.code).to.equal("BAD_REQUEST");
   });
 
   it("POST /api/v1/messages/{message_id}/typing should send message edit typing notifications", async () => {
