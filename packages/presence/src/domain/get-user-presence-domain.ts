@@ -2,7 +2,7 @@ import type { long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
-import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
+import type { Result, AuthenticatedUser, User } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { getUserPresence } from "../repo/get-user-presence.ts";
 import { buildLegacyUserPresenceMap } from "./presence-contract.ts";
@@ -23,12 +23,17 @@ export const getUserPresenceDomain = async (
     const db0 = db;
     const tenantId0 = user.tenantId;
     const target0 = targetUserIdOrEmail;
-    const targetAsLong = Convert.ToInt64(target0);
 
-    // Try by ID first
-    let targetUser = await db0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === targetAsLong)
-      .FirstOrDefaultAsync();
+    // Try by ID first (only if it looks numeric)
+    const parsedNum = parseInt(target0, 10);
+    let targetUser: User | undefined = undefined;
+
+    if (!isNaN(parsedNum) && parsedNum > 0 && !target0.includes("@")) {
+      const targetAsLong = Convert.ToInt64(parsedNum);
+      targetUser = await db0.Users
+        .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === targetAsLong)
+        .FirstOrDefaultAsync();
+    }
 
     if (targetUser === undefined || targetUser === null) {
       // Try by email

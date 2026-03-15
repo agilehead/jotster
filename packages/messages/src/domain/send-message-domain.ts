@@ -10,7 +10,7 @@ import {
   MAX_TOPIC_LENGTH,
 } from "@jotster/core/Jotster.Core.js";
 import { Convert } from "@tsonic/dotnet/System.js";
-import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
+
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { sendMessage } from "../repo/send-message.ts";
@@ -149,11 +149,27 @@ export const sendMessageDomain = async (
 
   if (params.type === "direct" || params.type === "private") {
     // Parse `to` as JSON array of user IDs/emails
-    const parsedTo = JsonSerializer.Deserialize<string[]>(params.to);
-    if (parsedTo === undefined) {
+    let userIdStrs: string[];
+    try {
+      const parsed = JSON.parse(params.to) as unknown;
+      if (!Array.isArray(parsed)) {
+        return err("Invalid 'to' parameter: expected JSON array of user IDs");
+      }
+      const arr = parsed as unknown[];
+      userIdStrs = [];
+      for (let i = 0; i < arr.length; i++) {
+        const item = arr[i];
+        if (typeof item === "number") {
+          userIdStrs.push(`${item}`);
+        } else if (typeof item === "string") {
+          userIdStrs.push(item as string);
+        } else {
+          return err("Invalid 'to' parameter: expected JSON array of user IDs");
+        }
+      }
+    } catch {
       return err("Invalid 'to' parameter: expected JSON array of user IDs");
     }
-    const userIdStrs: string[] = parsedTo;
 
     if (userIdStrs.length === 0) {
       return err("Recipient list must not be empty");

@@ -30,11 +30,11 @@ export const handleGetUserChannels = async (
     return;
   }
 
-  const subscribedChannelIds: string[] = [];
+  const subscribedChannelIds: unknown[] = [];
   for (let i = 0; i < result.data.length; i++) {
     const entry = result.data[i];
     const streamId = entry["stream_id"];
-    if (typeof streamId === "string") {
+    if (streamId !== undefined && streamId !== null) {
       subscribedChannelIds.push(streamId);
     }
   }

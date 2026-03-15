@@ -5,6 +5,7 @@ import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { addUserGroupMembers } from "../repo/add-user-group-members.ts";
 import { createUserGroup } from "../repo/create-user-group.ts";
+import { resolveGroupIdToSetting } from "../repo/resolve-group-setting.ts";
 
 interface CreateUserGroupDomainInput {
   name: string;
@@ -55,6 +56,10 @@ export const createUserGroupDomain = async (
     await addUserGroupMembers(options, group.Id, members);
   }
 
+  const resolve = async (id: long | undefined | null): Promise<string | null> => {
+    return await resolveGroupIdToSetting(options, user.tenantId, id);
+  };
+
   dispatchEventToTenant(user.tenantId, {
     type: "user_group",
     data: {
@@ -66,12 +71,12 @@ export const createUserGroupDomain = async (
         is_system_group: group.IsSystemGroup === 1,
         members,
         direct_subgroup_ids: [],
-        can_add_members_group: group.CanAddMembersGroupId ?? null,
-        can_join_group: group.CanJoinGroupId ?? null,
-        can_leave_group: group.CanLeaveGroupId ?? null,
-        can_manage_group: group.CanManageGroupId ?? null,
-        can_mention_group: group.CanMentionGroupId ?? null,
-        can_remove_members_group: group.CanRemoveMembersGroupId ?? null,
+        can_add_members_group: await resolve(group.CanAddMembersGroupId),
+        can_join_group: await resolve(group.CanJoinGroupId),
+        can_leave_group: await resolve(group.CanLeaveGroupId),
+        can_manage_group: await resolve(group.CanManageGroupId),
+        can_mention_group: await resolve(group.CanMentionGroupId),
+        can_remove_members_group: await resolve(group.CanRemoveMembersGroupId),
         creator_id: group.CreatorId ?? null,
         date_created: group.CreatedAt,
         deactivated: group.IsActive !== 1,

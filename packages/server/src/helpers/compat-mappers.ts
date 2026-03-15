@@ -39,6 +39,30 @@ const parseStringArray = (value: string | undefined): string[] => {
   }
 };
 
+const parseIntArray = (value: string | undefined): number[] => {
+  if (value === undefined || value.trim().length === 0) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    const entries = parsed as unknown[];
+    const result: number[] = [];
+    for (let i = 0; i < entries.length; i++) {
+      const num = Number(entries[i]);
+      if (!Number.isFinite(num)) {
+        continue;
+      }
+      result.push(Convert.ToInt32(num));
+    }
+    return result;
+  } catch {
+    return [];
+  }
+};
+
 const parseAlternativeUrlTemplates = (value: string | undefined): string[] => {
   return parseStringArray(value);
 };
@@ -101,7 +125,7 @@ export const mapScheduledMessageToCompatResponse = (
     type: scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
     to: scheduledMessage.Type === "stream"
       ? (scheduledMessage.ChannelId ?? null)
-      : parseStringArray(scheduledMessage.RecipientIdsJson),
+      : parseIntArray(scheduledMessage.RecipientIdsJson),
     content: scheduledMessage.Content,
     rendered_content: scheduledMessage.RenderedContent,
     scheduled_delivery_timestamp: toUnixSeconds(scheduledMessage.ScheduledDeliveryTimestamp),

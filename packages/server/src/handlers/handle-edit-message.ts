@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { getBodyObject, getOptionalStringField, toLong} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
@@ -26,15 +27,26 @@ export const handleEditMessage = async (
 
   const content = getOptionalStringField(body, "content");
   const topic = getOptionalStringField(body, "topic");
-  const streamId = parseId(getOptionalStringField(body, "stream_id"));
+  const streamIdRaw = getOptionalStringField(body, "stream_id");
   const propagateMode = getOptionalStringField(body, "propagate_mode");
 
-  const result = await editMessageDomain(app.options, user, toLong(messageId), ({
-    content,
-    topic,
-    channelId: toLong(streamId),
-    propagateMode,
-  }));
+  const input: {
+    content?: string;
+    topic?: string;
+    channelId?: long;
+    propagateMode?: string;
+  } = {};
+  if (content !== undefined) input.content = content;
+  if (topic !== undefined) input.topic = topic;
+  if (streamIdRaw !== undefined) {
+    const streamId = parseId(streamIdRaw);
+    if (streamId !== undefined) {
+      input.channelId = toLong(streamId);
+    }
+  }
+  if (propagateMode !== undefined) input.propagateMode = propagateMode;
+
+  const result = await editMessageDomain(app.options, user, toLong(messageId), input);
 
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });

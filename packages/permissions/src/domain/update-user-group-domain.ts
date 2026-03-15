@@ -5,6 +5,7 @@ import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getUserGroupById } from "../repo/get-user-group-by-id.ts";
 import { updateUserGroup } from "../repo/update-user-group.ts";
+import { resolveGroupIdToSetting } from "../repo/resolve-group-setting.ts";
 
 interface UpdateUserGroupDomainInput {
   name?: string;
@@ -65,6 +66,10 @@ export const updateUserGroupDomain = async (
     return err("User group not found");
   }
 
+  const resolve = async (id: long | undefined | null): Promise<string | null> => {
+    return await resolveGroupIdToSetting(options, user.tenantId, id);
+  };
+
   const data: Record<string, unknown> = {};
   if (group.IsActive === zero && updated.IsActive !== zero) {
     data["op"] = "add";
@@ -75,12 +80,12 @@ export const updateUserGroupDomain = async (
       is_system_group: updated.IsSystemGroup === 1,
       members: [],
       direct_subgroup_ids: [],
-      can_add_members_group: updated.CanAddMembersGroupId ?? null,
-      can_join_group: updated.CanJoinGroupId ?? null,
-      can_leave_group: updated.CanLeaveGroupId ?? null,
-      can_manage_group: updated.CanManageGroupId ?? null,
-      can_mention_group: updated.CanMentionGroupId ?? null,
-      can_remove_members_group: updated.CanRemoveMembersGroupId ?? null,
+      can_add_members_group: await resolve(updated.CanAddMembersGroupId),
+      can_join_group: await resolve(updated.CanJoinGroupId),
+      can_leave_group: await resolve(updated.CanLeaveGroupId),
+      can_manage_group: await resolve(updated.CanManageGroupId),
+      can_mention_group: await resolve(updated.CanMentionGroupId),
+      can_remove_members_group: await resolve(updated.CanRemoveMembersGroupId),
       creator_id: updated.CreatorId ?? null,
       date_created: updated.CreatedAt,
       deactivated: updated.IsActive !== 1,
@@ -96,22 +101,22 @@ export const updateUserGroupDomain = async (
       changedData["description"] = updated.Description;
     }
     if (updates.canAddMembersGroupId !== undefined) {
-      changedData["can_add_members_group"] = updated.CanAddMembersGroupId ?? null;
+      changedData["can_add_members_group"] = await resolve(updated.CanAddMembersGroupId);
     }
     if (updates.canJoinGroupId !== undefined) {
-      changedData["can_join_group"] = updated.CanJoinGroupId ?? null;
+      changedData["can_join_group"] = await resolve(updated.CanJoinGroupId);
     }
     if (updates.canLeaveGroupId !== undefined) {
-      changedData["can_leave_group"] = updated.CanLeaveGroupId ?? null;
+      changedData["can_leave_group"] = await resolve(updated.CanLeaveGroupId);
     }
     if (updates.canManageGroupId !== undefined) {
-      changedData["can_manage_group"] = updated.CanManageGroupId ?? null;
+      changedData["can_manage_group"] = await resolve(updated.CanManageGroupId);
     }
     if (updates.canMentionGroupId !== undefined) {
-      changedData["can_mention_group"] = updated.CanMentionGroupId ?? null;
+      changedData["can_mention_group"] = await resolve(updated.CanMentionGroupId);
     }
     if (updates.canRemoveMembersGroupId !== undefined) {
-      changedData["can_remove_members_group"] = updated.CanRemoveMembersGroupId ?? null;
+      changedData["can_remove_members_group"] = await resolve(updated.CanRemoveMembersGroupId);
     }
     if (updates.deactivated === false) {
       changedData["deactivated"] = updated.IsActive !== 1;

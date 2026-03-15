@@ -34,7 +34,12 @@ export async function seedTenant(
       updated_at: now,
     })
     .returning("id");
-  return typeof row === "object" ? (row as Record<string, unknown>).id as number : row as number;
+  const tenantId = typeof row === "object" ? (row as Record<string, unknown>).id as number : row as number;
+
+  // Always seed system groups for the new tenant
+  await seedSystemGroups(db, tenantId);
+
+  return tenantId;
 }
 
 async function getTenantHostHeader(db: Knex, tenantId: number, serverBaseUrl: string): Promise<string> {

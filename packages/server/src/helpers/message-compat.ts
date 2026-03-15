@@ -566,7 +566,7 @@ export const getMessagesMatchingNarrow = async (
       continue;
     }
 
-    resultEntries.push(`${JSON.stringify(messageId)}:${JSON.stringify({
+    resultEntries.push(`"${messageId}":${JSON.stringify({
       match_content: message.RenderedContent,
       match_subject: message.Topic ?? "",
     })}`);

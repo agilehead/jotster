@@ -133,10 +133,13 @@ export const toOptionalStringArray = (value: unknown): string[] | undefined => {
   const result: string[] = [];
   for (let i = 0; i < values.length; i++) {
     const item = values[i];
-    if (typeof item !== "string") {
+    if (typeof item === "string") {
+      result.push(item as string);
+    } else if (typeof item === "number" && Number.isFinite(item as number)) {
+      result.push(`${item}`);
+    } else {
       return undefined;
     }
-    result.push(item as string);
   }
   return result;
 };

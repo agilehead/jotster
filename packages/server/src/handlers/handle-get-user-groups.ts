@@ -1,6 +1,7 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
-import { getUserGroupsDomain } from "@jotster/permissions/Jotster.Permissions.js";
+import { getUserGroupsDomain, resolveGroupIdToSetting } from "@jotster/permissions/Jotster.Permissions.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { getBodyObject, getOptionalBooleanField } from "../helpers/body.ts";
@@ -26,6 +27,13 @@ export const handleGetUserGroups = async (
 
   const groupsWithDetails = await getUserGroupsDomain(app.options, user, includeDeactivatedGroups);
 
+  const resolveOutput = async (id: unknown): Promise<string | null> => {
+    if (id === undefined || id === null) {
+      return null;
+    }
+    return await resolveGroupIdToSetting(app.options, user.tenantId, id as long);
+  };
+
   const user_groups = new List<Record<string, unknown>>();
   for (let i = 0; i < groupsWithDetails.length; i++) {
     const item = groupsWithDetails[i];
@@ -38,12 +46,12 @@ export const handleGetUserGroups = async (
     g["date_created"] = item.group.CreatedAt;
     g["members"] = item.members;
     g["direct_subgroup_ids"] = item.subgroups;
-    g["can_add_members_group"] = item.group.CanAddMembersGroupId ?? null;
-    g["can_join_group"] = item.group.CanJoinGroupId ?? null;
-    g["can_leave_group"] = item.group.CanLeaveGroupId ?? null;
-    g["can_manage_group"] = item.group.CanManageGroupId ?? null;
-    g["can_mention_group"] = item.group.CanMentionGroupId ?? null;
-    g["can_remove_members_group"] = item.group.CanRemoveMembersGroupId ?? item.group.CanManageGroupId ?? null;
+    g["can_add_members_group"] = await resolveOutput(item.group.CanAddMembersGroupId);
+    g["can_join_group"] = await resolveOutput(item.group.CanJoinGroupId);
+    g["can_leave_group"] = await resolveOutput(item.group.CanLeaveGroupId);
+    g["can_manage_group"] = await resolveOutput(item.group.CanManageGroupId);
+    g["can_mention_group"] = await resolveOutput(item.group.CanMentionGroupId);
+    g["can_remove_members_group"] = await resolveOutput(item.group.CanRemoveMembersGroupId);
     g["deactivated"] = item.group.IsActive !== 1;
     user_groups.Add(g);
   }
