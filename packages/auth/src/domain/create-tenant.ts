@@ -7,6 +7,7 @@ import {
   Tenant,
   User,
   generateId,
+  allocatePublicId,
   ok,
   err,
 } from "@jotster/core/Jotster.Core.js";
@@ -47,6 +48,7 @@ export const createTenantAdmin = async (
       const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
       const user = new User();
       user.Id = generateId();
+      user.PublicId = await allocatePublicId(options, "user");
       user.TenantId = tenant.Id;
       user.Email = input.adminEmail;
       user.FullName = "Admin";

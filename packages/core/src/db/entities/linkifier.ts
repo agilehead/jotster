@@ -5,6 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class Linkifier {
   Id!: string;
+  PublicId!: long;
   TenantId!: string;
   Pattern!: string;
   UrlTemplate!: string;

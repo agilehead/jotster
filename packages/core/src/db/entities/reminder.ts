@@ -5,6 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class Reminder {
   Id!: string;
+  PublicId!: long;
   TenantId!: string;
   UserId!: string;
   MessageId!: string;

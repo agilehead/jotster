@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, UserGroup, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, UserGroup, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
 
@@ -49,6 +49,7 @@ export const initializeSystemGroups = async (
 
       const group = new UserGroup();
       group.Id = generateId();
+      group.PublicId = await allocatePublicId(options, "user_group");
       group.TenantId = tenantId;
       group.Name = name;
       group.Description = "";

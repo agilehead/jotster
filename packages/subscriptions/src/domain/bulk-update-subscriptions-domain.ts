@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Channel, generateId, ok, err } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Channel, generateId, allocatePublicId, ok, err } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { createSubscription } from "../repo/create-subscription.ts";
@@ -52,6 +52,7 @@ export const bulkUpdateSubscriptionsDomain = async (
           const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
           channel = new Channel();
           channel.Id = generateId();
+          channel.PublicId = await allocatePublicId(options, "channel");
           channel.TenantId = user.tenantId;
           channel.Name = item.name;
           channel.Description = item.description ?? "";

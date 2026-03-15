@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, ChannelFolder, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, ChannelFolder, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
 
 interface CreateChannelFolderInput {
   tenantId: string;
@@ -18,6 +18,7 @@ export const createChannelFolder = async (
 
   const folder = new ChannelFolder();
   folder.Id = generateId();
+  folder.PublicId = await allocatePublicId(options, "channel_folder");
   folder.TenantId = input.tenantId;
   folder.UserId = input.userId;
   folder.Name = input.name;

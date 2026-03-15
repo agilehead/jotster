@@ -5,6 +5,7 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import type { AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import {
   ApiKey,
+  allocatePublicId,
   ChannelFolder,
   ClientDevice,
   JotsterDbContext,
@@ -983,6 +984,7 @@ export const createSavedSnippet = async (
     const now = nowMilliseconds();
     const snippet = new SavedSnippet();
     snippet.Id = generateId();
+    snippet.PublicId = await allocatePublicId(options, "saved_snippet");
     snippet.TenantId = user.tenantId;
     snippet.UserId = user.userId;
     snippet.Title = title.trim();
@@ -1095,6 +1097,7 @@ export const createNavigationView = async (
     const view = new NavigationView();
     const now = nowMilliseconds();
     view.Id = generateId();
+    view.PublicId = await allocatePublicId(options, "navigation_view");
     view.TenantId = user.tenantId;
     view.UserId = user.userId;
     view.Fragment = fragment;
@@ -1205,6 +1208,7 @@ export const createReminder = async (
     const reminder = new Reminder();
     const now = nowMilliseconds();
     reminder.Id = generateId();
+    reminder.PublicId = await allocatePublicId(options, "reminder");
     reminder.TenantId = user.tenantId;
     reminder.UserId = user.userId;
     reminder.MessageId = messageId;
@@ -1310,6 +1314,7 @@ export const createScheduledMessage = async (
   const scheduled = new ScheduledMessage();
   const now = nowMilliseconds();
   scheduled.Id = generateId();
+  scheduled.PublicId = await allocatePublicId(options, "scheduled_message");
   scheduled.TenantId = user.tenantId;
   scheduled.UserId = user.userId;
   scheduled.Type = normalizedType === "private" ? "direct" : normalizedType;
@@ -1498,6 +1503,7 @@ export const createLinkifier = async (
   const linkifier = new Linkifier();
   const now = nowMilliseconds();
   linkifier.Id = generateId();
+  linkifier.PublicId = await allocatePublicId(options, "linkifier");
   linkifier.TenantId = tenantId;
   linkifier.Pattern = pattern;
   linkifier.UrlTemplate = urlTemplate;

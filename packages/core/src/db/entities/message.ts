@@ -5,6 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class Message {
   Id!: string;
+  PublicId!: long;
   TenantId!: string;
   SenderId!: string;
   Type!: string;

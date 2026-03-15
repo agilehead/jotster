@@ -5,6 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class ChannelFolder {
   Id!: string;
+  PublicId!: long;
   TenantId!: string;
   UserId!: string;
   Name!: string;

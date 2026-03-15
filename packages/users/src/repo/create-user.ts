@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, User, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, User, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
 
 interface CreateUserInput {
   tenantId: string;
@@ -24,6 +24,7 @@ export const createUser = async (
 
   const user = new User();
   user.Id = generateId();
+  user.PublicId = await allocatePublicId(options, "user");
   user.TenantId = input.tenantId;
   user.Email = input.email;
   user.FullName = input.fullName;

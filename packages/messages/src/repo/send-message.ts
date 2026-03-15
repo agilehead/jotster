@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Message, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Message, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
 
 interface SendMessageInput {
   tenantId: string;
@@ -25,6 +25,7 @@ export const sendMessage = async (
 
   const message = new Message();
   message.Id = generateId();
+  message.PublicId = await allocatePublicId(options, "message");
   message.TenantId = input.tenantId;
   message.SenderId = input.senderId;
   message.Type = input.type;

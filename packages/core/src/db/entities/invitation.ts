@@ -5,6 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class Invitation {
   Id!: string;
+  PublicId!: long;
   TenantId!: string;
   InviterId!: string;
   Email?: string;

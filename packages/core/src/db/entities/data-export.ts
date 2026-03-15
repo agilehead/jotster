@@ -5,6 +5,7 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class DataExport {
   Id!: string;
+  PublicId!: long;
   TenantId!: string;
   RequesterId!: string;
   ExportType!: string;

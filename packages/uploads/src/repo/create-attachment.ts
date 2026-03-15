@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Attachment, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, Attachment, generateId, allocatePublicId } from "@jotster/core/Jotster.Core.js";
 
 interface CreateAttachmentInput {
   tenantId: string;
@@ -20,6 +20,7 @@ export const createAttachment = async (
 
   const attachment = new Attachment();
   attachment.Id = generateId();
+  attachment.PublicId = await allocatePublicId(options, "attachment");
   attachment.TenantId = input.tenantId;
   attachment.UserId = input.userId;
   attachment.FileName = input.fileName;
