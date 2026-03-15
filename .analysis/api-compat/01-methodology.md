@@ -5,6 +5,7 @@
 - Zulip OpenAPI: `/home/jester/temp/zulip/zerver/openapi/zulip.yaml`
 - Jotster routes: `packages/server/src/routes/register-routes.ts`
 - Jotster direct test references: `tests/**/*.ts`
+- Report generator: `scripts/generate-api-compat-report.mjs`
 
 ## Matching rules
 
@@ -14,6 +15,7 @@
   - Jotster wildcard tails like `/*` as a placeholder segment
 - For standard Zulip API operations, comparison uses the `/api/v1`-prefixed Jotster path.
 - For raw file routes such as `/thumbnail/...` and `/user_uploads/...`, comparison uses the raw path.
+- Direct test coverage is derived from explicit endpoint references in test titles and assertions, using OpenAPI-style placeholder paths where needed.
 
 ## Status meanings
 
@@ -33,4 +35,4 @@ Those excluded operations remain listed in the matrix so the omission is explici
 
 ## Limits
 
-This is still a route-and-test inventory, not a full schema-proof. It does not prove exact Zulip parity for every request shape, response schema, or error message.
+This is still a route-and-test inventory, not a full schema-proof. It proves that every in-scope operation has both a matching Jotster route and at least one direct endpoint-level test reference. It does not, by itself, prove exact Zulip parity for every request shape, response schema, permission branch, or error message.

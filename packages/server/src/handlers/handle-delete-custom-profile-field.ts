@@ -15,11 +15,15 @@ export const handleDeleteCustomProfileField = async (
   }
 
   const user = authResult.data;
+  if (user.role > 200) {
+    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    return;
+  }
   const fieldId = req.params["field_id"] as string;
 
   const result = await deleteCustomProfileFieldDomain(app.options, user, fieldId);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

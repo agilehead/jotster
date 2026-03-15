@@ -17,7 +17,7 @@ export const handleCreateExport = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
-  const exportType = getOptionalStringField(body, "export_type") ?? "full";
+  const exportType = getOptionalStringField(body, "export_type") ?? "public";
 
   const result = await initiateExportDomain(app.options, user, exportType);
   if (!result.success) {

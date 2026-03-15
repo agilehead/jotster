@@ -9,6 +9,9 @@ export interface ClientCapabilities {
   userSettingsObject?: boolean;
   linkifierUrlTemplate?: boolean;
   groupSettingValue?: boolean;
+  archivedChannels?: boolean;
+  userListIncomplete?: boolean;
+  includeDeactivatedGroups?: boolean;
 }
 
 export interface RegisterParams {
@@ -32,7 +35,7 @@ export interface QueueEvent {
   id: int;
   type: string;
   op?: string;
-  [key: string]: unknown;
+  data?: Record<string, unknown>;
 }
 
 export interface EventQueue {

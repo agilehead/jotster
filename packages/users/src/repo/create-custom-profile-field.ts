@@ -10,6 +10,9 @@ interface CreateCustomProfileFieldInput {
   fieldType: int;
   fieldDataJson: string;
   displayInProfileSummary: int;
+  required: int;
+  editableByUser: int;
+  useForUserMatching: int;
   ordering: int;
 }
 
@@ -27,6 +30,9 @@ export const createCustomProfileField = async (
   field.FieldType = input.fieldType;
   field.FieldDataJson = input.fieldDataJson;
   field.DisplayInProfileSummary = input.displayInProfileSummary;
+  field.Required = input.required;
+  field.EditableByUser = input.editableByUser;
+  field.UseForUserMatching = input.useForUserMatching;
   field.Ordering = input.ordering;
   field.CreatedAt = now;
 

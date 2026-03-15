@@ -2,7 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateUserGroupDomain } from "@jotster/permissions/Jotster.Permissions.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalStringField, hasField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalBooleanField, getOptionalStringField, hasField } from "../helpers/body.ts";
 
 export const handleUpdateUserGroup = async (
   req: Request,
@@ -27,6 +27,8 @@ export const handleUpdateUserGroup = async (
     canLeaveGroupId?: string;
     canManageGroupId?: string;
     canMentionGroupId?: string;
+    canRemoveMembersGroupId?: string;
+    deactivated?: boolean;
   } = {};
 
   const name = getOptionalStringField(body, "name");
@@ -38,6 +40,12 @@ export const handleUpdateUserGroup = async (
   if (hasField(body, "can_leave_group")) updates.canLeaveGroupId = getOptionalStringField(body, "can_leave_group");
   if (hasField(body, "can_manage_group")) updates.canManageGroupId = getOptionalStringField(body, "can_manage_group");
   if (hasField(body, "can_mention_group")) updates.canMentionGroupId = getOptionalStringField(body, "can_mention_group");
+  if (hasField(body, "can_remove_members_group")) {
+    updates.canRemoveMembersGroupId = getOptionalStringField(body, "can_remove_members_group");
+  }
+  if (hasField(body, "deactivated")) {
+    updates.deactivated = getOptionalBooleanField(body, "deactivated");
+  }
 
   const result = await updateUserGroupDomain(app.options, user, groupId, updates);
   if (!result.success) {

@@ -5,11 +5,15 @@ import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.j
 import { getCustomEmojiByName } from "../repo/get-custom-emoji-by-name.ts";
 import { createCustomEmoji } from "../repo/create-custom-emoji.ts";
 import { getCustomEmojisDomain } from "./get-custom-emojis-domain.ts";
+import { fs, path } from "@tsonic/nodejs/index.js";
+import type { UploadedFile } from "@tsonic/express/index.js";
 
 export const createCustomEmojiDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  emojiName: string
+  uploadsDir: string,
+  emojiName: string,
+  file: UploadedFile,
 ): Promise<Result<CustomEmoji, string>> => {
   // Validate emoji name is not empty
   if (emojiName.length === 0) {
@@ -22,8 +26,7 @@ export const createCustomEmojiDomain = async (
     return err("An emoji with this name already exists");
   }
 
-  // Create with placeholder filename (actual file upload handled by uploads package)
-  const fileName = emojiName + ".png";
+  const fileName = resolveStoredFileName(emojiName, file.originalname);
 
   const emoji = await createCustomEmoji(options, {
     tenantId: user.tenantId,
@@ -31,6 +34,12 @@ export const createCustomEmojiDomain = async (
     fileName,
     authorId: user.userId,
   });
+
+  const emojiDir = path.join(uploadsDir, user.tenantId, "emoji", emoji.Id);
+  if (!fs.existsSync(emojiDir)) {
+    fs.mkdirSync(emojiDir, { recursive: true });
+  }
+  await file.save(path.join(emojiDir, fileName));
 
   // Build full emoji map and dispatch realm_emoji event
   const emojiMap = await getCustomEmojisDomain(options, user.tenantId);
@@ -45,4 +54,13 @@ export const createCustomEmojiDomain = async (
   });
 
   return ok(emoji);
+};
+
+const resolveStoredFileName = (emojiName: string, originalName: string): string => {
+  const ext = path.extname(originalName);
+  if (ext === "") {
+    return emojiName + ".png";
+  }
+
+  return emojiName + ext.toLowerCase();
 };

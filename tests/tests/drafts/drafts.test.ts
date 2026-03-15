@@ -100,7 +100,7 @@ describe("GET /api/v1/drafts", () => {
   });
 });
 
-describe("PATCH /api/v1/drafts/:draft_id", () => {
+describe("PATCH /api/v1/drafts/{draft_id}", () => {
   it("should update an existing draft", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -140,7 +140,7 @@ describe("PATCH /api/v1/drafts/:draft_id", () => {
   });
 });
 
-describe("DELETE /api/v1/drafts/:draft_id", () => {
+describe("DELETE /api/v1/drafts/{draft_id}", () => {
   it("should delete an existing draft", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

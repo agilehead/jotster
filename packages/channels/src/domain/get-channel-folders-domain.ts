@@ -10,8 +10,9 @@ interface ChannelFolderWithItems {
 
 export const getChannelFoldersDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
+  includeArchived: boolean,
 ): Promise<ChannelFolderWithItems[]> => {
-  const folders = await getChannelFolders(options, user.tenantId, user.userId);
+  const folders = await getChannelFolders(options, user.tenantId, includeArchived);
   return folders;
 };

@@ -1,95 +1,32 @@
-import type { long } from "@tsonic/core/types.js";
-import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
+import type { Presence } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
-import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import { getRealmPresence } from "../repo/get-realm-presence.ts";
-
-const PRESENCE_STALE_THRESHOLD_MS = 300000 as long; // 5 minutes in ms
-
-interface ClientPresence {
-  status: string;
-  timestamp: long;
-}
-
-interface SlimUserPresence {
-  active_timestamp?: long;
-  idle_timestamp?: long;
-}
+import { buildModernPresenceMap, filterPresenceEntries } from "./presence-contract.ts";
 
 interface RealmPresenceResult {
-  presences: Record<string, Record<string, ClientPresence> | SlimUserPresence>;
+  presences: Record<string, unknown>;
   serverTimestamp: long;
 }
 
 export const getRealmPresenceDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  slimPresence?: boolean
+  slimPresence?: boolean,
+  historyLimitDays?: int,
 ): Promise<Result<RealmPresenceResult, string>> => {
   const allPresences = await getRealmPresence(options, user.tenantId);
-  const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
-  const serverTimestamp = now;
-
-  // Group by user, filtering out stale entries
-  const userPresenceMap: Record<string, { clientName: string; status: string; timestamp: long }[]> = {};
-  const userPresenceMapKeys = new List<string>();
-
-  for (let i = 0; i < allPresences.length; i++) {
-    const p = allPresences[i];
-    const age = (Convert.ToDouble(now) - Convert.ToDouble(p.Timestamp)) as long;
-    if (Convert.ToDouble(age) > Convert.ToDouble(PRESENCE_STALE_THRESHOLD_MS)) {
-      continue;
-    }
-
-    if (userPresenceMap[p.UserId] === undefined) {
-      userPresenceMap[p.UserId] = [];
-      userPresenceMapKeys.Add(p.UserId);
-    }
-    const presenceList = new List<{ clientName: string; status: string; timestamp: long }>();
-    for (let pi = 0; pi < userPresenceMap[p.UserId].length; pi++) {
-      presenceList.Add(userPresenceMap[p.UserId][pi]);
-    }
-    presenceList.Add({
-      clientName: p.ClientName,
-      status: p.Status,
-      timestamp: p.Timestamp,
-    });
-    userPresenceMap[p.UserId] = presenceList.ToArray();
-  }
+  const filteredPresences = filterPresenceEntries(allPresences, historyLimitDays);
+  const serverTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   if (slimPresence === true) {
-    // Slim format: { userId: { active_timestamp, idle_timestamp } }
-    const presences: Record<string, SlimUserPresence> = {};
-
-    for (let i = 0; i < userPresenceMapKeys.Count; i++) {
-      const userId = userPresenceMapKeys[i];
-      const entries = userPresenceMap[userId];
-      const slim: SlimUserPresence = {};
-
-      for (let j = 0; j < entries.length; j++) {
-        const entry = entries[j];
-        if (entry.status === "active") {
-          if (slim.active_timestamp === undefined || Convert.ToDouble(entry.timestamp) > Convert.ToDouble(slim.active_timestamp)) {
-            slim.active_timestamp = entry.timestamp;
-          }
-        } else if (entry.status === "idle") {
-          if (slim.idle_timestamp === undefined || Convert.ToDouble(entry.timestamp) > Convert.ToDouble(slim.idle_timestamp)) {
-            slim.idle_timestamp = entry.timestamp;
-          }
-        }
-      }
-
-      presences[userId] = slim;
-    }
-
-    return ok({ presences, serverTimestamp });
+    return ok({ presences: buildModernPresenceMap(filteredPresences), serverTimestamp });
   }
 
-  // Legacy format: { email: { aggregated: {...}, clientName: {...}, ... } }
-  // Need to look up emails for each user
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
@@ -97,49 +34,42 @@ export const getRealmPresenceDomain = async (
     const users = await db0.Users
       .Where((u) => u.TenantId === tenantId0)
       .ToListAsync();
+    const presences: Record<string, unknown> = {};
 
-    // Build userId -> email map
-    const emailMap: Record<string, string> = {};
     for (let i = 0; i < users.Count; i++) {
       const currentUser = users[i];
-      emailMap[currentUser.Id] = currentUser.Email;
-    }
+      let latestEntry: Presence | undefined;
 
-    const presences: Record<string, Record<string, ClientPresence>> = {};
+      for (let j = 0; j < filteredPresences.length; j++) {
+        const entry = filteredPresences[j];
+        if (entry.UserId !== currentUser.Id) {
+          continue;
+        }
 
-    for (let i = 0; i < userPresenceMapKeys.Count; i++) {
-      const userId = userPresenceMapKeys[i];
-      const email = emailMap[userId];
-      if (email === undefined) {
-        continue;
-      }
-
-      const entries = userPresenceMap[userId];
-      const userPresence: Record<string, ClientPresence> = {};
-      let latestTimestamp = 0 as long;
-      let aggregatedStatus = "offline";
-
-      for (let j = 0; j < entries.length; j++) {
-        const entry = entries[j];
-        userPresence[entry.clientName] = {
-          status: entry.status,
-          timestamp: entry.timestamp,
-        };
-
-        if (Convert.ToDouble(entry.timestamp) > Convert.ToDouble(latestTimestamp)) {
-          latestTimestamp = entry.timestamp;
-          aggregatedStatus = entry.status;
+        if (latestEntry === undefined || entry.Timestamp > latestEntry.Timestamp) {
+          latestEntry = entry;
         }
       }
 
-      if (aggregatedStatus !== "offline") {
-        userPresence["aggregated"] = {
-          status: aggregatedStatus,
-          timestamp: latestTimestamp,
-        };
+      if (latestEntry === undefined) {
+        continue;
       }
 
-      presences[email] = userPresence;
+      const legacyPresence: Record<string, unknown> = {
+        website: {
+          client: "website",
+          pushable: false,
+          status: latestEntry.Status,
+          timestamp: latestEntry.Timestamp,
+        },
+        aggregated: {
+          client: "website",
+          pushable: false,
+          status: latestEntry.Status,
+          timestamp: latestEntry.Timestamp,
+        },
+      };
+      presences[currentUser.Email] = legacyPresence as unknown;
     }
 
     return ok({ presences, serverTimestamp });

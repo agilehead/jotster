@@ -3,6 +3,7 @@ import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserGroupsDomain } from "@jotster/permissions/Jotster.Permissions.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getBodyObject, getOptionalBooleanField } from "../helpers/body.ts";
 
 export const handleGetUserGroups = async (
   req: Request,
@@ -16,7 +17,14 @@ export const handleGetUserGroups = async (
   }
 
   const user = authResult.data;
-  const groupsWithDetails = await getUserGroupsDomain(app.options, user);
+  const body = getBodyObject(req);
+  const query = req.query as Record<string, unknown>;
+  const includeDeactivatedGroups =
+    getOptionalBooleanField(query, "include_deactivated_groups")
+    ?? getOptionalBooleanField(body, "include_deactivated_groups")
+    ?? false;
+
+  const groupsWithDetails = await getUserGroupsDomain(app.options, user, includeDeactivatedGroups);
 
   const user_groups = new List<Record<string, unknown>>();
   for (let i = 0; i < groupsWithDetails.length; i++) {
@@ -26,6 +34,8 @@ export const handleGetUserGroups = async (
     g["name"] = item.group.Name;
     g["description"] = item.group.Description;
     g["is_system_group"] = item.group.IsSystemGroup === 1;
+    g["creator_id"] = item.group.CreatorId ?? null;
+    g["date_created"] = item.group.CreatedAt;
     g["members"] = item.members;
     g["direct_subgroup_ids"] = item.subgroups;
     g["can_add_members_group"] = item.group.CanAddMembersGroupId ?? null;
@@ -33,6 +43,8 @@ export const handleGetUserGroups = async (
     g["can_leave_group"] = item.group.CanLeaveGroupId ?? null;
     g["can_manage_group"] = item.group.CanManageGroupId ?? null;
     g["can_mention_group"] = item.group.CanMentionGroupId ?? null;
+    g["can_remove_members_group"] = item.group.CanRemoveMembersGroupId ?? item.group.CanManageGroupId ?? null;
+    g["deactivated"] = item.group.IsActive !== 1;
     user_groups.Add(g);
   }
 

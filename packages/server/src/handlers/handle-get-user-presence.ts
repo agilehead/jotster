@@ -19,7 +19,7 @@ export const handleGetUserPresence = async (
 
   const result = await getUserPresenceDomain(app.options, user, userIdOrEmail);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

@@ -2,7 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserByIdDomain } from "@jotster/users/Jotster.Users.js";
 import { resolveUserByEmailPath } from "../helpers/compat-db.ts";
-import { mapUserToResponse } from "../helpers/map-user-to-response.ts";
+import { buildUserResponse } from "../helpers/map-user-to-response.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetUser = async (
@@ -21,19 +21,19 @@ export const handleGetUser = async (
 
   const resolvedByEmail = await resolveUserByEmailPath(app.options, user.tenantId, identifier);
   if (resolvedByEmail !== undefined) {
-    res.json({ result: "success", msg: "", user: mapUserToResponse(resolvedByEmail) });
+    res.json({ result: "success", msg: "", user: await buildUserResponse(app.options, resolvedByEmail) });
     return;
   }
 
   const result = await getUserByIdDomain(app.options, user.tenantId, identifier);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 
   const payload: Record<string, unknown> = {};
   payload["result"] = "success";
   payload["msg"] = "";
-  payload["user"] = mapUserToResponse(result.data);
+  payload["user"] = await buildUserResponse(app.options, result.data);
   res.json(payload);
 };

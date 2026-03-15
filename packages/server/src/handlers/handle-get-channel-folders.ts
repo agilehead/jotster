@@ -3,6 +3,7 @@ import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getChannelFoldersDomain } from "@jotster/channels/Jotster.Channels.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { getOptionalBooleanField } from "../helpers/body.ts";
 import { mapChannelFolderToCompatResponse } from "../helpers/compat-mappers.ts";
 
 export const handleGetChannelFolders = async (
@@ -17,7 +18,8 @@ export const handleGetChannelFolders = async (
   }
 
   const user = authResult.data;
-  const foldersWithItems = await getChannelFoldersDomain(app.options, user);
+  const includeArchived = getOptionalBooleanField(req.query as Record<string, unknown>, "include_archived") === true;
+  const foldersWithItems = await getChannelFoldersDomain(app.options, user, includeArchived);
 
   const channel_folders = new List<Record<string, unknown>>();
   for (let i = 0; i < foldersWithItems.length; i++) {

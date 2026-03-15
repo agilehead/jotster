@@ -1,6 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import {
+  AuthenticatedUser,
   JotsterDbContext,
   ZULIP_VERSION,
   ZULIP_FEATURE_LEVEL,
@@ -15,6 +16,24 @@ import { getUserSetting } from "@jotster/users/Jotster.Users.js";
 import { getSubscriptionsForUser } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import { getChannels, getChannelSubscribers } from "@jotster/channels/Jotster.Channels.js";
 import type { RegisterParams } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { getUserGroupsDomain } from "@jotster/permissions/Jotster.Permissions.js";
+import { getUserSettingDefaults } from "@jotster/organization/Jotster.Organization.js";
+import { getCustomProfileFieldsDomain } from "@jotster/users/Jotster.Users.js";
+import {
+  listLinkifiers,
+  listNavigationViews,
+  listReminders,
+  listSavedSnippets,
+  listScheduledMessages,
+} from "./compat-db.ts";
+import {
+  mapLinkifierToCompatResponse,
+  mapNavigationViewToCompatResponse,
+  mapReminderToCompatResponse,
+  mapSavedSnippetToCompatResponse,
+  mapScheduledMessageToCompatResponse,
+} from "./compat-mappers.ts";
+import { buildRealmUserSettingDefaultsState } from "./realm-user-setting-defaults.ts";
 
 const mapUserToZulip = (u: {
   Id: string;
@@ -53,7 +72,8 @@ export const buildInitialState = async (
   tenantId: string,
   userId: string,
   fetchEventTypes: string[] | undefined,
-  params: RegisterParams
+  params: RegisterParams,
+  includeDeactivatedGroups: boolean,
 ): Promise<Record<string, unknown>> => {
   const shouldInclude = (type: string): boolean => {
     if (fetchEventTypes === undefined) {
@@ -68,6 +88,29 @@ export const buildInitialState = async (
   };
 
   const state: Record<string, unknown> = {};
+  const compatRequester = new AuthenticatedUser();
+  compatRequester.tenantId = tenantId;
+  compatRequester.userId = userId;
+  compatRequester.email = "";
+  compatRequester.role = 400;
+  compatRequester.isBot = 0;
+
+  const bootstrapDb = new JotsterDbContext(options);
+  try {
+    const bootstrapDb0 = bootstrapDb;
+    const tenantId0 = tenantId;
+    const userId0 = userId;
+    const requester = await bootstrapDb0.Users
+      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === userId0)
+      .FirstOrDefaultAsync();
+    if (requester !== undefined && requester !== null) {
+      compatRequester.email = requester.Email;
+      compatRequester.role = requester.Role;
+      compatRequester.isBot = requester.IsBot;
+    }
+  } finally {
+    bootstrapDb.Dispose();
+  }
 
   // Server metadata (always included)
   state.zulip_version = ZULIP_VERSION;
@@ -141,31 +184,41 @@ export const buildInitialState = async (
   // --- subscriptions ---
   if (shouldInclude("subscription")) {
     const userSubs = await getSubscriptionsForUser(options, tenantId, userId);
-    const allChannels = await getChannels(options, tenantId, false);
-
-    // Build channel lookup map
-    const channelMap: Record<string, typeof allChannels[0]> = {};
-    for (let i = 0; i < allChannels.length; i++) {
-      const ch = allChannels[i];
-      channelMap[ch.Id] = ch;
-    }
+    const allChannels = await getChannels(options, tenantId, params.clientCapabilities?.archivedChannels === true);
 
     const subscriptions = new List<Record<string, unknown>>();
+    const subscribedChannelIds: string[] = [];
 
     for (let i = 0; i < userSubs.Count; i++) {
       const sub = userSubs[i];
-      const ch = channelMap[sub.ChannelId];
+      let ch = undefined as (typeof allChannels)[number] | undefined;
+      for (let channelIndex = 0; channelIndex < allChannels.length; channelIndex++) {
+        if (allChannels[channelIndex].Id === sub.ChannelId) {
+          ch = allChannels[channelIndex];
+          break;
+        }
+      }
       if (ch === undefined) {
         continue;
       }
+      subscribedChannelIds.push(sub.ChannelId);
 
       const subscriberIds = await getChannelSubscribers(options, tenantId, sub.ChannelId);
-
       const entry: Record<string, unknown> = {};
-      entry.stream_id = sub.ChannelId;
+      entry.stream_id = ch.Id;
       entry.name = ch.Name;
       entry.description = ch.Description;
       entry.rendered_description = ch.RenderedDescription;
+      entry.invite_only = ch.IsPrivate === 1;
+      entry.stream_post_policy = 1;
+      entry.is_announcement_only = false;
+      entry.is_web_public = ch.IsWebPublic === 1;
+      entry.history_public_to_subscribers = ch.HistoryPublicToSubscribers === 1;
+      entry.creator_id = ch.CreatorId ?? null;
+      entry.date_created = ch.CreatedAt;
+      entry.first_message_id = ch.FirstMessageId ?? null;
+      entry.message_retention_days = ch.MessageRetentionDays ?? null;
+      entry.is_archived = ch.IsArchived === 1;
       entry.color = sub.Color;
       entry.pin_to_top = sub.PinToTop === 1;
       entry.is_muted = sub.IsMuted === 1;
@@ -175,10 +228,6 @@ export const buildInitialState = async (
       entry.audible_notifications = sub.AudibleNotifications !== undefined ? sub.AudibleNotifications === 1 : null;
       entry.email_notifications = sub.EmailNotifications !== undefined ? sub.EmailNotifications === 1 : null;
       entry.wildcard_mentions_notify = sub.WildcardMentionsNotify !== undefined ? sub.WildcardMentionsNotify === 1 : null;
-      entry.invite_only = ch.IsPrivate === 1;
-      entry.is_web_public = ch.IsWebPublic === 1;
-      entry.history_public_to_subscribers = ch.HistoryPublicToSubscribers === 1;
-      entry.stream_weekly_traffic = 0;
       entry.subscribers = subscriberIds;
 
       subscriptions.Add(entry);
@@ -186,7 +235,40 @@ export const buildInitialState = async (
 
     state.subscriptions = subscriptions.ToArray();
     state.unsubscribed = [];
-    state.never_subscribed = [];
+    const neverSubscribed = new List<Record<string, unknown>>();
+    for (let i = 0; i < allChannels.length; i++) {
+      const ch = allChannels[i];
+      let isSubscribed = false;
+      for (let subscribedIndex = 0; subscribedIndex < subscribedChannelIds.length; subscribedIndex++) {
+        if (subscribedChannelIds[subscribedIndex] === ch.Id) {
+          isSubscribed = true;
+          break;
+        }
+      }
+      if (isSubscribed) {
+        continue;
+      }
+      if (compatRequester.role > 200 && ch.IsPrivate === 1) {
+        continue;
+      }
+      const entry: Record<string, unknown> = {};
+      entry.stream_id = ch.Id;
+      entry.name = ch.Name;
+      entry.description = ch.Description;
+      entry.rendered_description = ch.RenderedDescription;
+      entry.invite_only = ch.IsPrivate === 1;
+      entry.stream_post_policy = 1;
+      entry.is_announcement_only = false;
+      entry.is_web_public = ch.IsWebPublic === 1;
+      entry.history_public_to_subscribers = ch.HistoryPublicToSubscribers === 1;
+      entry.creator_id = ch.CreatorId ?? null;
+      entry.date_created = ch.CreatedAt;
+      entry.first_message_id = ch.FirstMessageId ?? null;
+      entry.message_retention_days = ch.MessageRetentionDays ?? null;
+      entry.is_archived = ch.IsArchived === 1;
+      neverSubscribed.Add(entry);
+    }
+    state.never_subscribed = neverSubscribed.ToArray();
   }
 
   // --- user_settings ---
@@ -277,10 +359,93 @@ export const buildInitialState = async (
         state.realm_create_web_public_stream_policy = 6;
         state.realm_default_language = "en";
         state.realm_video_chat_provider = 1;
+        state.event_queue_longpoll_timeout_seconds = 90;
       }
     } finally {
       db.Dispose();
     }
+  }
+
+  if (shouldInclude("realm_user_groups")) {
+    const groupsWithDetails = await getUserGroupsDomain(
+      options,
+      compatRequester,
+      includeDeactivatedGroups,
+    );
+    const realmUserGroups: Record<string, unknown>[] = [];
+    for (let i = 0; i < groupsWithDetails.length; i++) {
+      const item = groupsWithDetails[i];
+      const group: Record<string, unknown> = {};
+      group["id"] = item.group.Id;
+      group["name"] = item.group.Name;
+      group["description"] = item.group.Description;
+      group["is_system_group"] = item.group.IsSystemGroup === 1;
+      group["creator_id"] = item.group.CreatorId ?? null;
+      group["date_created"] = item.group.CreatedAt;
+      group["members"] = item.members;
+      group["direct_subgroup_ids"] = item.subgroups;
+      group["can_add_members_group"] = item.group.CanAddMembersGroupId ?? null;
+      group["can_join_group"] = item.group.CanJoinGroupId ?? null;
+      group["can_leave_group"] = item.group.CanLeaveGroupId ?? null;
+      group["can_manage_group"] = item.group.CanManageGroupId ?? null;
+      group["can_mention_group"] = item.group.CanMentionGroupId ?? null;
+      group["can_remove_members_group"] = item.group.CanRemoveMembersGroupId ?? item.group.CanManageGroupId ?? null;
+      group["deactivated"] = item.group.IsActive !== 1;
+      realmUserGroups.push(group);
+    }
+    state.realm_user_groups = realmUserGroups;
+  }
+
+  if (shouldInclude("navigation_views")) {
+    const views = await listNavigationViews(options, compatRequester);
+    const navigationViews: Record<string, unknown>[] = [];
+    for (let i = 0; i < views.length; i++) {
+      navigationViews.push(mapNavigationViewToCompatResponse(views[i]));
+    }
+    state.navigation_views = navigationViews;
+  }
+
+  if (shouldInclude("saved_snippets")) {
+    const snippets = await listSavedSnippets(options, compatRequester);
+    const savedSnippets: Record<string, unknown>[] = [];
+    for (let i = 0; i < snippets.length; i++) {
+      savedSnippets.push(mapSavedSnippetToCompatResponse(snippets[i]));
+    }
+    state.saved_snippets = savedSnippets;
+  }
+
+  if (shouldInclude("reminders")) {
+    const reminders = await listReminders(options, compatRequester);
+    const reminderPayloads: Record<string, unknown>[] = [];
+    for (let i = 0; i < reminders.length; i++) {
+      reminderPayloads.push(mapReminderToCompatResponse(reminders[i], userId));
+    }
+    state.reminders = reminderPayloads;
+  }
+
+  if (shouldInclude("scheduled_messages")) {
+    const scheduledMessages = await listScheduledMessages(options, compatRequester);
+    const scheduledMessagePayloads: Record<string, unknown>[] = [];
+    for (let i = 0; i < scheduledMessages.length; i++) {
+      scheduledMessagePayloads.push(mapScheduledMessageToCompatResponse(scheduledMessages[i]));
+    }
+    state.scheduled_messages = scheduledMessagePayloads;
+  }
+
+  if (shouldInclude("realm_linkifiers")) {
+    const realmLinkifiers: Record<string, unknown>[] = [];
+    if (params.clientCapabilities?.linkifierUrlTemplate === true) {
+      const linkifiers = await listLinkifiers(options, tenantId);
+      for (let i = 0; i < linkifiers.length; i++) {
+        realmLinkifiers.push(mapLinkifierToCompatResponse(linkifiers[i]));
+      }
+    }
+    state.realm_linkifiers = realmLinkifiers;
+  }
+
+  if (shouldInclude("realm_user_settings_defaults")) {
+    const defaults = await getUserSettingDefaults(options, tenantId);
+    state.realm_user_settings_defaults = buildRealmUserSettingDefaultsState(defaults);
   }
 
   // --- Empty/default sections for not-yet-implemented modules ---
@@ -289,7 +454,8 @@ export const buildInitialState = async (
   }
 
   if (shouldInclude("custom_profile_fields")) {
-    state.custom_profile_fields = [];
+    const fieldsResult = await getCustomProfileFieldsDomain(options, compatRequester);
+    state.custom_profile_fields = fieldsResult.success ? fieldsResult.data : [];
   }
 
   if (shouldInclude("drafts")) {
@@ -318,7 +484,6 @@ export const buildInitialState = async (
 
   if (shouldInclude("realm")) {
     state.realm_filters = [];
-    state.realm_linkifiers = [];
     state.realm_playgrounds = [];
   }
 

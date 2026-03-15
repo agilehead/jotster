@@ -2,7 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUsers } from "@jotster/users/Jotster.Users.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
-import { mapUserToResponse } from "../helpers/map-user-to-response.ts";
+import { buildUserResponse } from "../helpers/map-user-to-response.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetUsers = async (
@@ -21,7 +21,7 @@ export const handleGetUsers = async (
 
   const members = new List<Record<string, unknown>>();
   for (let i = 0; i < data.length; i++) {
-    members.Add(mapUserToResponse(data[i]));
+    members.Add(await buildUserResponse(app.options, data[i]));
   }
 
   const payload: Record<string, unknown> = {};

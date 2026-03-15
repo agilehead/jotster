@@ -13,7 +13,7 @@ export const uploadFileDomain = async (
   user: AuthenticatedUser,
   uploadsDir: string,
   file: UploadedFile
-): Promise<Result<{ uri: string }, string>> => {
+): Promise<Result<{ filename: string; uri: string; url: string }, string>> => {
   const fileName = file.originalname;
   const size = file.size as long;
   const contentType = file.mimetype;
@@ -38,7 +38,8 @@ export const uploadFileDomain = async (
     contentType,
   });
 
-  const uri = "/user_uploads/" + user.tenantId + "/" + pathId;
+  const url = "/user_uploads/" + user.tenantId + "/" + pathId + "/" + encodePathSegment(fileName);
+  const uri = url;
 
   const messagesArr: unknown[] = [];
   const attObj: Record<string, unknown> = {};
@@ -57,5 +58,15 @@ export const uploadFileDomain = async (
     data: eventData,
   });
 
-  return ok({ uri });
+  return ok({ uri, url, filename: fileName });
+};
+
+const encodePathSegment = (value: string): string => {
+  return value
+    .replaceAll("%", "%25")
+    .replaceAll(" ", "%20")
+    .replaceAll("#", "%23")
+    .replaceAll("?", "%3F")
+    .replaceAll("[", "%5B")
+    .replaceAll("]", "%5D");
 };

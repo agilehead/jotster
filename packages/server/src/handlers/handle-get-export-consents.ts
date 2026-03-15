@@ -1,5 +1,6 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { getExportConsents } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleGetExportConsents = async (
@@ -21,6 +22,6 @@ export const handleGetExportConsents = async (
     return;
   }
 
-  // TODO: Implement full consent tracking. For now, return an empty consents array.
-  res.json({ result: "success", msg: "", export_consents: [] });
+  const exportConsents = await getExportConsents(app.options, user.tenantId);
+  res.json({ result: "success", msg: "", export_consents: exportConsents });
 };

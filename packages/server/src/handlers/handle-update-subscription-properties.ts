@@ -56,16 +56,24 @@ export const handleUpdateSubscriptionProperties = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
+  const ignoredParametersUnsupported: string[] = [];
+  const bodyKeys = Object.keys(body);
+  for (let i = 0; i < bodyKeys.length; i++) {
+    const bodyKey = bodyKeys[i];
+    if (bodyKey !== "subscription_data") {
+      ignoredParametersUnsupported.push(bodyKey);
+    }
+  }
 
   const subscriptionDataRaw = getOptionalStringField(body, "subscription_data");
   if (!subscriptionDataRaw) {
-    res.status(400).json({ result: "error", msg: "Missing required field: subscription_data" });
+    res.status(400).json({ result: "error", msg: "Missing required field: subscription_data", code: "BAD_REQUEST" });
     return;
   }
 
   const parsed = JSON.parse(subscriptionDataRaw) as unknown;
   if (!Array.isArray(parsed)) {
-    res.status(400).json({ result: "error", msg: "subscription_data must be an array" });
+    res.status(400).json({ result: "error", msg: "subscription_data must be an array", code: "BAD_REQUEST" });
     return;
   }
 
@@ -76,16 +84,16 @@ export const handleUpdateSubscriptionProperties = async (
     const streamIdValue = getOptionalObjectField(update, "stream_id");
     const propertyValue = getOptionalObjectField(update, "property");
     const rawValue = getOptionalObjectField(update, "value");
-    const streamId = typeof streamIdValue === "string" ? (streamIdValue as string) : undefined;
+    const streamId = streamIdValue === undefined || streamIdValue === null ? undefined : `${streamIdValue}`;
     const property = typeof propertyValue === "string" ? (propertyValue as string) : undefined;
     if (streamId === undefined || property === undefined) {
-      res.status(400).json({ result: "error", msg: "Invalid subscription update payload" });
+      res.status(400).json({ result: "error", msg: "Invalid subscription update payload", code: "BAD_REQUEST" });
       return;
     }
 
     const propValue = toSubscriptionPropertyValue(property, rawValue);
     if (propValue === undefined) {
-      res.status(400).json({ result: "error", msg: `Invalid value for property: ${property}` });
+      res.status(400).json({ result: "error", msg: `Invalid value for property: ${property}`, code: "BAD_REQUEST" });
       return;
     }
     updates.Add({
@@ -97,9 +105,13 @@ export const handleUpdateSubscriptionProperties = async (
 
   const result = await updateSubscriptionPropertiesDomain(app.options, user, updates.ToArray());
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 
-  res.json({ result: "success", msg: "" });
+  const response: Record<string, unknown> = { result: "success", msg: "" };
+  if (ignoredParametersUnsupported.length > 0) {
+    response["ignored_parameters_unsupported"] = ignoredParametersUnsupported;
+  }
+  res.json(response);
 };

@@ -8,6 +8,8 @@ export class ChannelFolder {
   TenantId!: string;
   UserId!: string;
   Name!: string;
+  Description!: string;
+  IsArchived!: int;
   CreatedAt!: long;
   Ordering!: int;
   UpdatedAt!: long;

@@ -1,12 +1,12 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, ChannelFolder, ChannelFolderItem } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, ChannelFolder } from "@jotster/core/Jotster.Core.js";
 
 interface UpdateChannelFolderInput {
   name?: string;
-  channels?: string[];
-  ordering?: int;
+  description?: string;
+  isArchived?: int;
 }
 
 export const updateChannelFolder = async (
@@ -31,28 +31,12 @@ export const updateChannelFolder = async (
       folder.Name = updates.name;
     }
 
-    if (updates.ordering !== undefined) {
-      folder.Ordering = updates.ordering;
+    if (updates.description !== undefined) {
+      folder.Description = updates.description;
     }
 
-    if (updates.channels !== undefined) {
-      // Remove existing items
-      const existingItems = await db0.ChannelFolderItems
-        .Where((item) => item.ChannelFolderId === folderId0)
-        .ToListAsync();
-
-      for (let i = 0; i < existingItems.Count; i++) {
-        const existingItem = existingItems[i];
-        db0.ChannelFolderItems.Remove(existingItem);
-      }
-
-      // Add new items
-      for (let i = 0; i < updates.channels.length; i++) {
-        const item = new ChannelFolderItem();
-        item.ChannelFolderId = folderId;
-        item.ChannelId = updates.channels[i];
-        db0.ChannelFolderItems.Add(item);
-      }
+    if (updates.isArchived !== undefined) {
+      folder.IsArchived = updates.isArchived;
     }
 
     folder.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;

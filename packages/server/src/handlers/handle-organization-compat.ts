@@ -1,6 +1,7 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { Linkifier } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
+import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import {
   createLinkifier,
   listLinkifiers,
@@ -32,6 +33,24 @@ const mapLinkifiers = (entries: Linkifier[]): Record<string, unknown>[] => {
   return result;
 };
 
+const dispatchRealmLinkifiersEvent = async (app: AppContext, tenantId: string): Promise<void> => {
+  const linkifiers = await listLinkifiers(app.options, tenantId);
+  dispatchEventToTenant(tenantId, {
+    type: "realm_linkifiers",
+    data: {
+      realm_linkifiers: mapLinkifiers(linkifiers),
+    },
+  });
+};
+
+const rejectNonAdmin = (res: Response): void => {
+  res.status(400).json({
+    result: "error",
+    msg: "Must be an organization administrator",
+    code: "UNAUTHORIZED_PRINCIPAL",
+  });
+};
+
 export const handleReorderProfileFieldsCompat = async (
   req: Request,
   res: Response,
@@ -39,6 +58,10 @@ export const handleReorderProfileFieldsCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
     return;
   }
 
@@ -85,6 +108,10 @@ export const handleReorderLinkifiersCompat = async (
   if (requester === undefined) {
     return;
   }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
+    return;
+  }
 
   const body = getBodyObject(req);
   const orderedIds = getOptionalStringArrayField(body, "ordered_linkifier_ids");
@@ -99,6 +126,8 @@ export const handleReorderLinkifiersCompat = async (
     return;
   }
 
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
+
   res.json({ result: "success", msg: "" });
 };
 
@@ -109,6 +138,10 @@ export const handleCreateLinkifierCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
     return;
   }
 
@@ -134,6 +167,8 @@ export const handleCreateLinkifierCompat = async (
     return;
   }
 
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
+
   res.json({ result: "success", msg: "", id });
 };
 
@@ -144,6 +179,10 @@ export const handleUpdateLinkifierCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
     return;
   }
 
@@ -160,6 +199,8 @@ export const handleUpdateLinkifierCompat = async (
     return;
   }
 
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
+
   res.json({ result: "success", msg: "" });
 };
 
@@ -172,12 +213,18 @@ export const handleDeleteLinkifierCompat = async (
   if (requester === undefined) {
     return;
   }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
+    return;
+  }
 
   const ok = await deleteLinkifier(app.options, requester.tenantId, normalizeFilterId(req.params["filter_id"] as string));
   if (!ok) {
     res.status(404).json({ result: "error", msg: "Linkifier does not exist.", code: "BAD_REQUEST" });
     return;
   }
+
+  await dispatchRealmLinkifiersEvent(app, requester.tenantId);
 
   res.json({ result: "success", msg: "" });
 };
@@ -189,6 +236,10 @@ export const handleTestWelcomeBotCustomMessageCompat = async (
 ): Promise<void> => {
   const requester = await requireAuth(req, res, app);
   if (requester === undefined) {
+    return;
+  }
+  if (requester.role > 200) {
+    rejectNonAdmin(res);
     return;
   }
 

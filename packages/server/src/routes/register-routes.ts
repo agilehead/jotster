@@ -598,21 +598,21 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleReorderProfileFieldsCompat(req, res, ctx);
   });
 
+  // Multipart middleware (used by upload/image endpoints)
+  const upload = express.multipart();
+
   // --- Custom Emoji ---
   app.get("/api/v1/realm/emoji", async (req: Request, res: Response, _next: NextFunction) => {
     await handleGetCustomEmojis(req, res, ctx);
   });
 
-  app.post("/api/v1/realm/emoji/:emoji_name", async (req: Request, res: Response, _next: NextFunction) => {
+  app.post("/api/v1/realm/emoji/:emoji_name", upload.fields([{ name: "filename" }, { name: "file" }]), async (req: Request, res: Response, _next: NextFunction) => {
     await handleUploadCustomEmoji(req, res, ctx);
   });
 
   app.delete("/api/v1/realm/emoji/:emoji_name", async (req: Request, res: Response, _next: NextFunction) => {
     await handleDeactivateCustomEmoji(req, res, ctx);
   });
-
-  // Multipart middleware (used by image uploads below)
-  const upload = express.multipart();
 
   // --- Organization Settings ---
   app.patch("/api/v1/realm", async (req: Request, res: Response, _next: NextFunction) => {
@@ -817,7 +817,7 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
   });
 
   // --- Uploads/Attachments ---
-  app.post("/api/v1/user_uploads", upload.single("file"), async (req: Request, res: Response, _next: NextFunction) => {
+  app.post("/api/v1/user_uploads", upload.fields([{ name: "filename" }, { name: "file" }]), async (req: Request, res: Response, _next: NextFunction) => {
     await handleUploadFile(req, res, ctx);
   });
 
@@ -827,6 +827,14 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
 
   app.get("/thumbnail/status/:realm_id_str/:path_id", async (req: Request, res: Response, _next: NextFunction) => {
     await handleThumbnailStatusCompat(req, res, ctx);
+  });
+
+  app.get("/user_uploads/:tenant_id/emoji/:emoji_id/:filename", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleServeFile(req, res, ctx);
+  });
+
+  app.get("/user_uploads/:tenant_id/:path_id/:filename", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleServeFile(req, res, ctx);
   });
 
   app.get("/user_uploads/:tenant_id/*", async (req: Request, res: Response, _next: NextFunction) => {
@@ -903,11 +911,27 @@ export const registerRoutes = (app: Application, ctx: AppContext): void => {
     await handleUpdateNavigationViewCompat(req, res, ctx);
   });
 
+  app.patch("/api/v1/navigation_views/:fragment_head/:fragment_tail/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateNavigationViewCompat(req, res, ctx);
+  });
+
+  app.patch("/api/v1/navigation_views/:fragment_head/:fragment_tail/:fragment_rest", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleUpdateNavigationViewCompat(req, res, ctx);
+  });
+
   app.patch("/api/v1/navigation_views/:fragment_head/:fragment_tail", async (req: Request, res: Response, _next: NextFunction) => {
     await handleUpdateNavigationViewCompat(req, res, ctx);
   });
 
   app.delete("/api/v1/navigation_views/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteNavigationViewCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/navigation_views/:fragment_head/:fragment_tail/*", async (req: Request, res: Response, _next: NextFunction) => {
+    await handleDeleteNavigationViewCompat(req, res, ctx);
+  });
+
+  app.delete("/api/v1/navigation_views/:fragment_head/:fragment_tail/:fragment_rest", async (req: Request, res: Response, _next: NextFunction) => {
     await handleDeleteNavigationViewCompat(req, res, ctx);
   });
 

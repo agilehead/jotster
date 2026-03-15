@@ -101,7 +101,7 @@ describe("GET /api/v1/messages", function () {
   });
 });
 
-describe("GET /api/v1/messages/:message_id", function () {
+describe("GET /api/v1/messages/{message_id}", function () {
   this.timeout(10000);
 
   it("should fetch a single message by ID", async () => {
@@ -135,5 +135,22 @@ describe("GET /api/v1/messages/:message_id", function () {
 
     expect(res.body.result).to.equal("error");
     expect(res.body).to.have.property("msg");
+    expect(res.body.code).to.equal("BAD_REQUEST");
+  });
+
+  it("should return BAD_REQUEST for invalid pagination values", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client } = await seedUser(db, tenantId);
+
+    const res = await client.get("/messages", {
+      anchor: "newest",
+      num_before: "not-a-number",
+      num_after: "0",
+    });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

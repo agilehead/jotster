@@ -20,21 +20,148 @@ import {
 import { renderMarkdownDomain, sendMessage, findOrCreateDmGroup, getMessage } from "@jotster/messages/Jotster.Messages.js";
 import { regenerateApiKey } from "@jotster/auth/Jotster.Auth.js";
 import { setUserStatus } from "@jotster/presence/Jotster.Presence.js";
+import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { mapCustomProfileFieldToCompatRecord } from "@jotster/users/Jotster.Users.js";
 
 const nowMilliseconds = (): long => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
-export const listDevelopmentUsers = async (
+export interface ScheduledMessageCreateResult {
+  ok: boolean;
+  errorCode?: string;
+  scheduledMessageId?: string;
+  streamId?: string;
+  userId?: string;
+}
+
+export interface ScheduledMessageUpdateResult {
+  ok: boolean;
+  errorCode?: string;
+  streamId?: string;
+  userId?: string;
+  notFound?: boolean;
+}
+
+const parseScheduledRecipientIds = (
+  toValueText: string | undefined,
+  toValueArray: string[] | undefined,
+): string[] => {
+  if (toValueArray !== undefined) {
+    return toValueArray;
+  }
+
+  if (toValueText === undefined) {
+    return [];
+  }
+
+  const trimmed = toValueText.trim();
+  if (trimmed.length === 0) {
+    return [];
+  }
+
+  if (!trimmed.startsWith("[")) {
+    return [trimmed];
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    const values = parsed as unknown[];
+    const result: string[] = [];
+    for (let i = 0; i < values.length; i++) {
+      result.push(`${values[i] ?? ""}`);
+    }
+    return result;
+  } catch {
+    return [];
+  }
+};
+
+const getScheduledMessageChannelId = (
+  toValueText: string | undefined,
+  toValueArray: string[] | undefined,
+): string | undefined => {
+  if (toValueText !== undefined) {
+    const trimmed = toValueText.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }
+
+  if (toValueArray !== undefined && toValueArray.length > 0) {
+    const first = toValueArray[0].trim();
+    return first.length > 0 ? first : undefined;
+  }
+
+  return undefined;
+};
+
+const validateScheduledMessageChannel = async (
   options: DbContextOptions,
   tenantId: string,
+  channelId: string,
+): Promise<boolean> => {
+  const db = new JotsterDbContext(options);
+  try {
+    const tenantId0 = tenantId;
+    const channelId0 = channelId;
+    const channel = await db.Channels
+      .Where((entry) => entry.TenantId === tenantId0)
+      .Where((entry) => entry.Id === channelId0)
+      .FirstOrDefaultAsync();
+    return channel !== undefined && channel !== null;
+  } finally {
+    db.Dispose();
+  }
+};
+
+const validateScheduledMessageUsers = async (
+  options: DbContextOptions,
+  tenantId: string,
+  userIds: string[],
+): Promise<string | undefined> => {
+  const db = new JotsterDbContext(options);
+  try {
+    const tenantId0 = tenantId;
+
+    for (let i = 0; i < userIds.length; i++) {
+      const userId = userIds[i];
+      const userId0 = userId;
+      const targetUser = await db.Users
+        .Where((entry) => entry.TenantId === tenantId0)
+        .Where((entry) => entry.Id === userId0)
+        .FirstOrDefaultAsync();
+      if (targetUser === undefined || targetUser === null) {
+        return userId;
+      }
+    }
+
+    return undefined;
+  } finally {
+    db.Dispose();
+  }
+};
+
+export const listDevelopmentUsers = async (
+  options: DbContextOptions,
   realmUrl: string,
 ): Promise<{ direct_admins: Record<string, unknown>[]; direct_users: Record<string, unknown>[] }> => {
   const db = new JotsterDbContext(options);
   try {
-    const tenantId0 = tenantId;
     const users = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.IsActive === (1 as int))
+      .OrderBy((entry) => entry.Email)
       .ToListAsync();
+
+    const hostWithoutProtocol = realmUrl.startsWith("http://") ? realmUrl.substring("http://".length) : realmUrl;
+    const slashIndex = hostWithoutProtocol.indexOf("/");
+    const authority = slashIndex >= 0 ? hostWithoutProtocol.substring(0, slashIndex) : hostWithoutProtocol;
+    const colonIndex = authority.lastIndexOf(":");
+    const hostname = colonIndex > 0 ? authority.substring(0, colonIndex) : authority;
+    const port = colonIndex > 0 ? authority.substring(colonIndex + 1) : "";
+    const hostParts = hostname.split(".");
+    const rootHost = hostParts.length > 2 ? hostParts.slice(1).join(".") : hostname;
+    const hostWithPort = port === "" ? rootHost : `${rootHost}:${port}`;
 
     const directAdmins = new List<Record<string, unknown>>();
     const directUsers = new List<Record<string, unknown>>();
@@ -44,9 +171,17 @@ export const listDevelopmentUsers = async (
         continue;
       }
 
+      const tenantId = user.TenantId;
+      const tenant = await db.Tenants
+        .Where((entry) => entry.Id === tenantId)
+        .FirstOrDefaultAsync();
+      if (tenant === undefined || tenant === null || tenant.Active !== (1 as int)) {
+        continue;
+      }
+
       const payload: Record<string, unknown> = {
         email: user.Email,
-        realm_url: realmUrl,
+        realm_url: `http://${tenant.Subdomain}.${hostWithPort}`,
       };
 
       if (user.Role <= (200 as int)) {
@@ -233,10 +368,8 @@ export const reorderChannelFolders = async (
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = user.tenantId;
-    const userId0 = user.userId;
     const folders = await db.ChannelFolders
       .Where((entry) => entry.TenantId === tenantId0)
-      .Where((entry) => entry.UserId === userId0)
       .ToListAsync();
 
     if (folders.Count !== orderedIds.length) {
@@ -262,6 +395,13 @@ export const reorderChannelFolders = async (
     }
 
     await db.SaveChangesAsync();
+    dispatchEventToTenant(user.tenantId, {
+      type: "channel_folder",
+      op: "reorder",
+      data: {
+        order: orderedIds,
+      },
+    });
     return true;
   } finally {
     db.Dispose();
@@ -395,6 +535,22 @@ export const reorderCustomProfileFields = async (
     }
 
     await db.SaveChangesAsync();
+    const payloadFields: Record<string, unknown>[] = [];
+    for (let i = 0; i < orderedIds.length; i++) {
+      const orderedId = orderedIds[i];
+      for (let j = 0; j < fields.Count; j++) {
+        if (fields[j].Id === orderedId) {
+          payloadFields.push(mapCustomProfileFieldToCompatRecord(fields[j]));
+          break;
+        }
+      }
+    }
+    dispatchEventToTenant(tenantId, {
+      type: "custom_profile_fields",
+      data: {
+        fields: payloadFields,
+      },
+    });
     return true;
   } finally {
     db.Dispose();
@@ -1117,18 +1273,38 @@ export const createScheduledMessage = async (
   content: string,
   topic: string | undefined,
   scheduledDeliveryTimestampSeconds: string,
-): Promise<string | undefined> => {
+): Promise<ScheduledMessageCreateResult> => {
   const normalizedType = type === "channel" ? "stream" : type;
   if (normalizedType !== "stream" && normalizedType !== "direct" && normalizedType !== "private") {
-    return undefined;
+    return { ok: false, errorCode: "invalid_request" };
   }
   const rendered = renderMarkdownDomain(content);
   if (!rendered.success) {
-    return undefined;
+    return { ok: false, errorCode: "invalid_request" };
   }
   const timestamp = Number(scheduledDeliveryTimestampSeconds);
   if (!Number.isFinite(timestamp)) {
-    return undefined;
+    return { ok: false, errorCode: "invalid_request" };
+  }
+
+  if (normalizedType === "stream") {
+    const channelId = getScheduledMessageChannelId(toValueText, toValueArray);
+    if (channelId === undefined) {
+      return { ok: false, errorCode: "invalid_request" };
+    }
+    const channelExists = await validateScheduledMessageChannel(options, user.tenantId, channelId);
+    if (!channelExists) {
+      return { ok: false, errorCode: "invalid_stream", streamId: channelId };
+    }
+  } else {
+    const recipientIds = parseScheduledRecipientIds(toValueText, toValueArray);
+    if (recipientIds.length === 0) {
+      return { ok: false, errorCode: "invalid_request" };
+    }
+    const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientIds);
+    if (invalidUserId !== undefined) {
+      return { ok: false, errorCode: "invalid_user", userId: invalidUserId };
+    }
   }
 
   const scheduled = new ScheduledMessage();
@@ -1164,7 +1340,7 @@ export const createScheduledMessage = async (
   try {
     db.ScheduledMessages.Add(scheduled);
     await db.SaveChangesAsync();
-    return scheduled.Id;
+    return { ok: true, scheduledMessageId: scheduled.Id };
   } finally {
     db.Dispose();
   }
@@ -1180,7 +1356,7 @@ export const updateScheduledMessage = async (
   content: string | undefined,
   topic: string | undefined,
   scheduledDeliveryTimestampSeconds: string | undefined,
-): Promise<boolean> => {
+): Promise<ScheduledMessageUpdateResult> => {
   const db = new JotsterDbContext(options);
   try {
     const scheduledMessageId0 = scheduledMessageId;
@@ -1190,11 +1366,40 @@ export const updateScheduledMessage = async (
       .Where((entry) => entry.Id === scheduledMessageId0)
       .FirstOrDefaultAsync();
     if (scheduled === undefined || scheduled === null) {
-      return false;
+      return { ok: false, notFound: true };
+    }
+
+    const normalizedType = type === undefined
+      ? scheduled.Type
+      : (type === "channel" ? "stream" : type);
+    if (normalizedType !== "stream" && normalizedType !== "direct" && normalizedType !== "private") {
+      return { ok: false, errorCode: "invalid_request" };
+    }
+
+    if (toValueText !== undefined || toValueArray !== undefined || type !== undefined) {
+      if (normalizedType === "stream") {
+        const channelId = getScheduledMessageChannelId(toValueText, toValueArray);
+        if (channelId === undefined) {
+          return { ok: false, errorCode: "invalid_request" };
+        }
+        const channelExists = await validateScheduledMessageChannel(options, user.tenantId, channelId);
+        if (!channelExists) {
+          return { ok: false, errorCode: "invalid_stream", streamId: channelId };
+        }
+      } else {
+        const recipientIds = parseScheduledRecipientIds(toValueText, toValueArray);
+        if (recipientIds.length === 0) {
+          return { ok: false, errorCode: "invalid_request" };
+        }
+        const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientIds);
+        if (invalidUserId !== undefined) {
+          return { ok: false, errorCode: "invalid_user", userId: invalidUserId };
+        }
+      }
     }
 
     if (type !== undefined) {
-      scheduled.Type = type === "channel" ? "stream" : type;
+      scheduled.Type = normalizedType === "private" ? "direct" : normalizedType;
     }
     if (toValueText !== undefined || toValueArray !== undefined) {
       if (scheduled.Type === "stream") {
@@ -1212,7 +1417,7 @@ export const updateScheduledMessage = async (
     if (content !== undefined) {
       const rendered = renderMarkdownDomain(content);
       if (!rendered.success) {
-        return false;
+        return { ok: false, errorCode: "invalid_request" };
       }
       scheduled.Content = content;
       scheduled.RenderedContent = rendered.data.rendered;
@@ -1223,14 +1428,14 @@ export const updateScheduledMessage = async (
     if (scheduledDeliveryTimestampSeconds !== undefined) {
       const timestamp = Number(scheduledDeliveryTimestampSeconds);
       if (!Number.isFinite(timestamp)) {
-        return false;
+        return { ok: false, errorCode: "invalid_request" };
       }
       scheduled.ScheduledDeliveryTimestamp = Convert.ToInt64(timestamp * 1000);
     }
     scheduled.UpdatedAt = nowMilliseconds();
 
     await db.SaveChangesAsync();
-    return true;
+    return { ok: true };
   } finally {
     db.Dispose();
   }

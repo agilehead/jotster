@@ -13,9 +13,10 @@ interface UserGroupWithDetails {
 
 export const getUserGroupsDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
+  includeDeactivated?: boolean,
 ): Promise<UserGroupWithDetails[]> => {
-  const groups = await getUserGroups(options, user.tenantId);
+  const groups = await getUserGroups(options, user.tenantId, includeDeactivated);
 
   const result = new List<UserGroupWithDetails>();
   for (let i = 0; i < groups.length; i++) {

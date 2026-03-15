@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser, seedChannel } from "../../utils/test-helpers.js";
 
-describe("PATCH /api/v1/streams/:stream_id", () => {
+describe("PATCH /api/v1/streams/{stream_id}", () => {
   it("should allow admin to update channel name", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -55,10 +55,11 @@ describe("PATCH /api/v1/streams/:stream_id", () => {
     });
 
     expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });
 
-describe("DELETE /api/v1/streams/:stream_id", () => {
+describe("DELETE /api/v1/streams/{stream_id}", () => {
   it("should allow admin to archive a stream", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -88,5 +89,6 @@ describe("DELETE /api/v1/streams/:stream_id", () => {
 
     const res = await client.delete("/streams/nonexistent_id_999");
     expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

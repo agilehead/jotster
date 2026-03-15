@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import { seedTenant, seedUser } from "../../utils/test-helpers.js";
+import { seedChannel, seedMessage, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 describe("POST /api/v1/register", function () {
   this.timeout(10000);
@@ -50,6 +50,322 @@ describe("POST /api/v1/register", function () {
     expect(res1.body.result).to.equal("success");
     expect(res2.body.result).to.equal("success");
     expect(res1.body.queue_id).to.not.equal(res2.body.queue_id);
+  });
+
+  it("should return persisted and organization state in the register payload for requested fetch_event_types", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+
+    const channelId = await seedChannel(db, tenantId, { name: "register-state" });
+    await seedSubscription(db, tenantId, admin.userId, channelId);
+    const messageId = await seedMessage(db, tenantId, admin.userId, {
+      channelId,
+      topic: "register",
+      content: "Reminder target",
+    });
+
+    const linkifierRes = await admin.client.post("/realm/filters", {
+      pattern: "#(?<id>\\d+)",
+      url_template: "https://tracker.example.com/{id}",
+      example_input: "#42",
+    });
+    expect(linkifierRes.status).to.equal(200);
+
+    const navigationRes = await admin.client.post("/navigation_views", {
+      fragment: "narrow/channel/register-state",
+      name: "Register state",
+      is_pinned: "true",
+    });
+    expect(navigationRes.status).to.equal(200);
+
+    const snippetRes = await admin.client.post("/saved_snippets", {
+      title: "Register snippet",
+      content: "const answer = 42;",
+    });
+    expect(snippetRes.status).to.equal(200);
+
+    const futureReminderTimestamp = String(Math.floor(Date.now() / 1000) + 3600);
+    const reminderRes = await admin.client.post("/reminders", {
+      message_id: messageId,
+      scheduled_delivery_timestamp: futureReminderTimestamp,
+      note: "Follow up",
+    });
+    expect(reminderRes.status).to.equal(200);
+
+    const futureScheduledTimestamp = String(Math.floor(Date.now() / 1000) + 7200);
+    const scheduledMessageRes = await admin.client.post("/scheduled_messages", {
+      type: "stream",
+      to: channelId,
+      topic: "register-topic",
+      content: "Scheduled later",
+      scheduled_delivery_timestamp: futureScheduledTimestamp,
+    });
+    expect(scheduledMessageRes.status).to.equal(200);
+
+    const groupRes = await admin.client.post("/user_groups/create", {
+      name: "register-group",
+      description: "Group in register payload",
+      members: JSON.stringify([admin.userId]),
+    });
+    expect(groupRes.status).to.equal(200);
+    const groupId = groupRes.body.group.id as string;
+
+    const registerRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify([
+        "realm",
+        "realm_user_groups",
+        "navigation_views",
+        "saved_snippets",
+        "reminders",
+        "scheduled_messages",
+        "realm_linkifiers",
+      ]),
+      client_capabilities: JSON.stringify({ linkifier_url_template: true }),
+    });
+
+    expect(registerRes.status).to.equal(200);
+    expect(registerRes.body.result).to.equal("success");
+    expect(registerRes.body.event_queue_longpoll_timeout_seconds).to.equal(90);
+
+    expect(registerRes.body.navigation_views).to.deep.equal([
+      {
+        fragment: "narrow/channel/register-state",
+        is_pinned: true,
+        name: "Register state",
+      },
+    ]);
+
+    expect(registerRes.body.saved_snippets).to.deep.equal([
+      {
+        id: snippetRes.body.saved_snippet_id,
+        title: "Register snippet",
+        content: "const answer = 42;",
+        date_created: (registerRes.body.saved_snippets as Array<Record<string, unknown>>)[0].date_created,
+      },
+    ]);
+
+    expect(registerRes.body.reminders).to.deep.equal([
+      {
+        reminder_id: reminderRes.body.reminder_id,
+        type: "private",
+        to: [admin.userId],
+        content: "Follow up",
+        rendered_content: "<p>Follow up</p>",
+        scheduled_delivery_timestamp: Number(futureReminderTimestamp),
+        failed: false,
+        reminder_target_message_id: messageId,
+      },
+    ]);
+
+    expect(registerRes.body.scheduled_messages).to.deep.equal([
+      {
+        scheduled_message_id: scheduledMessageRes.body.scheduled_message_id,
+        type: "stream",
+        to: channelId,
+        topic: "register-topic",
+        content: "Scheduled later",
+        rendered_content: "<p>Scheduled later</p>",
+        scheduled_delivery_timestamp: Number(futureScheduledTimestamp),
+        failed: false,
+      },
+    ]);
+
+    const groups = registerRes.body.realm_user_groups as Array<Record<string, unknown>>;
+    const createdGroup = groups.find((entry) => entry.id === groupId);
+    expect(createdGroup).to.not.equal(undefined);
+    expect(createdGroup!.name).to.equal("register-group");
+    expect(createdGroup!.description).to.equal("Group in register payload");
+    expect(createdGroup!.members).to.deep.equal([admin.userId]);
+    expect(createdGroup!.deactivated).to.equal(false);
+
+    expect(registerRes.body.realm_linkifiers).to.deep.equal([
+      {
+        pattern: "#(?<id>\\d+)",
+        url_template: "https://tracker.example.com/{id}",
+        id: linkifierRes.body.id,
+        example_input: "#42",
+        reverse_template: null,
+        alternative_url_templates: [],
+      },
+    ]);
+  });
+
+  it("should return an empty realm_linkifiers register payload unless linkifier_url_template support is declared", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+
+    const linkifierRes = await admin.client.post("/realm/filters", {
+      pattern: "#(?<id>\\d+)",
+      url_template: "https://tracker.example.com/{id}",
+      example_input: "#42",
+    });
+    expect(linkifierRes.status).to.equal(200);
+
+    const defaultRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["realm_linkifiers"]),
+    });
+    expect(defaultRes.status).to.equal(200);
+    expect(defaultRes.body.realm_linkifiers).to.deep.equal([]);
+
+    const capableRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["realm_linkifiers"]),
+      client_capabilities: JSON.stringify({ linkifier_url_template: true }),
+    });
+    expect(capableRes.status).to.equal(200);
+    expect(capableRes.body.realm_linkifiers).to.deep.equal([
+      {
+        pattern: "#(?<id>\\d+)",
+        url_template: "https://tracker.example.com/{id}",
+        id: linkifierRes.body.id,
+        example_input: "#42",
+        reverse_template: null,
+        alternative_url_templates: [],
+      },
+    ]);
+  });
+
+  it("should include custom_profile_fields and realm_user_settings_defaults state when requested", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+
+    const fieldRes = await admin.client.post("/realm/profile_fields", {
+      name: "GitHub",
+      hint: "Your GitHub username",
+      field_type: "7",
+      field_data: "{\"subtype\":\"github\"}",
+      required: "true",
+      editable_by_user: "false",
+      use_for_user_matching: "true",
+      display_in_profile_summary: "true",
+    });
+    expect(fieldRes.status).to.equal(200);
+
+    const settingsRes = await admin.client.patch("/realm/user_settings_defaults", {
+      twenty_four_hour_time: "true",
+      notification_sound: "ding",
+    });
+    expect(settingsRes.status).to.equal(200);
+
+    const registerRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["custom_profile_fields", "realm_user_settings_defaults"]),
+    });
+    expect(registerRes.status).to.equal(200);
+    expect(registerRes.body.custom_profile_fields).to.deep.equal([
+      {
+        id: fieldRes.body.id,
+        name: "GitHub",
+        hint: "Your GitHub username",
+        type: 7,
+        field_data: "{\"subtype\":\"github\"}",
+        order: 1,
+        display_in_profile_summary: true,
+        required: true,
+        editable_by_user: false,
+        use_for_user_matching: true,
+      },
+    ]);
+
+    expect(registerRes.body.realm_user_settings_defaults.twenty_four_hour_time).to.equal(true);
+    expect(registerRes.body.realm_user_settings_defaults.notification_sound).to.equal("ding");
+    expect(registerRes.body.realm_user_settings_defaults.emojiset).to.equal("google");
+    expect(registerRes.body.realm_user_settings_defaults.emojiset_choices).to.deep.equal([
+      { key: "google", text: "Google" },
+      { key: "twitter", text: "Twitter" },
+      { key: "text", text: "Plain text" },
+    ]);
+    expect(registerRes.body.realm_user_settings_defaults.available_notification_sounds).to.include("ding");
+    expect(registerRes.body.realm_user_settings_defaults.available_notification_sounds).to.include("zulip");
+    expect(registerRes.body.realm_user_settings_defaults.resolved_topic_notice_auto_read_policy).to.equal("always");
+  });
+
+  it("should omit deactivated groups from register state unless include_deactivated_groups is set", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const admin = await seedUser(db, tenantId, { role: 200 });
+
+    const createRes = await admin.client.post("/user_groups/create", {
+      name: "deactivated-register-group",
+      description: "Hidden by default",
+    });
+    expect(createRes.status).to.equal(200);
+    const groupId = createRes.body.group.id as string;
+
+    const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
+    expect(deactivateRes.status).to.equal(200);
+
+    const hiddenRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["realm_user_groups"]),
+    });
+    expect(hiddenRes.status).to.equal(200);
+    expect(
+      (hiddenRes.body.realm_user_groups as Array<Record<string, unknown>>).some((entry) => entry.id === groupId),
+    ).to.equal(false);
+
+    const visibleRes = await admin.client.post("/register", {
+      fetch_event_types: JSON.stringify(["realm_user_groups"]),
+      client_capabilities: JSON.stringify({ include_deactivated_groups: true }),
+    });
+    expect(visibleRes.status).to.equal(200);
+    const groups = visibleRes.body.realm_user_groups as Array<Record<string, unknown>>;
+    const group = groups.find((entry) => entry.id === groupId);
+    expect(group).to.not.equal(undefined);
+    expect(group!.deactivated).to.equal(true);
+  });
+
+  it("should populate never_subscribed channels and gate archived channels by capability", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const user = await seedUser(db, tenantId, { role: 100 });
+    const subscribedChannelId = await seedChannel(db, tenantId, { name: "subscribed-channel", creatorId: user.userId });
+    const neverSubscribedChannelId = await seedChannel(db, tenantId, { name: "never-subscribed-channel", creatorId: user.userId });
+    const archivedChannelId = await seedChannel(db, tenantId, { name: "archived-channel", creatorId: user.userId });
+
+    await seedSubscription(db, tenantId, user.userId, subscribedChannelId);
+    await db("channel").where({ tenant_id: tenantId, id: archivedChannelId }).update({ is_archived: 1 });
+
+    const defaultRes = await user.client.post("/register", {
+      fetch_event_types: JSON.stringify(["subscription"]),
+    });
+    expect(defaultRes.status).to.equal(200);
+    expect(defaultRes.body.subscriptions).to.be.an("array");
+    expect(defaultRes.body.unsubscribed).to.deep.equal([]);
+    expect(defaultRes.body.never_subscribed).to.deep.equal([
+      {
+        stream_id: neverSubscribedChannelId,
+        name: "never-subscribed-channel",
+        description: "",
+        rendered_description: "",
+        invite_only: false,
+        is_web_public: false,
+        history_public_to_subscribers: true,
+        creator_id: user.userId,
+        message_retention_days: null,
+        first_message_id: null,
+        is_archived: false,
+        stream_post_policy: 1,
+        is_announcement_only: false,
+        date_created: (defaultRes.body.never_subscribed as Array<Record<string, unknown>>)[0].date_created,
+      },
+    ]);
+
+    const capableRes = await user.client.post("/register", {
+      fetch_event_types: JSON.stringify(["subscription"]),
+      client_capabilities: JSON.stringify({ archived_channels: true }),
+    });
+    expect(capableRes.status).to.equal(200);
+    const neverSubscribed = capableRes.body.never_subscribed as Array<Record<string, unknown>>;
+    expect(neverSubscribed.map((entry) => entry.stream_id)).to.have.members([
+      neverSubscribedChannelId,
+      archivedChannelId,
+    ]);
+    const archivedEntry = neverSubscribed.find((entry) => entry.stream_id === archivedChannelId);
+    expect(archivedEntry).to.not.equal(undefined);
+    expect(archivedEntry!.is_archived).to.equal(true);
+    expect(archivedEntry!.stream_post_policy).to.equal(1);
+    expect(archivedEntry!.is_announcement_only).to.equal(false);
   });
 });
 

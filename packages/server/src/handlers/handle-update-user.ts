@@ -29,7 +29,7 @@ export const handleUpdateUser = async (
 
   const result = await updateUserDomain(app.options, user, targetId, updates);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

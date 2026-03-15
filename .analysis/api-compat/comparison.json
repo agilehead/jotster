@@ -12,17 +12,8 @@
       {
         "file": "tests/tests/auth/fetch-api-key.test.ts",
         "path": "/api/v1/fetch_api_key"
-      },
-      {
-        "file": "tests/tests/auth/fetch-api-key.test.ts",
-        "path": "/api/v1/fetch_api_key"
-      },
-      {
-        "file": "tests/tests/auth/fetch-api-key.test.ts",
-        "path": "/api/v1/fetch_api_key"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -38,20 +29,23 @@
         "file": "tests/tests/auth/auth-compat.test.ts",
         "path": "/api/v1/jwt/fetch_api_key"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/dev_fetch_api_key",
     "tag": "authentication",
     "summary": "Fetch an API key (development only)",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/dev_fetch_api_key"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/auth/auth-compat.test.ts",
+        "path": "/api/v1/dev_fetch_api_key"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -67,8 +61,7 @@
         "file": "tests/tests/auth/auth-compat.test.ts",
         "path": "/api/v1/dev_list_users"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -83,17 +76,8 @@
       {
         "file": "tests/tests/events/get-events.test.ts",
         "path": "/api/v1/events"
-      },
-      {
-        "file": "tests/tests/events/get-events.test.ts",
-        "path": "/api/v1/events"
-      },
-      {
-        "file": "tests/tests/events/get-events.test.ts",
-        "path": "/api/v1/events"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
@@ -108,13 +92,8 @@
       {
         "file": "tests/tests/events/register-queue.test.ts",
         "path": "/api/v1/events"
-      },
-      {
-        "file": "tests/tests/events/register-queue.test.ts",
-        "path": "/api/v1/events"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -129,13 +108,8 @@
       {
         "file": "tests/tests/channels/get-channels.test.ts",
         "path": "/api/v1/get_stream_id"
-      },
-      {
-        "file": "tests/tests/channels/get-channels.test.ts",
-        "path": "/api/v1/get_stream_id"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -151,8 +125,7 @@
         "file": "tests/tests/messages/message-flags.test.ts",
         "path": "/api/v1/mark_all_as_read"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -168,8 +141,7 @@
         "file": "tests/tests/messages/message-compat.test.ts",
         "path": "/api/v1/mark_stream_as_read"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -185,8 +157,7 @@
         "file": "tests/tests/messages/message-compat.test.ts",
         "path": "/api/v1/mark_topic_as_read"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -202,20 +173,23 @@
         "file": "tests/tests/uploads/attachments.test.ts",
         "path": "/api/v1/attachments"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
     "path": "/attachments/{attachment_id}",
     "tag": "users",
     "summary": "Delete an attachment",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/attachments/:attachment_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/uploads/attachments.test.ts",
+        "path": "/api/v1/attachments/{attachment_id}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -230,13 +204,8 @@
       {
         "file": "tests/tests/drafts/drafts.test.ts",
         "path": "/api/v1/drafts"
-      },
-      {
-        "file": "tests/tests/drafts/drafts.test.ts",
-        "path": "/api/v1/drafts"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -251,49 +220,40 @@
       {
         "file": "tests/tests/drafts/drafts.test.ts",
         "path": "/api/v1/drafts"
-      },
-      {
-        "file": "tests/tests/drafts/drafts.test.ts",
-        "path": "/api/v1/drafts"
-      },
-      {
-        "file": "tests/tests/drafts/drafts.test.ts",
-        "path": "/api/v1/drafts"
-      },
-      {
-        "file": "tests/tests/drafts/drafts.test.ts",
-        "path": "/api/v1/drafts"
-      },
-      {
-        "file": "tests/tests/drafts/drafts.test.ts",
-        "path": "/api/v1/drafts"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/drafts/{draft_id}",
     "tag": "drafts",
     "summary": "Edit a draft",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/drafts/:draft_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts/{draft_id}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/drafts/{draft_id}",
     "tag": "drafts",
     "summary": "Delete a draft",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/drafts/:draft_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/drafts/drafts.test.ts",
+        "path": "/api/v1/drafts/{draft_id}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -309,8 +269,7 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/navigation_views"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -326,32 +285,39 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/navigation_views"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/navigation_views/{fragment}",
     "tag": "navigation_views",
     "summary": "Update the navigation view",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/navigation_views/*"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/navigation_views/{fragment}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/navigation_views/{fragment}",
     "tag": "navigation_views",
     "summary": "Remove a navigation view",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/navigation_views/*"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/navigation_views/{fragment}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -367,8 +333,7 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/saved_snippets"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -384,32 +349,39 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/saved_snippets"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/saved_snippets/{saved_snippet_id}",
     "tag": "drafts",
     "summary": "Edit a saved snippet",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/saved_snippets/:saved_snippet_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/saved_snippets/{saved_snippet_id}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/saved_snippets/{saved_snippet_id}",
     "tag": "drafts",
     "summary": "Delete a saved snippet",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/saved_snippets/:saved_snippet_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/saved_snippets/{saved_snippet_id}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -425,8 +397,7 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/reminders"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -442,20 +413,23 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/reminders"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
     "path": "/reminders/{reminder_id}",
     "tag": "reminders",
     "summary": "Delete a reminder",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/reminders/:reminder_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/reminders/{reminder_id}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -471,8 +445,7 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/scheduled_messages"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -488,56 +461,71 @@
         "file": "tests/tests/persisted/persisted-compat.test.ts",
         "path": "/api/v1/scheduled_messages"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/scheduled_messages/{scheduled_message_id}",
     "tag": "scheduled_messages",
     "summary": "Edit a scheduled message",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/scheduled_messages/:scheduled_message_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/scheduled_messages/{scheduled_message_id}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/scheduled_messages/{scheduled_message_id}",
     "tag": "scheduled_messages",
     "summary": "Delete a scheduled message",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/scheduled_messages/:scheduled_message_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/persisted/persisted-compat.test.ts",
+        "path": "/api/v1/scheduled_messages/{scheduled_message_id}"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/default_streams",
     "tag": "channels",
     "summary": "Add a default channel",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/default_streams"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/default_streams"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/default_streams",
     "tag": "channels",
     "summary": "Remove a default channel",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/default_streams"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/default_streams"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -552,17 +540,8 @@
       {
         "file": "tests/tests/messages/get-messages.test.ts",
         "path": "/api/v1/messages"
-      },
-      {
-        "file": "tests/tests/messages/get-messages.test.ts",
-        "path": "/api/v1/messages"
-      },
-      {
-        "file": "tests/tests/messages/get-messages.test.ts",
-        "path": "/api/v1/messages"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -575,39 +554,26 @@
     ],
     "testRefs": [
       {
-        "file": "tests/tests/events/get-events.test.ts",
-        "path": "/api/v1/messages"
-      },
-      {
-        "file": "tests/tests/messages/send-message.test.ts",
-        "path": "/api/v1/messages"
-      },
-      {
-        "file": "tests/tests/messages/send-message.test.ts",
-        "path": "/api/v1/messages"
-      },
-      {
-        "file": "tests/tests/messages/send-message.test.ts",
-        "path": "/api/v1/messages"
-      },
-      {
         "file": "tests/tests/messages/send-message.test.ts",
         "path": "/api/v1/messages"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
     "path": "/messages/{message_id}/history",
     "tag": "messages",
     "summary": "Get a message's edit history",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id/history"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/edit-delete-message.test.ts",
+        "path": "/api/v1/messages/{message_id}/history"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -622,21 +588,8 @@
       {
         "file": "tests/tests/messages/message-flags.test.ts",
         "path": "/api/v1/messages/flags"
-      },
-      {
-        "file": "tests/tests/messages/message-flags.test.ts",
-        "path": "/api/v1/messages/flags"
-      },
-      {
-        "file": "tests/tests/messages/message-flags.test.ts",
-        "path": "/api/v1/messages/flags"
-      },
-      {
-        "file": "tests/tests/messages/message-flags.test.ts",
-        "path": "/api/v1/messages/flags"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -652,56 +605,71 @@
         "file": "tests/tests/messages/message-compat.test.ts",
         "path": "/api/v1/messages/flags/narrow"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/messages/render",
     "tag": "messages",
     "summary": "Render a message",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/render"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/messages/render"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/messages/{message_id}/reactions",
     "tag": "messages",
     "summary": "Add an emoji reaction",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id/reactions"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/reactions.test.ts",
+        "path": "/api/v1/messages/{message_id}/reactions"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/messages/{message_id}/reactions",
     "tag": "messages",
     "summary": "Remove an emoji reaction",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id/reactions"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/reactions.test.ts",
+        "path": "/api/v1/messages/{message_id}/reactions"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/messages/{message_id}/read_receipts",
     "tag": "messages",
     "summary": "Get a message's read receipts",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id/read_receipts"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/messages/{message_id}/read_receipts"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -717,56 +685,71 @@
         "file": "tests/tests/messages/message-compat.test.ts",
         "path": "/api/v1/messages/matches_narrow"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
     "path": "/messages/{message_id}",
     "tag": "messages",
     "summary": "Fetch a single message",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/get-messages.test.ts",
+        "path": "/api/v1/messages/{message_id}"
+      }
+    ]
   },
   {
     "method": "PATCH",
     "path": "/messages/{message_id}",
     "tag": "messages",
     "summary": "Edit a message",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/edit-delete-message.test.ts",
+        "path": "/api/v1/messages/{message_id}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/messages/{message_id}",
     "tag": "messages",
     "summary": "Delete a message",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/edit-delete-message.test.ts",
+        "path": "/api/v1/messages/{message_id}"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/messages/{message_id}/report",
     "tag": "messages",
     "summary": "Report a message",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id/report"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/messages/{message_id}/report"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -782,34 +765,41 @@
         "file": "tests/tests/uploads/attachments.test.ts",
         "path": "/api/v1/user_uploads"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
     "path": "/thumbnail/status/{realm_id_str}/{filename}",
     "tag": "messages",
     "summary": "Check thumbnail status",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/thumbnail/status/:realm_id_str/*",
       "/thumbnail/status/:realm_id_str/:path_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/thumbnail/status/{realm_id_str}/{filename}"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/user_uploads/{realm_id_str}/{filename}",
     "tag": "messages",
     "summary": "Get public temporary URL for an uploaded file",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/user_uploads/:tenant_id/*",
       "/user_uploads/:tenant_id/:path_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/uploads/attachments.test.ts",
+        "path": "/user_uploads/{realm_id_str}/{filename}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -824,13 +814,8 @@
       {
         "file": "tests/tests/users/get-users.test.ts",
         "path": "/api/v1/users"
-      },
-      {
-        "file": "tests/tests/users/get-users.test.ts",
-        "path": "/api/v1/users"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -845,69 +830,76 @@
       {
         "file": "tests/tests/users/create-user.test.ts",
         "path": "/api/v1/users"
-      },
-      {
-        "file": "tests/tests/users/create-user.test.ts",
-        "path": "/api/v1/users"
-      },
-      {
-        "file": "tests/tests/users/create-user.test.ts",
-        "path": "/api/v1/users"
-      },
-      {
-        "file": "tests/tests/users/create-user.test.ts",
-        "path": "/api/v1/users"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/users/{user_id}/reactivate",
     "tag": "users",
     "summary": "Reactivate a user",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id/reactivate"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/deactivate-user.test.ts",
+        "path": "/api/v1/users/{user_id}/reactivate"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/users/{user_id}/status",
     "tag": "users",
     "summary": "Update user status",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id/status"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/users/{user_id}/status"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/users/{user_id}/status",
     "tag": "users",
     "summary": "Get a user's status",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id/status"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/user-status.test.ts",
+        "path": "/api/v1/users/{user_id}/status"
+      },
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/users/{user_id}/status"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/users/{user_id_or_email}/presence",
     "tag": "users",
     "summary": "Get a user's presence",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id_or_email/presence"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/presence.test.ts",
+        "path": "/api/v1/users/{user_id_or_email}/presence"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -923,8 +915,7 @@
         "file": "tests/tests/users/get-users.test.ts",
         "path": "/api/v1/users/me"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
@@ -940,20 +931,23 @@
         "file": "tests/tests/users/deactivate-user.test.ts",
         "path": "/api/v1/users/me"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/users/me/api_key/regenerate",
     "tag": "users",
     "summary": "Regenerate your API key",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/me/api_key/regenerate"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/auth/auth-compat.test.ts",
+        "path": "/api/v1/users/me/api_key/regenerate"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -968,13 +962,8 @@
       {
         "file": "tests/tests/users/alert-words.test.ts",
         "path": "/api/v1/users/me/alert_words"
-      },
-      {
-        "file": "tests/tests/users/alert-words.test.ts",
-        "path": "/api/v1/users/me/alert_words"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -989,21 +978,8 @@
       {
         "file": "tests/tests/users/alert-words.test.ts",
         "path": "/api/v1/users/me/alert_words"
-      },
-      {
-        "file": "tests/tests/users/alert-words.test.ts",
-        "path": "/api/v1/users/me/alert_words"
-      },
-      {
-        "file": "tests/tests/users/alert-words.test.ts",
-        "path": "/api/v1/users/me/alert_words"
-      },
-      {
-        "file": "tests/tests/users/alert-words.test.ts",
-        "path": "/api/v1/users/me/alert_words"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
@@ -1018,13 +994,8 @@
       {
         "file": "tests/tests/users/alert-words.test.ts",
         "path": "/api/v1/users/me/alert_words"
-      },
-      {
-        "file": "tests/tests/users/alert-words.test.ts",
-        "path": "/api/v1/users/me/alert_words"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1039,29 +1010,8 @@
       {
         "file": "tests/tests/presence/presence.test.ts",
         "path": "/api/v1/users/me/presence"
-      },
-      {
-        "file": "tests/tests/presence/presence.test.ts",
-        "path": "/api/v1/users/me/presence"
-      },
-      {
-        "file": "tests/tests/presence/presence.test.ts",
-        "path": "/api/v1/users/me/presence"
-      },
-      {
-        "file": "tests/tests/presence/presence.test.ts",
-        "path": "/api/v1/users/me/presence"
-      },
-      {
-        "file": "tests/tests/presence/presence.test.ts",
-        "path": "/api/v1/users/me/presence"
-      },
-      {
-        "file": "tests/tests/presence/presence.test.ts",
-        "path": "/api/v1/users/me/presence"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1076,37 +1026,24 @@
       {
         "file": "tests/tests/presence/user-status.test.ts",
         "path": "/api/v1/users/me/status"
-      },
-      {
-        "file": "tests/tests/presence/user-status.test.ts",
-        "path": "/api/v1/users/me/status"
-      },
-      {
-        "file": "tests/tests/presence/user-status.test.ts",
-        "path": "/api/v1/users/me/status"
-      },
-      {
-        "file": "tests/tests/presence/user-status.test.ts",
-        "path": "/api/v1/users/me/status"
-      },
-      {
-        "file": "tests/tests/presence/user-status.test.ts",
-        "path": "/api/v1/users/me/status"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
     "path": "/users/me/{stream_id}/topics",
     "tag": "channels",
     "summary": "Get topics in a channel",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/me/:stream_id/topics"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/users/me/{stream_id}/topics"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -1121,17 +1058,8 @@
       {
         "file": "tests/tests/subscriptions/subscribe.test.ts",
         "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/subscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1148,55 +1076,26 @@
         "path": "/api/v1/users/me/subscriptions"
       },
       {
-        "file": "tests/tests/channels/create-channel.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/channels/create-channel.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
         "file": "tests/tests/subscriptions/subscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/subscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/subscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/subscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/subscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
         "path": "/api/v1/users/me/subscriptions"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/users/me/subscriptions",
     "tag": "channels",
     "summary": "Update subscriptions",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/me/subscriptions"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/subscriptions/properties.test.ts",
+        "path": "/api/v1/users/me/subscriptions"
+      }
+    ]
   },
   {
     "method": "DELETE",
@@ -1211,65 +1110,72 @@
       {
         "file": "tests/tests/subscriptions/unsubscribe.test.ts",
         "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
-      },
-      {
-        "file": "tests/tests/subscriptions/unsubscribe.test.ts",
-        "path": "/api/v1/users/me/subscriptions"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/users/me/subscriptions/muted_topics",
     "tag": "channels",
     "summary": "Topic muting",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/me/subscriptions/muted_topics"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/users/me/subscriptions/muted_topics"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/mobile_push/test_notification",
     "tag": "mobile",
     "summary": "Send a test notification to mobile device(s)",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/mobile_push/test_notification"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-compat.test.ts",
+        "path": "/api/v1/mobile_push/test_notification"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/mobile_push/e2ee/test_notification",
     "tag": "mobile",
     "summary": "Send an E2EE test notification to mobile device(s)",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/mobile_push/e2ee/test_notification"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-compat.test.ts",
+        "path": "/api/v1/mobile_push/e2ee/test_notification"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/mobile_push/register",
     "tag": "mobile",
     "summary": "Register E2EE push device",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/mobile_push/register"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/push/push-compat.test.ts",
+        "path": "/api/v1/mobile_push/register"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -1285,8 +1191,7 @@
         "file": "tests/tests/push/push-compat.test.ts",
         "path": "/api/v1/remotes/push/e2ee/register"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1302,8 +1207,7 @@
         "file": "tests/tests/push/push-compat.test.ts",
         "path": "/api/v1/register_client_device"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1319,8 +1223,7 @@
         "file": "tests/tests/push/push-compat.test.ts",
         "path": "/api/v1/remove_client_device"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1335,41 +1238,40 @@
       {
         "file": "tests/tests/presence/muting.test.ts",
         "path": "/api/v1/user_topics"
-      },
-      {
-        "file": "tests/tests/presence/muting.test.ts",
-        "path": "/api/v1/user_topics"
-      },
-      {
-        "file": "tests/tests/presence/muting.test.ts",
-        "path": "/api/v1/user_topics"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/users/me/muted_users/{muted_user_id}",
     "tag": "users",
     "summary": "Mute a user",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/me/muted_users/:muted_user_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/muting.test.ts",
+        "path": "/api/v1/users/me/muted_users/{muted_user_id}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/users/me/muted_users/{muted_user_id}",
     "tag": "users",
     "summary": "Unmute a user",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/me/muted_users/:muted_user_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/presence/muting.test.ts",
+        "path": "/api/v1/users/me/muted_users/{muted_user_id}"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -1384,13 +1286,8 @@
       {
         "file": "tests/tests/push/push-tokens.test.ts",
         "path": "/api/v1/users/me/apns_device_token"
-      },
-      {
-        "file": "tests/tests/push/push-tokens.test.ts",
-        "path": "/api/v1/users/me/apns_device_token"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
@@ -1406,8 +1303,7 @@
         "file": "tests/tests/push/push-tokens.test.ts",
         "path": "/api/v1/users/me/apns_device_token"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1422,13 +1318,8 @@
       {
         "file": "tests/tests/push/push-tokens.test.ts",
         "path": "/api/v1/users/me/android_gcm_reg_id"
-      },
-      {
-        "file": "tests/tests/push/push-tokens.test.ts",
-        "path": "/api/v1/users/me/android_gcm_reg_id"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
@@ -1444,56 +1335,71 @@
         "file": "tests/tests/push/push-tokens.test.ts",
         "path": "/api/v1/users/me/android_gcm_reg_id"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
     "path": "/users/{user_id}/subscriptions/{stream_id}",
     "tag": "channels",
     "summary": "Get subscription status",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id/subscriptions/:stream_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/subscriptions/properties.test.ts",
+        "path": "/api/v1/users/{user_id}/subscriptions/{stream_id}"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/users/{user_id}/channels",
     "tag": "channels",
     "summary": "Get a user's subscribed channels",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id/channels"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/subscriptions/properties.test.ts",
+        "path": "/api/v1/users/{user_id}/channels"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/realm/emoji/{emoji_name}",
     "tag": "server_and_organizations",
     "summary": "Upload custom emoji",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/realm/emoji/:emoji_name"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/emoji/custom-emoji.test.ts",
+        "path": "/api/v1/realm/emoji/{emoji_name}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/realm/emoji/{emoji_name}",
     "tag": "server_and_organizations",
     "summary": "Deactivate custom emoji",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/realm/emoji/:emoji_name"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/emoji/custom-emoji.test.ts",
+        "path": "/api/v1/realm/emoji/{emoji_name}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -1508,13 +1414,8 @@
       {
         "file": "tests/tests/emoji/custom-emoji.test.ts",
         "path": "/api/v1/realm/emoji"
-      },
-      {
-        "file": "tests/tests/emoji/custom-emoji.test.ts",
-        "path": "/api/v1/realm/emoji"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -1530,8 +1431,7 @@
         "file": "tests/tests/presence/presence.test.ts",
         "path": "/api/v1/realm/presence"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -1547,8 +1447,7 @@
         "file": "tests/tests/profile/custom-profile-fields.test.ts",
         "path": "/api/v1/realm/profile_fields"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
@@ -1564,8 +1463,7 @@
         "file": "tests/tests/organization/organization-compat.test.ts",
         "path": "/api/v1/realm/profile_fields"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1582,31 +1480,10 @@
         "path": "/api/v1/realm/profile_fields"
       },
       {
-        "file": "tests/tests/organization/organization-compat.test.ts",
-        "path": "/api/v1/realm/profile_fields"
-      },
-      {
-        "file": "tests/tests/profile/custom-profile-fields.test.ts",
-        "path": "/api/v1/realm/profile_fields"
-      },
-      {
-        "file": "tests/tests/profile/custom-profile-fields.test.ts",
-        "path": "/api/v1/realm/profile_fields"
-      },
-      {
-        "file": "tests/tests/profile/custom-profile-fields.test.ts",
-        "path": "/api/v1/realm/profile_fields"
-      },
-      {
-        "file": "tests/tests/profile/custom-profile-fields.test.ts",
-        "path": "/api/v1/realm/profile_fields"
-      },
-      {
         "file": "tests/tests/profile/custom-profile-fields.test.ts",
         "path": "/api/v1/realm/profile_fields"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
@@ -1622,8 +1499,7 @@
         "file": "tests/tests/organization/org-settings.test.ts",
         "path": "/api/v1/realm/user_settings_defaults"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1638,89 +1514,120 @@
       {
         "file": "tests/tests/subscriptions/properties.test.ts",
         "path": "/api/v1/users/me/subscriptions/properties"
-      },
-      {
-        "file": "tests/tests/subscriptions/properties.test.ts",
-        "path": "/api/v1/users/me/subscriptions/properties"
-      },
-      {
-        "file": "tests/tests/subscriptions/properties.test.ts",
-        "path": "/api/v1/users/me/subscriptions/properties"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/users/me/subscriptions/{stream_id}",
     "tag": "channels",
     "summary": "Update a subscription setting",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/me/subscriptions/:stream_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/subscriptions/properties.test.ts",
+        "path": "/api/v1/users/me/subscriptions/{stream_id}"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/users/{email}",
     "tag": "users",
     "summary": "Get a user by email",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id_or_email"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/get-users.test.ts",
+        "path": "/api/v1/users/{user_id}"
+      },
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/users/{email}"
+      }
+    ]
   },
   {
     "method": "PATCH",
     "path": "/users/{email}",
     "tag": "users",
     "summary": "Update a user by email",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id_or_email"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/update-user.test.ts",
+        "path": "/api/v1/users/{user_id}"
+      },
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/users/{email}"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/users/{user_id}",
     "tag": "users",
     "summary": "Get a user",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id_or_email"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/get-users.test.ts",
+        "path": "/api/v1/users/{user_id}"
+      },
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/users/{email}"
+      }
+    ]
   },
   {
     "method": "PATCH",
     "path": "/users/{user_id}",
     "tag": "users",
     "summary": "Update a user",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id_or_email"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/update-user.test.ts",
+        "path": "/api/v1/users/{user_id}"
+      },
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/users/{email}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/users/{user_id}",
     "tag": "users",
     "summary": "Deactivate a user",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/users/:user_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/deactivate-user.test.ts",
+        "path": "/api/v1/users/{user_id}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -1736,8 +1643,7 @@
         "file": "tests/tests/organization/organization-compat.test.ts",
         "path": "/api/v1/realm/linkifiers"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
@@ -1753,8 +1659,7 @@
         "file": "tests/tests/organization/organization-compat.test.ts",
         "path": "/api/v1/realm/linkifiers"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1769,37 +1674,40 @@
       {
         "file": "tests/tests/organization/organization-compat.test.ts",
         "path": "/api/v1/realm/filters"
-      },
-      {
-        "file": "tests/tests/organization/organization-compat.test.ts",
-        "path": "/api/v1/realm/filters"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
     "path": "/realm/filters/{filter_id}",
     "tag": "server_and_organizations",
     "summary": "Remove a linkifier",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/realm/filters/:filter_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/filters/{filter_id}"
+      }
+    ]
   },
   {
     "method": "PATCH",
     "path": "/realm/filters/{filter_id}",
     "tag": "server_and_organizations",
     "summary": "Update a linkifier",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/realm/filters/:filter_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/organization/organization-compat.test.ts",
+        "path": "/api/v1/realm/filters/{filter_id}"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -1808,8 +1716,7 @@
     "summary": "Add a code playground",
     "status": "Excluded by scope",
     "routePaths": [],
-    "testRefs": [],
-    "excluded": true
+    "testRefs": []
   },
   {
     "method": "DELETE",
@@ -1818,8 +1725,7 @@
     "summary": "Remove a code playground",
     "status": "Excluded by scope",
     "routePaths": [],
-    "testRefs": [],
-    "excluded": true
+    "testRefs": []
   },
   {
     "method": "GET",
@@ -1834,13 +1740,8 @@
       {
         "file": "tests/tests/export/data-export.test.ts",
         "path": "/api/v1/export/realm"
-      },
-      {
-        "file": "tests/tests/export/data-export.test.ts",
-        "path": "/api/v1/export/realm"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1855,13 +1756,8 @@
       {
         "file": "tests/tests/export/data-export.test.ts",
         "path": "/api/v1/export/realm"
-      },
-      {
-        "file": "tests/tests/export/data-export.test.ts",
-        "path": "/api/v1/export/realm"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -1877,8 +1773,7 @@
         "file": "tests/tests/export/data-export.test.ts",
         "path": "/api/v1/export/realm/consents"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -1893,13 +1788,8 @@
       {
         "file": "tests/tests/invitations/invitations.test.ts",
         "path": "/api/v1/invites"
-      },
-      {
-        "file": "tests/tests/invitations/invitations.test.ts",
-        "path": "/api/v1/invites"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1914,13 +1804,8 @@
       {
         "file": "tests/tests/invitations/invitations.test.ts",
         "path": "/api/v1/invites"
-      },
-      {
-        "file": "tests/tests/invitations/invitations.test.ts",
-        "path": "/api/v1/invites"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -1936,44 +1821,55 @@
         "file": "tests/tests/invitations/invitations.test.ts",
         "path": "/api/v1/invites/multiuse"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "DELETE",
     "path": "/invites/{invite_id}",
     "tag": "invites",
     "summary": "Revoke an email invitation",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/invites/:invite_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites/{invite_id}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/invites/multiuse/{invite_id}",
     "tag": "invites",
     "summary": "Revoke a reusable invitation link",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/invites/multiuse/:invite_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites/multiuse/{invite_id}"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/invites/{invite_id}/resend",
     "tag": "invites",
     "summary": "Resend an email invitation",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/invites/:invite_id/resend"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/invitations/invitations.test.ts",
+        "path": "/api/v1/invites/{invite_id}/resend"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -1989,8 +1885,7 @@
         "file": "tests/tests/organization/organization-compat.test.ts",
         "path": "/api/v1/realm/test_welcome_bot_custom_message"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -2003,35 +1898,10 @@
     ],
     "testRefs": [
       {
-        "file": "tests/tests/events/get-events.test.ts",
-        "path": "/api/v1/register"
-      },
-      {
-        "file": "tests/tests/events/get-events.test.ts",
-        "path": "/api/v1/register"
-      },
-      {
-        "file": "tests/tests/events/register-queue.test.ts",
-        "path": "/api/v1/register"
-      },
-      {
-        "file": "tests/tests/events/register-queue.test.ts",
-        "path": "/api/v1/register"
-      },
-      {
-        "file": "tests/tests/events/register-queue.test.ts",
-        "path": "/api/v1/register"
-      },
-      {
-        "file": "tests/tests/events/register-queue.test.ts",
-        "path": "/api/v1/register"
-      },
-      {
         "file": "tests/tests/events/register-queue.test.ts",
         "path": "/api/v1/register"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -2046,17 +1916,8 @@
       {
         "file": "tests/tests/auth/server-settings.test.ts",
         "path": "/api/v1/server_settings"
-      },
-      {
-        "file": "tests/tests/auth/server-settings.test.ts",
-        "path": "/api/v1/server_settings"
-      },
-      {
-        "file": "tests/tests/auth/server-settings.test.ts",
-        "path": "/api/v1/server_settings"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
@@ -2071,29 +1932,24 @@
       {
         "file": "tests/tests/settings/user-settings.test.ts",
         "path": "/api/v1/settings"
-      },
-      {
-        "file": "tests/tests/settings/user-settings.test.ts",
-        "path": "/api/v1/settings"
-      },
-      {
-        "file": "tests/tests/settings/user-settings.test.ts",
-        "path": "/api/v1/settings"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
     "path": "/streams/{stream_id}/members",
     "tag": "channels",
     "summary": "Get channel subscribers",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/streams/:stream_id/members"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/streams/{stream_id}/members"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -2108,73 +1964,88 @@
       {
         "file": "tests/tests/channels/get-channels.test.ts",
         "path": "/api/v1/streams"
-      },
-      {
-        "file": "tests/tests/channels/get-channels.test.ts",
-        "path": "/api/v1/streams"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
     "path": "/streams/{stream_id}",
     "tag": "channels",
     "summary": "Get a channel by ID",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/streams/:stream_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/get-channels.test.ts",
+        "path": "/api/v1/streams/{stream_id}"
+      }
+    ]
   },
   {
     "method": "DELETE",
     "path": "/streams/{stream_id}",
     "tag": "channels",
     "summary": "Archive a channel",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/streams/:stream_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/update-channel.test.ts",
+        "path": "/api/v1/streams/{stream_id}"
+      }
+    ]
   },
   {
     "method": "PATCH",
     "path": "/streams/{stream_id}",
     "tag": "channels",
     "summary": "Update a channel",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/streams/:stream_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/update-channel.test.ts",
+        "path": "/api/v1/streams/{stream_id}"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/streams/{stream_id}/email_address",
     "tag": "channels",
     "summary": "Get channel's email address",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/streams/:stream_id/email_address"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/streams/{stream_id}/email_address"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/streams/{stream_id}/delete_topic",
     "tag": "channels",
     "summary": "Delete a topic",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/streams/:stream_id/delete_topic"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-compat.test.ts",
+        "path": "/api/v1/streams/{stream_id}/delete_topic"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -2189,33 +2060,28 @@
       {
         "file": "tests/tests/presence/typing.test.ts",
         "path": "/api/v1/typing"
-      },
-      {
-        "file": "tests/tests/presence/typing.test.ts",
-        "path": "/api/v1/typing"
-      },
-      {
-        "file": "tests/tests/presence/typing.test.ts",
-        "path": "/api/v1/typing"
-      },
-      {
-        "file": "tests/tests/presence/typing.test.ts",
-        "path": "/api/v1/typing"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/messages/{message_id}/typing",
     "tag": "users",
     "summary": "Set \"typing\" status for message editing",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/messages/:message_id/typing"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/messages/message-compat.test.ts",
+        "path": "/api/v1/messages/{message_id}/typing"
+      },
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/messages/{message_id}/typing"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -2231,8 +2097,7 @@
         "file": "tests/tests/channels/create-channel.test.ts",
         "path": "/api/v1/channels/create"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -2247,97 +2112,56 @@
       {
         "file": "tests/tests/users/user-groups.test.ts",
         "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups/create"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/user_groups/{user_group_id}/members",
     "tag": "users",
     "summary": "Update user group members",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/user_groups/:group_id/members"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/{user_group_id}/members"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/user_groups/{user_group_id}/members",
     "tag": "users",
     "summary": "Get user group members",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/user_groups/:group_id/members"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/{user_group_id}/members"
+      }
+    ]
   },
   {
     "method": "PATCH",
     "path": "/user_groups/{user_group_id}",
     "tag": "users",
     "summary": "Update a user group",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/user_groups/:group_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/{user_group_id}"
+      }
+    ]
   },
   {
     "method": "GET",
@@ -2352,69 +2176,72 @@
       {
         "file": "tests/tests/users/user-groups.test.ts",
         "path": "/api/v1/user_groups"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups"
-      },
-      {
-        "file": "tests/tests/users/user-groups.test.ts",
-        "path": "/api/v1/user_groups"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
     "path": "/user_groups/{user_group_id}/subgroups",
     "tag": "users",
     "summary": "Update subgroups of a user group",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/user_groups/:group_id/subgroups"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/{user_group_id}/subgroups"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/user_groups/{user_group_id}/subgroups",
     "tag": "users",
     "summary": "Get subgroups of a user group",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/user_groups/:group_id/subgroups"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/{user_group_id}/subgroups"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/user_groups/{user_group_id}/members/{user_id}",
     "tag": "users",
     "summary": "Get user group membership status",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/user_groups/:group_id/members/:user_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/{user_group_id}/members/{user_id}"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/user_groups/{user_group_id}/deactivate",
     "tag": "users",
     "summary": "Deactivate a user group",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/user_groups/:group_id/deactivate"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-groups.test.ts",
+        "path": "/api/v1/user_groups/{user_group_id}/deactivate"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -2429,13 +2256,8 @@
       {
         "file": "tests/tests/channels/channel-compat.test.ts",
         "path": "/api/v1/channel_folders/create"
-      },
-      {
-        "file": "tests/tests/channels/channel-compat.test.ts",
-        "path": "/api/v1/channel_folders/create"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -2450,13 +2272,8 @@
       {
         "file": "tests/tests/channels/channel-folders.test.ts",
         "path": "/api/v1/channel_folders"
-      },
-      {
-        "file": "tests/tests/channels/channel-folders.test.ts",
-        "path": "/api/v1/channel_folders"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
@@ -2472,44 +2289,55 @@
         "file": "tests/tests/channels/channel-compat.test.ts",
         "path": "/api/v1/channel_folders"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "PATCH",
     "path": "/channel_folders/{channel_folder_id}",
     "tag": "channels",
     "summary": "Update a channel folder",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/channel_folders/:folder_id"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/channels/channel-folders.test.ts",
+        "path": "/api/v1/channel_folders/{channel_folder_id}"
+      }
+    ]
   },
   {
     "method": "GET",
     "path": "/bots/{bot_id}/api_key",
     "tag": "users",
     "summary": "Get a bot's API key",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/bots/:bot_id/api_key"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/bots/{bot_id}/api_key"
+      }
+    ]
   },
   {
     "method": "POST",
     "path": "/bots/{bot_id}/api_key/regenerate",
     "tag": "users",
     "summary": "Regenerate a bot's API key",
-    "status": "Implemented route only",
+    "status": "Implemented + directly test-covered",
     "routePaths": [
       "/api/v1/bots/:bot_id/api_key/regenerate"
     ],
-    "testRefs": [],
-    "excluded": false
+    "testRefs": [
+      {
+        "file": "tests/tests/users/user-compat.test.ts",
+        "path": "/api/v1/bots/{bot_id}/api_key/regenerate"
+      }
+    ]
   },
   {
     "method": "POST",
@@ -2525,8 +2353,7 @@
         "file": "tests/tests/webhooks/webhook-compat.test.ts",
         "path": "/api/v1/real-time"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -2542,8 +2369,7 @@
         "file": "tests/tests/webhooks/webhook-compat.test.ts",
         "path": "/api/v1/rest-error-handling"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "POST",
@@ -2559,8 +2385,7 @@
         "file": "tests/tests/webhooks/webhook-compat.test.ts",
         "path": "/api/v1/zulip-outgoing-webhook"
       }
-    ],
-    "excluded": false
+    ]
   },
   {
     "method": "GET",
@@ -2569,8 +2394,7 @@
     "summary": "Create BigBlueButton video call",
     "status": "Excluded by scope",
     "routePaths": [],
-    "testRefs": [],
-    "excluded": true
+    "testRefs": []
   },
   {
     "method": "POST",
@@ -2579,8 +2403,7 @@
     "summary": "Create Nextcloud Talk video call",
     "status": "Excluded by scope",
     "routePaths": [],
-    "testRefs": [],
-    "excluded": true
+    "testRefs": []
   },
   {
     "method": "POST",
@@ -2589,7 +2412,6 @@
     "summary": "Create Constructor Groups video call",
     "status": "Excluded by scope",
     "routePaths": [],
-    "testRefs": [],
-    "excluded": true
+    "testRefs": []
   }
 ]

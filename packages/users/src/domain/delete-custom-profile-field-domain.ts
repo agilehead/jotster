@@ -1,11 +1,10 @@
-import type { int } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
-import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getCustomProfileFields } from "../repo/get-custom-profile-fields.ts";
 import { deleteCustomProfileField } from "../repo/delete-custom-profile-field.ts";
+import { mapCustomProfileFieldToCompatRecord } from "./map-custom-profile-field-to-compat-record.ts";
 
 export const deleteCustomProfileFieldDomain = async (
   options: DbContextOptions,
@@ -18,27 +17,18 @@ export const deleteCustomProfileFieldDomain = async (
 
   const deleted = await deleteCustomProfileField(options, actingUser.tenantId, fieldId);
   if (!deleted) {
-    return err("Custom profile field not found");
+    return err("Field id " + fieldId + " not found.");
   }
 
   // Re-fetch remaining fields to broadcast current state
   const allFields = await getCustomProfileFields(options, actingUser.tenantId);
-  const fieldsData = new List<Record<string, unknown>>();
+  const fieldsData: Record<string, unknown>[] = [];
   for (let i = 0; i < allFields.length; i++) {
-    const f = allFields[i];
-    const obj: Record<string, unknown> = {};
-    obj["id"] = f.Id;
-    obj["name"] = f.Name;
-    obj["hint"] = f.Hint;
-    obj["type"] = f.FieldType;
-    obj["field_data"] = f.FieldDataJson;
-    obj["display_in_profile_summary"] = f.DisplayInProfileSummary === (1 as int);
-    obj["order"] = f.Ordering;
-    fieldsData.Add(obj);
+    fieldsData.push(mapCustomProfileFieldToCompatRecord(allFields[i]));
   }
 
   const eventData: Record<string, unknown> = {};
-  eventData["fields"] = fieldsData.ToArray();
+  eventData["fields"] = fieldsData;
   dispatchEventToTenant(actingUser.tenantId, {
     type: "custom_profile_fields",
     data: eventData,

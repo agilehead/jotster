@@ -2,7 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalStringArrayField, getOptionalStringField } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 
 export const handleCreateChannelFolder = async (
   req: Request,
@@ -24,15 +24,17 @@ export const handleCreateChannelFolder = async (
     return;
   }
 
-  const channels = getOptionalStringArrayField(body, "channels");
-
   const result = await createChannelFolderDomain(app.options, user, ({
     name,
-    channels: channels !== undefined && channels !== null ? channels : undefined,
+    description: getOptionalStringField(body, "description"),
   }));
 
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    if (result.error === "Must be an organization administrator") {
+      res.status(400).json({ result: "error", msg: result.error, code: "UNAUTHORIZED_PRINCIPAL" });
+      return;
+    }
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

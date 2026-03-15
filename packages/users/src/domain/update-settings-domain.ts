@@ -4,6 +4,7 @@ import { ok, err } from "@jotster/core/Jotster.Core.js";
 import type { int } from "@tsonic/core/types.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { Convert } from "@tsonic/dotnet/System.js";
+import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { updateUserSetting } from "../repo/update-user-setting.ts";
 
 const STRING_SETTING_KEYS = [
@@ -62,6 +63,12 @@ const FLAG_SETTING_KEYS = [
   "automatically_follow_topics_where_mentioned",
   "web_navigate_to_sent_message",
 ];
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  es: "Spanish",
+  de: "German",
+};
 
 const containsKey = (keys: readonly string[], key: string): boolean => {
   for (let i = 0; i < keys.length; i++) {
@@ -152,6 +159,29 @@ export const updateSettingsDomain = async (
   const setting = await updateUserSetting(options, user.userId, user.tenantId, validUpdates, validUpdateKeys);
   if (setting === undefined) {
     return err("User settings not found");
+  }
+
+  for (let i = 0; i < validUpdateKeys.Count; i++) {
+    const key = validUpdateKeys[i];
+    const eventData: Record<string, unknown> = {
+      property: key,
+    };
+
+    if (containsKey(FLAG_SETTING_KEYS, key)) {
+      eventData["value"] = validUpdates[key] === (1 as int);
+    } else {
+      eventData["value"] = validUpdates[key];
+    }
+
+    if (key === "default_language") {
+      const languageCode = validUpdates[key] as string;
+      eventData["language_name"] = LANGUAGE_NAMES[languageCode] ?? languageCode;
+    }
+
+    dispatchEventToUser(user.tenantId, user.userId, {
+      type: "user_settings",
+      data: eventData,
+    });
   }
 
   return ok(ignoredParams.ToArray());

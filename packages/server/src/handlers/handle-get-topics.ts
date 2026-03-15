@@ -33,5 +33,5 @@ export const handleGetTopics = async (
     topics.Add(topic);
   }
 
-  res.json({ topics: topics.ToArray() });
+  res.json({ result: "success", msg: "", topics: topics.ToArray() });
 };

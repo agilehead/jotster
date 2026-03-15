@@ -10,3 +10,4 @@ export { getDraftsDomain } from "./domain/get-drafts-domain.ts";
 export { createDraftsDomain } from "./domain/create-drafts-domain.ts";
 export { updateDraftDomain } from "./domain/update-draft-domain.ts";
 export { deleteDraftDomain } from "./domain/delete-draft-domain.ts";
+export { mapDraftToCompatRecord } from "./domain/map-draft-to-compat-record.ts";

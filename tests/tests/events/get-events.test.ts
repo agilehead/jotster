@@ -99,5 +99,20 @@ describe("GET /api/v1/events", function () {
 
     expect(res.body.result).to.equal("error");
     expect(res.body).to.have.property("msg");
+    expect(res.body.code).to.equal("BAD_EVENT_QUEUE_ID");
+  });
+
+  it("should return BAD_REQUEST when queue_id is missing", async () => {
+    const db = testDb.getDb();
+    const tenantId = await seedTenant(db);
+    const { client } = await seedUser(db, tenantId);
+
+    const res = await client.get("/events", {
+      last_event_id: "-1",
+    });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

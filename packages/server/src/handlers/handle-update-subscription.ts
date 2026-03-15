@@ -1,8 +1,29 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateSingleSubscriptionDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
+
+const hasOwnField = (source: Record<string, unknown>, key: string): boolean => {
+  const keys = Object.keys(source);
+  for (let i = 0; i < keys.length; i++) {
+    if (keys[i] === key) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const getObjectField = (source: Record<string, unknown>, key: string): unknown => {
+  const entries = Object.entries(source);
+  for (let i = 0; i < entries.length; i++) {
+    const [entryKey, entryValue] = entries[i];
+    if (entryKey === key) {
+      return entryValue;
+    }
+  }
+  return undefined;
+};
 
 export const handleUpdateSubscription = async (
   req: Request,
@@ -19,17 +40,22 @@ export const handleUpdateSubscription = async (
   const body = getBodyObject(req);
   const streamId = req.params["stream_id"] as string;
 
-  const property = body["property"] as string;
-  const value = body["value"] as unknown;
+  const property = getOptionalStringField(body, "property");
+  const value = getObjectField(body, "value");
 
   if (!property) {
-    res.status(400).json({ result: "error", msg: "Missing required field: property" });
+    res.status(400).json({ result: "error", msg: "Missing required field: property", code: "BAD_REQUEST" });
+    return;
+  }
+
+  if (!hasOwnField(body, "value")) {
+    res.status(400).json({ result: "error", msg: "Missing required field: value", code: "BAD_REQUEST" });
     return;
   }
 
   const result = await updateSingleSubscriptionDomain(app.options, user, streamId, property, value);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

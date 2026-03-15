@@ -16,3 +16,7 @@ Machine-readable artifacts:
 - `jotster-only-routes.json`
 - `summary-counts.json`
 - `tag-summary.json`
+
+Regeneration:
+
+- `npm run report:api-compat`

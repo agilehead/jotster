@@ -17,10 +17,24 @@ export const handleUpdateCustomProfileField = async (
   }
 
   const user = authResult.data;
+  if (user.role > 200) {
+    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    return;
+  }
   const fieldId = req.params["field_id"] as string;
   const body = getBodyObject(req);
 
-  const updates: { name?: string; hint?: string; fieldType?: int; fieldDataJson?: string; displayInProfileSummary?: int; ordering?: int } = {};
+  const updates: {
+    name?: string;
+    hint?: string;
+    fieldType?: int;
+    fieldDataJson?: string;
+    displayInProfileSummary?: int;
+    required?: int;
+    editableByUser?: int;
+    useForUserMatching?: int;
+    ordering?: int;
+  } = {};
   const name = getOptionalStringField(body, "name");
   if (name !== undefined) updates.name = name;
   const hint = getOptionalStringField(body, "hint");
@@ -38,10 +52,34 @@ export const handleUpdateCustomProfileField = async (
   if (hasField(body, "display_in_profile_summary")) {
     const displayInProfileSummary = getOptionalFlagIntField(body, "display_in_profile_summary");
     if (displayInProfileSummary === undefined) {
-      res.status(400).json({ result: "error", msg: "Invalid display_in_profile_summary" });
+      res.status(400).json({ result: "error", msg: "display_in_profile_summary is not valid JSON" });
       return;
     }
     updates.displayInProfileSummary = displayInProfileSummary;
+  }
+  if (hasField(body, "required")) {
+    const required = getOptionalFlagIntField(body, "required");
+    if (required === undefined) {
+      res.status(400).json({ result: "error", msg: "required is not valid JSON" });
+      return;
+    }
+    updates.required = required;
+  }
+  if (hasField(body, "editable_by_user")) {
+    const editableByUser = getOptionalFlagIntField(body, "editable_by_user");
+    if (editableByUser === undefined) {
+      res.status(400).json({ result: "error", msg: "editable_by_user is not valid JSON" });
+      return;
+    }
+    updates.editableByUser = editableByUser;
+  }
+  if (hasField(body, "use_for_user_matching")) {
+    const useForUserMatching = getOptionalFlagIntField(body, "use_for_user_matching");
+    if (useForUserMatching === undefined) {
+      res.status(400).json({ result: "error", msg: "use_for_user_matching is not valid JSON" });
+      return;
+    }
+    updates.useForUserMatching = useForUserMatching;
   }
   if (hasField(body, "order")) {
     const ordering = getOptionalIntField(body, "order");
@@ -54,7 +92,7 @@ export const handleUpdateCustomProfileField = async (
 
   const result = await updateCustomProfileFieldDomain(app.options, user, fieldId, updates);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error });
+    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

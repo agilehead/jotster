@@ -2,7 +2,7 @@ import { spawn, type ChildProcess } from "child_process";
 import { existsSync } from "fs";
 import net from "net";
 import path from "path";
-import { TEST_DB_PATH } from "./test-environment.js";
+import { TEST_DB_PATH, TEST_UPLOADS_DIR } from "./test-environment.js";
 
 const SERVER_HOST = "127.0.0.1";
 const BUILD_OUTPUT_DIR = path.resolve("packages/server/generated/bin/Release/net10.0/linux-x64");
@@ -14,6 +14,10 @@ type LaunchTarget = {
   command: string;
   args: string[];
   description: string;
+};
+
+type TestServerOptions = {
+  envOverrides?: Record<string, string>;
 };
 
 function resolveLaunchTarget(): LaunchTarget | null {
@@ -63,6 +67,12 @@ export class TestServer {
   private process: ChildProcess | null = null;
   private baseUrl = "";
   private recentOutput: string[] = [];
+  private readonly envOverrides: Record<string, string>;
+  private previousBaseUrl: string | undefined;
+
+  constructor(options?: TestServerOptions) {
+    this.envOverrides = { ...(options?.envOverrides ?? {}) };
+  }
 
   async start(): Promise<void> {
     const launchTarget = resolveLaunchTarget();
@@ -73,6 +83,7 @@ export class TestServer {
     }
     const port = await allocatePort();
     this.baseUrl = `http://${SERVER_HOST}:${port}`;
+    this.previousBaseUrl = process.env[TEST_BASE_URL_ENV];
     process.env[TEST_BASE_URL_ENV] = this.baseUrl;
 
     this.process = spawn(launchTarget.command, launchTarget.args, {
@@ -80,9 +91,13 @@ export class TestServer {
         ...process.env,
         JOTSTER_LISTEN_URL: this.baseUrl,
         JOTSTER_DB: TEST_DB_PATH,
+        JOTSTER_UPLOADS_DIR: TEST_UPLOADS_DIR,
         JOTSTER_ROOT_TOKEN: "test-root-token",
         JOTSTER_JWT_SECRET: "test-jwt-secret",
         JOTSTER_MODE: "multi-tenant",
+        JOTSTER_PRODUCTION: "0",
+        JOTSTER_DEV_AUTH_ENABLED: "1",
+        ...this.envOverrides,
       },
       stdio: "pipe",
     });
@@ -96,7 +111,12 @@ export class TestServer {
   async stop(): Promise<void> {
     const child = this.process;
     this.process = null;
-    delete process.env[TEST_BASE_URL_ENV];
+    if (this.previousBaseUrl === undefined) {
+      delete process.env[TEST_BASE_URL_ENV];
+    } else {
+      process.env[TEST_BASE_URL_ENV] = this.previousBaseUrl;
+    }
+    this.previousBaseUrl = undefined;
 
     if (child === null) {
       return;

@@ -42,6 +42,25 @@ describe("Invitations", () => {
       expect(res.status).to.equal(200);
       expect(res.body.result).to.equal("success");
     });
+
+    it("should validate invitee_emails and invite_as", async () => {
+      const db = testDb.getDb();
+      const tenantId = await seedTenant(db);
+      const { client } = await seedUser(db, tenantId, { role: 200 });
+
+      const missingEmailsRes = await client.post("/invites", {
+        stream_ids: "[]",
+      });
+      expect(missingEmailsRes.status).to.equal(400);
+      expect(missingEmailsRes.body.msg).to.equal("Missing invitee_emails");
+
+      const invalidRoleRes = await client.post("/invites", {
+        invitee_emails: "newuser@test.com",
+        invite_as: "owner",
+      });
+      expect(invalidRoleRes.status).to.equal(400);
+      expect(invalidRoleRes.body.msg).to.equal("Invalid invite_as");
+    });
   });
 
   describe("POST /api/v1/invites/multiuse", () => {
@@ -56,9 +75,22 @@ describe("Invitations", () => {
       expect(res.body.result).to.equal("success");
       expect(res.body).to.have.property("invite_link");
     });
+
+    it("should validate invite_as for multiuse invites", async () => {
+      const db = testDb.getDb();
+      const tenantId = await seedTenant(db);
+      const { client } = await seedUser(db, tenantId, { role: 200 });
+
+      const res = await client.post("/invites/multiuse", {
+        invite_as: "owner",
+      });
+
+      expect(res.status).to.equal(400);
+      expect(res.body.msg).to.equal("Invalid invite_as");
+    });
   });
 
-  describe("POST /api/v1/invites/:invite_id/resend", () => {
+  describe("POST /api/v1/invites/{invite_id}/resend", () => {
     it("should resend a pending invitation", async () => {
       const db = testDb.getDb();
       const tenantId = await seedTenant(db);
@@ -80,9 +112,20 @@ describe("Invitations", () => {
       expect(res.status).to.equal(200);
       expect(res.body.result).to.equal("success");
     });
+
+    it("should return an error for a missing invitation", async () => {
+      const db = testDb.getDb();
+      const tenantId = await seedTenant(db);
+      const { client } = await seedUser(db, tenantId, { role: 200 });
+
+      const res = await client.post("/invites/missing-invite/resend");
+
+      expect(res.status).to.equal(400);
+      expect(res.body.msg).to.equal("Invitation not found");
+    });
   });
 
-  describe("DELETE /api/v1/invites/multiuse/:invite_id", () => {
+  describe("DELETE /api/v1/invites/multiuse/{invite_id}", () => {
     it("should revoke a multiuse invitation link", async () => {
       const db = testDb.getDb();
       const tenantId = await seedTenant(db);
@@ -105,7 +148,7 @@ describe("Invitations", () => {
     });
   });
 
-  describe("DELETE /api/v1/invites/:invite_id", () => {
+  describe("DELETE /api/v1/invites/{invite_id}", () => {
     it("should revoke an invitation", async () => {
       const db = testDb.getDb();
       const tenantId = await seedTenant(db);
@@ -127,6 +170,17 @@ describe("Invitations", () => {
 
       // Should succeed or return not-found if ID doesn't match
       expect(res.status).to.be.oneOf([200, 400, 404]);
+    });
+
+    it("should return an error for a missing invitation", async () => {
+      const db = testDb.getDb();
+      const tenantId = await seedTenant(db);
+      const { client } = await seedUser(db, tenantId, { role: 200 });
+
+      const res = await client.delete("/invites/missing-invite");
+
+      expect(res.status).to.equal(400);
+      expect(res.body.result).to.equal("error");
     });
   });
 });

@@ -10,6 +10,16 @@
 
 ## Notes
 
-- The compatibility wave closes the prior in-scope route gaps for persisted data, auth compatibility, user compatibility, channel compatibility, push compatibility, message compatibility, and Zulip outgoing webhook/docs endpoints.
-- Wildcard file routes and navigation-view fragment routes are implemented in Jotster using raw-path and wildcard-style Express routes rather than literal Zulip OpenAPI template syntax. This report treats those as compatible by normalized route shape.
-- Direct test coverage is still a lower bound. A route can be behaviorally covered without a literal endpoint string match in a test file.
+- Every currently in-scope Zulip OpenAPI operation now has both a matching Jotster route and at least one direct endpoint-level test reference.
+- Wildcard file routes and navigation-view fragment routes are treated as compatible by normalized route shape, with direct test coverage provided through OpenAPI-style test titles.
+- The remaining parity question is no longer route presence; it is the depth of request, response, permission, error-contract, and type-shape assertions for each endpoint.
+- Recent semantic hardening has closed the known gaps in:
+  - queue event flattening for payloads without `op`
+  - drafts payload shape (`to` arrays and `count`)
+  - channel-folder update/reorder event payloads
+  - user-group update event nesting
+  - custom-profile-field required/editable metadata
+  - `realm_linkifiers` client-capability gating for `/register` state and queue events
+  - stream `typing` event gating for clients without `stream_typing_notifications`
+  - `user_settings` event emission with Zulip-compatible `property` / `value` payloads
+  - sender-side stream typing suppression when `send_stream_typing_notifications` is disabled

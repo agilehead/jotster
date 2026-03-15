@@ -22,12 +22,13 @@ export const serveFileDomain = async (
     return err("You do not have access to this file");
   }
 
-  const attachment = await getAttachmentByPath(options, tenantId, pathId);
+  const normalizedPathId = pathId.split("/")[0];
+  const attachment = await getAttachmentByPath(options, tenantId, normalizedPathId);
   if (attachment === undefined) {
     return err("File not found");
   }
 
-  const filePath = path.join(uploadsDir, tenantId, pathId);
+  const filePath = path.join(uploadsDir, tenantId, normalizedPathId);
   if (!fs.existsSync(filePath)) {
     return err("File not found on disk");
   }

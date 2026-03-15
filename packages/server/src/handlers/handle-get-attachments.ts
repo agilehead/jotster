@@ -23,5 +23,24 @@ export const handleGetAttachments = async (
   }
 
   const data = result.data;
-  res.json({ result: "success", msg: "", attachments: data.attachments });
+  const attachments: Record<string, unknown>[] = [];
+  for (let i = 0; i < data.attachments.length; i++) {
+    const item = data.attachments[i];
+    const attachment: Record<string, unknown> = {};
+    attachment["id"] = item.id;
+    attachment["name"] = item.name;
+    attachment["path_id"] = item.path_id;
+    attachment["size"] = item.size;
+    attachment["create_time"] = item.create_time;
+    const messages: Record<string, unknown>[] = [];
+    for (let j = 0; j < item.messages.length; j++) {
+      const message: Record<string, unknown> = {};
+      message["id"] = item.messages[j].id;
+      messages.push(message);
+    }
+    attachment["messages"] = messages;
+    attachments.push(attachment);
+  }
+
+  res.json({ result: "success", msg: "", attachments });
 };

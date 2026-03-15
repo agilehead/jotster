@@ -22,5 +22,5 @@ export const handleGetDrafts = async (
     return;
   }
 
-  res.json({ result: "success", msg: "", drafts: result.data });
+  res.json({ result: "success", msg: "", count: result.data.length, drafts: result.data });
 };

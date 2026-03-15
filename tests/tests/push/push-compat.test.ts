@@ -3,7 +3,7 @@ import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
 describe("Push compatibility endpoints", () => {
-  it("should register and remove a client device", async () => {
+  it("POST /api/v1/register_client_device and POST /api/v1/remove_client_device should register and remove a client device", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
@@ -19,7 +19,7 @@ describe("Push compatibility endpoints", () => {
     expect(removeRes.status).to.equal(200);
   });
 
-  it("should accept remote E2EE push device registration", async () => {
+  it("POST /api/v1/remotes/push/e2ee/register should accept remote E2EE push device registration", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
@@ -35,7 +35,7 @@ describe("Push compatibility endpoints", () => {
     expect(res.body.result).to.equal("success");
   });
 
-  it("should register a Zulip mobile push token and send a test notification", async () => {
+  it("POST /api/v1/mobile_push/register and POST /api/v1/mobile_push/test_notification should register a Zulip mobile push token and send a test notification", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
@@ -61,7 +61,7 @@ describe("Push compatibility endpoints", () => {
     expect(testRes.body.devices_notified).to.equal(1);
   });
 
-  it("should accept the Zulip E2EE test notification endpoint", async () => {
+  it("POST /api/v1/mobile_push/e2ee/test_notification should accept the Zulip E2EE test notification endpoint", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);

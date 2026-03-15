@@ -33,6 +33,7 @@ export { revokeInvitationDomain } from "./domain/revoke-invitation-domain.ts";
 
 // Data Export Repo
 export { getExports } from "./repo/get-exports.ts";
+export { getExportConsents } from "./repo/get-export-consents.ts";
 export { createExport } from "./repo/create-export.ts";
 export { updateExportStatus } from "./repo/update-export-status.ts";
 export { deleteExport } from "./repo/delete-export.ts";

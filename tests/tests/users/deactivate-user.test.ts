@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
-describe("DELETE /api/v1/users/:user_id", () => {
+describe("DELETE /api/v1/users/{user_id}", () => {
   it("should allow admin to deactivate a user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -32,6 +32,7 @@ describe("DELETE /api/v1/users/:user_id", () => {
 
     const res = await client.delete("/users/nonexistent_id_999");
     expect(res.body.result).to.equal("error");
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });
 
@@ -47,7 +48,7 @@ describe("DELETE /api/v1/users/me", () => {
   });
 });
 
-describe("POST /api/v1/users/:user_id/reactivate", () => {
+describe("POST /api/v1/users/{user_id}/reactivate", () => {
   it("should allow admin to reactivate a deactivated user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -78,5 +79,6 @@ describe("POST /api/v1/users/:user_id/reactivate", () => {
     const res = await memberClient.post(`/users/${targetUserId}/reactivate`);
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 403]);
+    expect(res.body.code).to.equal("BAD_REQUEST");
   });
 });

@@ -14,6 +14,8 @@ interface UpdateUserGroupDomainInput {
   canLeaveGroupId?: string;
   canManageGroupId?: string;
   canMentionGroupId?: string;
+  canRemoveMembersGroupId?: string;
+  deactivated?: boolean;
 }
 
 export const updateUserGroupDomain = async (
@@ -32,7 +34,8 @@ export const updateUserGroupDomain = async (
   }
 
   const zero = 0 as int;
-  if (group.IsActive === zero) {
+  const isReactivating = updates.deactivated === false;
+  if (group.IsActive === zero && !isReactivating) {
     return err("User group is deactivated");
   }
 
@@ -54,6 +57,8 @@ export const updateUserGroupDomain = async (
     canLeaveGroupId: updates.canLeaveGroupId,
     canManageGroupId: updates.canManageGroupId,
     canMentionGroupId: updates.canMentionGroupId,
+    canRemoveMembersGroupId: updates.canRemoveMembersGroupId,
+    deactivated: updates.deactivated,
   });
 
   if (updated === undefined) {
@@ -61,13 +66,57 @@ export const updateUserGroupDomain = async (
   }
 
   const data: Record<string, unknown> = {};
-  data["op"] = "update";
-  data["group_id"] = groupId;
-  if (updates.name !== undefined) {
-    data["name"] = updated.Name;
-  }
-  if (updates.description !== undefined) {
-    data["description"] = updated.Description;
+  if (group.IsActive === zero && updated.IsActive !== zero) {
+    data["op"] = "add";
+    data["group"] = {
+      id: updated.Id,
+      name: updated.Name,
+      description: updated.Description,
+      is_system_group: updated.IsSystemGroup === 1,
+      members: [],
+      direct_subgroup_ids: [],
+      can_add_members_group: updated.CanAddMembersGroupId ?? null,
+      can_join_group: updated.CanJoinGroupId ?? null,
+      can_leave_group: updated.CanLeaveGroupId ?? null,
+      can_manage_group: updated.CanManageGroupId ?? null,
+      can_mention_group: updated.CanMentionGroupId ?? null,
+      can_remove_members_group: updated.CanRemoveMembersGroupId ?? null,
+      creator_id: updated.CreatorId ?? null,
+      date_created: updated.CreatedAt,
+      deactivated: updated.IsActive !== 1,
+    };
+  } else {
+    data["op"] = "update";
+    data["group_id"] = groupId;
+    const changedData: Record<string, unknown> = {};
+    if (updates.name !== undefined) {
+      changedData["name"] = updated.Name;
+    }
+    if (updates.description !== undefined) {
+      changedData["description"] = updated.Description;
+    }
+    if (updates.canAddMembersGroupId !== undefined) {
+      changedData["can_add_members_group"] = updated.CanAddMembersGroupId ?? null;
+    }
+    if (updates.canJoinGroupId !== undefined) {
+      changedData["can_join_group"] = updated.CanJoinGroupId ?? null;
+    }
+    if (updates.canLeaveGroupId !== undefined) {
+      changedData["can_leave_group"] = updated.CanLeaveGroupId ?? null;
+    }
+    if (updates.canManageGroupId !== undefined) {
+      changedData["can_manage_group"] = updated.CanManageGroupId ?? null;
+    }
+    if (updates.canMentionGroupId !== undefined) {
+      changedData["can_mention_group"] = updated.CanMentionGroupId ?? null;
+    }
+    if (updates.canRemoveMembersGroupId !== undefined) {
+      changedData["can_remove_members_group"] = updated.CanRemoveMembersGroupId ?? null;
+    }
+    if (updates.deactivated === false) {
+      changedData["deactivated"] = updated.IsActive !== 1;
+    }
+    data["data"] = changedData;
   }
 
   dispatchEventToTenant(user.tenantId, {

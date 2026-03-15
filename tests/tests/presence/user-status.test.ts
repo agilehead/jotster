@@ -53,7 +53,7 @@ describe("POST /api/v1/users/me/status", () => {
   });
 });
 
-describe("GET /api/v1/users/:user_id/status", () => {
+describe("GET /api/v1/users/{user_id}/status", () => {
   it("should return the user's status", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);

@@ -2,9 +2,9 @@ import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkC
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
-import { Convert } from "@tsonic/dotnet/System.js";
 import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { createDraft } from "../repo/create-draft.ts";
+import { mapDraftToCompatRecord } from "./map-draft-to-compat-record.ts";
 
 interface CreateDraftApiInput {
   type: string;
@@ -47,18 +47,14 @@ export const createDraftsDomain = async (
 
     ids.Add(draft.Id);
 
-    const formatted: Record<string, unknown> = {};
-    formatted["id"] = draft.Id;
-    formatted["type"] = draft.Type;
-    formatted["to"] = draft.Type === "stream" ? (draft.ChannelId ?? "") : (draft.RecipientIdsJson ?? "[]");
-    formatted["topic"] = draft.Topic ?? "";
-    formatted["content"] = draft.Content;
-    formatted["timestamp"] = Convert.ToDouble(draft.UpdatedAt) / 1000;
+    const draftRecords: Record<string, unknown>[] = [mapDraftToCompatRecord(draft)];
 
     dispatchEventToUser(user.tenantId, user.userId, {
       type: "drafts",
       op: "add",
-      data: formatted,
+      data: {
+        drafts: draftRecords,
+      },
     });
   }
 

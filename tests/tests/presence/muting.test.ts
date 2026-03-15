@@ -7,7 +7,7 @@ import {
   seedSubscription,
 } from "../../utils/test-helpers.js";
 
-describe("POST /api/v1/users/me/muted_users/:muted_user_id", () => {
+describe("POST /api/v1/users/me/muted_users/{muted_user_id}", () => {
   it("should mute a user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
@@ -41,7 +41,7 @@ describe("POST /api/v1/users/me/muted_users/:muted_user_id", () => {
   });
 });
 
-describe("DELETE /api/v1/users/me/muted_users/:muted_user_id", () => {
+describe("DELETE /api/v1/users/me/muted_users/{muted_user_id}", () => {
   it("should unmute a previously muted user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
