@@ -11,8 +11,7 @@ export const getUserGroups = async (
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    let query = db0.UserGroups
-      .Where((g) => g.TenantId === tenantId0);
+    let query = db0.UserGroups.Where((g) => g.TenantId === tenantId0);
     if (includeDeactivated !== true) {
       const one = 1 as int;
       query = query.Where((g) => g.IsActive === one);

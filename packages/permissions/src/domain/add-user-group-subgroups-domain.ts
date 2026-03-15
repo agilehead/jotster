@@ -11,7 +11,7 @@ export const addUserGroupSubgroupsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   groupId: long,
-  subgroupIds: long[]
+  subgroupIds: long[],
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");
@@ -38,7 +38,9 @@ export const addUserGroupSubgroupsDomain = async (
       return err("Subgroup not found: " + Convert.ToString(subgroupIds[i]));
     }
     if (subgroup.IsActive === zero) {
-      return err("Subgroup is deactivated: " + Convert.ToString(subgroupIds[i]));
+      return err(
+        "Subgroup is deactivated: " + Convert.ToString(subgroupIds[i]),
+      );
     }
     if (subgroupIds[i] === groupId) {
       return err("A group cannot be its own subgroup");

@@ -9,7 +9,7 @@ import { deactivateUserGroup } from "../repo/deactivate-user-group.ts";
 export const deactivateUserGroupDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  groupId: long
+  groupId: long,
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");

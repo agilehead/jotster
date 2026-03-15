@@ -7,11 +7,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleLegacyMuteTopic = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -23,7 +28,13 @@ export const handleLegacyMuteTopic = async (
   const streamId = getOptionalStringField(body, "stream_id");
   const topic = getOptionalStringField(body, "topic");
   if (op === undefined || topic === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required field", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required field",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 

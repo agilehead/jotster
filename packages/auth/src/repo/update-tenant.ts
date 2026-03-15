@@ -6,13 +6,15 @@ import { JotsterDbContext, Tenant } from "@jotster/core/Jotster.Core.js";
 export const updateTenant = async (
   options: DbContextOptions,
   tenantId: long,
-  updates: { name?: string; description?: string; active?: int }
+  updates: { name?: string; description?: string; active?: int },
 ): Promise<Tenant | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    const tenant = await db0.Tenants.Where((t) => t.Id === tenantId0).FirstOrDefaultAsync();
+    const tenant = await db0.Tenants.Where(
+      (t) => t.Id === tenantId0,
+    ).FirstOrDefaultAsync();
     if (tenant === undefined) return undefined;
     if (updates.name !== undefined) {
       tenant.Name = updates.name;

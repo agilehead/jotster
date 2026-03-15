@@ -15,6 +15,8 @@ export class Attachment {
   CreatedAt!: long;
 }
 
-A.on(Attachment).prop((x) => x.Id).add(KeyAttribute);
+A.on(Attachment)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Attachment).type.add(IndexAttribute, ["TenantId", "PathId"]);
 A.on(Attachment).type.add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);

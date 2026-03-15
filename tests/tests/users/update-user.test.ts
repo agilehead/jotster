@@ -7,7 +7,9 @@ describe("PATCH /api/v1/users/{user_id}", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client: adminClient } = await seedUser(db, tenantId, { role: 200 });
-    const { userId: targetUserId } = await seedUser(db, tenantId, { fullName: "Old Name" });
+    const { userId: targetUserId } = await seedUser(db, tenantId, {
+      fullName: "Old Name",
+    });
 
     const res = await adminClient.patch(`/users/${targetUserId}`, {
       full_name: "New Name",
@@ -21,7 +23,9 @@ describe("PATCH /api/v1/users/{user_id}", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client: adminClient } = await seedUser(db, tenantId, { role: 200 });
-    const { userId: targetUserId } = await seedUser(db, tenantId, { role: 400 });
+    const { userId: targetUserId } = await seedUser(db, tenantId, {
+      role: 400,
+    });
 
     const res = await adminClient.patch(`/users/${targetUserId}`, {
       role: "300", // promote to moderator
@@ -34,8 +38,12 @@ describe("PATCH /api/v1/users/{user_id}", () => {
   it("should not allow a regular member to update another user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
-    const { client: memberClient } = await seedUser(db, tenantId, { role: 400 });
-    const { userId: targetUserId } = await seedUser(db, tenantId, { fullName: "Other User" });
+    const { client: memberClient } = await seedUser(db, tenantId, {
+      role: 400,
+    });
+    const { userId: targetUserId } = await seedUser(db, tenantId, {
+      fullName: "Other User",
+    });
 
     const res = await memberClient.patch(`/users/${targetUserId}`, {
       full_name: "Hacked Name",

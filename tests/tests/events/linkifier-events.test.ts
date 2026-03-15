@@ -7,7 +7,11 @@ const registerQueue = async (
   eventTypes: string[],
   fetchEventTypes?: string[],
   clientCapabilities?: Record<string, unknown>,
-): Promise<{ queueId: string; lastEventId: number; body: Record<string, unknown> }> => {
+): Promise<{
+  queueId: string;
+  lastEventId: number;
+  body: Record<string, unknown>;
+}> => {
   const body: Record<string, unknown> = {
     event_types: JSON.stringify(eventTypes),
   };
@@ -65,7 +69,11 @@ describe("Realm linkifier event compatibility", function () {
     expect(firstCreateRes.status).to.equal(200);
     const firstId = firstCreateRes.body.id as number;
 
-    const firstCreateEvents = await getEvents(admin.client, queueId, lastEventId);
+    const firstCreateEvents = await getEvents(
+      admin.client,
+      queueId,
+      lastEventId,
+    );
     expect(firstCreateEvents).to.have.length(1);
     expect(firstCreateEvents[0]).to.deep.equal({
       id: firstCreateEvents[0].id,
@@ -87,12 +95,18 @@ describe("Realm linkifier event compatibility", function () {
       url_template: "https://bugs.example.com/{id}",
       example_input: "BUG-9",
       reverse_template: "BUG-{id}",
-      alternative_url_templates: JSON.stringify(["https://bugs.example.com/ticket/{id}"]),
+      alternative_url_templates: JSON.stringify([
+        "https://bugs.example.com/ticket/{id}",
+      ]),
     });
     expect(secondCreateRes.status).to.equal(200);
     const secondId = secondCreateRes.body.id as number;
 
-    const secondCreateEvents = await getEvents(admin.client, queueId, firstCreateEvents[0].id as number);
+    const secondCreateEvents = await getEvents(
+      admin.client,
+      queueId,
+      firstCreateEvents[0].id as number,
+    );
     expect(secondCreateEvents).to.have.length(1);
     expect(secondCreateEvents[0]).to.deep.equal({
       id: secondCreateEvents[0].id,
@@ -124,7 +138,11 @@ describe("Realm linkifier event compatibility", function () {
     });
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(admin.client, queueId, secondCreateEvents[0].id as number);
+    const updateEvents = await getEvents(
+      admin.client,
+      queueId,
+      secondCreateEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
     expect(updateEvents[0]).to.deep.equal({
       id: updateEvents[0].id,
@@ -154,7 +172,11 @@ describe("Realm linkifier event compatibility", function () {
     });
     expect(reorderRes.status).to.equal(200);
 
-    const reorderEvents = await getEvents(admin.client, queueId, updateEvents[0].id as number);
+    const reorderEvents = await getEvents(
+      admin.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(reorderEvents).to.have.length(1);
     expect(reorderEvents[0]).to.deep.equal({
       id: reorderEvents[0].id,
@@ -182,7 +204,11 @@ describe("Realm linkifier event compatibility", function () {
     const deleteRes = await admin.client.delete(`/realm/filters/${secondId}`);
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(admin.client, queueId, reorderEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      admin.client,
+      queueId,
+      reorderEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,

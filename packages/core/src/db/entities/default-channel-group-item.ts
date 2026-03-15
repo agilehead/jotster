@@ -7,4 +7,8 @@ export class DefaultChannelGroupItem {
   ChannelId!: long;
 }
 
-A.on(DefaultChannelGroupItem).type.add(PrimaryKeyAttribute, "DefaultChannelGroupId", ["ChannelId"]);
+A.on(DefaultChannelGroupItem).type.add(
+  PrimaryKeyAttribute,
+  "DefaultChannelGroupId",
+  ["ChannelId"],
+);

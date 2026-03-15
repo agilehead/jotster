@@ -10,7 +10,7 @@ export const processExportDomain = async (
   options: DbContextOptions,
   exportId: long,
   tenantId: long,
-  exportType: string
+  exportType: string,
 ): Promise<void> => {
   try {
     // Update status to "in_progress"
@@ -36,7 +36,13 @@ export const processExportDomain = async (
     dispatchEventToTenant(tenantId, payload);
   } catch {
     // If any step fails, update status to "failed"
-    await updateExportStatus(options, exportId, "failed", undefined, "Export processing failed");
+    await updateExportStatus(
+      options,
+      exportId,
+      "failed",
+      undefined,
+      "Export processing failed",
+    );
 
     // Emit realm_export event with failed status
     const exports = await getExports(options, tenantId);

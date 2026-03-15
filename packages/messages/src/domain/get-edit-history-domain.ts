@@ -10,7 +10,7 @@ import { getEditHistory } from "../repo/get-edit-history.ts";
 export const getEditHistoryDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: long
+  messageId: long,
 ): Promise<Result<Record<string, unknown>[], string>> => {
   // Verify message exists in the tenant
   const message = await getMessage(options, user.tenantId, messageId);
@@ -30,7 +30,10 @@ export const getEditHistoryDomain = async (
     if (entry.PrevContent !== undefined && entry.PrevContent !== null) {
       obj["prev_content"] = entry.PrevContent;
     }
-    if (entry.PrevRenderedContent !== undefined && entry.PrevRenderedContent !== null) {
+    if (
+      entry.PrevRenderedContent !== undefined &&
+      entry.PrevRenderedContent !== null
+    ) {
       obj["prev_rendered_content"] = entry.PrevRenderedContent;
     }
     if (entry.PrevTopic !== undefined && entry.PrevTopic !== null) {

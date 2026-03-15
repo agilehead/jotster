@@ -6,7 +6,7 @@ export const deleteDraft = async (
   options: DbContextOptions,
   tenantId: long,
   userId: long,
-  draftId: long
+  draftId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -14,8 +14,9 @@ export const deleteDraft = async (
     const tenantId0 = tenantId;
     const userId0 = userId;
     const draftId0 = draftId;
-    const draft = await db0.Drafts
-      .Where((d) => d.TenantId === tenantId0).Where((d) => d.UserId === userId0).Where((d) => d.Id === draftId0)
+    const draft = await db0.Drafts.Where((d) => d.TenantId === tenantId0)
+      .Where((d) => d.UserId === userId0)
+      .Where((d) => d.Id === draftId0)
       .FirstOrDefaultAsync();
 
     if (draft === undefined || draft === null) {

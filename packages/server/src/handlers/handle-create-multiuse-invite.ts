@@ -3,16 +3,27 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createMultiuseLinkDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalField, getOptionalStringArrayField, hasField, toOptionalInt } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalField,
+  getOptionalStringArrayField,
+  hasField,
+  toOptionalInt,
+} from "../helpers/body.ts";
 
 export const handleCreateMultiuseInvite = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 

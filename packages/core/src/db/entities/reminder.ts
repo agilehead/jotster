@@ -17,6 +17,12 @@ export class Reminder {
   UpdatedAt!: long;
 }
 
-A.on(Reminder).prop((x) => x.Id).add(KeyAttribute);
+A.on(Reminder)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Reminder).type.add(IndexAttribute, ["TenantId", "UserId"]);
-A.on(Reminder).type.add(IndexAttribute, ["TenantId", "UserId", "ScheduledDeliveryTimestamp"]);
+A.on(Reminder).type.add(IndexAttribute, [
+  "TenantId",
+  "UserId",
+  "ScheduledDeliveryTimestamp",
+]);

@@ -10,7 +10,7 @@ export const removeUserGroupMembersDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   groupId: long,
-  userIds: long[]
+  userIds: long[],
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");

@@ -8,7 +8,7 @@ import { getChannelById } from "../repo/get-channel-by-id.ts";
 export const getTopicsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: long
+  channelId: long,
 ): Promise<Result<{ name: string; maxId: long }[], string>> => {
   const channel = await getChannelById(options, channelId);
   if (channel === undefined) {
@@ -24,8 +24,11 @@ export const getTopicsDomain = async (
         const tenantId0 = user.tenantId;
         const userId0 = user.userId;
         const channelId0 = channelId;
-        const sub = await db2_0.Subscriptions
-          .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+        const sub = await db2_0.Subscriptions.Where(
+          (s) => s.TenantId === tenantId0,
+        )
+          .Where((s) => s.UserId === userId0)
+          .Where((s) => s.ChannelId === channelId0)
           .FirstOrDefaultAsync();
         if (sub === undefined || sub === null) {
           return err("Channel not found");
@@ -40,9 +43,9 @@ export const getTopicsDomain = async (
   try {
     const db0 = db;
     const channelId1 = channelId;
-    const messages = await db0.Messages
-      .Where((m) => m.ChannelId === channelId1)
-      .ToListAsync();
+    const messages = await db0.Messages.Where(
+      (m) => m.ChannelId === channelId1,
+    ).ToListAsync();
 
     const topicMap: Record<string, { maxId: long; createdAt: number }> = {};
     const topicKeys = new List<string>();

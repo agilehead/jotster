@@ -5,15 +5,15 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getUserGroupSubgroups = async (
   options: DbContextOptions,
-  groupId: long
+  groupId: long,
 ): Promise<long[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const groupId0 = groupId;
-    const subgroups = await db0.UserGroupSubgroups
-      .Where((s) => s.ParentGroupId === groupId0)
-      .ToListAsync();
+    const subgroups = await db0.UserGroupSubgroups.Where(
+      (s) => s.ParentGroupId === groupId0,
+    ).ToListAsync();
 
     const ids = new List<long>();
     for (let i = 0; i < subgroups.Count; i++) {

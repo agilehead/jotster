@@ -16,22 +16,26 @@ const toOptionalBoolean = (value: number | undefined): boolean | null => {
 export const getSubscriptionsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  includeSubscribers: boolean
+  includeSubscribers: boolean,
 ): Promise<Result<Record<string, unknown>[], string>> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = user.tenantId;
 
-    const subscriptions = await getSubscriptionsForUser(options, user.tenantId, user.userId);
+    const subscriptions = await getSubscriptionsForUser(
+      options,
+      user.tenantId,
+      user.userId,
+    );
     const result = new List<Record<string, unknown>>();
 
     for (let i = 0; i < subscriptions.Count; i++) {
       const sub = subscriptions[i];
       const channelId0 = sub.ChannelId;
 
-      const channel = await db0.Channels
-        .Where((c) => c.TenantId === tenantId0).Where((c) => c.Id === channelId0)
+      const channel = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+        .Where((c) => c.Id === channelId0)
         .FirstOrDefaultAsync();
 
       if (channel === undefined || channel === null) {
@@ -59,13 +63,21 @@ export const getSubscriptionsDomain = async (
         audible_notifications: toOptionalBoolean(sub.AudibleNotifications),
         email_notifications: toOptionalBoolean(sub.EmailNotifications),
         wildcard_mentions_notify: toOptionalBoolean(sub.WildcardMentionsNotify),
-        first_message_id: channel.FirstMessageId !== undefined ? channel.FirstMessageId : null,
-        message_retention_days: channel.MessageRetentionDays !== undefined ? channel.MessageRetentionDays : null,
+        first_message_id:
+          channel.FirstMessageId !== undefined ? channel.FirstMessageId : null,
+        message_retention_days:
+          channel.MessageRetentionDays !== undefined
+            ? channel.MessageRetentionDays
+            : null,
         is_archived: channel.IsArchived === 1,
       };
 
       if (includeSubscribers) {
-        const channelSubs = await getSubscriptionsForChannel(options, user.tenantId, channel.Id);
+        const channelSubs = await getSubscriptionsForChannel(
+          options,
+          user.tenantId,
+          channel.Id,
+        );
         const subscriberList = new List<long>();
         for (let j = 0; j < channelSubs.Count; j++) {
           const channelSub = channelSubs[j];

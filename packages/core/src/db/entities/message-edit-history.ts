@@ -14,5 +14,7 @@ export class MessageEditHistory {
   Timestamp!: long;
 }
 
-A.on(MessageEditHistory).prop((x) => x.Id).add(KeyAttribute);
+A.on(MessageEditHistory)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(MessageEditHistory).type.add(IndexAttribute, ["MessageId", "Timestamp"]);

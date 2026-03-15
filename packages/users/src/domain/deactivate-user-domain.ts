@@ -8,7 +8,7 @@ import { deactivateUser } from "../repo/deactivate-user.ts";
 export const deactivateUserDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  targetUserId: long
+  targetUserId: long,
 ): Promise<Result<boolean, string>> => {
   const isSelf = actingUser.userId === targetUserId;
   const isAdmin = actingUser.role <= 200;
@@ -35,14 +35,12 @@ export const deactivateUserDomain = async (
       const tenantId0 = actingUser.tenantId;
       const ownerRole = 100 as int;
       const activeStatus = 1 as int;
-      const owners = await db0.Users
-        .Where(
-          (u) =>
-            u.TenantId === tenantId0 &&
-            u.Role === ownerRole &&
-            u.IsActive === activeStatus
-        )
-        .ToArrayAsync();
+      const owners = await db0.Users.Where(
+        (u) =>
+          u.TenantId === tenantId0 &&
+          u.Role === ownerRole &&
+          u.IsActive === activeStatus,
+      ).ToArrayAsync();
 
       if (owners[1] === undefined) {
         return err("Cannot deactivate the only organization owner");
@@ -52,7 +50,11 @@ export const deactivateUserDomain = async (
     }
   }
 
-  const result = await deactivateUser(options, actingUser.tenantId, targetUserId);
+  const result = await deactivateUser(
+    options,
+    actingUser.tenantId,
+    targetUserId,
+  );
   if (!result) {
     return err("Failed to deactivate user");
   }

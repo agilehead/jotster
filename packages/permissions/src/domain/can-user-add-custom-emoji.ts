@@ -6,7 +6,12 @@ import { checkPermission } from "./check-permission.ts";
 export const canUserAddCustomEmoji = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
+  userId: long,
 ): Promise<Result<boolean, string>> => {
-  return await checkPermission(options, tenantId, userId, "can_add_custom_emoji");
+  return await checkPermission(
+    options,
+    tenantId,
+    userId,
+    "can_add_custom_emoji",
+  );
 };

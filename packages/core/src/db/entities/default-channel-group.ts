@@ -11,5 +11,7 @@ export class DefaultChannelGroup {
   CreatedAt!: long;
 }
 
-A.on(DefaultChannelGroup).prop((x) => x.Id).add(KeyAttribute);
+A.on(DefaultChannelGroup)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(DefaultChannelGroup).type.add(IndexAttribute, ["TenantId", "Name"]);

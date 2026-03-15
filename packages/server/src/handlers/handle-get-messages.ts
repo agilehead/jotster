@@ -7,11 +7,16 @@ import { getOptionalStringField, toOptionalInt } from "../helpers/body.ts";
 export const handleGetMessages = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -22,14 +27,24 @@ export const handleGetMessages = async (
   const numBefore = getOptionalStringField(query, "num_before");
   const numAfter = getOptionalStringField(query, "num_after");
   const applyMarkdown = getOptionalStringField(query, "apply_markdown");
-  const parsedNumBefore = numBefore === undefined ? undefined : toOptionalInt(numBefore);
+  const parsedNumBefore =
+    numBefore === undefined ? undefined : toOptionalInt(numBefore);
   if (numBefore !== undefined && parsedNumBefore === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid num_before", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid num_before",
+        code: "BAD_REQUEST",
+      });
     return;
   }
-  const parsedNumAfter = numAfter === undefined ? undefined : toOptionalInt(numAfter);
+  const parsedNumAfter =
+    numAfter === undefined ? undefined : toOptionalInt(numAfter);
   if (numAfter !== undefined && parsedNumAfter === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid num_after", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid num_after", code: "BAD_REQUEST" });
     return;
   }
 
@@ -42,7 +57,9 @@ export const handleGetMessages = async (
   });
 
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

@@ -16,15 +16,15 @@ interface UpdateChannelInput {
 export const updateChannel = async (
   options: DbContextOptions,
   channelId: long,
-  updates: UpdateChannelInput
+  updates: UpdateChannelInput,
 ): Promise<Channel | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const channelId0 = channelId;
-    const channel = await db0.Channels
-      .Where((c) => c.Id === channelId0)
-      .FirstOrDefaultAsync();
+    const channel = await db0.Channels.Where(
+      (c) => c.Id === channelId0,
+    ).FirstOrDefaultAsync();
 
     if (channel === undefined) {
       return undefined;

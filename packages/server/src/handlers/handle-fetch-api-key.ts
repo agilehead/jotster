@@ -13,11 +13,17 @@ import {
 export const handleFetchApiKey = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const tenantResult = await resolveTenant(app.options, app.config, req.get("host") ?? "");
+  const tenantResult = await resolveTenant(
+    app.options,
+    app.config,
+    req.get("host") ?? "",
+  );
   if (!tenantResult.success) {
-    res.status(getTenantAuthErrorStatus(tenantResult.error)).json(getJsonErrorBody(tenantResult.error));
+    res
+      .status(getTenantAuthErrorStatus(tenantResult.error))
+      .json(getJsonErrorBody(tenantResult.error));
     return;
   }
 
@@ -33,9 +39,16 @@ export const handleFetchApiKey = async (
     return;
   }
 
-  const result = await fetchApiKey(app.options, tenantResult.data.Id, username, password);
+  const result = await fetchApiKey(
+    app.options,
+    tenantResult.data.Id,
+    username,
+    password,
+  );
   if (!result.success) {
-    res.status(getPasswordAuthErrorStatus(result.error)).json(getJsonErrorBody(result.error));
+    res
+      .status(getPasswordAuthErrorStatus(result.error))
+      .json(getJsonErrorBody(result.error));
     return;
   }
 

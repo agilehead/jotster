@@ -8,11 +8,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleRevokeMultiuseInvite = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -23,7 +28,11 @@ export const handleRevokeMultiuseInvite = async (
     return;
   }
 
-  const result = await revokeInvitationDomain(app.options, user, toLong(inviteId));
+  const result = await revokeInvitationDomain(
+    app.options,
+    user,
+    toLong(inviteId),
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

@@ -6,7 +6,14 @@ import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js"
 import { addMessageFlags } from "../repo/add-message-flags.ts";
 import { removeMessageFlags } from "../repo/remove-message-flags.ts";
 
-const VALID_FLAGS = ["read", "starred", "mentioned", "wildcard_mentioned", "has_alert_word", "historical"];
+const VALID_FLAGS = [
+  "read",
+  "starred",
+  "mentioned",
+  "wildcard_mentioned",
+  "has_alert_word",
+  "historical",
+];
 
 interface UpdateFlagsDomainInput {
   messages: long[];
@@ -17,7 +24,7 @@ interface UpdateFlagsDomainInput {
 export const updateFlagsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: UpdateFlagsDomainInput
+  params: UpdateFlagsDomainInput,
 ): Promise<Result<{ messages: long[] }, string>> => {
   // Validate op
   if (params.op !== "add" && params.op !== "remove") {
@@ -44,7 +51,12 @@ export const updateFlagsDomain = async (
   if (params.op === "add") {
     await addMessageFlags(options, user.userId, params.messages, params.flag);
   } else {
-    await removeMessageFlags(options, user.userId, params.messages, params.flag);
+    await removeMessageFlags(
+      options,
+      user.userId,
+      params.messages,
+      params.flag,
+    );
   }
 
   // Dispatch event

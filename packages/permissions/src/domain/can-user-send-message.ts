@@ -11,7 +11,7 @@ export const canUserSendMessage = async (
   tenantId: long,
   userId: long,
   userRole: number,
-  channelId: long | undefined
+  channelId: long | undefined,
 ): Promise<Result<boolean, string>> => {
   // DM — check direct_message_permission_group
   if (channelId === undefined) {
@@ -19,7 +19,7 @@ export const canUserSendMessage = async (
       options,
       tenantId,
       userId,
-      "direct_message_permission_group"
+      "direct_message_permission_group",
     );
   }
 
@@ -31,7 +31,7 @@ export const canUserSendMessage = async (
     tenantId,
     userId,
     userRole,
-    chId
+    chId,
   );
 
   if (!accessResult.success) {

@@ -8,7 +8,7 @@ import { getReadReceipts } from "../repo/get-read-receipts.ts";
 export const getReadReceiptsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: long
+  messageId: long,
 ): Promise<Result<{ userIds: long[] }, string>> => {
   // Verify message exists in the tenant
   const message = await getMessage(options, user.tenantId, messageId);
@@ -32,8 +32,9 @@ export const getReadReceiptsDomain = async (
       }
 
       if (receiptUserId !== requesterId0) {
-        const mutedByRequester = await db.MutedUsers
-          .Where((entry) => entry.TenantId === tenantId0)
+        const mutedByRequester = await db.MutedUsers.Where(
+          (entry) => entry.TenantId === tenantId0,
+        )
           .Where((entry) => entry.UserId === requesterId0)
           .Where((entry) => entry.MutedUserId === receiptUserId)
           .FirstOrDefaultAsync();
@@ -41,8 +42,9 @@ export const getReadReceiptsDomain = async (
           continue;
         }
 
-        const mutedRequester = await db.MutedUsers
-          .Where((entry) => entry.TenantId === tenantId0)
+        const mutedRequester = await db.MutedUsers.Where(
+          (entry) => entry.TenantId === tenantId0,
+        )
           .Where((entry) => entry.UserId === receiptUserId)
           .Where((entry) => entry.MutedUserId === requesterId0)
           .FirstOrDefaultAsync();
@@ -50,11 +52,16 @@ export const getReadReceiptsDomain = async (
           continue;
         }
 
-        const settings = await db.UserSettings
-          .Where((entry) => entry.TenantId === tenantId0)
+        const settings = await db.UserSettings.Where(
+          (entry) => entry.TenantId === tenantId0,
+        )
           .Where((entry) => entry.UserId === receiptUserId)
           .FirstOrDefaultAsync();
-        if (settings !== undefined && settings !== null && settings.SendReadReceipts !== enabled) {
+        if (
+          settings !== undefined &&
+          settings !== null &&
+          settings.SendReadReceipts !== enabled
+        ) {
           continue;
         }
       }

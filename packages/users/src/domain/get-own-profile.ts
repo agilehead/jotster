@@ -5,7 +5,7 @@ import { getUser } from "../repo/get-user.ts";
 
 export const getOwnProfile = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<User, string>> => {
   const profile = await getUser(options, user.userId);
   if (profile === undefined) {

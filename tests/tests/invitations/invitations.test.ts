@@ -103,7 +103,11 @@ describe("Invitations", () => {
 
       const invitation = await db("invitation")
         .select("id")
-        .where({ tenant_id: tenantId, email: "resend@test.com", status: "pending" })
+        .where({
+          tenant_id: tenantId,
+          email: "resend@test.com",
+          status: "pending",
+        })
         .first();
       const inviteId = invitation?.id as number;
 

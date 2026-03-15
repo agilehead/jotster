@@ -8,9 +8,14 @@ import { deleteDraft } from "../repo/delete-draft.ts";
 export const deleteDraftDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  draftId: long
+  draftId: long,
 ): Promise<Result<void, string>> => {
-  const result = await deleteDraft(options, user.tenantId, user.userId, draftId);
+  const result = await deleteDraft(
+    options,
+    user.tenantId,
+    user.userId,
+    draftId,
+  );
   if (!result) {
     return err("Draft not found");
   }

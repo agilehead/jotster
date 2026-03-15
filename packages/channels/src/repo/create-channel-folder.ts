@@ -12,7 +12,7 @@ interface CreateChannelFolderInput {
 
 export const createChannelFolder = async (
   options: DbContextOptions,
-  input: CreateChannelFolderInput
+  input: CreateChannelFolderInput,
 ): Promise<ChannelFolder> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

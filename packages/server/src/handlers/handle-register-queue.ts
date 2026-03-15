@@ -27,7 +27,9 @@ const normalizeClientCapabilities = (
   if (getOptionalBooleanField(value, "bulk_message_deletion") === true) {
     normalized.bulkMessageDeletion = true;
   }
-  if (getOptionalBooleanField(value, "user_avatar_url_field_optional") === true) {
+  if (
+    getOptionalBooleanField(value, "user_avatar_url_field_optional") === true
+  ) {
     normalized.userAvatarUrlFieldOptional = true;
   }
   if (getOptionalBooleanField(value, "stream_typing_notifications") === true) {
@@ -58,11 +60,16 @@ const normalizeClientCapabilities = (
 export const handleRegisterQueue = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -72,20 +79,39 @@ export const handleRegisterQueue = async (
   const eventTypesRaw = getOptionalStringField(body, "event_types");
   const fetchEventTypesRaw = getOptionalStringField(body, "fetch_event_types");
 
-  const eventTypes = eventTypesRaw ? JSON.parse(eventTypesRaw) as string[] : undefined;
-  const fetchEventTypes = fetchEventTypesRaw ? JSON.parse(fetchEventTypesRaw) as string[] : undefined;
+  const eventTypes = eventTypesRaw
+    ? (JSON.parse(eventTypesRaw) as string[])
+    : undefined;
+  const fetchEventTypes = fetchEventTypesRaw
+    ? (JSON.parse(fetchEventTypesRaw) as string[])
+    : undefined;
 
-  const clientCapabilitiesRaw = getOptionalStringField(body, "client_capabilities");
-  const clientCapabilitiesObject = getOptionalJsonObjectField(body, "client_capabilities");
-  const clientCapabilities = clientCapabilitiesObject !== undefined
-    ? normalizeClientCapabilities(clientCapabilitiesObject)
-    : clientCapabilitiesRaw
-      ? (JSON.parse(clientCapabilitiesRaw) as RegisterParams["clientCapabilities"])
-      : undefined;
-  const includeDeactivatedGroups = getOptionalBooleanField(clientCapabilitiesObject ?? {}, "include_deactivated_groups") === true;
+  const clientCapabilitiesRaw = getOptionalStringField(
+    body,
+    "client_capabilities",
+  );
+  const clientCapabilitiesObject = getOptionalJsonObjectField(
+    body,
+    "client_capabilities",
+  );
+  const clientCapabilities =
+    clientCapabilitiesObject !== undefined
+      ? normalizeClientCapabilities(clientCapabilitiesObject)
+      : clientCapabilitiesRaw
+        ? (JSON.parse(
+            clientCapabilitiesRaw,
+          ) as RegisterParams["clientCapabilities"])
+        : undefined;
+  const includeDeactivatedGroups =
+    getOptionalBooleanField(
+      clientCapabilitiesObject ?? {},
+      "include_deactivated_groups",
+    ) === true;
 
   const narrowRaw = getOptionalStringField(body, "narrow");
-  const narrow = narrowRaw ? (JSON.parse(narrowRaw) as RegisterParams["narrow"]) : undefined;
+  const narrow = narrowRaw
+    ? (JSON.parse(narrowRaw) as RegisterParams["narrow"])
+    : undefined;
   const applyMarkdown = getOptionalFlagIntField(body, "apply_markdown");
   const clientGravatar = getOptionalFlagIntField(body, "client_gravatar");
   const slimPresence = getOptionalFlagIntField(body, "slim_presence");

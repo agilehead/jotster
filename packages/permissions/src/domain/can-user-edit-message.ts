@@ -12,7 +12,7 @@ export const canUserEditMessage = async (
   messageId: long,
   editContentLimitSeconds: number,
   allowMessageEditing: boolean,
-  now: number
+  now: number,
 ): Promise<Result<boolean, string>> => {
   // If message editing is globally disabled
   if (!allowMessageEditing) {
@@ -23,7 +23,11 @@ export const canUserEditMessage = async (
     return ok(false);
   }
 
-  const message = await getMessageForPermissionCheck(options, tenantId, messageId);
+  const message = await getMessageForPermissionCheck(
+    options,
+    tenantId,
+    messageId,
+  );
 
   if (message === undefined) {
     return ok(false);

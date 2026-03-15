@@ -9,7 +9,7 @@ import { addDefaultChannel } from "../repo/add-default-channel.ts";
 export const addDefaultChannelDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: long
+  channelId: long,
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");
@@ -25,7 +25,11 @@ export const addDefaultChannelDomain = async (
     return err("Channel is archived");
   }
 
-  const alreadyDefault = await isDefaultChannel(options, user.tenantId, channelId);
+  const alreadyDefault = await isDefaultChannel(
+    options,
+    user.tenantId,
+    channelId,
+  );
   if (alreadyDefault) {
     return err("Channel is already a default channel");
   }

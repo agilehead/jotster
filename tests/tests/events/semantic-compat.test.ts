@@ -47,7 +47,9 @@ describe("Semantic Zulip event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId);
-    const { queueId, lastEventId } = await registerQueue(user.client, ["alert_words"]);
+    const { queueId, lastEventId } = await registerQueue(user.client, [
+      "alert_words",
+    ]);
 
     const addRes = await user.client.post("/users/me/alert_words", {
       alert_words: JSON.stringify(["bug", "urgent"]),
@@ -66,7 +68,11 @@ describe("Semantic Zulip event compatibility", function () {
     });
     expect(removeRes.status).to.equal(200);
 
-    const removeEvents = await getEvents(user.client, queueId, addEvents[0].id as number);
+    const removeEvents = await getEvents(
+      user.client,
+      queueId,
+      addEvents[0].id as number,
+    );
     expect(removeEvents).to.have.length(1);
     expect(removeEvents[0].type).to.equal("alert_words");
     expect(removeEvents[0]).to.not.have.property("op");
@@ -79,7 +85,9 @@ describe("Semantic Zulip event compatibility", function () {
     const user = await seedUser(db, tenantId);
     const channelId = await seedChannel(db, tenantId, { name: "draft-events" });
     await seedSubscription(db, tenantId, user.userId, channelId);
-    const { queueId, lastEventId } = await registerQueue(user.client, ["drafts"]);
+    const { queueId, lastEventId } = await registerQueue(user.client, [
+      "drafts",
+    ]);
 
     const createRes = await user.client.post("/drafts", {
       drafts: JSON.stringify([
@@ -98,7 +106,9 @@ describe("Semantic Zulip event compatibility", function () {
     const listRes = await user.client.get("/drafts");
     expect(listRes.status).to.equal(200);
     expect(listRes.body.count).to.equal(1);
-    const listedDraft = (listRes.body.drafts as Array<Record<string, unknown>>).find((entry) => entry["id"] === draftId);
+    const listedDraft = (
+      listRes.body.drafts as Array<Record<string, unknown>>
+    ).find((entry) => entry["id"] === draftId);
     expect(listedDraft).to.not.equal(undefined);
     expect(listedDraft).to.deep.equal({
       id: draftId,
@@ -138,7 +148,11 @@ describe("Semantic Zulip event compatibility", function () {
     });
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(user.client, queueId, createEvents[0].id as number);
+    const updateEvents = await getEvents(
+      user.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
     const updatedDraft = updateEvents[0].draft as Record<string, unknown>;
     expect(updateEvents[0]).to.deep.equal({
@@ -158,7 +172,11 @@ describe("Semantic Zulip event compatibility", function () {
     const deleteRes = await user.client.delete(`/drafts/${draftId}`);
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(user.client, queueId, updateEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      user.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,
@@ -172,7 +190,9 @@ describe("Semantic Zulip event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
-    const { queueId, lastEventId } = await registerQueue(admin.client, ["channel_folder"]);
+    const { queueId, lastEventId } = await registerQueue(admin.client, [
+      "channel_folder",
+    ]);
 
     const createRes = await admin.client.post("/channel_folders", {
       name: "Frontend",
@@ -183,7 +203,10 @@ describe("Semantic Zulip event compatibility", function () {
 
     const createEvents = await getEvents(admin.client, queueId, lastEventId);
     expect(createEvents).to.have.length(1);
-    const createdFolder = createEvents[0].channel_folder as Record<string, unknown>;
+    const createdFolder = createEvents[0].channel_folder as Record<
+      string,
+      unknown
+    >;
     expect(createEvents[0]).to.deep.equal({
       id: createEvents[0].id,
       type: "channel_folder",
@@ -199,14 +222,21 @@ describe("Semantic Zulip event compatibility", function () {
       },
     });
 
-    const updateRes = await admin.client.patch(`/channel_folders/${firstFolderId}`, {
-      name: "Web frontend",
-      description: "Web frontend discussions",
-      is_archived: "true",
-    });
+    const updateRes = await admin.client.patch(
+      `/channel_folders/${firstFolderId}`,
+      {
+        name: "Web frontend",
+        description: "Web frontend discussions",
+        is_archived: "true",
+      },
+    );
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(admin.client, queueId, createEvents[0].id as number);
+    const updateEvents = await getEvents(
+      admin.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
     expect(updateEvents[0]).to.deep.equal({
       id: updateEvents[0].id,
@@ -228,7 +258,11 @@ describe("Semantic Zulip event compatibility", function () {
     expect(secondRes.status).to.equal(200);
     const secondFolderId = secondRes.body.channel_folder_id as number;
 
-    const secondCreateEvents = await getEvents(admin.client, queueId, updateEvents[0].id as number);
+    const secondCreateEvents = await getEvents(
+      admin.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(secondCreateEvents).to.have.length(1);
 
     const reorderRes = await admin.client.patch("/channel_folders", {
@@ -236,7 +270,11 @@ describe("Semantic Zulip event compatibility", function () {
     });
     expect(reorderRes.status).to.equal(200);
 
-    const reorderEvents = await getEvents(admin.client, queueId, secondCreateEvents[0].id as number);
+    const reorderEvents = await getEvents(
+      admin.client,
+      queueId,
+      secondCreateEvents[0].id as number,
+    );
     expect(reorderEvents).to.have.length(1);
     expect(reorderEvents[0]).to.deep.equal({
       id: reorderEvents[0].id,
@@ -245,10 +283,16 @@ describe("Semantic Zulip event compatibility", function () {
       order: [secondFolderId, firstFolderId],
     });
 
-    const deleteRes = await admin.client.delete(`/channel_folders/${firstFolderId}`);
+    const deleteRes = await admin.client.delete(
+      `/channel_folders/${firstFolderId}`,
+    );
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(admin.client, queueId, reorderEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      admin.client,
+      queueId,
+      reorderEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,
@@ -271,7 +315,9 @@ describe("Semantic Zulip event compatibility", function () {
     expect(subgroupRes.status).to.equal(200);
     const subgroupId = subgroupRes.body.group.id as number;
 
-    const { queueId, lastEventId } = await registerQueue(admin.client, ["user_group"]);
+    const { queueId, lastEventId } = await registerQueue(admin.client, [
+      "user_group",
+    ]);
 
     const createRes = await admin.client.post("/user_groups/create", {
       name: "parent-group",
@@ -313,7 +359,11 @@ describe("Semantic Zulip event compatibility", function () {
     });
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(admin.client, queueId, createEvents[0].id as number);
+    const updateEvents = await getEvents(
+      admin.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
     expect(updateEvents[0]).to.deep.equal({
       id: updateEvents[0].id,
@@ -326,12 +376,19 @@ describe("Semantic Zulip event compatibility", function () {
       },
     });
 
-    const addMembersRes = await admin.client.post(`/user_groups/${groupId}/members`, {
-      add: JSON.stringify([member.userId]),
-    });
+    const addMembersRes = await admin.client.post(
+      `/user_groups/${groupId}/members`,
+      {
+        add: JSON.stringify([member.userId]),
+      },
+    );
     expect(addMembersRes.status).to.equal(200);
 
-    const addMembersEvents = await getEvents(admin.client, queueId, updateEvents[0].id as number);
+    const addMembersEvents = await getEvents(
+      admin.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(addMembersEvents).to.have.length(1);
     expect(addMembersEvents[0]).to.deep.equal({
       id: addMembersEvents[0].id,
@@ -341,12 +398,19 @@ describe("Semantic Zulip event compatibility", function () {
       user_ids: [member.userId],
     });
 
-    const addSubgroupRes = await admin.client.post(`/user_groups/${groupId}/members`, {
-      add_subgroups: JSON.stringify([subgroupId]),
-    });
+    const addSubgroupRes = await admin.client.post(
+      `/user_groups/${groupId}/members`,
+      {
+        add_subgroups: JSON.stringify([subgroupId]),
+      },
+    );
     expect(addSubgroupRes.status).to.equal(200);
 
-    const addSubgroupEvents = await getEvents(admin.client, queueId, addMembersEvents[0].id as number);
+    const addSubgroupEvents = await getEvents(
+      admin.client,
+      queueId,
+      addMembersEvents[0].id as number,
+    );
     expect(addSubgroupEvents).to.have.length(1);
     expect(addSubgroupEvents[0]).to.deep.equal({
       id: addSubgroupEvents[0].id,
@@ -356,12 +420,19 @@ describe("Semantic Zulip event compatibility", function () {
       direct_subgroup_ids: [subgroupId],
     });
 
-    const removeMembersRes = await admin.client.post(`/user_groups/${groupId}/members`, {
-      delete: JSON.stringify([member.userId]),
-    });
+    const removeMembersRes = await admin.client.post(
+      `/user_groups/${groupId}/members`,
+      {
+        delete: JSON.stringify([member.userId]),
+      },
+    );
     expect(removeMembersRes.status).to.equal(200);
 
-    const removeMembersEvents = await getEvents(admin.client, queueId, addSubgroupEvents[0].id as number);
+    const removeMembersEvents = await getEvents(
+      admin.client,
+      queueId,
+      addSubgroupEvents[0].id as number,
+    );
     expect(removeMembersEvents).to.have.length(1);
     expect(removeMembersEvents[0]).to.deep.equal({
       id: removeMembersEvents[0].id,
@@ -371,12 +442,19 @@ describe("Semantic Zulip event compatibility", function () {
       user_ids: [member.userId],
     });
 
-    const removeSubgroupsRes = await admin.client.post(`/user_groups/${groupId}/members`, {
-      delete_subgroups: JSON.stringify([subgroupId]),
-    });
+    const removeSubgroupsRes = await admin.client.post(
+      `/user_groups/${groupId}/members`,
+      {
+        delete_subgroups: JSON.stringify([subgroupId]),
+      },
+    );
     expect(removeSubgroupsRes.status).to.equal(200);
 
-    const removeSubgroupEvents = await getEvents(admin.client, queueId, removeMembersEvents[0].id as number);
+    const removeSubgroupEvents = await getEvents(
+      admin.client,
+      queueId,
+      removeMembersEvents[0].id as number,
+    );
     expect(removeSubgroupEvents).to.have.length(1);
     expect(removeSubgroupEvents[0]).to.deep.equal({
       id: removeSubgroupEvents[0].id,
@@ -386,10 +464,16 @@ describe("Semantic Zulip event compatibility", function () {
       direct_subgroup_ids: [subgroupId],
     });
 
-    const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
+    const deactivateRes = await admin.client.post(
+      `/user_groups/${groupId}/deactivate`,
+    );
     expect(deactivateRes.status).to.equal(200);
 
-    const deactivateEvents = await getEvents(admin.client, queueId, removeSubgroupEvents[0].id as number);
+    const deactivateEvents = await getEvents(
+      admin.client,
+      queueId,
+      removeSubgroupEvents[0].id as number,
+    );
     expect(deactivateEvents).to.have.length(1);
     expect(deactivateEvents[0]).to.deep.equal({
       id: deactivateEvents[0].id,
@@ -403,9 +487,16 @@ describe("Semantic Zulip event compatibility", function () {
     });
     expect(reactivateRes.status).to.equal(200);
 
-    const reactivateEvents = await getEvents(admin.client, queueId, deactivateEvents[0].id as number);
+    const reactivateEvents = await getEvents(
+      admin.client,
+      queueId,
+      deactivateEvents[0].id as number,
+    );
     expect(reactivateEvents).to.have.length(1);
-    const reactivatedGroup = reactivateEvents[0].group as Record<string, unknown>;
+    const reactivatedGroup = reactivateEvents[0].group as Record<
+      string,
+      unknown
+    >;
     expect(reactivateEvents[0]).to.deep.equal({
       id: reactivateEvents[0].id,
       type: "user_group",
@@ -434,7 +525,9 @@ describe("Semantic Zulip event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
-    const { queueId, lastEventId } = await registerQueue(admin.client, ["custom_profile_fields"]);
+    const { queueId, lastEventId } = await registerQueue(admin.client, [
+      "custom_profile_fields",
+    ]);
 
     const createRes = await admin.client.post("/realm/profile_fields", {
       name: "Phone number",
@@ -483,13 +576,20 @@ describe("Semantic Zulip event compatibility", function () {
       ],
     });
 
-    const updateRes = await admin.client.patch(`/realm/profile_fields/${firstFieldId}`, {
-      hint: "Updated phone",
-      display_in_profile_summary: "true",
-    });
+    const updateRes = await admin.client.patch(
+      `/realm/profile_fields/${firstFieldId}`,
+      {
+        hint: "Updated phone",
+        display_in_profile_summary: "true",
+      },
+    );
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(admin.client, queueId, createEvents[0].id as number);
+    const updateEvents = await getEvents(
+      admin.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
     expect(updateEvents[0]).to.deep.equal({
       id: updateEvents[0].id,
@@ -514,12 +614,16 @@ describe("Semantic Zulip event compatibility", function () {
       name: "GitHub",
       hint: "Username",
       field_type: "7",
-      field_data: "{\"subtype\":\"github\"}",
+      field_data: '{"subtype":"github"}',
     });
     expect(secondRes.status).to.equal(200);
     const secondFieldId = secondRes.body.id as number;
 
-    const secondCreateEvents = await getEvents(admin.client, queueId, updateEvents[0].id as number);
+    const secondCreateEvents = await getEvents(
+      admin.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(secondCreateEvents).to.have.length(1);
 
     const reorderRes = await admin.client.patch("/realm/profile_fields", {
@@ -527,7 +631,11 @@ describe("Semantic Zulip event compatibility", function () {
     });
     expect(reorderRes.status).to.equal(200);
 
-    const reorderEvents = await getEvents(admin.client, queueId, secondCreateEvents[0].id as number);
+    const reorderEvents = await getEvents(
+      admin.client,
+      queueId,
+      secondCreateEvents[0].id as number,
+    );
     expect(reorderEvents).to.have.length(1);
     expect(reorderEvents[0]).to.deep.equal({
       id: reorderEvents[0].id,
@@ -538,7 +646,7 @@ describe("Semantic Zulip event compatibility", function () {
           name: "GitHub",
           hint: "Username",
           type: 7,
-          field_data: "{\"subtype\":\"github\"}",
+          field_data: '{"subtype":"github"}',
           order: 0,
           required: false,
           editable_by_user: true,
@@ -558,10 +666,16 @@ describe("Semantic Zulip event compatibility", function () {
       ],
     });
 
-    const deleteRes = await admin.client.delete(`/realm/profile_fields/${firstFieldId}`);
+    const deleteRes = await admin.client.delete(
+      `/realm/profile_fields/${firstFieldId}`,
+    );
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(admin.client, queueId, reorderEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      admin.client,
+      queueId,
+      reorderEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,
@@ -572,7 +686,7 @@ describe("Semantic Zulip event compatibility", function () {
           name: "GitHub",
           hint: "Username",
           type: 7,
-          field_data: "{\"subtype\":\"github\"}",
+          field_data: '{"subtype":"github"}',
           order: 0,
           required: false,
           editable_by_user: true,
@@ -585,12 +699,17 @@ describe("Semantic Zulip event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
-    const { queueId, lastEventId } = await registerQueue(admin.client, ["realm_user_settings_defaults"]);
+    const { queueId, lastEventId } = await registerQueue(admin.client, [
+      "realm_user_settings_defaults",
+    ]);
 
-    const updateRes = await admin.client.patch("/realm/user_settings_defaults", {
-      twenty_four_hour_time: "true",
-      notification_sound: "ding",
-    });
+    const updateRes = await admin.client.patch(
+      "/realm/user_settings_defaults",
+      {
+        twenty_four_hour_time: "true",
+        notification_sound: "ding",
+      },
+    );
     expect(updateRes.status).to.equal(200);
 
     const events = await getEvents(admin.client, queueId, lastEventId);

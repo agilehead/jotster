@@ -18,7 +18,10 @@ describe("GET /api/v1/channel_folders", () => {
       description: "Channels for backend discussions",
     });
     await admin.client.patch("/channel_folders", {
-      order: JSON.stringify([second.body.channel_folder_id, first.body.channel_folder_id]),
+      order: JSON.stringify([
+        second.body.channel_folder_id,
+        first.body.channel_folder_id,
+      ]),
     });
 
     const res = await member.client.get("/channel_folders");
@@ -123,8 +126,12 @@ describe("PATCH /api/v1/channel_folders/{channel_folder_id}", () => {
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
 
-    const listRes = await client.get("/channel_folders", { include_archived: "true" });
-    expect((listRes.body.channel_folders as Array<Record<string, unknown>>)[0]).to.include({
+    const listRes = await client.get("/channel_folders", {
+      include_archived: "true",
+    });
+    expect(
+      (listRes.body.channel_folders as Array<Record<string, unknown>>)[0],
+    ).to.include({
       id: folderId,
       name: "personal",
       description: "Personal channels",

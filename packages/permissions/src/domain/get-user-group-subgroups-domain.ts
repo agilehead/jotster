@@ -8,7 +8,7 @@ import { getUserGroupSubgroups } from "../repo/get-user-group-subgroups.ts";
 export const getUserGroupSubgroupsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  groupId: long
+  groupId: long,
 ): Promise<Result<long[], string>> => {
   const group = await getUserGroupById(options, groupId);
   if (group === undefined) {

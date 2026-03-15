@@ -14,7 +14,9 @@ export const handleRestErrorHandlingCompat = async (
   res: Response,
   _app: AppContext,
 ): Promise<void> => {
-  res.status(400).json({ result: "error", msg: "Bad request", code: "BAD_REQUEST" });
+  res
+    .status(400)
+    .json({ result: "error", msg: "Bad request", code: "BAD_REQUEST" });
 };
 
 export const handleZulipOutgoingWebhookCompat = async (

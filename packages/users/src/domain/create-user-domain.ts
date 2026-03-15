@@ -10,13 +10,17 @@ import { createUserSetting } from "../repo/create-user-setting.ts";
 export const createUserDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  input: { email: string; password: string; fullName: string }
+  input: { email: string; password: string; fullName: string },
 ): Promise<Result<User, string>> => {
   if (actingUser.role > 200) {
     return err("Insufficient permission");
   }
 
-  const existing = await getUserByEmail(options, actingUser.tenantId, input.email);
+  const existing = await getUserByEmail(
+    options,
+    actingUser.tenantId,
+    input.email,
+  );
   if (existing !== undefined && existing.IsActive === (1 as int)) {
     return err("User with this email already exists");
   }

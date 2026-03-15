@@ -11,8 +11,10 @@ import { createApiKey } from "../repo/create-api-key.ts";
 export const regenerateApiKey = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
-): Promise<Result<{ api_key: string; email: string; user_id: long }, string>> => {
+  userId: long,
+): Promise<
+  Result<{ api_key: string; email: string; user_id: long }, string>
+> => {
   const user = await getUserById(options, userId);
   if (user === undefined) {
     return err("User not found");

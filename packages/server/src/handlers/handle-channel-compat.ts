@@ -4,8 +4,17 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { createChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { deleteTopicMessages, getStreamEmailAddress, reorderChannelFolders } from "../helpers/compat-db.ts";
-import { getBodyObject, getOptionalStringField, toOptionalStringArray, toLong} from "../helpers/body.ts";
+import {
+  deleteTopicMessages,
+  getStreamEmailAddress,
+  reorderChannelFolders,
+} from "../helpers/compat-db.ts";
+import {
+  getBodyObject,
+  getOptionalStringField,
+  toOptionalStringArray,
+  toLong,
+} from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
 const parseOrder = (value: unknown): long[] | undefined => {
@@ -46,14 +55,26 @@ export const handleCreateChannelFolderCompat = async (
     return;
   }
   if (requester.role > 200) {
-    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Must be an organization administrator",
+        code: "UNAUTHORIZED_PRINCIPAL",
+      });
     return;
   }
 
   const body = getBodyObject(req);
   const name = getOptionalStringField(body, "name");
   if (name === undefined || name.trim().length === 0) {
-    res.status(400).json({ result: "error", msg: "Missing required field: name", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required field: name",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
@@ -63,14 +84,26 @@ export const handleCreateChannelFolderCompat = async (
   });
   if (!createResult.success) {
     if (createResult.error === "Must be an organization administrator") {
-      res.status(400).json({ result: "error", msg: createResult.error, code: "UNAUTHORIZED_PRINCIPAL" });
+      res
+        .status(400)
+        .json({
+          result: "error",
+          msg: createResult.error,
+          code: "UNAUTHORIZED_PRINCIPAL",
+        });
       return;
     }
-    res.status(400).json({ result: "error", msg: createResult.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: createResult.error, code: "BAD_REQUEST" });
     return;
   }
 
-  res.json({ result: "success", msg: "", channel_folder_id: createResult.data.Id });
+  res.json({
+    result: "success",
+    msg: "",
+    channel_folder_id: createResult.data.Id,
+  });
 };
 
 export const handleReorderChannelFoldersCompat = async (
@@ -84,20 +117,38 @@ export const handleReorderChannelFoldersCompat = async (
   }
 
   if (requester.role > 200) {
-    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Must be an organization administrator",
+        code: "UNAUTHORIZED_PRINCIPAL",
+      });
     return;
   }
 
   const body = getBodyObject(req);
   const order = parseOrder(body["order"]);
   if (order === undefined || order.length === 0) {
-    res.status(400).json({ result: "error", msg: "Invalid order mapping", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid order mapping",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const ok = await reorderChannelFolders(app.options, requester, order);
   if (!ok) {
-    res.status(400).json({ result: "error", msg: "Invalid order mapping", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid order mapping",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
@@ -116,12 +167,20 @@ export const handleGetStreamEmailAddressCompat = async (
 
   const streamId = parseId(req.params["stream_id"] as string);
   if (streamId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
     return;
   }
-  const emailAddress = await getStreamEmailAddress(app.options, requester.tenantId, toLong(streamId));
+  const emailAddress = await getStreamEmailAddress(
+    app.options,
+    requester.tenantId,
+    toLong(streamId),
+  );
   if (emailAddress === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
     return;
   }
 
@@ -139,15 +198,25 @@ export const handleDeleteTopicCompat = async (
   }
 
   const body = getBodyObject(req);
-  const topicName = getOptionalStringField(body, "topic_name") ?? getOptionalStringField(body, "topic");
+  const topicName =
+    getOptionalStringField(body, "topic_name") ??
+    getOptionalStringField(body, "topic");
   if (topicName === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required field: topic_name", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required field: topic_name",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const deleteStreamId = parseId(req.params["stream_id"] as string);
   if (deleteStreamId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
     return;
   }
   const complete = await deleteTopicMessages(
@@ -157,7 +226,9 @@ export const handleDeleteTopicCompat = async (
     topicName,
   );
   if (!complete) {
-    res.status(400).json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid channel", code: "BAD_REQUEST" });
     return;
   }
 

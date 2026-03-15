@@ -1,10 +1,6 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import {
-  seedTenant,
-  seedUser,
-  seedChannel,
-} from "../../utils/test-helpers.js";
+import { seedTenant, seedUser, seedChannel } from "../../utils/test-helpers.js";
 
 describe("DELETE /api/v1/users/me/subscriptions", function () {
   this.timeout(10000);

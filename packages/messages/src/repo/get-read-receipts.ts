@@ -6,7 +6,7 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 export const getReadReceipts = async (
   options: DbContextOptions,
   tenantId: long,
-  messageId: long
+  messageId: long,
 ): Promise<long[]> => {
   const db = new JotsterDbContext(options);
   try {
@@ -16,16 +16,18 @@ export const getReadReceipts = async (
     const readFlag = "read";
 
     // Verify the message belongs to this tenant
-    const message = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.Id === messageId0)
+    const message = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.Id === messageId0)
       .FirstOrDefaultAsync();
 
     if (message === undefined || message === null) {
       return [];
     }
 
-    const flags = await db0.MessageFlags
-      .Where((f) => f.MessageId === messageId0).Where((f) => f.Flag === readFlag)
+    const flags = await db0.MessageFlags.Where(
+      (f) => f.MessageId === messageId0,
+    )
+      .Where((f) => f.Flag === readFlag)
       .ToListAsync();
 
     const userIds = new List<long>();

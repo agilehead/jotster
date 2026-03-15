@@ -1,7 +1,11 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { fetchJwtApiKey, resolveTenant } from "@jotster/auth/Jotster.Auth.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalBooleanField, getOptionalStringField } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalBooleanField,
+  getOptionalStringField,
+} from "../helpers/body.ts";
 import { listDevelopmentUsers } from "../helpers/compat-db.ts";
 import { buildUserResponse } from "../helpers/map-user-to-response.ts";
 import {
@@ -21,18 +25,33 @@ export const handleJwtFetchApiKey = async (
   res: Response,
   app: AppContext,
 ): Promise<void> => {
-  const tenantResult = await resolveTenant(app.options, app.config, req.get("host") ?? "");
+  const tenantResult = await resolveTenant(
+    app.options,
+    app.config,
+    req.get("host") ?? "",
+  );
   if (!tenantResult.success) {
-    res.status(getTenantAuthErrorStatus(tenantResult.error)).json(getJsonErrorBody(tenantResult.error));
+    res
+      .status(getTenantAuthErrorStatus(tenantResult.error))
+      .json(getJsonErrorBody(tenantResult.error));
     return;
   }
 
   const body = getBodyObject(req);
   const token = getOptionalStringField(body, "token");
-  const includeProfile = getOptionalBooleanField(body, "include_profile") === true;
-  const result = await fetchJwtApiKey(app.options, app.config, tenantResult.data.Id, token ?? "", includeProfile);
+  const includeProfile =
+    getOptionalBooleanField(body, "include_profile") === true;
+  const result = await fetchJwtApiKey(
+    app.options,
+    app.config,
+    tenantResult.data.Id,
+    token ?? "",
+    includeProfile,
+  );
   if (!result.success) {
-    res.status(getJwtAuthErrorStatus(result.error)).json(getJsonErrorBody(result.error));
+    res
+      .status(getJwtAuthErrorStatus(result.error))
+      .json(getJsonErrorBody(result.error));
     return;
   }
 
@@ -59,10 +78,7 @@ export const handleDevListUsers = async (
     return;
   }
 
-  const users = await listDevelopmentUsers(
-    app.options,
-    buildRealmUrl(req),
-  );
+  const users = await listDevelopmentUsers(app.options, buildRealmUrl(req));
 
   res.json({
     result: "success",

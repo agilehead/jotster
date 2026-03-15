@@ -8,11 +8,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleDeleteChannelFolder = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -23,13 +28,25 @@ export const handleDeleteChannelFolder = async (
     return;
   }
 
-  const result = await deleteChannelFolderDomain(app.options, user, toLong(folderId));
+  const result = await deleteChannelFolderDomain(
+    app.options,
+    user,
+    toLong(folderId),
+  );
   if (!result.success) {
     if (result.error === "Must be an organization administrator") {
-      res.status(400).json({ result: "error", msg: result.error, code: "UNAUTHORIZED_PRINCIPAL" });
+      res
+        .status(400)
+        .json({
+          result: "error",
+          msg: result.error,
+          code: "UNAUTHORIZED_PRINCIPAL",
+        });
       return;
     }
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

@@ -6,12 +6,12 @@ import { checkPermission } from "./check-permission.ts";
 export const canUserMoveMessageBetweenChannels = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
+  userId: long,
 ): Promise<Result<boolean, string>> => {
   return await checkPermission(
     options,
     tenantId,
     userId,
-    "move_messages_between_streams_policy"
+    "move_messages_between_streams_policy",
   );
 };

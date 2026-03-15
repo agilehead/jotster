@@ -19,6 +19,12 @@ export class ScheduledMessage {
   UpdatedAt!: long;
 }
 
-A.on(ScheduledMessage).prop((x) => x.Id).add(KeyAttribute);
+A.on(ScheduledMessage)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(ScheduledMessage).type.add(IndexAttribute, ["TenantId", "UserId"]);
-A.on(ScheduledMessage).type.add(IndexAttribute, ["TenantId", "UserId", "ScheduledDeliveryTimestamp"]);
+A.on(ScheduledMessage).type.add(IndexAttribute, [
+  "TenantId",
+  "UserId",
+  "ScheduledDeliveryTimestamp",
+]);

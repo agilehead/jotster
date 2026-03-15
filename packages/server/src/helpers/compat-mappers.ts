@@ -67,10 +67,11 @@ const parseAlternativeUrlTemplates = (value: string | undefined): string[] => {
   return parseStringArray(value);
 };
 
-const escapeHtml = (value: string): string => value
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;");
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 
 const renderDescription = (value: string): string => {
   if (value.length === 0) {
@@ -79,7 +80,9 @@ const renderDescription = (value: string): string => {
   return `<p>${escapeHtml(value)}</p>`;
 };
 
-export const mapChannelFolderToCompatResponse = (folder: ChannelFolder): Record<string, unknown> => ({
+export const mapChannelFolderToCompatResponse = (
+  folder: ChannelFolder,
+): Record<string, unknown> => ({
   id: folder.Id,
   name: folder.Name,
   order: folder.Ordering,
@@ -90,13 +93,17 @@ export const mapChannelFolderToCompatResponse = (folder: ChannelFolder): Record<
   is_archived: folder.IsArchived === 1,
 });
 
-export const mapNavigationViewToCompatResponse = (view: NavigationView): Record<string, unknown> => ({
+export const mapNavigationViewToCompatResponse = (
+  view: NavigationView,
+): Record<string, unknown> => ({
   fragment: view.Fragment,
   is_pinned: view.IsPinned === 1,
   name: view.Name ?? null,
 });
 
-export const mapSavedSnippetToCompatResponse = (snippet: SavedSnippet): Record<string, unknown> => ({
+export const mapSavedSnippetToCompatResponse = (
+  snippet: SavedSnippet,
+): Record<string, unknown> => ({
   id: snippet.Id,
   title: snippet.Title,
   content: snippet.Content,
@@ -112,7 +119,9 @@ export const mapReminderToCompatResponse = (
   to: [userId],
   content: reminder.Content,
   rendered_content: reminder.RenderedContent,
-  scheduled_delivery_timestamp: toUnixSeconds(reminder.ScheduledDeliveryTimestamp),
+  scheduled_delivery_timestamp: toUnixSeconds(
+    reminder.ScheduledDeliveryTimestamp,
+  ),
   failed: reminder.Failed === 1,
   reminder_target_message_id: reminder.MessageId,
 });
@@ -122,13 +131,17 @@ export const mapScheduledMessageToCompatResponse = (
 ): Record<string, unknown> => {
   const response: Record<string, unknown> = {
     scheduled_message_id: scheduledMessage.Id,
-    type: scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
-    to: scheduledMessage.Type === "stream"
-      ? (scheduledMessage.ChannelId ?? null)
-      : parseIntArray(scheduledMessage.RecipientIdsJson),
+    type:
+      scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
+    to:
+      scheduledMessage.Type === "stream"
+        ? (scheduledMessage.ChannelId ?? null)
+        : parseIntArray(scheduledMessage.RecipientIdsJson),
     content: scheduledMessage.Content,
     rendered_content: scheduledMessage.RenderedContent,
-    scheduled_delivery_timestamp: toUnixSeconds(scheduledMessage.ScheduledDeliveryTimestamp),
+    scheduled_delivery_timestamp: toUnixSeconds(
+      scheduledMessage.ScheduledDeliveryTimestamp,
+    ),
     failed: scheduledMessage.Failed === 1,
   };
 
@@ -139,11 +152,15 @@ export const mapScheduledMessageToCompatResponse = (
   return response;
 };
 
-export const mapLinkifierToCompatResponse = (linkifier: Linkifier): Record<string, unknown> => ({
+export const mapLinkifierToCompatResponse = (
+  linkifier: Linkifier,
+): Record<string, unknown> => ({
   pattern: linkifier.Pattern,
   url_template: linkifier.UrlTemplate,
   id: linkifier.Id,
   example_input: linkifier.ExampleInput ?? null,
   reverse_template: linkifier.ReverseTemplate ?? null,
-  alternative_url_templates: parseAlternativeUrlTemplates(linkifier.AlternativeUrlTemplatesJson),
+  alternative_url_templates: parseAlternativeUrlTemplates(
+    linkifier.AlternativeUrlTemplatesJson,
+  ),
 });

@@ -24,7 +24,7 @@ interface UnreadCounts {
 export const getUnreadCounts = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
+  userId: long,
 ): Promise<UnreadCounts> => {
   const db = new JotsterDbContext(options);
   try {
@@ -35,8 +35,8 @@ export const getUnreadCounts = async (
     const starFlag = "mentioned";
 
     // Get all "read" flags for this user to know which messages are read
-    const readFlags = await db0.MessageFlags
-      .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
+    const readFlags = await db0.MessageFlags.Where((f) => f.UserId === userId0)
+      .Where((f) => f.Flag === readFlag)
       .ToListAsync();
 
     const readMessageIds = new List<long>();
@@ -46,22 +46,35 @@ export const getUnreadCounts = async (
     }
 
     // Get subscribed channel IDs for this user
-    const subscriptions = await db0.Subscriptions
-      .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
+    const subscriptions = await db0.Subscriptions.Where(
+      (s) => s.TenantId === tenantId0,
+    )
+      .Where((s) => s.UserId === userId0)
       .ToListAsync();
 
     // Collect unread channel messages
     const channelUnreadMap: Record<string, ChannelUnread> = {};
     const channelUnreadMapKeys = new List<string>();
-    for (let subscriptionIndex = 0; subscriptionIndex < subscriptions.Count; subscriptionIndex++) {
+    for (
+      let subscriptionIndex = 0;
+      subscriptionIndex < subscriptions.Count;
+      subscriptionIndex++
+    ) {
       const subscription = subscriptions[subscriptionIndex];
       const channelId0 = subscription.ChannelId;
       const streamType = "stream";
-      const channelMessages = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Type === streamType)
+      const channelMessages = await db0.Messages.Where(
+        (m) => m.TenantId === tenantId0,
+      )
+        .Where((m) => m.ChannelId === channelId0)
+        .Where((m) => m.Type === streamType)
         .ToListAsync();
 
-      for (let channelMessageIndex = 0; channelMessageIndex < channelMessages.Count; channelMessageIndex++) {
+      for (
+        let channelMessageIndex = 0;
+        channelMessageIndex < channelMessages.Count;
+        channelMessageIndex++
+      ) {
         const msg = channelMessages[channelMessageIndex];
         let isRead = false;
         for (let ri = 0; ri < readMessageIds.Count; ri++) {
@@ -90,7 +103,11 @@ export const getUnreadCounts = async (
             channelUnreadMapKeys.Add(key);
           }
           const chUnreadList = new List<long>();
-          for (let ci = 0; ci < channelUnreadMap[key].unreadMessageIds.length; ci++) {
+          for (
+            let ci = 0;
+            ci < channelUnreadMap[key].unreadMessageIds.length;
+            ci++
+          ) {
             chUnreadList.Add(channelUnreadMap[key].unreadMessageIds[ci]);
           }
           chUnreadList.Add(msg.Id);
@@ -100,22 +117,33 @@ export const getUnreadCounts = async (
     }
 
     // Get DM groups for this user
-    const dmMemberships = await db0.DmGroupMembers
-      .Where((m) => m.UserId === userId0)
-      .ToListAsync();
+    const dmMemberships = await db0.DmGroupMembers.Where(
+      (m) => m.UserId === userId0,
+    ).ToListAsync();
 
     // Collect unread DM messages
     const dmUnreadMap: Record<string, DmUnread> = {};
     const dmUnreadMapKeys = new List<string>();
-    for (let membershipIndex = 0; membershipIndex < dmMemberships.Count; membershipIndex++) {
+    for (
+      let membershipIndex = 0;
+      membershipIndex < dmMemberships.Count;
+      membershipIndex++
+    ) {
       const membership = dmMemberships[membershipIndex];
       const dmGroupId0 = membership.DmGroupId;
       const directType = "direct";
-      const dmMessages = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.Type === directType)
+      const dmMessages = await db0.Messages.Where(
+        (m) => m.TenantId === tenantId0,
+      )
+        .Where((m) => m.DmGroupId === dmGroupId0)
+        .Where((m) => m.Type === directType)
         .ToListAsync();
 
-      for (let dmMessageIndex = 0; dmMessageIndex < dmMessages.Count; dmMessageIndex++) {
+      for (
+        let dmMessageIndex = 0;
+        dmMessageIndex < dmMessages.Count;
+        dmMessageIndex++
+      ) {
         const msg = dmMessages[dmMessageIndex];
         let isRead = false;
         for (let ri = 0; ri < readMessageIds.Count; ri++) {
@@ -141,7 +169,11 @@ export const getUnreadCounts = async (
             dmUnreadMapKeys.Add(msg.DmGroupId!);
           }
           const dmUnreadList = new List<long>();
-          for (let di = 0; di < dmUnreadMap[msg.DmGroupId!].unreadMessageIds.length; di++) {
+          for (
+            let di = 0;
+            di < dmUnreadMap[msg.DmGroupId!].unreadMessageIds.length;
+            di++
+          ) {
             dmUnreadList.Add(dmUnreadMap[msg.DmGroupId!].unreadMessageIds[di]);
           }
           dmUnreadList.Add(msg.Id);
@@ -151,12 +183,18 @@ export const getUnreadCounts = async (
     }
 
     // Get mentions (messages flagged as "mentioned" for this user)
-    const mentionFlags = await db0.MessageFlags
-      .Where((f) => f.UserId === userId0).Where((f) => f.Flag === starFlag)
+    const mentionFlags = await db0.MessageFlags.Where(
+      (f) => f.UserId === userId0,
+    )
+      .Where((f) => f.Flag === starFlag)
       .ToListAsync();
 
     const mentions = new List<long>();
-    for (let mentionIndex = 0; mentionIndex < mentionFlags.Count; mentionIndex++) {
+    for (
+      let mentionIndex = 0;
+      mentionIndex < mentionFlags.Count;
+      mentionIndex++
+    ) {
       const mentionFlag = mentionFlags[mentionIndex];
       const mentionMsgId = mentionFlag.MessageId;
       let isMentionRead = false;

@@ -4,15 +4,15 @@ import { JotsterDbContext, Presence } from "@jotster/core/Jotster.Core.js";
 
 export const getRealmPresence = async (
   options: DbContextOptions,
-  tenantId: long
+  tenantId: long,
 ): Promise<Presence[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    const result = await db0.Presences
-      .Where((p) => p.TenantId === tenantId0)
-      .ToArrayAsync();
+    const result = await db0.Presences.Where(
+      (p) => p.TenantId === tenantId0,
+    ).ToArrayAsync();
     return result;
   } finally {
     db.Dispose();

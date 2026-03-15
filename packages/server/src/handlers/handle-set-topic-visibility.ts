@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, toLong} from "../helpers/body.ts";
+import { getBodyObject, toLong } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import { setTopicVisibilityDomain } from "@jotster/presence/Jotster.Presence.js";
@@ -9,11 +9,16 @@ import { toOptionalInt } from "../helpers/body.ts";
 export const handleSetTopicVisibility = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 

@@ -18,15 +18,15 @@ interface UpdateUserGroupInput {
 export const updateUserGroup = async (
   options: DbContextOptions,
   groupId: long,
-  updates: UpdateUserGroupInput
+  updates: UpdateUserGroupInput,
 ): Promise<UserGroup | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const groupId0 = groupId;
-    const group = await db0.UserGroups
-      .Where((g) => g.Id === groupId0)
-      .FirstOrDefaultAsync();
+    const group = await db0.UserGroups.Where(
+      (g) => g.Id === groupId0,
+    ).FirstOrDefaultAsync();
 
     if (group === undefined) {
       return undefined;

@@ -6,12 +6,12 @@ import { checkPermission } from "./check-permission.ts";
 export const canUserAccessAllUsers = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
+  userId: long,
 ): Promise<Result<boolean, string>> => {
   return await checkPermission(
     options,
     tenantId,
     userId,
-    "can_access_all_users_group"
+    "can_access_all_users_group",
   );
 };

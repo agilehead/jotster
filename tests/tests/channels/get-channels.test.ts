@@ -1,6 +1,11 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import { seedTenant, seedUser, seedChannel, seedSubscription } from "../../utils/test-helpers.js";
+import {
+  seedTenant,
+  seedUser,
+  seedChannel,
+  seedSubscription,
+} from "../../utils/test-helpers.js";
 
 describe("GET /api/v1/streams", () => {
   it("should return all streams for the tenant", async () => {
@@ -49,18 +54,30 @@ describe("GET /api/v1/streams", () => {
       creatorId: owner.userId,
     });
 
-    await db("channel").where({ tenant_id: tenantId, id: archivedChannelId }).update({ is_archived: 1 });
+    await db("channel")
+      .where({ tenant_id: tenantId, id: archivedChannelId })
+      .update({ is_archived: 1 });
 
     const defaultRes = await owner.client.get("/streams");
     expect(defaultRes.status).to.equal(200);
-    const defaultStreams = defaultRes.body.streams as Array<Record<string, unknown>>;
-    expect(defaultStreams.some((stream) => stream.stream_id === archivedChannelId)).to.equal(false);
+    const defaultStreams = defaultRes.body.streams as Array<
+      Record<string, unknown>
+    >;
+    expect(
+      defaultStreams.some((stream) => stream.stream_id === archivedChannelId),
+    ).to.equal(false);
 
-    const includeArchivedRes = await owner.client.get("/streams", { include_archived: "1" });
+    const includeArchivedRes = await owner.client.get("/streams", {
+      include_archived: "1",
+    });
     expect(includeArchivedRes.status).to.equal(200);
-    const streams = includeArchivedRes.body.streams as Array<Record<string, unknown>>;
+    const streams = includeArchivedRes.body.streams as Array<
+      Record<string, unknown>
+    >;
     const stream = streams.find((entry) => entry.stream_id === activeChannelId);
-    const archived = streams.find((entry) => entry.stream_id === archivedChannelId);
+    const archived = streams.find(
+      (entry) => entry.stream_id === archivedChannelId,
+    );
 
     expect(stream).to.not.equal(undefined);
     expect(stream).to.deep.include({
@@ -92,7 +109,9 @@ describe("GET /api/v1/streams/{stream_id}", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "specific-stream" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "specific-stream",
+    });
 
     const res = await client.get(`/streams/${channelId}`);
     expect(res.status).to.equal(200);
@@ -162,7 +181,9 @@ describe("GET /api/v1/get_stream_id", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
 
-    const res = await client.get("/get_stream_id", { stream: "does-not-exist" });
+    const res = await client.get("/get_stream_id", {
+      stream: "does-not-exist",
+    });
     expect(res.body.result).to.equal("error");
     expect(res.status).to.be.oneOf([400, 404]);
     expect(res.body.code).to.equal("BAD_REQUEST");

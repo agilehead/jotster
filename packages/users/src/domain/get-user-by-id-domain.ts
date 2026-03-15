@@ -7,7 +7,7 @@ import { getUser } from "../repo/get-user.ts";
 export const getUserByIdDomain = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
+  userId: long,
 ): Promise<Result<User, string>> => {
   const user = await getUser(options, userId);
   if (user === undefined) {

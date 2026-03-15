@@ -13,6 +13,8 @@ export class ApiKey {
   RevokedAt?: long;
 }
 
-A.on(ApiKey).prop((x) => x.Id).add(KeyAttribute);
+A.on(ApiKey)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(ApiKey).type.add(IndexAttribute, ["TenantId", "UserId"]);
 A.on(ApiKey).type.add(IndexAttribute, ["KeyHash"]);

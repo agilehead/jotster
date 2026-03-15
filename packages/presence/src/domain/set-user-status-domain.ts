@@ -14,7 +14,7 @@ interface SetUserStatusParams {
 export const setUserStatusDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: SetUserStatusParams
+  params: SetUserStatusParams,
 ): Promise<Result<void, string>> => {
   const statusText = params.statusText ?? "";
 
@@ -25,7 +25,7 @@ export const setUserStatusDomain = async (
     statusText,
     params.emojiName,
     params.emojiCode,
-    params.reactionType
+    params.reactionType,
   );
 
   // Dispatch user_status event to tenant

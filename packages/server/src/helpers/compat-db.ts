@@ -18,14 +18,20 @@ import {
   UserGroup,
   parseId,
 } from "@jotster/core/Jotster.Core.js";
-import { renderMarkdownDomain, sendMessage, findOrCreateDmGroup, getMessage } from "@jotster/messages/Jotster.Messages.js";
+import {
+  renderMarkdownDomain,
+  sendMessage,
+  findOrCreateDmGroup,
+  getMessage,
+} from "@jotster/messages/Jotster.Messages.js";
 import { regenerateApiKey } from "@jotster/auth/Jotster.Auth.js";
 import { setUserStatus } from "@jotster/presence/Jotster.Presence.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { mapCustomProfileFieldToCompatRecord } from "@jotster/users/Jotster.Users.js";
 import { toLong } from "./body.ts";
 
-const nowMilliseconds = (): long => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
+const nowMilliseconds = (): long =>
+  DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
 export interface ScheduledMessageCreateResult {
   ok: boolean;
@@ -107,8 +113,9 @@ const validateScheduledMessageChannel = async (
   try {
     const tenantId0 = tenantId;
     const channelId0 = channelId;
-    const channel = await db.Channels
-      .Where((entry) => entry.TenantId === tenantId0)
+    const channel = await db.Channels.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.Id === channelId0)
       .FirstOrDefaultAsync();
     return channel !== undefined && channel !== null;
@@ -129,8 +136,9 @@ const validateScheduledMessageUsers = async (
     for (let i = 0; i < userIds.length; i++) {
       const userId = userIds[i];
       const userId0 = userId;
-      const targetUser = await db.Users
-        .Where((entry) => entry.TenantId === tenantId0)
+      const targetUser = await db.Users.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.Id === userId0)
         .FirstOrDefaultAsync();
       if (targetUser === undefined || targetUser === null) {
@@ -147,22 +155,31 @@ const validateScheduledMessageUsers = async (
 export const listDevelopmentUsers = async (
   options: DbContextOptions,
   realmUrl: string,
-): Promise<{ direct_admins: Record<string, unknown>[]; direct_users: Record<string, unknown>[] }> => {
+): Promise<{
+  direct_admins: Record<string, unknown>[];
+  direct_users: Record<string, unknown>[];
+}> => {
   const db = new JotsterDbContext(options);
   try {
-    const users = await db.Users
-      .Where((entry) => entry.IsActive === (1 as int))
+    const users = await db.Users.Where((entry) => entry.IsActive === (1 as int))
       .OrderBy((entry) => entry.Email)
       .ToListAsync();
 
-    const hostWithoutProtocol = realmUrl.startsWith("http://") ? realmUrl.substring("http://".length) : realmUrl;
+    const hostWithoutProtocol = realmUrl.startsWith("http://")
+      ? realmUrl.substring("http://".length)
+      : realmUrl;
     const slashIndex = hostWithoutProtocol.indexOf("/");
-    const authority = slashIndex >= 0 ? hostWithoutProtocol.substring(0, slashIndex) : hostWithoutProtocol;
+    const authority =
+      slashIndex >= 0
+        ? hostWithoutProtocol.substring(0, slashIndex)
+        : hostWithoutProtocol;
     const colonIndex = authority.lastIndexOf(":");
-    const hostname = colonIndex > 0 ? authority.substring(0, colonIndex) : authority;
+    const hostname =
+      colonIndex > 0 ? authority.substring(0, colonIndex) : authority;
     const port = colonIndex > 0 ? authority.substring(colonIndex + 1) : "";
     const hostParts = hostname.split(".");
-    const rootHost = hostParts.length > 2 ? hostParts.slice(1).join(".") : hostname;
+    const rootHost =
+      hostParts.length > 2 ? hostParts.slice(1).join(".") : hostname;
     const hostWithPort = port === "" ? rootHost : `${rootHost}:${port}`;
 
     const directAdmins = new List<Record<string, unknown>>();
@@ -174,10 +191,14 @@ export const listDevelopmentUsers = async (
       }
 
       const tenantId = user.TenantId;
-      const tenant = await db.Tenants
-        .Where((entry) => entry.Id === tenantId)
-        .FirstOrDefaultAsync();
-      if (tenant === undefined || tenant === null || tenant.Active !== (1 as int)) {
+      const tenant = await db.Tenants.Where(
+        (entry) => entry.Id === tenantId,
+      ).FirstOrDefaultAsync();
+      if (
+        tenant === undefined ||
+        tenant === null ||
+        tenant.Active !== (1 as int)
+      ) {
         continue;
       }
 
@@ -193,7 +214,10 @@ export const listDevelopmentUsers = async (
       }
     }
 
-    return { direct_admins: directAdmins.ToArray(), direct_users: directUsers.ToArray() };
+    return {
+      direct_admins: directAdmins.ToArray(),
+      direct_users: directUsers.ToArray(),
+    };
   } finally {
     db.Dispose();
   }
@@ -209,9 +233,10 @@ export const resolveUserByEmailPath = async (
     const tenantId0 = tenantId;
     const email0 = email;
 
-    let user = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
-      .Where((entry) => entry.Email === email0 || entry.DeliveryEmail === email0)
+    let user = await db.Users.Where((entry) => entry.TenantId === tenantId0)
+      .Where(
+        (entry) => entry.Email === email0 || entry.DeliveryEmail === email0,
+      )
       .FirstOrDefaultAsync();
     if (user !== undefined && user !== null) {
       return user;
@@ -232,8 +257,7 @@ export const resolveUserByEmailPath = async (
       return undefined;
     }
 
-    user = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
+    user = await db.Users.Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.Id === toLong(dummyId))
       .FirstOrDefaultAsync();
 
@@ -256,8 +280,7 @@ export const setTargetUserStatus = async (
   try {
     const tenantId0 = tenantId;
     const userId0 = userId;
-    const user = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
+    const user = await db.Users.Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.Id === userId0)
       .FirstOrDefaultAsync();
     if (user === undefined || user === null) {
@@ -267,7 +290,15 @@ export const setTargetUserStatus = async (
     db.Dispose();
   }
 
-  await setUserStatus(options, tenantId, userId, statusText ?? "", emojiName, emojiCode, reactionType);
+  await setUserStatus(
+    options,
+    tenantId,
+    userId,
+    statusText ?? "",
+    emojiName,
+    emojiCode,
+    reactionType,
+  );
   return true;
 };
 
@@ -280,8 +311,9 @@ const getActiveApiKey = async (
   try {
     const tenantId0 = tenantId;
     const userId0 = userId;
-    const apiKey = await db.ApiKeys
-      .Where((entry) => entry.TenantId === tenantId0)
+    const apiKey = await db.ApiKeys.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.UserId === userId0)
       .Where((entry) => entry.RevokedAt === undefined)
       .OrderByDescending((entry) => entry.CreatedAt)
@@ -301,8 +333,7 @@ export const getBotApiKeyForRequester = async (
   try {
     const tenantId0 = requester.tenantId;
     const botId0 = botId;
-    const bot = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
+    const bot = await db.Users.Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.Id === botId0)
       .FirstOrDefaultAsync();
 
@@ -319,12 +350,24 @@ export const getBotApiKeyForRequester = async (
     db.Dispose();
   }
 
-  const activeApiKey = await getActiveApiKey(options, requester.tenantId, botId);
-  if (activeApiKey?.RawKey !== undefined && activeApiKey.RawKey !== null && activeApiKey.RawKey !== "") {
+  const activeApiKey = await getActiveApiKey(
+    options,
+    requester.tenantId,
+    botId,
+  );
+  if (
+    activeApiKey?.RawKey !== undefined &&
+    activeApiKey.RawKey !== null &&
+    activeApiKey.RawKey !== ""
+  ) {
     return { apiKey: activeApiKey.RawKey };
   }
 
-  const regenerated = await regenerateApiKey(options, requester.tenantId, botId);
+  const regenerated = await regenerateApiKey(
+    options,
+    requester.tenantId,
+    botId,
+  );
   if (!regenerated.success) {
     return { error: regenerated.error };
   }
@@ -341,8 +384,7 @@ export const regenerateBotApiKeyForRequester = async (
   try {
     const tenantId0 = requester.tenantId;
     const botId0 = botId;
-    const bot = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
+    const bot = await db.Users.Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.Id === botId0)
       .FirstOrDefaultAsync();
 
@@ -359,7 +401,11 @@ export const regenerateBotApiKeyForRequester = async (
     db.Dispose();
   }
 
-  const regenerated = await regenerateApiKey(options, requester.tenantId, botId);
+  const regenerated = await regenerateApiKey(
+    options,
+    requester.tenantId,
+    botId,
+  );
   if (!regenerated.success) {
     return { error: regenerated.error };
   }
@@ -375,9 +421,9 @@ export const reorderChannelFolders = async (
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = user.tenantId;
-    const folders = await db.ChannelFolders
-      .Where((entry) => entry.TenantId === tenantId0)
-      .ToListAsync();
+    const folders = await db.ChannelFolders.Where(
+      (entry) => entry.TenantId === tenantId0,
+    ).ToListAsync();
 
     if (folders.Count !== orderedIds.length) {
       return false;
@@ -424,15 +470,21 @@ export const getStreamEmailAddress = async (
   try {
     const tenantId0 = tenantId;
     const streamId0 = streamId;
-    const tenant = await db.Tenants
-      .Where((entry) => entry.Id === tenantId0)
-      .FirstOrDefaultAsync();
-    const channel = await db.Channels
-      .Where((entry) => entry.TenantId === tenantId0)
+    const tenant = await db.Tenants.Where(
+      (entry) => entry.Id === tenantId0,
+    ).FirstOrDefaultAsync();
+    const channel = await db.Channels.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.Id === streamId0)
       .FirstOrDefaultAsync();
 
-    if (tenant === undefined || tenant === null || channel === undefined || channel === null) {
+    if (
+      tenant === undefined ||
+      tenant === null ||
+      channel === undefined ||
+      channel === null
+    ) {
       return undefined;
     }
 
@@ -454,16 +506,18 @@ export const deleteTopicMessages = async (
     const streamId0 = streamId;
     const topic0 = topic;
 
-    const channel = await db.Channels
-      .Where((entry) => entry.TenantId === tenantId0)
+    const channel = await db.Channels.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.Id === streamId0)
       .FirstOrDefaultAsync();
     if (channel === undefined || channel === null) {
       return false;
     }
 
-    const messages = await db.Messages
-      .Where((entry) => entry.TenantId === tenantId0)
+    const messages = await db.Messages.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.ChannelId === streamId0)
       .Where((entry) => entry.Topic === topic0)
       .ToListAsync();
@@ -472,30 +526,30 @@ export const deleteTopicMessages = async (
       const message = messages[i];
       const messageId0 = message.Id;
 
-      const flags = await db.MessageFlags
-        .Where((entry) => entry.MessageId === messageId0)
-        .ToListAsync();
+      const flags = await db.MessageFlags.Where(
+        (entry) => entry.MessageId === messageId0,
+      ).ToListAsync();
       for (let j = 0; j < flags.Count; j++) {
         db.MessageFlags.Remove(flags[j]);
       }
 
-      const reactions = await db.Reactions
-        .Where((entry) => entry.MessageId === messageId0)
-        .ToListAsync();
+      const reactions = await db.Reactions.Where(
+        (entry) => entry.MessageId === messageId0,
+      ).ToListAsync();
       for (let j = 0; j < reactions.Count; j++) {
         db.Reactions.Remove(reactions[j]);
       }
 
-      const histories = await db.MessageEditHistories
-        .Where((entry) => entry.MessageId === messageId0)
-        .ToListAsync();
+      const histories = await db.MessageEditHistories.Where(
+        (entry) => entry.MessageId === messageId0,
+      ).ToListAsync();
       for (let j = 0; j < histories.Count; j++) {
         db.MessageEditHistories.Remove(histories[j]);
       }
 
-      const attachmentLinks = await db.AttachmentMessages
-        .Where((entry) => entry.MessageId === messageId0)
-        .ToListAsync();
+      const attachmentLinks = await db.AttachmentMessages.Where(
+        (entry) => entry.MessageId === messageId0,
+      ).ToListAsync();
       for (let j = 0; j < attachmentLinks.Count; j++) {
         db.AttachmentMessages.Remove(attachmentLinks[j]);
       }
@@ -518,9 +572,9 @@ export const reorderCustomProfileFields = async (
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
-    const fields = await db.CustomProfileFields
-      .Where((entry) => entry.TenantId === tenantId0)
-      .ToListAsync();
+    const fields = await db.CustomProfileFields.Where(
+      (entry) => entry.TenantId === tenantId0,
+    ).ToListAsync();
 
     if (fields.Count !== orderedIds.length) {
       return false;
@@ -593,8 +647,9 @@ export const removeClientDevice = async (
     const tenantId0 = user.tenantId;
     const userId0 = user.userId;
     const deviceId0 = deviceId;
-    const device = await db.ClientDevices
-      .Where((entry) => entry.TenantId === tenantId0)
+    const device = await db.ClientDevices.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.UserId === userId0)
       .Where((entry) => entry.Id === deviceId0)
       .FirstOrDefaultAsync();
@@ -633,7 +688,12 @@ export const getUserGroupMembershipStatus = async (
       return false;
     }
 
-    const members = await getUserGroupMembersCompatInternal(db, tenantId, groupId, directOnly);
+    const members = await getUserGroupMembersCompatInternal(
+      db,
+      tenantId,
+      groupId,
+      directOnly,
+    );
     for (let i = 0; i < members.length; i++) {
       if (members[i] === userId) {
         return true;
@@ -652,8 +712,9 @@ const getUserGroupForTenant = async (
 ): Promise<UserGroup | undefined> => {
   const tenantId0 = tenantId;
   const groupId0 = groupId;
-  const group = await db.UserGroups
-    .Where((entry) => entry.TenantId === tenantId0)
+  const group = await db.UserGroups.Where(
+    (entry) => entry.TenantId === tenantId0,
+  )
     .Where((entry) => entry.Id === groupId0)
     .FirstOrDefaultAsync();
   return group ?? undefined;
@@ -666,8 +727,7 @@ const getTenantUser = async (
 ): Promise<User | undefined> => {
   const tenantId0 = tenantId;
   const userId0 = userId;
-  const user = await db.Users
-    .Where((entry) => entry.TenantId === tenantId0)
+  const user = await db.Users.Where((entry) => entry.TenantId === tenantId0)
     .Where((entry) => entry.Id === userId0)
     .FirstOrDefaultAsync();
   return user ?? undefined;
@@ -678,9 +738,9 @@ const getDirectUserGroupMemberIds = async (
   groupId: long,
 ): Promise<long[]> => {
   const groupId0 = groupId;
-  const memberships = await db.UserGroupMembers
-    .Where((entry) => entry.UserGroupId === groupId0)
-    .ToListAsync();
+  const memberships = await db.UserGroupMembers.Where(
+    (entry) => entry.UserGroupId === groupId0,
+  ).ToListAsync();
   const result = new List<long>();
   for (let i = 0; i < memberships.Count; i++) {
     result.Add(memberships[i].UserId);
@@ -693,9 +753,9 @@ const getDirectUserGroupSubgroupIds = async (
   groupId: long,
 ): Promise<long[]> => {
   const groupId0 = groupId;
-  const subgroups = await db.UserGroupSubgroups
-    .Where((entry) => entry.ParentGroupId === groupId0)
-    .ToListAsync();
+  const subgroups = await db.UserGroupSubgroups.Where(
+    (entry) => entry.ParentGroupId === groupId0,
+  ).ToListAsync();
   const result = new List<long>();
   for (let i = 0; i < subgroups.Count; i++) {
     result.Add(subgroups[i].SubgroupId);
@@ -785,7 +845,12 @@ export const getUserGroupMembersCompat = async (
     if (group === undefined) {
       return undefined;
     }
-    return await getUserGroupMembersCompatInternal(db, tenantId, groupId, directOnly);
+    return await getUserGroupMembersCompatInternal(
+      db,
+      tenantId,
+      groupId,
+      directOnly,
+    );
   } finally {
     db.Dispose();
   }
@@ -819,8 +884,14 @@ export const reportMessageForModeration = async (
   reportType: string,
   description?: string,
 ): Promise<{ success: boolean; error?: string }> => {
-  if (reportType === "other" && (description === undefined || description.trim().length === 0)) {
-    return { success: false, error: "Description is required for report_type=other" };
+  if (
+    reportType === "other" &&
+    (description === undefined || description.trim().length === 0)
+  ) {
+    return {
+      success: false,
+      error: "Description is required for report_type=other",
+    };
   }
 
   const message = await getMessage(options, user.tenantId, messageId);
@@ -831,16 +902,19 @@ export const reportMessageForModeration = async (
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = user.tenantId;
-    const tenant = await db.Tenants
-      .Where((entry) => entry.Id === tenantId0)
-      .FirstOrDefaultAsync();
+    const tenant = await db.Tenants.Where(
+      (entry) => entry.Id === tenantId0,
+    ).FirstOrDefaultAsync();
     if (tenant === undefined || tenant === null) {
       return { success: false, error: "Organization not found" };
     }
 
     let moderationChannelId: long | undefined;
     try {
-      const settings = JSON.parse(tenant.SettingsJson) as Record<string, unknown>;
+      const settings = JSON.parse(tenant.SettingsJson) as Record<
+        string,
+        unknown
+      >;
       const modChannelSetting = settings["moderation_request_channel_id"];
       if (typeof modChannelSetting === "string") {
         moderationChannelId = parseId(modChannelSetting);
@@ -852,8 +926,9 @@ export const reportMessageForModeration = async (
     }
 
     if (moderationChannelId === undefined) {
-      const fallbackChannel = await db.Channels
-        .Where((entry) => entry.TenantId === tenantId0)
+      const fallbackChannel = await db.Channels.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.Name === "moderation-requests")
         .FirstOrDefaultAsync();
       moderationChannelId = fallbackChannel?.Id;
@@ -862,7 +937,8 @@ export const reportMessageForModeration = async (
     if (moderationChannelId === undefined || moderationChannelId === null) {
       return {
         success: false,
-        error: "Moderation request channel must be specified to enable message reporting.",
+        error:
+          "Moderation request channel must be specified to enable message reporting.",
       };
     }
   } finally {
@@ -883,22 +959,30 @@ export const reportMessageForModeration = async (
     channelId: await getModerationChannelId(options, user.tenantId),
     topic: "message reports",
     content: reportText,
-    renderedContent: renderedReport.success ? renderedReport.data.rendered : `<p>${reportText}</p>`,
+    renderedContent: renderedReport.success
+      ? renderedReport.data.rendered
+      : `<p>${reportText}</p>`,
   });
 
   return { success: true };
 };
 
-const getModerationChannelId = async (options: DbContextOptions, tenantId: long): Promise<long | undefined> => {
+const getModerationChannelId = async (
+  options: DbContextOptions,
+  tenantId: long,
+): Promise<long | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
-    const tenant = await db.Tenants
-      .Where((entry) => entry.Id === tenantId0)
-      .FirstOrDefaultAsync();
+    const tenant = await db.Tenants.Where(
+      (entry) => entry.Id === tenantId0,
+    ).FirstOrDefaultAsync();
     if (tenant !== undefined && tenant !== null) {
       try {
-        const settings = JSON.parse(tenant.SettingsJson) as Record<string, unknown>;
+        const settings = JSON.parse(tenant.SettingsJson) as Record<
+          string,
+          unknown
+        >;
         const modChannelSetting = settings["moderation_request_channel_id"];
         if (typeof modChannelSetting === "string") {
           return parseId(modChannelSetting);
@@ -910,8 +994,9 @@ const getModerationChannelId = async (options: DbContextOptions, tenantId: long)
       }
     }
 
-    const channel = await db.Channels
-      .Where((entry) => entry.TenantId === tenantId0)
+    const channel = await db.Channels.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.Name === "moderation-requests")
       .FirstOrDefaultAsync();
     return channel?.Id;
@@ -930,7 +1015,9 @@ export const sendWelcomeBotTestMessage = async (
     return undefined;
   }
 
-  const dmGroup = await findOrCreateDmGroup(options, user.tenantId, [user.userId]);
+  const dmGroup = await findOrCreateDmGroup(options, user.tenantId, [
+    user.userId,
+  ]);
   const message = await sendMessage(options, {
     tenantId: user.tenantId,
     senderId: user.userId,
@@ -970,8 +1057,9 @@ export const listSavedSnippets = async (
 ): Promise<SavedSnippet[]> => {
   const db = new JotsterDbContext(options);
   try {
-    const snippets = await db.SavedSnippets
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const snippets = await db.SavedSnippets.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .OrderByDescending((entry) => entry.UpdatedAt)
       .ToArrayAsync();
@@ -1019,8 +1107,9 @@ export const updateSavedSnippet = async (
   const db = new JotsterDbContext(options);
   try {
     const snippetId0 = snippetId;
-    const snippet = await db.SavedSnippets
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const snippet = await db.SavedSnippets.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Id === snippetId0)
       .FirstOrDefaultAsync();
@@ -1050,8 +1139,9 @@ export const deleteSavedSnippet = async (
   const db = new JotsterDbContext(options);
   try {
     const snippetId0 = snippetId;
-    const snippet = await db.SavedSnippets
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const snippet = await db.SavedSnippets.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Id === snippetId0)
       .FirstOrDefaultAsync();
@@ -1072,8 +1162,9 @@ export const listNavigationViews = async (
 ): Promise<NavigationView[]> => {
   const db = new JotsterDbContext(options);
   try {
-    const views = await db.NavigationViews
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const views = await db.NavigationViews.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .OrderBy((entry) => entry.CreatedAt)
       .ToArrayAsync();
@@ -1095,8 +1186,9 @@ export const createNavigationView = async (
   }
   const db = new JotsterDbContext(options);
   try {
-    const existing = await db.NavigationViews
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const existing = await db.NavigationViews.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Fragment === fragment)
       .FirstOrDefaultAsync();
@@ -1131,8 +1223,9 @@ export const updateNavigationView = async (
   const db = new JotsterDbContext(options);
   try {
     const fragment0 = fragment;
-    const view = await db.NavigationViews
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const view = await db.NavigationViews.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Fragment === fragment0)
       .FirstOrDefaultAsync();
@@ -1162,8 +1255,9 @@ export const deleteNavigationView = async (
   const db = new JotsterDbContext(options);
   try {
     const fragment0 = fragment;
-    const view = await db.NavigationViews
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const view = await db.NavigationViews.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Fragment === fragment0)
       .FirstOrDefaultAsync();
@@ -1184,8 +1278,9 @@ export const listReminders = async (
 ): Promise<Reminder[]> => {
   const db = new JotsterDbContext(options);
   try {
-    const reminders = await db.Reminders
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const reminders = await db.Reminders.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .OrderBy((entry) => entry.ScheduledDeliveryTimestamp)
       .ToArrayAsync();
@@ -1220,7 +1315,9 @@ export const createReminder = async (
     reminder.MessageId = messageId;
     reminder.Note = note;
     reminder.Content = note?.trim().length ? note : message.Content;
-    reminder.RenderedContent = note?.trim().length ? `<p>${note}</p>` : message.RenderedContent;
+    reminder.RenderedContent = note?.trim().length
+      ? `<p>${note}</p>`
+      : message.RenderedContent;
     reminder.ScheduledDeliveryTimestamp = Convert.ToInt64(timestamp * 1000);
     reminder.Failed = 0 as int;
     reminder.CreatedAt = now;
@@ -1241,8 +1338,9 @@ export const deleteReminder = async (
   const db = new JotsterDbContext(options);
   try {
     const reminderId0 = reminderId;
-    const reminder = await db.Reminders
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const reminder = await db.Reminders.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Id === reminderId0)
       .FirstOrDefaultAsync();
@@ -1263,8 +1361,9 @@ export const listScheduledMessages = async (
 ): Promise<ScheduledMessage[]> => {
   const db = new JotsterDbContext(options);
   try {
-    const messages = await db.ScheduledMessages
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const messages = await db.ScheduledMessages.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .OrderBy((entry) => entry.ScheduledDeliveryTimestamp)
       .ToArrayAsync();
@@ -1285,7 +1384,11 @@ export const createScheduledMessage = async (
   scheduledDeliveryTimestampSeconds: string,
 ): Promise<ScheduledMessageCreateResult> => {
   const normalizedType = type === "channel" ? "stream" : type;
-  if (normalizedType !== "stream" && normalizedType !== "direct" && normalizedType !== "private") {
+  if (
+    normalizedType !== "stream" &&
+    normalizedType !== "direct" &&
+    normalizedType !== "private"
+  ) {
     return { ok: false, errorCode: "invalid_request" };
   }
   const rendered = renderMarkdownDomain(content);
@@ -1302,12 +1405,23 @@ export const createScheduledMessage = async (
     if (channelId === undefined) {
       return { ok: false, errorCode: "invalid_request" };
     }
-    const channelExists = await validateScheduledMessageChannel(options, user.tenantId, toLong(channelId));
+    const channelExists = await validateScheduledMessageChannel(
+      options,
+      user.tenantId,
+      toLong(channelId),
+    );
     if (!channelExists) {
-      return { ok: false, errorCode: "invalid_stream", streamId: `${channelId}` };
+      return {
+        ok: false,
+        errorCode: "invalid_stream",
+        streamId: `${channelId}`,
+      };
     }
   } else {
-    const recipientIdStrings = parseScheduledRecipientIds(toValueText, toValueArray);
+    const recipientIdStrings = parseScheduledRecipientIds(
+      toValueText,
+      toValueArray,
+    );
     if (recipientIdStrings.length === 0) {
       return { ok: false, errorCode: "invalid_request" };
     }
@@ -1318,7 +1432,11 @@ export const createScheduledMessage = async (
         recipientLongIds.push(toLong(parsed));
       }
     }
-    const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientLongIds);
+    const invalidUserId = await validateScheduledMessageUsers(
+      options,
+      user.tenantId,
+      recipientLongIds,
+    );
     if (invalidUserId !== undefined) {
       return { ok: false, errorCode: "invalid_user", userId: invalidUserId };
     }
@@ -1330,14 +1448,20 @@ export const createScheduledMessage = async (
   scheduled.UserId = user.userId;
   scheduled.Type = normalizedType === "private" ? "direct" : normalizedType;
   if (scheduled.Type === "stream") {
-    const parsedChannelId = getScheduledMessageChannelId(toValueText, toValueArray);
-    scheduled.ChannelId = parsedChannelId !== undefined ? toLong(parsedChannelId) : undefined;
+    const parsedChannelId = getScheduledMessageChannelId(
+      toValueText,
+      toValueArray,
+    );
+    scheduled.ChannelId =
+      parsedChannelId !== undefined ? toLong(parsedChannelId) : undefined;
     scheduled.Topic = topic ?? "";
   } else {
     if (toValueArray !== undefined) {
       scheduled.RecipientIdsJson = JSON.stringify(toValueArray);
     } else if (toValueText !== undefined) {
-      scheduled.RecipientIdsJson = toValueText.trim().startsWith("[") ? toValueText : JSON.stringify([toValueText]);
+      scheduled.RecipientIdsJson = toValueText.trim().startsWith("[")
+        ? toValueText
+        : JSON.stringify([toValueText]);
     } else {
       scheduled.RecipientIdsJson = JSON.stringify([]);
     }
@@ -1373,8 +1497,9 @@ export const updateScheduledMessage = async (
   const db = new JotsterDbContext(options);
   try {
     const scheduledMessageId0 = scheduledMessageId;
-    const scheduled = await db.ScheduledMessages
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const scheduled = await db.ScheduledMessages.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Id === scheduledMessageId0)
       .FirstOrDefaultAsync();
@@ -1382,25 +1507,50 @@ export const updateScheduledMessage = async (
       return { ok: false, notFound: true };
     }
 
-    const normalizedType = type === undefined
-      ? scheduled.Type
-      : (type === "channel" ? "stream" : type);
-    if (normalizedType !== "stream" && normalizedType !== "direct" && normalizedType !== "private") {
+    const normalizedType =
+      type === undefined
+        ? scheduled.Type
+        : type === "channel"
+          ? "stream"
+          : type;
+    if (
+      normalizedType !== "stream" &&
+      normalizedType !== "direct" &&
+      normalizedType !== "private"
+    ) {
       return { ok: false, errorCode: "invalid_request" };
     }
 
-    if (toValueText !== undefined || toValueArray !== undefined || type !== undefined) {
+    if (
+      toValueText !== undefined ||
+      toValueArray !== undefined ||
+      type !== undefined
+    ) {
       if (normalizedType === "stream") {
-        const channelId = getScheduledMessageChannelId(toValueText, toValueArray);
+        const channelId = getScheduledMessageChannelId(
+          toValueText,
+          toValueArray,
+        );
         if (channelId === undefined) {
           return { ok: false, errorCode: "invalid_request" };
         }
-        const channelExists = await validateScheduledMessageChannel(options, user.tenantId, toLong(channelId));
+        const channelExists = await validateScheduledMessageChannel(
+          options,
+          user.tenantId,
+          toLong(channelId),
+        );
         if (!channelExists) {
-          return { ok: false, errorCode: "invalid_stream", streamId: `${channelId}` };
+          return {
+            ok: false,
+            errorCode: "invalid_stream",
+            streamId: `${channelId}`,
+          };
         }
       } else {
-        const recipientIdStrings = parseScheduledRecipientIds(toValueText, toValueArray);
+        const recipientIdStrings = parseScheduledRecipientIds(
+          toValueText,
+          toValueArray,
+        );
         if (recipientIdStrings.length === 0) {
           return { ok: false, errorCode: "invalid_request" };
         }
@@ -1411,9 +1561,17 @@ export const updateScheduledMessage = async (
             recipientLongIds.push(toLong(parsed));
           }
         }
-        const invalidUserId = await validateScheduledMessageUsers(options, user.tenantId, recipientLongIds);
+        const invalidUserId = await validateScheduledMessageUsers(
+          options,
+          user.tenantId,
+          recipientLongIds,
+        );
         if (invalidUserId !== undefined) {
-          return { ok: false, errorCode: "invalid_user", userId: invalidUserId };
+          return {
+            ok: false,
+            errorCode: "invalid_user",
+            userId: invalidUserId,
+          };
         }
       }
     }
@@ -1423,12 +1581,18 @@ export const updateScheduledMessage = async (
     }
     if (toValueText !== undefined || toValueArray !== undefined) {
       if (scheduled.Type === "stream") {
-        const updateChannelId = getScheduledMessageChannelId(toValueText, toValueArray);
-        scheduled.ChannelId = updateChannelId !== undefined ? toLong(updateChannelId) : undefined;
+        const updateChannelId = getScheduledMessageChannelId(
+          toValueText,
+          toValueArray,
+        );
+        scheduled.ChannelId =
+          updateChannelId !== undefined ? toLong(updateChannelId) : undefined;
       } else if (toValueArray !== undefined) {
         scheduled.RecipientIdsJson = JSON.stringify(toValueArray);
       } else if (toValueText !== undefined) {
-        scheduled.RecipientIdsJson = toValueText.trim().startsWith("[") ? toValueText : JSON.stringify([toValueText]);
+        scheduled.RecipientIdsJson = toValueText.trim().startsWith("[")
+          ? toValueText
+          : JSON.stringify([toValueText]);
       }
     }
     if (content !== undefined) {
@@ -1466,8 +1630,9 @@ export const deleteScheduledMessage = async (
   const db = new JotsterDbContext(options);
   try {
     const scheduledMessageId0 = scheduledMessageId;
-    const scheduled = await db.ScheduledMessages
-      .Where((entry) => entry.TenantId === user.tenantId)
+    const scheduled = await db.ScheduledMessages.Where(
+      (entry) => entry.TenantId === user.tenantId,
+    )
       .Where((entry) => entry.UserId === user.userId)
       .Where((entry) => entry.Id === scheduledMessageId0)
       .FirstOrDefaultAsync();
@@ -1489,8 +1654,9 @@ export const listLinkifiers = async (
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
-    const linkifiers = await db.Linkifiers
-      .Where((entry) => entry.TenantId === tenantId0)
+    const linkifiers = await db.Linkifiers.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .OrderBy((entry) => entry.Ordering)
       .ToArrayAsync();
     return linkifiers;
@@ -1520,7 +1686,8 @@ export const createLinkifier = async (
   linkifier.ExampleInput = exampleInput;
   linkifier.ReverseTemplate = reverseTemplate;
   const templates = parseAlternativeUrlTemplates(alternativeUrlTemplatesJson);
-  linkifier.AlternativeUrlTemplatesJson = templates.length > 0 ? JSON.stringify(templates) : undefined;
+  linkifier.AlternativeUrlTemplatesJson =
+    templates.length > 0 ? JSON.stringify(templates) : undefined;
   linkifier.Ordering = Convert.ToInt32(existing.length);
   linkifier.CreatedAt = now;
   linkifier.UpdatedAt = now;
@@ -1551,8 +1718,9 @@ export const updateLinkifier = async (
   try {
     const tenantId0 = tenantId;
     const filterId0 = filterId;
-    const linkifier = await db.Linkifiers
-      .Where((entry) => entry.TenantId === tenantId0)
+    const linkifier = await db.Linkifiers.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.Id === filterId0)
       .FirstOrDefaultAsync();
     if (linkifier === undefined || linkifier === null) {
@@ -1572,8 +1740,11 @@ export const updateLinkifier = async (
       linkifier.ReverseTemplate = updates.reverseTemplate;
     }
     if (updates.alternativeUrlTemplatesJson !== undefined) {
-      const templates = parseAlternativeUrlTemplates(updates.alternativeUrlTemplatesJson);
-      linkifier.AlternativeUrlTemplatesJson = templates.length > 0 ? JSON.stringify(templates) : undefined;
+      const templates = parseAlternativeUrlTemplates(
+        updates.alternativeUrlTemplatesJson,
+      );
+      linkifier.AlternativeUrlTemplatesJson =
+        templates.length > 0 ? JSON.stringify(templates) : undefined;
     }
     linkifier.UpdatedAt = nowMilliseconds();
     await db.SaveChangesAsync();
@@ -1592,8 +1763,9 @@ export const deleteLinkifier = async (
   try {
     const tenantId0 = tenantId;
     const filterId0 = filterId;
-    const linkifier = await db.Linkifiers
-      .Where((entry) => entry.TenantId === tenantId0)
+    const linkifier = await db.Linkifiers.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.Id === filterId0)
       .FirstOrDefaultAsync();
     if (linkifier === undefined || linkifier === null) {
@@ -1626,9 +1798,9 @@ export const reorderLinkifiers = async (
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
-    const storedLinkifiers = await db.Linkifiers
-      .Where((entry) => entry.TenantId === tenantId0)
-      .ToListAsync();
+    const storedLinkifiers = await db.Linkifiers.Where(
+      (entry) => entry.TenantId === tenantId0,
+    ).ToListAsync();
     for (let i = 0; i < orderedIds.length; i++) {
       const orderedId = orderedIds[i];
       for (let j = 0; j < storedLinkifiers.Count; j++) {

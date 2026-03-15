@@ -9,10 +9,14 @@ import { revokeInvitation } from "../repo/revoke-invitation.ts";
 export const revokeInvitationDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  invitationId: long
+  invitationId: long,
 ): Promise<Result<boolean, string>> => {
   // Look up invitation
-  const invitation = await getInvitationById(options, user.tenantId, invitationId);
+  const invitation = await getInvitationById(
+    options,
+    user.tenantId,
+    invitationId,
+  );
   if (invitation === undefined) {
     return err("Invitation not found");
   }

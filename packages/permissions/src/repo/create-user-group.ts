@@ -18,7 +18,7 @@ interface CreateUserGroupInput {
 
 export const createUserGroup = async (
   options: DbContextOptions,
-  input: CreateUserGroupInput
+  input: CreateUserGroupInput,
 ): Promise<UserGroup> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
@@ -33,7 +33,8 @@ export const createUserGroup = async (
   group.CanLeaveGroupId = input.canLeaveGroupId;
   group.CanManageGroupId = input.canManageGroupId;
   group.CanMentionGroupId = input.canMentionGroupId;
-  group.CanRemoveMembersGroupId = input.canRemoveMembersGroupId ?? input.canManageGroupId;
+  group.CanRemoveMembersGroupId =
+    input.canRemoveMembersGroupId ?? input.canManageGroupId;
   group.IsActive = 1 as int;
   group.CreatedAt = now;
   group.UpdatedAt = now;

@@ -15,7 +15,7 @@ export const serveFileDomain = async (
   user: AuthenticatedUser,
   uploadsDir: string,
   tenantId: string,
-  pathId: string
+  pathId: string,
 ): Promise<Result<ServeFileResult, string>> => {
   // Verify user belongs to the requested tenant
   if (String(user.tenantId) !== tenantId) {
@@ -23,7 +23,11 @@ export const serveFileDomain = async (
   }
 
   const normalizedPathId = pathId.split("/")[0];
-  const attachment = await getAttachmentByPath(options, user.tenantId, normalizedPathId);
+  const attachment = await getAttachmentByPath(
+    options,
+    user.tenantId,
+    normalizedPathId,
+  );
   if (attachment === undefined) {
     return err("File not found");
   }

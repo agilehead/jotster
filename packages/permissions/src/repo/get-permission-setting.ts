@@ -27,22 +27,24 @@ const PERMISSION_DEFAULTS: Record<string, string> = {
 export const getPermissionSetting = async (
   options: DbContextOptions,
   tenantId: long,
-  settingName: string
+  settingName: string,
 ): Promise<Result<long, string>> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
 
-    const tenant = await db0.Tenants
-      .Where((t) => t.Id === tenantId0)
-      .FirstOrDefaultAsync();
+    const tenant = await db0.Tenants.Where(
+      (t) => t.Id === tenantId0,
+    ).FirstOrDefaultAsync();
 
     if (tenant === undefined) {
       return err("Tenant not found");
     }
 
-    const settingsOrNull = JsonSerializer.Deserialize<Record<string, string>>(tenant.SettingsJson);
+    const settingsOrNull = JsonSerializer.Deserialize<Record<string, string>>(
+      tenant.SettingsJson,
+    );
     if (settingsOrNull === undefined) {
       const defaultGroupName = PERMISSION_DEFAULTS[settingName];
       if (defaultGroupName === undefined) {
@@ -50,9 +52,12 @@ export const getPermissionSetting = async (
       }
       const tenantId2 = tenantId;
       const one2 = 1 as int;
-      const sg2 = await db0.UserGroups
-        .Where((g) => g.TenantId === tenantId2 && g.IsSystemGroup === one2 && g.Name === defaultGroupName)
-        .FirstOrDefaultAsync();
+      const sg2 = await db0.UserGroups.Where(
+        (g) =>
+          g.TenantId === tenantId2 &&
+          g.IsSystemGroup === one2 &&
+          g.Name === defaultGroupName,
+      ).FirstOrDefaultAsync();
       if (sg2 === undefined) {
         return err("System group not found: " + defaultGroupName);
       }
@@ -80,14 +85,12 @@ export const getPermissionSetting = async (
     const tenantId1 = tenantId;
     const one = 1 as int;
 
-    const systemGroup = await db0.UserGroups
-      .Where(
-        (g) =>
-          g.TenantId === tenantId1 &&
-          g.IsSystemGroup === one &&
-          g.Name === defaultGroupName
-      )
-      .FirstOrDefaultAsync();
+    const systemGroup = await db0.UserGroups.Where(
+      (g) =>
+        g.TenantId === tenantId1 &&
+        g.IsSystemGroup === one &&
+        g.Name === defaultGroupName,
+    ).FirstOrDefaultAsync();
 
     if (systemGroup === undefined) {
       return err("System group not found: " + defaultGroupName);

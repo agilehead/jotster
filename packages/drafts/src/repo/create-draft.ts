@@ -15,7 +15,7 @@ interface CreateDraftInput {
 
 export const createDraft = async (
   options: DbContextOptions,
-  input: CreateDraftInput
+  input: CreateDraftInput,
 ): Promise<Draft> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

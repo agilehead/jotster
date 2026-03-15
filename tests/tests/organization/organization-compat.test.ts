@@ -30,7 +30,9 @@ describe("Organization compatibility endpoints", () => {
     const rows = await db("custom_profile_field")
       .select("id", "ordering")
       .whereIn("id", [firstId, secondId]);
-    const ordering = new Map(rows.map((row) => [row.id as number, row.ordering as number]));
+    const ordering = new Map(
+      rows.map((row) => [row.id as number, row.ordering as number]),
+    );
     expect(ordering.get(firstId)).to.equal(1);
     expect(ordering.get(secondId)).to.equal(0);
   });
@@ -51,7 +53,9 @@ describe("Organization compatibility endpoints", () => {
       order: JSON.stringify(["missing"]),
     });
     expect(memberRes.status).to.equal(400);
-    expect(memberRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberRes.body.msg).to.equal(
+      "Must be an organization administrator",
+    );
     expect(memberRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
 
     const missingOrderRes = await admin.client.patch("/realm/profile_fields");
@@ -84,7 +88,9 @@ describe("Organization compatibility endpoints", () => {
 
     const listRes = await client.get("/realm/linkifiers");
     expect(listRes.status).to.equal(200);
-    expect((listRes.body.linkifiers as Array<Record<string, unknown>>).length).to.equal(2);
+    expect(
+      (listRes.body.linkifiers as Array<Record<string, unknown>>).length,
+    ).to.equal(2);
 
     const reorderRes = await client.patch("/realm/linkifiers", {
       ordered_linkifier_ids: JSON.stringify([secondId, firstId]),
@@ -113,7 +119,9 @@ describe("Organization compatibility endpoints", () => {
       url_template: "https://tracker.example.com/{id}",
     });
     expect(memberCreateRes.status).to.equal(400);
-    expect(memberCreateRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberCreateRes.body.msg).to.equal(
+      "Must be an organization administrator",
+    );
     expect(memberCreateRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
 
     const missingFieldRes = await admin.client.post("/realm/filters", {
@@ -139,19 +147,30 @@ describe("Organization compatibility endpoints", () => {
       ordered_linkifier_ids: JSON.stringify([filterId]),
     });
     expect(memberReorderRes.status).to.equal(400);
-    expect(memberReorderRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberReorderRes.body.msg).to.equal(
+      "Must be an organization administrator",
+    );
     expect(memberReorderRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
 
-    const missingFilterUpdateRes = await admin.client.patch("/realm/filters/999999", {
-      pattern: "BUG-(?<id>\\d+)",
-    });
+    const missingFilterUpdateRes = await admin.client.patch(
+      "/realm/filters/999999",
+      {
+        pattern: "BUG-(?<id>\\d+)",
+      },
+    );
     expect(missingFilterUpdateRes.status).to.equal(404);
-    expect(missingFilterUpdateRes.body.msg).to.equal("Linkifier does not exist.");
+    expect(missingFilterUpdateRes.body.msg).to.equal(
+      "Linkifier does not exist.",
+    );
     expect(missingFilterUpdateRes.body.code).to.equal("BAD_REQUEST");
 
-    const memberDeleteRes = await member.client.delete(`/realm/filters/${filterId}`);
+    const memberDeleteRes = await member.client.delete(
+      `/realm/filters/${filterId}`,
+    );
     expect(memberDeleteRes.status).to.equal(400);
-    expect(memberDeleteRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberDeleteRes.body.msg).to.equal(
+      "Must be an organization administrator",
+    );
     expect(memberDeleteRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
   });
 
@@ -174,16 +193,25 @@ describe("Organization compatibility endpoints", () => {
     const admin = await seedUser(db, tenantId, { role: 200 });
     const member = await seedUser(db, tenantId);
 
-    const memberRes = await member.client.post("/realm/test_welcome_bot_custom_message", {
-      welcome_message_custom_text: "Welcome aboard",
-    });
+    const memberRes = await member.client.post(
+      "/realm/test_welcome_bot_custom_message",
+      {
+        welcome_message_custom_text: "Welcome aboard",
+      },
+    );
     expect(memberRes.status).to.equal(400);
-    expect(memberRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberRes.body.msg).to.equal(
+      "Must be an organization administrator",
+    );
     expect(memberRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
 
-    const missingBodyRes = await admin.client.post("/realm/test_welcome_bot_custom_message");
+    const missingBodyRes = await admin.client.post(
+      "/realm/test_welcome_bot_custom_message",
+    );
     expect(missingBodyRes.status).to.equal(400);
-    expect(missingBodyRes.body.msg).to.equal("Missing welcome_message_custom_text");
+    expect(missingBodyRes.body.msg).to.equal(
+      "Missing welcome_message_custom_text",
+    );
     expect(missingBodyRes.body.code).to.equal("BAD_REQUEST");
   });
 });

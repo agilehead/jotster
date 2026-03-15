@@ -14,6 +14,12 @@ export class NavigationView {
   UpdatedAt!: long;
 }
 
-A.on(NavigationView).prop((x) => x.Id).add(KeyAttribute);
-A.on(NavigationView).type.add(IndexAttribute, ["TenantId", "UserId", "Fragment"]);
+A.on(NavigationView)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
+A.on(NavigationView).type.add(IndexAttribute, [
+  "TenantId",
+  "UserId",
+  "Fragment",
+]);
 A.on(NavigationView).type.add(IndexAttribute, ["TenantId", "UserId"]);

@@ -21,7 +21,7 @@ interface CreateFieldInput {
 export const createCustomProfileFieldDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  input: CreateFieldInput
+  input: CreateFieldInput,
 ): Promise<Result<CustomProfileField, string>> => {
   if (actingUser.role > 200) {
     return err("Insufficient permission");
@@ -31,11 +31,18 @@ export const createCustomProfileFieldDomain = async (
     return err("Label cannot be blank.");
   }
 
-  if (input.displayInProfileSummary === (1 as int) && input.fieldType === (6 as int)) {
+  if (
+    input.displayInProfileSummary === (1 as int) &&
+    input.fieldType === (6 as int)
+  ) {
     return err("Field type not supported for display in profile summary.");
   }
 
-  if (input.useForUserMatching === (1 as int) && input.fieldType !== (1 as int) && input.fieldType !== (7 as int)) {
+  if (
+    input.useForUserMatching === (1 as int) &&
+    input.fieldType !== (1 as int) &&
+    input.fieldType !== (7 as int)
+  ) {
     return err("Field type not supported for use for user matching.");
   }
 
@@ -47,8 +54,13 @@ export const createCustomProfileFieldDomain = async (
     }
   }
 
-  if (input.displayInProfileSummary === (1 as int) && displayInSummaryCount >= (2 as int)) {
-    return err("Only 2 custom profile fields can be displayed in the profile summary.");
+  if (
+    input.displayInProfileSummary === (1 as int) &&
+    displayInSummaryCount >= (2 as int)
+  ) {
+    return err(
+      "Only 2 custom profile fields can be displayed in the profile summary.",
+    );
   }
 
   // Determine ordering: place at end

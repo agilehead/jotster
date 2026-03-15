@@ -4,7 +4,11 @@ import "./db/design-time-dbcontext-factory.ts";
 export { ok, err } from "./types/result.ts";
 export type { Result, Ok, Err } from "./types/result.ts";
 export { AuthenticatedUser } from "./types/authenticated-user.ts";
-export type { ZulipSuccessResponse, ZulipErrorResponse, ZulipResponse } from "./types/zulip-response.ts";
+export type {
+  ZulipSuccessResponse,
+  ZulipErrorResponse,
+  ZulipResponse,
+} from "./types/zulip-response.ts";
 
 // Config
 export { ServerConfig } from "./config/server-config.ts";

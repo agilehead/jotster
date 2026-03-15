@@ -18,7 +18,7 @@ export const updateChannelFolderDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   folderId: long,
-  updates: UpdateChannelFolderDomainInput
+  updates: UpdateChannelFolderDomainInput,
 ): Promise<Result<ChannelFolder, string>> => {
   if (user.role > 200) {
     return err("Must be an organization administrator");
@@ -39,7 +39,11 @@ export const updateChannelFolderDomain = async (
       return err("Folder name must not be empty");
     }
 
-    const existingFolders = await getChannelFolders(options, user.tenantId, true);
+    const existingFolders = await getChannelFolders(
+      options,
+      user.tenantId,
+      true,
+    );
     for (let i = 0; i < existingFolders.length; i++) {
       const folder = existingFolders[i].folder;
       if (folder.Id !== folderId && folder.Name === name) {

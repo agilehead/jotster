@@ -1,7 +1,11 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, User, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  User,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 interface CreateUserInput {
   tenantId: long;
@@ -18,7 +22,7 @@ interface CreateUserInput {
 
 export const createUser = async (
   options: DbContextOptions,
-  input: CreateUserInput
+  input: CreateUserInput,
 ): Promise<User> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

@@ -1,7 +1,11 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, UserTopic, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  UserTopic,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 export const setTopicVisibility = async (
   options: DbContextOptions,
@@ -9,7 +13,7 @@ export const setTopicVisibility = async (
   userId: long,
   channelId: long,
   topic: string,
-  visibilityPolicy: int
+  visibilityPolicy: int,
 ): Promise<UserTopic | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -20,15 +24,13 @@ export const setTopicVisibility = async (
     const topic0 = topic;
     const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
-    const existing = await db0.UserTopics
-      .Where(
-        (t) =>
-          t.TenantId === tenantId0 &&
-          t.UserId === userId0 &&
-          t.ChannelId === channelId0 &&
-          t.Topic === topic0
-      )
-      .FirstOrDefaultAsync();
+    const existing = await db0.UserTopics.Where(
+      (t) =>
+        t.TenantId === tenantId0 &&
+        t.UserId === userId0 &&
+        t.ChannelId === channelId0 &&
+        t.Topic === topic0,
+    ).FirstOrDefaultAsync();
 
     // If policy is 0 (inherit), delete existing row
     if (visibilityPolicy === (0 as int)) {

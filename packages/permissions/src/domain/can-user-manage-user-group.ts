@@ -7,14 +7,14 @@ import { checkPermission } from "./check-permission.ts";
 export const canUserManageUserGroup = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
+  userId: long,
 ): Promise<Result<boolean, string>> => {
   // Check can_manage_all_groups first
   const manageAllResult = await checkPermission(
     options,
     tenantId,
     userId,
-    "can_manage_all_groups"
+    "can_manage_all_groups",
   );
 
   if (!manageAllResult.success) {
@@ -30,6 +30,6 @@ export const canUserManageUserGroup = async (
     options,
     tenantId,
     userId,
-    "user_group_edit_policy"
+    "user_group_edit_policy",
   );
 };

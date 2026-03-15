@@ -51,11 +51,7 @@ export async function up(knex) {
 
   // 3. user_setting - PK is user_id (FK to user, bigInteger PK)
   await knex.schema.createTable("user_setting", (table) => {
-    table
-      .bigInteger("user_id")
-      .primary()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").primary().references("id").inTable("user");
     table
       .bigInteger("tenant_id")
       .notNullable()
@@ -101,9 +97,7 @@ export async function up(knex) {
     table.integer("enable_followed_topic_audible_notifications").defaultTo(1);
 
     // Email and notification behavior
-    table
-      .integer("email_notifications_batching_period_seconds")
-      .defaultTo(120);
+    table.integer("email_notifications_batching_period_seconds").defaultTo(120);
     table.integer("enable_drafts_synchronization").defaultTo(1);
     table.integer("message_content_in_email_notifications").defaultTo(1);
     table.integer("pm_content_in_desktop_notifications").defaultTo(1);
@@ -122,13 +116,9 @@ export async function up(knex) {
     table
       .integer("automatically_unmute_topics_in_muted_streams_policy")
       .defaultTo(0);
-    table
-      .integer("automatically_follow_topics_where_mentioned")
-      .defaultTo(1);
+    table.integer("automatically_follow_topics_where_mentioned").defaultTo(1);
     table.integer("user_list_style").defaultTo(1);
-    table
-      .integer("web_stream_unreads_count_display_policy")
-      .defaultTo(1);
+    table.integer("web_stream_unreads_count_display_policy").defaultTo(1);
     table.integer("web_navigate_to_sent_message").defaultTo(1);
     table.integer("web_channel_default_view").defaultTo(1);
     table.integer("allow_private_data_export").defaultTo(0);
@@ -142,11 +132,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("key_hash").notNullable();
     table.string("raw_key");
     table.bigInteger("created_at").notNullable();
@@ -169,10 +155,7 @@ export async function up(knex) {
     table.string("rendered_description").notNullable().defaultTo("");
     table.integer("is_private").notNullable().defaultTo(0);
     table.integer("is_web_public").notNullable().defaultTo(0);
-    table
-      .integer("history_public_to_subscribers")
-      .notNullable()
-      .defaultTo(1);
+    table.integer("history_public_to_subscribers").notNullable().defaultTo(1);
     table.bigInteger("creator_id").references("id").inTable("user");
     table.integer("message_retention_days");
     table.bigInteger("first_message_id");
@@ -241,11 +224,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
       .bigInteger("channel_id")
       .notNullable()
@@ -287,11 +266,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("dm_group");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
 
     table.primary(["dm_group_id", "user_id"]);
     table.index(["user_id", "dm_group_id"]);
@@ -335,11 +310,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("message");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.text("prev_content");
     table.text("prev_rendered_content");
     table.string("prev_topic");
@@ -351,11 +322,7 @@ export async function up(knex) {
 
   // 14. message_flag - FK to user, message (composite PK)
   await knex.schema.createTable("message_flag", (table) => {
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
       .bigInteger("message_id")
       .notNullable()
@@ -381,11 +348,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("message");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("emoji_name").notNullable();
     table.string("emoji_code").notNullable();
     table.string("reaction_type").notNullable();
@@ -446,11 +409,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("user_group");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
 
     table.primary(["user_group_id", "user_id"]);
     table.index(["user_id"]);
@@ -475,11 +434,7 @@ export async function up(knex) {
 
   // 19. user_status - PK is user_id (FK to user, bigInteger PK)
   await knex.schema.createTable("user_status", (table) => {
-    table
-      .bigInteger("user_id")
-      .primary()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").primary().references("id").inTable("user");
     table
       .bigInteger("tenant_id")
       .notNullable()
@@ -496,11 +451,7 @@ export async function up(knex) {
 
   // 20. presence - FK to user, tenant (composite PK: user_id bigInteger, client_name string)
   await knex.schema.createTable("presence", (table) => {
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
       .bigInteger("tenant_id")
       .notNullable()
@@ -523,11 +474,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
       .bigInteger("muted_user_id")
       .notNullable()
@@ -547,11 +494,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
       .bigInteger("channel_id")
       .notNullable()
@@ -574,11 +517,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("name").notNullable();
     table.text("description").notNullable().defaultTo("");
     table.integer("is_archived").notNullable().defaultTo(0);
@@ -615,11 +554,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("file_name").notNullable();
     table.string("path_id").notNullable();
     table.integer("size").notNullable();
@@ -700,11 +635,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
       .bigInteger("field_id")
       .notNullable()
@@ -726,11 +657,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("type").notNullable();
     table.bigInteger("channel_id");
     table.string("topic");
@@ -750,11 +677,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("word").notNullable();
     table.bigInteger("created_at").notNullable();
 
@@ -780,11 +703,7 @@ export async function up(knex) {
 
   // 33. tenant_user_setting_default - PK is tenant_id (FK to tenant, bigInteger PK)
   await knex.schema.createTable("tenant_user_setting_default", (table) => {
-    table
-      .bigInteger("tenant_id")
-      .primary()
-      .references("id")
-      .inTable("tenant");
+    table.bigInteger("tenant_id").primary().references("id").inTable("tenant");
     table.text("settings_json").notNullable().defaultTo("{}");
   });
 
@@ -860,11 +779,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("kind").notNullable();
     table.string("token").notNullable();
     table.string("ios_app_id");
@@ -882,11 +797,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("title").notNullable();
     table.text("content").notNullable();
     table.bigInteger("created_at").notNullable();
@@ -903,11 +814,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
       .bigInteger("message_id")
       .notNullable()
@@ -933,11 +840,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("type").notNullable();
     table.bigInteger("channel_id").references("id").inTable("channel");
     table.string("topic");
@@ -961,11 +864,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("fragment").notNullable();
     table.integer("is_pinned").notNullable().defaultTo(0);
     table.string("name");
@@ -1004,11 +903,7 @@ export async function up(knex) {
       .notNullable()
       .references("id")
       .inTable("tenant");
-    table
-      .bigInteger("user_id")
-      .notNullable()
-      .references("id")
-      .inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.bigInteger("created_at").notNullable();
 
     table.index(["tenant_id", "user_id"]);

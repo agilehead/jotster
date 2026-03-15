@@ -23,7 +23,9 @@ export const buildExportEventPayload = (exports: DataExport[]): DomainEvent => {
       acting_user_id: e.RequesterId,
       export_time: ClrMath.Floor(Convert.ToDouble(e.CreatedAt) / 1000),
       deleted_timestamp: null,
-      failed_timestamp: e.FailedAt ? ClrMath.Floor(Convert.ToDouble(e.FailedAt) / 1000) : null,
+      failed_timestamp: e.FailedAt
+        ? ClrMath.Floor(Convert.ToDouble(e.FailedAt) / 1000)
+        : null,
       export_url: e.Url ?? null,
       pending: e.Status === "pending" || e.Status === "in_progress",
       export_type: e.ExportType,

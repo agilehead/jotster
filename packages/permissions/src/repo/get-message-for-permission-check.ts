@@ -6,7 +6,7 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 export const getMessageForPermissionCheck = async (
   options: DbContextOptions,
   tenantId: long,
-  messageId: long
+  messageId: long,
 ): Promise<
   { senderId: long; channelId: long | undefined; createdAt: number } | undefined
 > => {
@@ -16,8 +16,8 @@ export const getMessageForPermissionCheck = async (
     const tenantId0 = tenantId;
     const messageId0 = messageId;
 
-    const msg = await db0.Messages
-      .Where((m) => m.Id === messageId0).Where((m) => m.TenantId === tenantId0)
+    const msg = await db0.Messages.Where((m) => m.Id === messageId0)
+      .Where((m) => m.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (msg === undefined) {

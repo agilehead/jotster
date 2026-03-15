@@ -21,7 +21,9 @@ describe("GET /api/v1/users", () => {
     const db = testDb.getDb();
     const tenantId1 = await seedTenant(db);
     const tenantId2 = await seedTenant(db);
-    const { client } = await seedUser(db, tenantId1, { fullName: "Tenant1 User" });
+    const { client } = await seedUser(db, tenantId1, {
+      fullName: "Tenant1 User",
+    });
     await seedUser(db, tenantId2, { fullName: "Tenant2 User" });
 
     const res = await client.get("/users");
@@ -50,8 +52,12 @@ describe("GET /api/v1/users", () => {
     expect(res.status).to.equal(200);
 
     const members = res.body.members as Array<Record<string, unknown>>;
-    const ownerEntry = members.find((member) => member.user_id === owner.userId);
-    const guestEntry = members.find((member) => member.user_id === guest.userId);
+    const ownerEntry = members.find(
+      (member) => member.user_id === owner.userId,
+    );
+    const guestEntry = members.find(
+      (member) => member.user_id === guest.userId,
+    );
 
     expect(ownerEntry).to.not.equal(undefined);
     expect(ownerEntry).to.deep.include({
@@ -103,13 +109,17 @@ describe("GET /api/v1/users/{user_id}", () => {
   it("should return a specific user by ID", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
-    const { userId, client } = await seedUser(db, tenantId, { fullName: "Target User" });
+    const { userId, client } = await seedUser(db, tenantId, {
+      fullName: "Target User",
+    });
 
     const res = await client.get(`/users/${userId}`);
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
     expect(res.body).to.have.property("user");
-    expect((res.body.user as Record<string, unknown>).full_name).to.equal("Target User");
+    expect((res.body.user as Record<string, unknown>).full_name).to.equal(
+      "Target User",
+    );
   });
 
   it("should return a Zulip-compatible user payload by id", async () => {
@@ -174,7 +184,10 @@ describe("GET /api/v1/users/{user_id}", () => {
         created_at: now,
       })
       .returning("id");
-    const fieldId = typeof fieldRow === "object" ? (fieldRow as Record<string, unknown>).id as number : fieldRow as number;
+    const fieldId =
+      typeof fieldRow === "object"
+        ? ((fieldRow as Record<string, unknown>).id as number)
+        : (fieldRow as number);
     await db("custom_profile_field_value").insert({
       id: valueId,
       tenant_id: tenantId,
@@ -217,14 +230,20 @@ describe("GET /api/v1/users/me", () => {
   it("should return the authenticated user's own profile", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
-    const { userId, email, client } = await seedUser(db, tenantId, { fullName: "My Profile" });
+    const { userId, email, client } = await seedUser(db, tenantId, {
+      fullName: "My Profile",
+    });
 
     const res = await client.get("/users/me");
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
     expect(res.body).to.satisfy((body: Record<string, unknown>) => {
       // Response may have the user info at top level or nested under a key
-      return body.email === email || body.full_name === "My Profile" || body.user_id === userId;
+      return (
+        body.email === email ||
+        body.full_name === "My Profile" ||
+        body.user_id === userId
+      );
     });
   });
 

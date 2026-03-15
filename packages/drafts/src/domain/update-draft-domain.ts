@@ -18,22 +18,38 @@ export const updateDraftDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   draftId: long,
-  params: UpdateDraftDomainInput
+  params: UpdateDraftDomainInput,
 ): Promise<Result<void, string>> => {
-  if (params.type !== undefined && params.type !== "stream" && params.type !== "private") {
+  if (
+    params.type !== undefined &&
+    params.type !== "stream" &&
+    params.type !== "private"
+  ) {
     return err("Invalid draft type: " + params.type);
   }
 
-  const channelId = params.type === "stream" && params.to !== undefined ? Int64.Parse(params.to) as long : undefined;
-  const recipientIdsJson = params.type === "private" && params.to !== undefined ? params.to : undefined;
+  const channelId =
+    params.type === "stream" && params.to !== undefined
+      ? (Int64.Parse(params.to) as long)
+      : undefined;
+  const recipientIdsJson =
+    params.type === "private" && params.to !== undefined
+      ? params.to
+      : undefined;
 
-  const draft = await updateDraft(options, user.tenantId, user.userId, draftId, {
-    type: params.type,
-    channelId,
-    topic: params.topic,
-    recipientIdsJson,
-    content: params.content,
-  });
+  const draft = await updateDraft(
+    options,
+    user.tenantId,
+    user.userId,
+    draftId,
+    {
+      type: params.type,
+      channelId,
+      topic: params.topic,
+      recipientIdsJson,
+      content: params.content,
+    },
+  );
 
   if (draft === undefined) {
     return err("Draft not found");

@@ -7,11 +7,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleBulkSubscriptions = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -21,10 +26,19 @@ export const handleBulkSubscriptions = async (
   const addRaw = body["add"] as string | undefined;
   const deleteRaw = body["delete"] as string | undefined;
 
-  const addList = addRaw ? JSON.parse(addRaw) as { name: string; description?: string }[] : undefined;
-  const removeList = deleteRaw ? JSON.parse(deleteRaw) as string[] : undefined;
+  const addList = addRaw
+    ? (JSON.parse(addRaw) as { name: string; description?: string }[])
+    : undefined;
+  const removeList = deleteRaw
+    ? (JSON.parse(deleteRaw) as string[])
+    : undefined;
 
-  const result = await bulkUpdateSubscriptionsDomain(app.options, user, addList, removeList);
+  const result = await bulkUpdateSubscriptionsDomain(
+    app.options,
+    user,
+    addList,
+    removeList,
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

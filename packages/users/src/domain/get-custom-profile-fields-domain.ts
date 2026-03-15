@@ -6,7 +6,7 @@ import { mapCustomProfileFieldToCompatRecord } from "./map-custom-profile-field-
 
 export const getCustomProfileFieldsDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<Record<string, unknown>[], string>> => {
   const dbFields = await getCustomProfileFields(options, user.tenantId);
 

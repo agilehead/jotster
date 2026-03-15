@@ -13,7 +13,7 @@ export const updateProfileDataDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
   profileData: Record<string, { value: string }>,
-  profileDataKeys: List<string>
+  profileDataKeys: List<string>,
 ): Promise<Result<boolean, string>> => {
   if (profileDataKeys.Count === 0) {
     return err("No profile data provided");
@@ -23,7 +23,11 @@ export const updateProfileDataDomain = async (
   for (let i = 0; i < profileDataKeys.Count; i++) {
     const fieldIdStr = profileDataKeys[i];
     const fieldId = Convert.ToInt64(parseInt(fieldIdStr, 10));
-    const field = await getCustomProfileFieldById(options, actingUser.tenantId, fieldId);
+    const field = await getCustomProfileFieldById(
+      options,
+      actingUser.tenantId,
+      fieldId,
+    );
     if (field === undefined) {
       return err("Custom profile field not found: " + fieldIdStr);
     }
@@ -34,12 +38,16 @@ export const updateProfileDataDomain = async (
       actingUser.tenantId,
       actingUser.userId,
       fieldId,
-      entry.value
+      entry.value,
     );
   }
 
   // Build profile_data for event
-  const allValues = await getCustomProfileFieldValues(options, actingUser.tenantId, actingUser.userId);
+  const allValues = await getCustomProfileFieldValues(
+    options,
+    actingUser.tenantId,
+    actingUser.userId,
+  );
   const profileDataResponse: Record<string, unknown> = {};
   for (let i = 0; i < allValues.length; i++) {
     const v = allValues[i];

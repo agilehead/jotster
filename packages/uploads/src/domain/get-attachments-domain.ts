@@ -22,9 +22,13 @@ export class AttachmentInfo {
 
 export const getAttachmentsDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<{ attachments: AttachmentInfo[] }, string>> => {
-  const attachments = await getUserAttachments(options, user.tenantId, user.userId);
+  const attachments = await getUserAttachments(
+    options,
+    user.tenantId,
+    user.userId,
+  );
 
   const result = new List<AttachmentInfo>();
   for (let i = 0; i < attachments.length; i++) {

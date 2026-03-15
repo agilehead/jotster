@@ -10,5 +10,7 @@ export class DefaultChannel {
   CreatedAt!: long;
 }
 
-A.on(DefaultChannel).prop((x) => x.Id).add(KeyAttribute);
+A.on(DefaultChannel)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(DefaultChannel).type.add(IndexAttribute, ["TenantId", "ChannelId"]);

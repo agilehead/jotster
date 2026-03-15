@@ -5,15 +5,15 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getBotStorage = async (
   options: DbContextOptions,
-  botUserId: long
+  botUserId: long,
 ): Promise<BotStorage[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const botUserId0 = botUserId;
-    const result = await db0.BotStorages
-      .Where((s) => s.BotUserId === botUserId0)
-      .ToListAsync();
+    const result = await db0.BotStorages.Where(
+      (s) => s.BotUserId === botUserId0,
+    ).ToListAsync();
 
     const entries = new List<BotStorage>();
     for (let i = 0; i < result.Count; i++) {

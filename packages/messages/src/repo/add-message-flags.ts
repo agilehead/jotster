@@ -6,7 +6,7 @@ export const addMessageFlags = async (
   options: DbContextOptions,
   userId: long,
   messageIds: long[],
-  flag: string
+  flag: string,
 ): Promise<void> => {
   const db = new JotsterDbContext(options);
   try {

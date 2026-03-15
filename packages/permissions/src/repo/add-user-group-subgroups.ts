@@ -1,11 +1,14 @@
 import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, UserGroupSubgroup } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  UserGroupSubgroup,
+} from "@jotster/core/Jotster.Core.js";
 
 export const addUserGroupSubgroups = async (
   options: DbContextOptions,
   parentGroupId: long,
-  subgroupIds: long[]
+  subgroupIds: long[],
 ): Promise<void> => {
   const db = new JotsterDbContext(options);
   try {

@@ -10,7 +10,9 @@ describe("Channel Creation", () => {
       const { client } = await seedUser(db, tenantId);
 
       const res = await client.post("/users/me/subscriptions", {
-        subscriptions: JSON.stringify([{ name: "new-channel", description: "A test channel" }]),
+        subscriptions: JSON.stringify([
+          { name: "new-channel", description: "A test channel" },
+        ]),
       });
 
       expect(res.status).to.equal(200);

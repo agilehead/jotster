@@ -19,7 +19,7 @@ interface SendMessageInput {
 
 export const sendMessage = async (
   options: DbContextOptions,
-  input: SendMessageInput
+  input: SendMessageInput,
 ): Promise<Message> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

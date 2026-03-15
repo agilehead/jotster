@@ -6,7 +6,7 @@ import { checkPermission } from "./check-permission.ts";
 export const canUserEditTopic = async (
   options: DbContextOptions,
   tenantId: long,
-  userId: long
+  userId: long,
 ): Promise<Result<boolean, string>> => {
   return await checkPermission(options, tenantId, userId, "edit_topic_policy");
 };

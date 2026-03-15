@@ -5,7 +5,7 @@ import { JotsterDbContext, UserSetting } from "@jotster/core/Jotster.Core.js";
 export const createUserSetting = async (
   options: DbContextOptions,
   userId: long,
-  tenantId: long
+  tenantId: long,
 ): Promise<UserSetting> => {
   const setting = new UserSetting();
   setting.UserId = userId;

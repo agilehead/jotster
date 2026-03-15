@@ -18,7 +18,7 @@ const SYSTEM_GROUP_NAMES: string[] = [
 
 export const initializeSystemGroups = async (
   options: DbContextOptions,
-  tenantId: long
+  tenantId: long,
 ): Promise<Result<boolean, string>> => {
   const db = new JotsterDbContext(options);
   try {
@@ -27,8 +27,8 @@ export const initializeSystemGroups = async (
     const one = 1 as int;
 
     // Fetch existing system groups for this tenant
-    const existing = await db0.UserGroups
-      .Where((g) => g.TenantId === tenantId0).Where((g) => g.IsSystemGroup === one)
+    const existing = await db0.UserGroups.Where((g) => g.TenantId === tenantId0)
+      .Where((g) => g.IsSystemGroup === one)
       .ToListAsync();
 
     // Build a set of existing group names

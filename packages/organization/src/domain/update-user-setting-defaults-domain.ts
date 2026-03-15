@@ -8,7 +8,7 @@ import { updateUserSettingDefaults } from "../repo/update-user-setting-defaults.
 export const updateUserSettingDefaultsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  updates: Record<string, unknown>
+  updates: Record<string, unknown>,
 ): Promise<Result<Record<string, unknown>, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {
@@ -16,7 +16,11 @@ export const updateUserSettingDefaultsDomain = async (
   }
 
   const previous = await getUserSettingDefaults(options, user.tenantId);
-  const result = await updateUserSettingDefaults(options, user.tenantId, updates);
+  const result = await updateUserSettingDefaults(
+    options,
+    user.tenantId,
+    updates,
+  );
 
   const updateKeys = Object.keys(updates);
   for (let i = 0; i < updateKeys.length; i++) {
@@ -24,7 +28,11 @@ export const updateUserSettingDefaultsDomain = async (
     let previousValue = undefined as unknown;
     let hadPreviousValue = false;
     const previousKeys = Object.keys(previous);
-    for (let previousIndex = 0; previousIndex < previousKeys.length; previousIndex++) {
+    for (
+      let previousIndex = 0;
+      previousIndex < previousKeys.length;
+      previousIndex++
+    ) {
       if (previousKeys[previousIndex] === key) {
         previousValue = previous[key];
         hadPreviousValue = true;

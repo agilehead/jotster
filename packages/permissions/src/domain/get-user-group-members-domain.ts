@@ -8,7 +8,7 @@ import { getUserGroupMembers } from "../repo/get-user-group-members.ts";
 export const getUserGroupMembersDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  groupId: long
+  groupId: long,
 ): Promise<Result<long[], string>> => {
   const group = await getUserGroupById(options, groupId);
   if (group === undefined) {

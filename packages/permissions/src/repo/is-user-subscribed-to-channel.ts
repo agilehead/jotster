@@ -6,7 +6,7 @@ export const isUserSubscribedToChannel = async (
   options: DbContextOptions,
   tenantId: long,
   userId: long,
-  channelId: long
+  channelId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -15,14 +15,12 @@ export const isUserSubscribedToChannel = async (
     const userId0 = userId;
     const channelId0 = channelId;
 
-    const sub = await db0.Subscriptions
-      .Where(
-        (s) =>
-          s.TenantId === tenantId0 &&
-          s.UserId === userId0 &&
-          s.ChannelId === channelId0
-      )
-      .FirstOrDefaultAsync();
+    const sub = await db0.Subscriptions.Where(
+      (s) =>
+        s.TenantId === tenantId0 &&
+        s.UserId === userId0 &&
+        s.ChannelId === channelId0,
+    ).FirstOrDefaultAsync();
 
     return sub !== undefined;
   } finally {

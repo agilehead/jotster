@@ -8,13 +8,17 @@ import { removeDefaultChannel } from "../repo/remove-default-channel.ts";
 export const removeDefaultChannelDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: long
+  channelId: long,
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");
   }
 
-  const currentlyDefault = await isDefaultChannel(options, user.tenantId, channelId);
+  const currentlyDefault = await isDefaultChannel(
+    options,
+    user.tenantId,
+    channelId,
+  );
   if (!currentlyDefault) {
     return err("Channel is not a default channel");
   }

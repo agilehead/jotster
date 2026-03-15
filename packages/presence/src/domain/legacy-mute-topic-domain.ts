@@ -15,7 +15,7 @@ interface LegacyMuteTopicParams {
 export const legacyMuteTopicDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: LegacyMuteTopicParams
+  params: LegacyMuteTopicParams,
 ): Promise<Result<void, string>> => {
   // Map op to visibility policy
   let visibilityPolicy: int;
@@ -41,14 +41,14 @@ export const legacyMuteTopicDomain = async (
     const streamRefAsLong = Convert.ToInt64(streamRef0);
 
     // Try by ID first
-    let channel = await db0.Channels
-      .Where((c) => c.TenantId === tenantId0).Where((c) => c.Id === streamRefAsLong)
+    let channel = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+      .Where((c) => c.Id === streamRefAsLong)
       .FirstOrDefaultAsync();
 
     if (channel === undefined || channel === null) {
       // Try by name
-      channel = await db0.Channels
-        .Where((c) => c.TenantId === tenantId0).Where((c) => c.Name === streamRef0)
+      channel = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+        .Where((c) => c.Name === streamRef0)
         .FirstOrDefaultAsync();
     }
 

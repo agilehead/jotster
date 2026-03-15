@@ -7,11 +7,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleRegisterPushDevice = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -20,19 +25,29 @@ export const handleRegisterPushDevice = async (
 
   const token = getOptionalStringField(body, "token");
   if (!token) {
-    res.status(400).json({ result: "error", msg: "Missing required field: token" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: token" });
     return;
   }
 
   const kind = getOptionalStringField(body, "kind");
   if (!kind) {
-    res.status(400).json({ result: "error", msg: "Missing required field: kind" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: kind" });
     return;
   }
 
   const iosAppId = getOptionalStringField(body, "ios_app_id");
 
-  const result = await registerDeviceDomain(app.options, user, kind, token, iosAppId);
+  const result = await registerDeviceDomain(
+    app.options,
+    user,
+    kind,
+    token,
+    iosAppId,
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

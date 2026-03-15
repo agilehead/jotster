@@ -13,6 +13,8 @@ export class PushDeviceToken {
   CreatedAt!: long;
 }
 
-A.on(PushDeviceToken).prop((x) => x.Id).add(KeyAttribute);
+A.on(PushDeviceToken)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(PushDeviceToken).type.add(IndexAttribute, ["TenantId", "UserId", "Token"]);
 A.on(PushDeviceToken).type.add(IndexAttribute, ["TenantId", "UserId"]);

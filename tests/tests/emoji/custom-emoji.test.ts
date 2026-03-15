@@ -38,17 +38,23 @@ describe("Custom emoji mutation endpoints", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const uploadRes = await client.postMultipart("/realm/emoji/wave", undefined, {
-      filename: "wave.png",
-      contentType: "image/png",
-      content: pngBytes,
-    });
+    const uploadRes = await client.postMultipart(
+      "/realm/emoji/wave",
+      undefined,
+      {
+        filename: "wave.png",
+        contentType: "image/png",
+        content: pngBytes,
+      },
+    );
     expect(uploadRes.status).to.equal(200);
     expect(uploadRes.body.result).to.equal("success");
 
     const listRes = await client.get("/realm/emoji");
     expect(listRes.status).to.equal(200);
-    const emojiEntries = Object.values(listRes.body.emoji as Record<string, Record<string, unknown>>);
+    const emojiEntries = Object.values(
+      listRes.body.emoji as Record<string, Record<string, unknown>>,
+    );
     expect(emojiEntries).to.have.length(1);
     const emoji = emojiEntries[0];
     expect(emoji.name).to.equal("wave");

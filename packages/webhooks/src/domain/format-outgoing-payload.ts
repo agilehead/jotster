@@ -17,7 +17,7 @@ interface MessageData {
 
 export const formatOutgoingPayload = (
   data: MessageData,
-  interfaceType: int
+  interfaceType: int,
 ): Record<string, unknown> => {
   const payload: Record<string, unknown> = {};
 

@@ -1,6 +1,10 @@
 import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, ChannelFolder, ChannelFolderItem } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  ChannelFolder,
+  ChannelFolderItem,
+} from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 interface ChannelFolderWithItems {
@@ -10,24 +14,24 @@ interface ChannelFolderWithItems {
 
 export const getChannelFolderById = async (
   options: DbContextOptions,
-  folderId: long
+  folderId: long,
 ): Promise<ChannelFolderWithItems | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const folderId0 = folderId;
 
-    const folder = await db0.ChannelFolders
-      .Where((f) => f.Id === folderId0)
-      .FirstOrDefaultAsync();
+    const folder = await db0.ChannelFolders.Where(
+      (f) => f.Id === folderId0,
+    ).FirstOrDefaultAsync();
 
     if (folder === undefined) {
       return undefined;
     }
 
-    const items = await db0.ChannelFolderItems
-      .Where((item) => item.ChannelFolderId === folderId0)
-      .ToListAsync();
+    const items = await db0.ChannelFolderItems.Where(
+      (item) => item.ChannelFolderId === folderId0,
+    ).ToListAsync();
 
     const itemList = new List<ChannelFolderItem>();
     for (let i = 0; i < items.Count; i++) {

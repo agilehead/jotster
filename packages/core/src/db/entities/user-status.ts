@@ -13,5 +13,7 @@ export class UserStatus {
   UpdatedAt!: long;
 }
 
-A.on(UserStatus).prop((x) => x.UserId).add(KeyAttribute);
+A.on(UserStatus)
+  .prop((x) => x.UserId)
+  .add(KeyAttribute);
 A.on(UserStatus).type.add(IndexAttribute, ["TenantId"]);

@@ -29,7 +29,7 @@ const convertSlackToZulipMarkdown = (text: string): string => {
 export const handleSlackIncomingDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: SlackIncomingInput
+  input: SlackIncomingInput,
 ): Promise<Result<{ id: long }, string>> => {
   // Verify the user is a bot of type 2 (incoming webhook bot)
   const db = new JotsterDbContext(options);
@@ -37,8 +37,8 @@ export const handleSlackIncomingDomain = async (
     const db0 = db;
     const userId0 = user.userId;
     const tenantId0 = user.tenantId;
-    const botUser = await db0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === userId0)
+    const botUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+      .Where((u) => u.Id === userId0)
       .FirstOrDefaultAsync();
 
     if (botUser === undefined || botUser === null) {

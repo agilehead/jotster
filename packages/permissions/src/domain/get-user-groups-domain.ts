@@ -1,6 +1,9 @@
 import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type { AuthenticatedUser, UserGroup } from "@jotster/core/Jotster.Core.js";
+import type {
+  AuthenticatedUser,
+  UserGroup,
+} from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getUserGroups } from "../repo/get-user-groups.ts";
 import { getUserGroupMembers } from "../repo/get-user-group-members.ts";
@@ -17,7 +20,11 @@ export const getUserGroupsDomain = async (
   user: AuthenticatedUser,
   includeDeactivated?: boolean,
 ): Promise<UserGroupWithDetails[]> => {
-  const groups = await getUserGroups(options, user.tenantId, includeDeactivated);
+  const groups = await getUserGroups(
+    options,
+    user.tenantId,
+    includeDeactivated,
+  );
 
   const result = new List<UserGroupWithDetails>();
   for (let i = 0; i < groups.length; i++) {

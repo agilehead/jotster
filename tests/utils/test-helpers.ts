@@ -18,7 +18,7 @@ export async function seedTenant(
     iconUrl: string;
     settingsJson: string;
     ownerFullContentAccess: number;
-  }>
+  }>,
 ): Promise<number> {
   const now = Date.now();
   const [row] = await db("tenant")
@@ -34,7 +34,10 @@ export async function seedTenant(
       updated_at: now,
     })
     .returning("id");
-  const tenantId = typeof row === "object" ? (row as Record<string, unknown>).id as number : row as number;
+  const tenantId =
+    typeof row === "object"
+      ? ((row as Record<string, unknown>).id as number)
+      : (row as number);
 
   // Always seed system groups for the new tenant
   await seedSystemGroups(db, tenantId);
@@ -42,14 +45,25 @@ export async function seedTenant(
   return tenantId;
 }
 
-async function getTenantHostHeader(db: Knex, tenantId: number, serverBaseUrl: string): Promise<string> {
-  const row = await db("tenant").select("subdomain").where({ id: tenantId }).first();
+async function getTenantHostHeader(
+  db: Knex,
+  tenantId: number,
+  serverBaseUrl: string,
+): Promise<string> {
+  const row = await db("tenant")
+    .select("subdomain")
+    .where({ id: tenantId })
+    .first();
   const subdomain = row?.subdomain as string | undefined;
   if (!subdomain) {
-    throw new Error(`Tenant ${tenantId} not found while constructing test client host header`);
+    throw new Error(
+      `Tenant ${tenantId} not found while constructing test client host header`,
+    );
   }
   const port = new URL(serverBaseUrl).port;
-  return port === "" ? `${subdomain}.test.local` : `${subdomain}.test.local:${port}`;
+  return port === ""
+    ? `${subdomain}.test.local`
+    : `${subdomain}.test.local:${port}`;
 }
 
 /**
@@ -69,7 +83,7 @@ export async function seedUser(
     botType: number;
     botOwnerId: number;
     isBillingAdmin: number;
-  }>
+  }>,
 ): Promise<{
   userId: number;
   email: string;
@@ -99,7 +113,10 @@ export async function seedUser(
       updated_at: now,
     })
     .returning("id");
-  const userId = typeof row === "object" ? (row as Record<string, unknown>).id as number : row as number;
+  const userId =
+    typeof row === "object"
+      ? ((row as Record<string, unknown>).id as number)
+      : (row as number);
 
   await db("user_setting").insert({
     user_id: userId,
@@ -184,7 +201,7 @@ export async function seedChannel(
     isPrivate: number;
     isWebPublic: number;
     creatorId: number;
-  }>
+  }>,
 ): Promise<number> {
   const now = Date.now();
   const [row] = await db("channel")
@@ -202,7 +219,9 @@ export async function seedChannel(
       updated_at: now,
     })
     .returning("id");
-  return typeof row === "object" ? (row as Record<string, unknown>).id as number : row as number;
+  return typeof row === "object"
+    ? ((row as Record<string, unknown>).id as number)
+    : (row as number);
 }
 
 /**
@@ -212,7 +231,7 @@ export async function seedSubscription(
   db: Knex,
   tenantId: number,
   userId: number,
-  channelId: number
+  channelId: number,
 ): Promise<string> {
   const id = `sub_${randomId()}`;
   const now = Date.now();
@@ -241,7 +260,7 @@ export async function seedMessage(
     topic: string;
     dmGroupId: string;
     content: string;
-  }>
+  }>,
 ): Promise<number> {
   const now = Date.now();
   const type = overrides?.channelId ? "stream" : "private";
@@ -261,7 +280,9 @@ export async function seedMessage(
       created_at: now,
     })
     .returning("id");
-  return typeof row === "object" ? (row as Record<string, unknown>).id as number : row as number;
+  return typeof row === "object"
+    ? ((row as Record<string, unknown>).id as number)
+    : (row as number);
 }
 
 /**
@@ -269,7 +290,7 @@ export async function seedMessage(
  */
 export async function seedSystemGroups(
   db: Knex,
-  tenantId: number
+  tenantId: number,
 ): Promise<Record<string, number>> {
   const groups: Record<string, number> = {};
   const now = Date.now();
@@ -296,7 +317,10 @@ export async function seedSystemGroups(
         updated_at: now,
       })
       .returning("id");
-    groups[name] = typeof row === "object" ? (row as Record<string, unknown>).id as number : row as number;
+    groups[name] =
+      typeof row === "object"
+        ? ((row as Record<string, unknown>).id as number)
+        : (row as number);
   }
 
   return groups;

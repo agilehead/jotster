@@ -21,6 +21,8 @@ export class UserGroup {
   UpdatedAt!: long;
 }
 
-A.on(UserGroup).prop((x) => x.Id).add(KeyAttribute);
+A.on(UserGroup)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(UserGroup).type.add(IndexAttribute, ["TenantId"]);
 A.on(UserGroup).type.add(IndexAttribute, ["TenantId", "Name"]);

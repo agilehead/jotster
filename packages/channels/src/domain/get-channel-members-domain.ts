@@ -8,7 +8,7 @@ import { getChannelSubscribers } from "../repo/get-channel-subscribers.ts";
 export const getChannelMembersDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: long
+  channelId: long,
 ): Promise<Result<long[], string>> => {
   const channel = await getChannelById(options, channelId);
   if (channel === undefined) {
@@ -24,8 +24,11 @@ export const getChannelMembersDomain = async (
         const tenantId0 = user.tenantId;
         const userId0 = user.userId;
         const channelId0 = channelId;
-        const sub = await db0.Subscriptions
-          .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+        const sub = await db0.Subscriptions.Where(
+          (s) => s.TenantId === tenantId0,
+        )
+          .Where((s) => s.UserId === userId0)
+          .Where((s) => s.ChannelId === channelId0)
           .FirstOrDefaultAsync();
         if (sub === undefined || sub === null) {
           return err("Channel not found");
@@ -36,6 +39,10 @@ export const getChannelMembersDomain = async (
     }
   }
 
-  const members = await getChannelSubscribers(options, user.tenantId, channelId);
+  const members = await getChannelSubscribers(
+    options,
+    user.tenantId,
+    channelId,
+  );
   return ok(members);
 };

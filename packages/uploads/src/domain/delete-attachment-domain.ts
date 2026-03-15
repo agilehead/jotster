@@ -11,9 +11,13 @@ export const deleteAttachmentDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   uploadsDir: string,
-  attachmentId: long
+  attachmentId: long,
 ): Promise<Result<void, string>> => {
-  const attachment = await getAttachmentById(options, user.tenantId, attachmentId);
+  const attachment = await getAttachmentById(
+    options,
+    user.tenantId,
+    attachmentId,
+  );
   if (attachment === undefined) {
     return err("Attachment not found");
   }
@@ -26,7 +30,11 @@ export const deleteAttachmentDomain = async (
   }
 
   // Delete file from disk
-  const filePath = path.join(uploadsDir, String(user.tenantId), attachment.PathId);
+  const filePath = path.join(
+    uploadsDir,
+    String(user.tenantId),
+    attachment.PathId,
+  );
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }

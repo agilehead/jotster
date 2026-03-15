@@ -12,16 +12,16 @@ interface UpdateChannelFolderInput {
 export const updateChannelFolder = async (
   options: DbContextOptions,
   folderId: long,
-  updates: UpdateChannelFolderInput
+  updates: UpdateChannelFolderInput,
 ): Promise<ChannelFolder | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const folderId0 = folderId;
 
-    const folder = await db0.ChannelFolders
-      .Where((f) => f.Id === folderId0)
-      .FirstOrDefaultAsync();
+    const folder = await db0.ChannelFolders.Where(
+      (f) => f.Id === folderId0,
+    ).FirstOrDefaultAsync();
 
     if (folder === undefined) {
       return undefined;

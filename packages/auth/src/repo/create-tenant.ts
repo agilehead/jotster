@@ -5,7 +5,7 @@ import { JotsterDbContext, Tenant } from "@jotster/core/Jotster.Core.js";
 
 export const createTenant = async (
   options: DbContextOptions,
-  input: { subdomain: string; name: string; description?: string }
+  input: { subdomain: string; name: string; description?: string },
 ): Promise<Tenant> => {
   const db = new JotsterDbContext(options);
   try {

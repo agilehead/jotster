@@ -7,7 +7,7 @@ import { getUserStatus } from "../repo/get-user-status.ts";
 export const getUserStatusDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  targetUserId: long
+  targetUserId: long,
 ): Promise<Result<Record<string, unknown>, string>> => {
   const status = await getUserStatus(options, user.tenantId, targetUserId);
 

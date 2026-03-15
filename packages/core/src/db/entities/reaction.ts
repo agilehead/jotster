@@ -14,7 +14,14 @@ export class Reaction {
   CreatedAt!: long;
 }
 
-A.on(Reaction).prop((x) => x.Id).add(KeyAttribute);
-A.on(Reaction).type.add(IndexAttribute, ["MessageId", "UserId", "EmojiCode", "ReactionType"]);
+A.on(Reaction)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
+A.on(Reaction).type.add(IndexAttribute, [
+  "MessageId",
+  "UserId",
+  "EmojiCode",
+  "ReactionType",
+]);
 A.on(Reaction).type.add(IndexAttribute, ["TenantId", "MessageId"]);
 A.on(Reaction).type.add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);

@@ -84,7 +84,10 @@ export class TestDatabase {
     await this.db(table).insert(data);
   }
 
-  async insertMany(table: string, rows: Record<string, unknown>[]): Promise<void> {
+  async insertMany(
+    table: string,
+    rows: Record<string, unknown>[],
+  ): Promise<void> {
     await this.db(table).insert(rows);
   }
 }

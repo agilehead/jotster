@@ -1,6 +1,9 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { registerClientDevice, removeClientDevice } from "../helpers/compat-db.ts";
+import {
+  registerClientDevice,
+  removeClientDevice,
+} from "../helpers/compat-db.ts";
 import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
@@ -31,13 +34,21 @@ export const handleRemoveClientDeviceCompat = async (
   const body = getBodyObject(req);
   const deviceId = getOptionalStringField(body, "device_id");
   if (deviceId === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing device_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing device_id", code: "BAD_REQUEST" });
     return;
   }
 
   const removed = await removeClientDevice(app.options, requester, deviceId);
   if (!removed) {
-    res.status(404).json({ result: "error", msg: "Device does not exist", code: "BAD_REQUEST" });
+    res
+      .status(404)
+      .json({
+        result: "error",
+        msg: "Device does not exist",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
@@ -52,7 +63,10 @@ export const handleRegisterRemotePushDeviceCompat = async (
   const body = getBodyObject(req);
   const realmUuid = getOptionalStringField(body, "realm_uuid");
   const tokenId = getOptionalStringField(body, "token_id");
-  const encryptedPushRegistration = getOptionalStringField(body, "encrypted_push_registration");
+  const encryptedPushRegistration = getOptionalStringField(
+    body,
+    "encrypted_push_registration",
+  );
   const bouncerPublicKey = getOptionalStringField(body, "bouncer_public_key");
   if (
     realmUuid === undefined ||
@@ -60,7 +74,13 @@ export const handleRegisterRemotePushDeviceCompat = async (
     encryptedPushRegistration === undefined ||
     bouncerPublicKey === undefined
   ) {
-    res.status(400).json({ result: "error", msg: "Missing required field", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required field",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 

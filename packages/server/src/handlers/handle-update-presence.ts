@@ -1,7 +1,13 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
-import { getBodyObject, getOptionalBooleanField, getOptionalField, getOptionalIntField, getOptionalStringField } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalBooleanField,
+  getOptionalField,
+  getOptionalIntField,
+  getOptionalStringField,
+} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updatePresenceDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -40,11 +46,16 @@ const parseOptionalLongField = (
 export const handleUpdatePresence = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -53,7 +64,9 @@ export const handleUpdatePresence = async (
 
   const status = getOptionalStringField(body, "status");
   if (status === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required field: status" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: status" });
     return;
   }
 

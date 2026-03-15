@@ -16,5 +16,7 @@ export class Linkifier {
   UpdatedAt!: long;
 }
 
-A.on(Linkifier).prop((x) => x.Id).add(KeyAttribute);
+A.on(Linkifier)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Linkifier).type.add(IndexAttribute, ["TenantId"]);

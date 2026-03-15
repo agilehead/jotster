@@ -6,7 +6,7 @@ import { unregisterPushToken } from "../repo/unregister-push-token.ts";
 export const unregisterDeviceDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  token: string
+  token: string,
 ): Promise<Result<Record<string, unknown>, string>> => {
   await unregisterPushToken(options, user.tenantId, user.userId, token);
 

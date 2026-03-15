@@ -6,7 +6,7 @@ import { getAlertWords } from "../repo/get-alert-words.ts";
 
 export const getAlertWordsDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<string[], string>> => {
   const alertWords = await getAlertWords(options, user.tenantId, user.userId);
 

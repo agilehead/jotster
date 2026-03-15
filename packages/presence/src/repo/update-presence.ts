@@ -9,7 +9,7 @@ export const updatePresence = async (
   userId: long,
   clientName: string,
   status: string,
-  pingOnly?: boolean
+  pingOnly?: boolean,
 ): Promise<Presence> => {
   const db = new JotsterDbContext(options);
   try {
@@ -18,8 +18,8 @@ export const updatePresence = async (
     const clientName0 = clientName;
     const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
-    const existing = await db0.Presences
-      .Where((p) => p.UserId === userId0).Where((p) => p.ClientName === clientName0)
+    const existing = await db0.Presences.Where((p) => p.UserId === userId0)
+      .Where((p) => p.ClientName === clientName0)
       .FirstOrDefaultAsync();
 
     if (existing !== undefined && existing !== null) {

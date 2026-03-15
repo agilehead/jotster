@@ -14,7 +14,7 @@ import {
 export const handleDevFetchApiKey = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
   const devAuthError = getDevAuthAvailabilityError(app.config);
   if (devAuthError !== undefined) {
@@ -22,14 +22,22 @@ export const handleDevFetchApiKey = async (
     return;
   }
 
-  const tenantResult = await resolveTenant(app.options, app.config, req.get("host") ?? "");
+  const tenantResult = await resolveTenant(
+    app.options,
+    app.config,
+    req.get("host") ?? "",
+  );
   if (!tenantResult.success) {
-    res.status(getTenantAuthErrorStatus(tenantResult.error)).json(getJsonErrorBody(tenantResult.error));
+    res
+      .status(getTenantAuthErrorStatus(tenantResult.error))
+      .json(getJsonErrorBody(tenantResult.error));
     return;
   }
 
   const body = getBodyObject(req);
-  const username = getOptionalStringField(body, "username") ?? getOptionalStringField(body, "direct_email");
+  const username =
+    getOptionalStringField(body, "username") ??
+    getOptionalStringField(body, "direct_email");
   if (!username) {
     res.status(400).json(getJsonErrorBody("Missing username"));
     return;
@@ -39,9 +47,16 @@ export const handleDevFetchApiKey = async (
     return;
   }
 
-  const result = await devFetchApiKey(app.options, app.config, tenantResult.data.Id, username);
+  const result = await devFetchApiKey(
+    app.options,
+    app.config,
+    tenantResult.data.Id,
+    username,
+  );
   if (!result.success) {
-    res.status(getPasswordAuthErrorStatus(result.error)).json(getJsonErrorBody(result.error));
+    res
+      .status(getPasswordAuthErrorStatus(result.error))
+      .json(getJsonErrorBody(result.error));
     return;
   }
 

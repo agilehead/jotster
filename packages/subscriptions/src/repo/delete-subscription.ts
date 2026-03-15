@@ -6,7 +6,7 @@ export const deleteSubscription = async (
   options: DbContextOptions,
   tenantId: long,
   userId: long,
-  channelId: long
+  channelId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -14,8 +14,9 @@ export const deleteSubscription = async (
     const tenantId0 = tenantId;
     const userId0 = userId;
     const channelId0 = channelId;
-    const sub = await db0.Subscriptions
-      .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+    const sub = await db0.Subscriptions.Where((s) => s.TenantId === tenantId0)
+      .Where((s) => s.UserId === userId0)
+      .Where((s) => s.ChannelId === channelId0)
       .FirstOrDefaultAsync();
     if (sub === undefined || sub === null) {
       return false;

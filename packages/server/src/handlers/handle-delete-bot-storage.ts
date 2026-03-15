@@ -7,24 +7,32 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleDeleteBotStorage = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   if (user.isBot !== 1) {
-    res.status(403).json({ result: "error", msg: "Only bot users can access bot storage" });
+    res
+      .status(403)
+      .json({ result: "error", msg: "Only bot users can access bot storage" });
     return;
   }
 
   const body = getBodyObject(req);
   const query = req.query as Record<string, unknown>;
 
-  const key = getOptionalStringField(body, "key") ?? getOptionalStringField(query, "key");
+  const key =
+    getOptionalStringField(body, "key") ?? getOptionalStringField(query, "key");
 
   const deleted = await deleteBotStorage(app.options, user.userId, key);
   if (!deleted) {

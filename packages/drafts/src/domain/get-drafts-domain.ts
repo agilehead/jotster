@@ -7,7 +7,7 @@ import { mapDraftToCompatRecord } from "./map-draft-to-compat-record.ts";
 
 export const getDraftsDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<Record<string, unknown>[], string>> => {
   const drafts = await getDrafts(options, user.tenantId, user.userId);
 

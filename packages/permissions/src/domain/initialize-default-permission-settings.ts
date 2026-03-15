@@ -26,7 +26,7 @@ const PERMISSION_DEFAULTS: Record<string, string> = {
 
 export const initializeDefaultPermissionSettings = async (
   options: DbContextOptions,
-  tenantId: long
+  tenantId: long,
 ): Promise<Result<Record<string, string>, string>> => {
   const db = new JotsterDbContext(options);
   try {
@@ -35,8 +35,10 @@ export const initializeDefaultPermissionSettings = async (
     const one = 1 as int;
 
     // Fetch system groups for this tenant
-    const systemGroups = await db0.UserGroups
-      .Where((g) => g.TenantId === tenantId0).Where((g) => g.IsSystemGroup === one)
+    const systemGroups = await db0.UserGroups.Where(
+      (g) => g.TenantId === tenantId0,
+    )
+      .Where((g) => g.IsSystemGroup === one)
       .ToListAsync();
 
     // Build name → id lookup

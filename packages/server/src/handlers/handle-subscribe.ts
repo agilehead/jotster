@@ -12,7 +12,12 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 const getOptionalObjectField = (source: unknown, key: string): unknown => {
-  if (source === undefined || source === null || typeof source !== "object" || Array.isArray(source)) {
+  if (
+    source === undefined ||
+    source === null ||
+    typeof source !== "object" ||
+    Array.isArray(source)
+  ) {
     return undefined;
   }
 
@@ -25,7 +30,9 @@ const getOptionalObjectField = (source: unknown, key: string): unknown => {
   return undefined;
 };
 
-const toSubscriptionEntries = (value: unknown[] | undefined): { name: string; description?: string }[] | undefined => {
+const toSubscriptionEntries = (
+  value: unknown[] | undefined,
+): { name: string; description?: string }[] | undefined => {
   if (value === undefined) {
     return undefined;
   }
@@ -33,16 +40,25 @@ const toSubscriptionEntries = (value: unknown[] | undefined): { name: string; de
   const result = new List<{ name: string; description?: string }>();
   for (let i = 0; i < value.length; i++) {
     const entry = value[i];
-    if (entry === undefined || entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+    if (
+      entry === undefined ||
+      entry === null ||
+      typeof entry !== "object" ||
+      Array.isArray(entry)
+    ) {
       return undefined;
     }
     const nameValue = getOptionalObjectField(entry, "name");
-    const name = typeof nameValue === "string" ? (nameValue as string) : undefined;
+    const name =
+      typeof nameValue === "string" ? (nameValue as string) : undefined;
     if (name === undefined) {
       return undefined;
     }
     const descriptionValue = getOptionalObjectField(entry, "description");
-    const description = typeof descriptionValue === "string" ? (descriptionValue as string) : undefined;
+    const description =
+      typeof descriptionValue === "string"
+        ? (descriptionValue as string)
+        : undefined;
     result.Add({ name, description });
   }
   return result.ToArray();
@@ -67,7 +83,7 @@ const toStringArray = (value: unknown[] | undefined): string[] | undefined => {
 const appendChannels = (
   target: Record<string, string[]>,
   email: string,
-  channels: string[]
+  channels: string[],
 ): void => {
   const merged = new List<string>();
   const existing = getOptionalObjectField(target, email);
@@ -91,29 +107,46 @@ const appendChannels = (
 export const handleSubscribe = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const subscriptions = toSubscriptionEntries(getOptionalJsonArrayField(body, "subscriptions"));
+  const subscriptions = toSubscriptionEntries(
+    getOptionalJsonArrayField(body, "subscriptions"),
+  );
   if (!subscriptions || subscriptions.length === 0) {
-    res.status(400).json({ result: "error", msg: "Missing required field: subscriptions" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: subscriptions" });
     return;
   }
 
-  const principals = toStringArray(getOptionalJsonArrayField(body, "principals"));
+  const principals = toStringArray(
+    getOptionalJsonArrayField(body, "principals"),
+  );
 
   const inviteOnly = getOptionalFlagIntField(body, "invite_only");
   const isWebPublic = getOptionalFlagIntField(body, "is_web_public");
-  const historyPublicToSubscribers = getOptionalFlagIntField(body, "history_public_to_subscribers");
-  const messageRetentionDays = getOptionalIntField(body, "message_retention_days");
+  const historyPublicToSubscribers = getOptionalFlagIntField(
+    body,
+    "history_public_to_subscribers",
+  );
+  const messageRetentionDays = getOptionalIntField(
+    body,
+    "message_retention_days",
+  );
 
   const createParams: {
     isPrivate?: int;
@@ -132,7 +165,13 @@ export const handleSubscribe = async (
 
   for (let i = 0; i < subscriptions.length; i++) {
     const entry = subscriptions[i];
-    const result = await subscribeDomain(app.options, user, entry.name, principals, createParams);
+    const result = await subscribeDomain(
+      app.options,
+      user,
+      entry.name,
+      principals,
+      createParams,
+    );
     if (!result.success) {
       res.status(400).json({ result: "error", msg: result.error });
       return;

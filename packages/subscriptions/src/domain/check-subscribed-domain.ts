@@ -8,14 +8,19 @@ export const checkSubscribedDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
   targetUserId: long,
-  channelId: long
+  channelId: long,
 ): Promise<Result<boolean, string>> => {
   // Only admin or self can check
   if (actingUser.role > 200 && actingUser.userId !== targetUserId) {
     return err("Insufficient permission");
   }
 
-  const sub = await getSubscription(options, actingUser.tenantId, targetUserId, channelId);
+  const sub = await getSubscription(
+    options,
+    actingUser.tenantId,
+    targetUserId,
+    channelId,
+  );
   if (sub !== undefined) {
     return ok(true);
   }

@@ -9,17 +9,30 @@ import { mapChannelFolderToCompatResponse } from "../helpers/compat-mappers.ts";
 export const handleGetChannelFolders = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
-  const includeArchived = getOptionalBooleanField(req.query as Record<string, unknown>, "include_archived") === true;
-  const foldersWithItems = await getChannelFoldersDomain(app.options, user, includeArchived);
+  const includeArchived =
+    getOptionalBooleanField(
+      req.query as Record<string, unknown>,
+      "include_archived",
+    ) === true;
+  const foldersWithItems = await getChannelFoldersDomain(
+    app.options,
+    user,
+    includeArchived,
+  );
 
   const channel_folders = new List<Record<string, unknown>>();
   for (let i = 0; i < foldersWithItems.length; i++) {
@@ -27,5 +40,9 @@ export const handleGetChannelFolders = async (
     channel_folders.Add(mapChannelFolderToCompatResponse(entry.folder));
   }
 
-  res.json({ result: "success", msg: "", channel_folders: channel_folders.ToArray() });
+  res.json({
+    result: "success",
+    msg: "",
+    channel_folders: channel_folders.ToArray(),
+  });
 };

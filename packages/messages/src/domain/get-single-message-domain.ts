@@ -10,7 +10,7 @@ import { getReactionsForMessage } from "../repo/get-reactions-for-message.ts";
 export const getSingleMessageDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: long
+  messageId: long,
 ): Promise<Result<Record<string, unknown>, string>> => {
   const message = await getMessage(options, user.tenantId, messageId);
   if (message === undefined) {
@@ -18,7 +18,11 @@ export const getSingleMessageDomain = async (
   }
 
   // Load reactions
-  const reactions = await getReactionsForMessage(options, user.tenantId, message.Id);
+  const reactions = await getReactionsForMessage(
+    options,
+    user.tenantId,
+    message.Id,
+  );
   const reactionList = new List<Record<string, unknown>>();
   for (let i = 0; i < reactions.length; i++) {
     const r = reactions[i];

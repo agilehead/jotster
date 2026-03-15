@@ -6,15 +6,15 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 export const getChannelSubscribers = async (
   options: DbContextOptions,
   tenantId: long,
-  channelId: long
+  channelId: long,
 ): Promise<long[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
     const channelId0 = channelId;
-    const subs = await db0.Subscriptions
-      .Where((s) => s.TenantId === tenantId0).Where((s) => s.ChannelId === channelId0)
+    const subs = await db0.Subscriptions.Where((s) => s.TenantId === tenantId0)
+      .Where((s) => s.ChannelId === channelId0)
       .ToListAsync();
 
     const ids = new List<long>();

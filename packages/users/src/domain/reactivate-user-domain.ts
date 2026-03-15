@@ -8,7 +8,7 @@ import { reactivateUser } from "../repo/reactivate-user.ts";
 export const reactivateUserDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  targetUserId: long
+  targetUserId: long,
 ): Promise<Result<boolean, string>> => {
   if (actingUser.role > 200) {
     return err("Insufficient permission");
@@ -27,7 +27,11 @@ export const reactivateUserDomain = async (
     return err("User is already active");
   }
 
-  const result = await reactivateUser(options, actingUser.tenantId, targetUserId);
+  const result = await reactivateUser(
+    options,
+    actingUser.tenantId,
+    targetUserId,
+  );
   if (!result) {
     return err("Failed to reactivate user");
   }

@@ -1,5 +1,11 @@
 // Types
-export type { ClientCapabilities, RegisterParams, DomainEvent, QueueEvent, EventQueue } from "./types.ts";
+export type {
+  ClientCapabilities,
+  RegisterParams,
+  DomainEvent,
+  QueueEvent,
+  EventQueue,
+} from "./types.ts";
 
 // Registry
 export {

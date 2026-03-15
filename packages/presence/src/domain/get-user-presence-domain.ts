@@ -2,7 +2,11 @@ import type { long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
-import type { Result, AuthenticatedUser, User } from "@jotster/core/Jotster.Core.js";
+import type {
+  Result,
+  AuthenticatedUser,
+  User,
+} from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { getUserPresence } from "../repo/get-user-presence.ts";
 import { buildLegacyUserPresenceMap } from "./presence-contract.ts";
@@ -14,7 +18,7 @@ interface UserPresenceResult {
 export const getUserPresenceDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  targetUserIdOrEmail: string
+  targetUserIdOrEmail: string,
 ): Promise<Result<UserPresenceResult, string>> => {
   // Resolve user by ID or email
   const db = new JotsterDbContext(options);
@@ -30,15 +34,15 @@ export const getUserPresenceDomain = async (
 
     if (!isNaN(parsedNum) && parsedNum > 0 && !target0.includes("@")) {
       const targetAsLong = Convert.ToInt64(parsedNum);
-      targetUser = await db0.Users
-        .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === targetAsLong)
+      targetUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+        .Where((u) => u.Id === targetAsLong)
         .FirstOrDefaultAsync();
     }
 
     if (targetUser === undefined || targetUser === null) {
       // Try by email
-      targetUser = await db0.Users
-        .Where((u) => u.TenantId === tenantId0).Where((u) => u.Email === target0)
+      targetUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+        .Where((u) => u.Email === target0)
         .FirstOrDefaultAsync();
     }
 
@@ -51,7 +55,11 @@ export const getUserPresenceDomain = async (
     db.Dispose();
   }
 
-  const allPresences = await getUserPresence(options, user.tenantId, targetUserId);
+  const allPresences = await getUserPresence(
+    options,
+    user.tenantId,
+    targetUserId,
+  );
   const presence = buildLegacyUserPresenceMap(allPresences);
 
   return ok({ presence });

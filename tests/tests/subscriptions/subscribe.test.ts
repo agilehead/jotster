@@ -114,7 +114,11 @@ describe("GET /api/v1/users/me/subscriptions", function () {
     await seedSubscription(db, tenantId, subscriber.userId, channelId);
     await seedSubscription(db, tenantId, otherSubscriber.userId, channelId);
     await db("subscription")
-      .where({ tenant_id: tenantId, user_id: subscriber.userId, channel_id: channelId })
+      .where({
+        tenant_id: tenantId,
+        user_id: subscriber.userId,
+        channel_id: channelId,
+      })
       .update({
         desktop_notifications: 1,
         push_notifications: 0,
@@ -128,8 +132,12 @@ describe("GET /api/v1/users/me/subscriptions", function () {
     const res = await subscriber.client.get("/users/me/subscriptions");
     expect(res.status).to.equal(200);
 
-    const subscriptions = res.body.subscriptions as Array<Record<string, unknown>>;
-    const subscription = subscriptions.find((entry) => entry.stream_id === channelId);
+    const subscriptions = res.body.subscriptions as Array<
+      Record<string, unknown>
+    >;
+    const subscription = subscriptions.find(
+      (entry) => entry.stream_id === channelId,
+    );
     expect(subscription).to.not.equal(undefined);
     expect(subscription).to.deep.include({
       stream_id: channelId,
@@ -156,7 +164,10 @@ describe("GET /api/v1/users/me/subscriptions", function () {
     });
     expect(subscription!.date_created).to.be.a("number");
     expect(subscription!.first_message_id).to.equal(null);
-    expect(subscription!.subscribers).to.have.members([subscriber.userId, otherSubscriber.userId]);
+    expect(subscription!.subscribers).to.have.members([
+      subscriber.userId,
+      otherSubscriber.userId,
+    ]);
   });
 
   it("should omit subscribers when include_subscribers=0", async () => {
@@ -164,16 +175,24 @@ describe("GET /api/v1/users/me/subscriptions", function () {
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId);
     const other = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "compat-nosubscribers" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "compat-nosubscribers",
+    });
 
     await seedSubscription(db, tenantId, user.userId, channelId);
     await seedSubscription(db, tenantId, other.userId, channelId);
 
-    const res = await user.client.get("/users/me/subscriptions", { include_subscribers: "0" });
+    const res = await user.client.get("/users/me/subscriptions", {
+      include_subscribers: "0",
+    });
     expect(res.status).to.equal(200);
 
-    const subscriptions = res.body.subscriptions as Array<Record<string, unknown>>;
-    const subscription = subscriptions.find((entry) => entry.stream_id === channelId);
+    const subscriptions = res.body.subscriptions as Array<
+      Record<string, unknown>
+    >;
+    const subscription = subscriptions.find(
+      (entry) => entry.stream_id === channelId,
+    );
     expect(subscription).to.not.equal(undefined);
     expect(subscription).to.not.have.property("subscribers");
   });

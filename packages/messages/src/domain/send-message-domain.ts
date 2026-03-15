@@ -27,7 +27,7 @@ interface SendMessageDomainInput {
 export const sendMessageDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: SendMessageDomainInput
+  params: SendMessageDomainInput,
 ): Promise<Result<{ id: long }, string>> => {
   // Validate content
   const content = params.content.trim();
@@ -75,8 +75,8 @@ export const sendMessageDomain = async (
 
       if (!isNaN(parsedId)) {
         const toLong = Convert.ToInt64(parsedId) as long;
-        const found = await db0.Channels
-          .Where((c) => c.TenantId === tenantId0).Where((c) => c.Id === toLong)
+        const found = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+          .Where((c) => c.Id === toLong)
           .FirstOrDefaultAsync();
         if (found !== undefined && found !== null) {
           channel = found;
@@ -87,8 +87,8 @@ export const sendMessageDomain = async (
       // If not found by ID, try by name
       if (!channelFound) {
         const to0 = to;
-        const found = await db0.Channels
-          .Where((c) => c.TenantId === tenantId0).Where((c) => c.Name === to0)
+        const found = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+          .Where((c) => c.Name === to0)
           .FirstOrDefaultAsync();
         if (found !== undefined && found !== null) {
           channel = found;
@@ -108,8 +108,11 @@ export const sendMessageDomain = async (
       // Verify user is subscribed to the channel
       const userId0 = user.userId;
       const channelId0 = channel.Id;
-      const subscription = await db0.Subscriptions
-        .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+      const subscription = await db0.Subscriptions.Where(
+        (s) => s.TenantId === tenantId0,
+      )
+        .Where((s) => s.UserId === userId0)
+        .Where((s) => s.ChannelId === channelId0)
         .FirstOrDefaultAsync();
 
       if (subscription === undefined || subscription === null) {
@@ -187,8 +190,8 @@ export const sendMessageDomain = async (
         // If it contains @ it's an email, resolve to userId
         if (candidate.includes("@")) {
           const email0 = candidate;
-          const u = await db0.Users
-            .Where((usr) => usr.TenantId === tenantId0).Where((usr) => usr.Email === email0)
+          const u = await db0.Users.Where((usr) => usr.TenantId === tenantId0)
+            .Where((usr) => usr.Email === email0)
             .FirstOrDefaultAsync();
           if (u === undefined || u === null) {
             return err("User not found: " + candidate);
@@ -215,7 +218,11 @@ export const sendMessageDomain = async (
     }
 
     // Find or create DM group
-    const dmGroup = await findOrCreateDmGroup(options, user.tenantId, resolvedIds.ToArray());
+    const dmGroup = await findOrCreateDmGroup(
+      options,
+      user.tenantId,
+      resolvedIds.ToArray(),
+    );
 
     // Send the message
     const message = await sendMessage(options, {

@@ -26,7 +26,7 @@ interface CreateChannelDomainInput {
 export const createChannelDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: CreateChannelDomainInput
+  input: CreateChannelDomainInput,
 ): Promise<Result<Channel, string>> => {
   const name = input.name.trim();
 

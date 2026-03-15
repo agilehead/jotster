@@ -20,7 +20,14 @@ export class Message {
   EditedAt?: long;
 }
 
-A.on(Message).prop((x) => x.Id).add(KeyAttribute);
-A.on(Message).type.add(IndexAttribute, ["TenantId", "ChannelId", "Topic", "Id"]);
+A.on(Message)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
+A.on(Message).type.add(IndexAttribute, [
+  "TenantId",
+  "ChannelId",
+  "Topic",
+  "Id",
+]);
 A.on(Message).type.add(IndexAttribute, ["TenantId", "DmGroupId", "Id"]);
 A.on(Message).type.add(IndexAttribute, ["TenantId", "SenderId", "Id"]);

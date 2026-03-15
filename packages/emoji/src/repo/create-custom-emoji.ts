@@ -12,7 +12,7 @@ interface CreateCustomEmojiInput {
 
 export const createCustomEmoji = async (
   options: DbContextOptions,
-  input: CreateCustomEmojiInput
+  input: CreateCustomEmojiInput,
 ): Promise<CustomEmoji> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

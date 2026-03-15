@@ -8,7 +8,7 @@ import { deactivateUser } from "../repo/deactivate-user.ts";
 export const deactivateBotDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  botId: long
+  botId: long,
 ): Promise<Result<boolean, string>> => {
   const bot = await getUser(options, botId);
   if (bot === undefined) {

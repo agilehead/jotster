@@ -2,7 +2,10 @@ import { Convert } from "@tsonic/dotnet/System.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
 import { SHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
 
-export const verifyPassword = (password: string, storedHash: string): boolean => {
+export const verifyPassword = (
+  password: string,
+  storedHash: string,
+): boolean => {
   const colonIndex = storedHash.indexOf(":");
   if (colonIndex < 0) return false;
   const salt = storedHash.substring(0, colonIndex);

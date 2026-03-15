@@ -1,6 +1,11 @@
 import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalJsonArrayField, getOptionalStringField, toLong } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalJsonArrayField,
+  getOptionalStringField,
+  toLong,
+} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import { updateFlagsDomain } from "@jotster/messages/Jotster.Messages.js";
@@ -26,26 +31,39 @@ const toLongArray = (value: unknown[] | undefined): long[] | undefined => {
 export const handleUpdateMessageFlags = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const parsedMessages = toLongArray(getOptionalJsonArrayField(body, "messages"));
+  const parsedMessages = toLongArray(
+    getOptionalJsonArrayField(body, "messages"),
+  );
   const op = getOptionalStringField(body, "op");
   const flag = getOptionalStringField(body, "flag");
   if (parsedMessages === undefined || op === undefined || flag === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid message flags payload" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid message flags payload" });
     return;
   }
 
-  const result = await updateFlagsDomain(app.options, user, { messages: parsedMessages, op, flag });
+  const result = await updateFlagsDomain(app.options, user, {
+    messages: parsedMessages,
+    op,
+    flag,
+  });
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

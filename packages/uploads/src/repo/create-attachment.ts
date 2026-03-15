@@ -14,7 +14,7 @@ interface CreateAttachmentInput {
 
 export const createAttachment = async (
   options: DbContextOptions,
-  input: CreateAttachmentInput
+  input: CreateAttachmentInput,
 ): Promise<Attachment> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

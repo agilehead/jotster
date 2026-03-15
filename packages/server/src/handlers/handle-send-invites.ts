@@ -3,16 +3,28 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { sendInvitationsDomain } from "@jotster/organization/Jotster.Organization.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalField, getOptionalStringArrayField, getOptionalStringField, hasField, toOptionalInt } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalField,
+  getOptionalStringArrayField,
+  getOptionalStringField,
+  hasField,
+  toOptionalInt,
+} from "../helpers/body.ts";
 
 export const handleSendInvites = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -21,7 +33,11 @@ export const handleSendInvites = async (
 
   let inviteeEmails = getOptionalStringArrayField(body, "invitee_emails");
   const inviteeEmail = getOptionalStringField(body, "invitee_emails");
-  if (inviteeEmails === undefined && inviteeEmail !== undefined && inviteeEmail.trim().length > 0) {
+  if (
+    inviteeEmails === undefined &&
+    inviteeEmail !== undefined &&
+    inviteeEmail.trim().length > 0
+  ) {
     inviteeEmails = [inviteeEmail];
   }
   if (inviteeEmails === undefined || inviteeEmails.length === 0) {

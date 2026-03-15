@@ -16,7 +16,7 @@ interface CreateChannelFolderDomainInput {
 export const createChannelFolderDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: CreateChannelFolderDomainInput
+  input: CreateChannelFolderDomainInput,
 ): Promise<Result<ChannelFolder, string>> => {
   if (user.role > 200) {
     return err("Must be an organization administrator");

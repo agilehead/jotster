@@ -1,6 +1,10 @@
 import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type { Result, AuthenticatedUser, UserGroup } from "@jotster/core/Jotster.Core.js";
+import type {
+  Result,
+  AuthenticatedUser,
+  UserGroup,
+} from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getUserGroupById } from "../repo/get-user-group-by-id.ts";
@@ -23,7 +27,7 @@ export const updateUserGroupDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   groupId: long,
-  updates: UpdateUserGroupDomainInput
+  updates: UpdateUserGroupDomainInput,
 ): Promise<Result<UserGroup, string>> => {
   if (user.role > 200) {
     return err("Admin required");
@@ -66,7 +70,9 @@ export const updateUserGroupDomain = async (
     return err("User group not found");
   }
 
-  const resolve = async (id: long | undefined | null): Promise<string | null> => {
+  const resolve = async (
+    id: long | undefined | null,
+  ): Promise<string | null> => {
     return await resolveGroupIdToSetting(options, user.tenantId, id);
   };
 
@@ -101,7 +107,9 @@ export const updateUserGroupDomain = async (
       changedData["description"] = updated.Description;
     }
     if (updates.canAddMembersGroupId !== undefined) {
-      changedData["can_add_members_group"] = await resolve(updated.CanAddMembersGroupId);
+      changedData["can_add_members_group"] = await resolve(
+        updated.CanAddMembersGroupId,
+      );
     }
     if (updates.canJoinGroupId !== undefined) {
       changedData["can_join_group"] = await resolve(updated.CanJoinGroupId);
@@ -113,10 +121,14 @@ export const updateUserGroupDomain = async (
       changedData["can_manage_group"] = await resolve(updated.CanManageGroupId);
     }
     if (updates.canMentionGroupId !== undefined) {
-      changedData["can_mention_group"] = await resolve(updated.CanMentionGroupId);
+      changedData["can_mention_group"] = await resolve(
+        updated.CanMentionGroupId,
+      );
     }
     if (updates.canRemoveMembersGroupId !== undefined) {
-      changedData["can_remove_members_group"] = await resolve(updated.CanRemoveMembersGroupId);
+      changedData["can_remove_members_group"] = await resolve(
+        updated.CanRemoveMembersGroupId,
+      );
     }
     if (updates.deactivated === false) {
       changedData["deactivated"] = updated.IsActive !== 1;

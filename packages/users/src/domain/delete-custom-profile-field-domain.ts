@@ -10,13 +10,17 @@ import { mapCustomProfileFieldToCompatRecord } from "./map-custom-profile-field-
 export const deleteCustomProfileFieldDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  fieldId: long
+  fieldId: long,
 ): Promise<Result<boolean, string>> => {
   if (actingUser.role > 200) {
     return err("Insufficient permission");
   }
 
-  const deleted = await deleteCustomProfileField(options, actingUser.tenantId, fieldId);
+  const deleted = await deleteCustomProfileField(
+    options,
+    actingUser.tenantId,
+    fieldId,
+  );
   if (!deleted) {
     return err("Field id " + fieldId + " not found.");
   }

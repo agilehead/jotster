@@ -5,15 +5,17 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 export const deleteOutgoingWebhook = async (
   options: DbContextOptions,
   tenantId: long,
-  botUserId: long
+  botUserId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
     const botUserId0 = botUserId;
-    const webhook = await db0.OutgoingWebhooks
-      .Where((w) => w.TenantId === tenantId0).Where((w) => w.BotUserId === botUserId0)
+    const webhook = await db0.OutgoingWebhooks.Where(
+      (w) => w.TenantId === tenantId0,
+    )
+      .Where((w) => w.BotUserId === botUserId0)
       .FirstOrDefaultAsync();
 
     if (webhook === undefined || webhook === null) {

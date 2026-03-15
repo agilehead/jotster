@@ -17,7 +17,7 @@ export const addReactionDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   messageId: long,
-  params: AddReactionDomainInput
+  params: AddReactionDomainInput,
 ): Promise<Result<void, string>> => {
   // Verify message exists in tenant
   const message = await getMessage(options, user.tenantId, messageId);
@@ -34,8 +34,9 @@ export const addReactionDomain = async (
       const tenantId0 = user.tenantId;
       const userId0 = user.userId;
       const channelId0 = message.ChannelId!;
-      const sub = await db0.Subscriptions
-        .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+      const sub = await db0.Subscriptions.Where((s) => s.TenantId === tenantId0)
+        .Where((s) => s.UserId === userId0)
+        .Where((s) => s.ChannelId === channelId0)
         .FirstOrDefaultAsync();
 
       if (sub === undefined || sub === null) {
@@ -51,8 +52,10 @@ export const addReactionDomain = async (
       const db0 = db;
       const userId0 = user.userId;
       const dmGroupId0 = message.DmGroupId!;
-      const member = await db0.DmGroupMembers
-        .Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.UserId === userId0)
+      const member = await db0.DmGroupMembers.Where(
+        (m) => m.DmGroupId === dmGroupId0,
+      )
+        .Where((m) => m.UserId === userId0)
         .FirstOrDefaultAsync();
 
       if (member === undefined || member === null) {
@@ -64,10 +67,18 @@ export const addReactionDomain = async (
   }
 
   // Check for duplicate reaction
-  const existingReactions = await getReactionsForMessage(options, user.tenantId, messageId);
+  const existingReactions = await getReactionsForMessage(
+    options,
+    user.tenantId,
+    messageId,
+  );
   for (let i = 0; i < existingReactions.length; i++) {
     const r = existingReactions[i];
-    if (r.UserId === user.userId && r.EmojiCode === params.emojiCode && r.ReactionType === params.reactionType) {
+    if (
+      r.UserId === user.userId &&
+      r.EmojiCode === params.emojiCode &&
+      r.ReactionType === params.reactionType
+    ) {
       return err("Reaction already exists");
     }
   }

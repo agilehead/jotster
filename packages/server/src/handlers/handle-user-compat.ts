@@ -16,7 +16,13 @@ import {
   getUserGroupSubgroupsCompat,
   setTargetUserStatus,
 } from "../helpers/compat-db.ts";
-import { getBodyObject, getOptionalBooleanField, getOptionalStringArrayField, getOptionalStringField, toLong} from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalBooleanField,
+  getOptionalStringArrayField,
+  getOptionalStringField,
+  toLong,
+} from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
 const parseIdArray = (values: string[] | undefined): long[] | undefined => {
@@ -44,14 +50,22 @@ export const handleSetTargetUserStatusCompat = async (
     return;
   }
   if (requester.role > 200) {
-    res.status(403).json({ result: "error", msg: "Insufficient permission", code: "BAD_REQUEST" });
+    res
+      .status(403)
+      .json({
+        result: "error",
+        msg: "Insufficient permission",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const body = getBodyObject(req);
   const targetUserId = parseId(req.params["user_id"] as string);
   if (targetUserId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid user_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid user_id", code: "BAD_REQUEST" });
     return;
   }
   const ok = await setTargetUserStatus(
@@ -65,7 +79,9 @@ export const handleSetTargetUserStatusCompat = async (
   );
 
   if (!ok) {
-    res.status(400).json({ result: "error", msg: "User not found", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "User not found", code: "BAD_REQUEST" });
     return;
   }
 
@@ -84,12 +100,20 @@ export const handleGetBotApiKeyCompat = async (
 
   const getBotId = parseId(req.params["bot_id"] as string);
   if (getBotId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid bot_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid bot_id", code: "BAD_REQUEST" });
     return;
   }
-  const result = await getBotApiKeyForRequester(app.options, requester, toLong(getBotId));
+  const result = await getBotApiKeyForRequester(
+    app.options,
+    requester,
+    toLong(getBotId),
+  );
   if (result.error !== undefined) {
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 
@@ -108,12 +132,20 @@ export const handleRegenerateBotApiKeyCompat = async (
 
   const regenBotId = parseId(req.params["bot_id"] as string);
   if (regenBotId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid bot_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid bot_id", code: "BAD_REQUEST" });
     return;
   }
-  const result = await regenerateBotApiKeyForRequester(app.options, requester, toLong(regenBotId));
+  const result = await regenerateBotApiKeyForRequester(
+    app.options,
+    requester,
+    toLong(regenBotId),
+  );
   if (result.error !== undefined) {
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 
@@ -130,11 +162,21 @@ export const handleGetUserGroupMembershipCompat = async (
     return;
   }
 
-  const directOnly = getOptionalBooleanField(req.query as Record<string, unknown>, "direct_member_only") === true;
+  const directOnly =
+    getOptionalBooleanField(
+      req.query as Record<string, unknown>,
+      "direct_member_only",
+    ) === true;
   const membershipGroupId = parseId(req.params["group_id"] as string);
   const membershipUserId = parseId(req.params["user_id"] as string);
   if (membershipGroupId === undefined || membershipUserId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid user group or user", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid user group or user",
+        code: "BAD_REQUEST",
+      });
     return;
   }
   const result = await getUserGroupMembershipStatus(
@@ -145,7 +187,13 @@ export const handleGetUserGroupMembershipCompat = async (
     directOnly,
   );
   if (result === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid user group or user", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid user group or user",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
@@ -162,10 +210,20 @@ export const handleGetUserGroupMembersCompat = async (
     return;
   }
 
-  const directOnly = getOptionalBooleanField(req.query as Record<string, unknown>, "direct_member_only") === true;
+  const directOnly =
+    getOptionalBooleanField(
+      req.query as Record<string, unknown>,
+      "direct_member_only",
+    ) === true;
   const membersGroupId = parseId(req.params["group_id"] as string);
   if (membersGroupId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid user group", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid user group",
+        code: "BAD_REQUEST",
+      });
     return;
   }
   const result = await getUserGroupMembersCompat(
@@ -175,7 +233,13 @@ export const handleGetUserGroupMembersCompat = async (
     directOnly,
   );
   if (result === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid user group", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid user group",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
@@ -192,10 +256,20 @@ export const handleGetUserGroupSubgroupsCompat = async (
     return;
   }
 
-  const directOnly = getOptionalBooleanField(req.query as Record<string, unknown>, "direct_subgroup_only") === true;
+  const directOnly =
+    getOptionalBooleanField(
+      req.query as Record<string, unknown>,
+      "direct_subgroup_only",
+    ) === true;
   const subgroupsGroupId = parseId(req.params["group_id"] as string);
   if (subgroupsGroupId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid user group", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid user group",
+        code: "BAD_REQUEST",
+      });
     return;
   }
   const result = await getUserGroupSubgroupsCompat(
@@ -205,7 +279,13 @@ export const handleGetUserGroupSubgroupsCompat = async (
     directOnly,
   );
   if (result === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid user group", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid user group",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
@@ -223,32 +303,65 @@ export const handleMutateUserGroupMembersCompat = async (
   }
 
   const body = getBodyObject(req);
-  const add = parseIdArray(getOptionalStringArrayField(body, "add")) ?? ([] as long[]);
-  const del = parseIdArray(getOptionalStringArrayField(body, "delete")) ?? ([] as long[]);
-  const addSubgroups = parseIdArray(getOptionalStringArrayField(body, "add_subgroups")) ?? ([] as long[]);
-  const deleteSubgroups = parseIdArray(getOptionalStringArrayField(body, "delete_subgroups")) ?? ([] as long[]);
-  if (add.length === 0 && del.length === 0 && addSubgroups.length === 0 && deleteSubgroups.length === 0) {
-    res.status(400).json({ result: "error", msg: "Missing add or delete", code: "BAD_REQUEST" });
+  const add =
+    parseIdArray(getOptionalStringArrayField(body, "add")) ?? ([] as long[]);
+  const del =
+    parseIdArray(getOptionalStringArrayField(body, "delete")) ?? ([] as long[]);
+  const addSubgroups =
+    parseIdArray(getOptionalStringArrayField(body, "add_subgroups")) ??
+    ([] as long[]);
+  const deleteSubgroups =
+    parseIdArray(getOptionalStringArrayField(body, "delete_subgroups")) ??
+    ([] as long[]);
+  if (
+    add.length === 0 &&
+    del.length === 0 &&
+    addSubgroups.length === 0 &&
+    deleteSubgroups.length === 0
+  ) {
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing add or delete",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const mutateGroupId = parseId(req.params["group_id"] as string);
   if (mutateGroupId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid group_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid group_id", code: "BAD_REQUEST" });
     return;
   }
 
   if (add.length > 0) {
-    const addResult = await addUserGroupMembersDomain(app.options, requester, toLong(mutateGroupId), add);
+    const addResult = await addUserGroupMembersDomain(
+      app.options,
+      requester,
+      toLong(mutateGroupId),
+      add,
+    );
     if (!addResult.success) {
-      res.status(400).json({ result: "error", msg: addResult.error, code: "BAD_REQUEST" });
+      res
+        .status(400)
+        .json({ result: "error", msg: addResult.error, code: "BAD_REQUEST" });
       return;
     }
   }
   if (del.length > 0) {
-    const delResult = await removeUserGroupMembersDomain(app.options, requester, toLong(mutateGroupId), del);
+    const delResult = await removeUserGroupMembersDomain(
+      app.options,
+      requester,
+      toLong(mutateGroupId),
+      del,
+    );
     if (!delResult.success) {
-      res.status(400).json({ result: "error", msg: delResult.error, code: "BAD_REQUEST" });
+      res
+        .status(400)
+        .json({ result: "error", msg: delResult.error, code: "BAD_REQUEST" });
       return;
     }
   }
@@ -260,7 +373,13 @@ export const handleMutateUserGroupMembersCompat = async (
       addSubgroups,
     );
     if (!addSubgroupResult.success) {
-      res.status(400).json({ result: "error", msg: addSubgroupResult.error, code: "BAD_REQUEST" });
+      res
+        .status(400)
+        .json({
+          result: "error",
+          msg: addSubgroupResult.error,
+          code: "BAD_REQUEST",
+        });
       return;
     }
   }
@@ -272,7 +391,13 @@ export const handleMutateUserGroupMembersCompat = async (
       deleteSubgroups,
     );
     if (!deleteSubgroupResult.success) {
-      res.status(400).json({ result: "error", msg: deleteSubgroupResult.error, code: "BAD_REQUEST" });
+      res
+        .status(400)
+        .json({
+          result: "error",
+          msg: deleteSubgroupResult.error,
+          code: "BAD_REQUEST",
+        });
       return;
     }
   }
@@ -291,30 +416,54 @@ export const handleMutateUserGroupSubgroupsCompat = async (
   }
 
   const body = getBodyObject(req);
-  const add = parseIdArray(getOptionalStringArrayField(body, "add")) ?? ([] as long[]);
-  const del = parseIdArray(getOptionalStringArrayField(body, "delete")) ?? ([] as long[]);
+  const add =
+    parseIdArray(getOptionalStringArrayField(body, "add")) ?? ([] as long[]);
+  const del =
+    parseIdArray(getOptionalStringArrayField(body, "delete")) ?? ([] as long[]);
   if (add.length === 0 && del.length === 0) {
-    res.status(400).json({ result: "error", msg: "Missing add or delete", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing add or delete",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const subgroupMutateGroupId = parseId(req.params["group_id"] as string);
   if (subgroupMutateGroupId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid group_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid group_id", code: "BAD_REQUEST" });
     return;
   }
 
   if (add.length > 0) {
-    const addResult = await addUserGroupSubgroupsDomain(app.options, requester, toLong(subgroupMutateGroupId), add);
+    const addResult = await addUserGroupSubgroupsDomain(
+      app.options,
+      requester,
+      toLong(subgroupMutateGroupId),
+      add,
+    );
     if (!addResult.success) {
-      res.status(400).json({ result: "error", msg: addResult.error, code: "BAD_REQUEST" });
+      res
+        .status(400)
+        .json({ result: "error", msg: addResult.error, code: "BAD_REQUEST" });
       return;
     }
   }
   if (del.length > 0) {
-    const delResult = await removeUserGroupSubgroupsDomain(app.options, requester, toLong(subgroupMutateGroupId), del);
+    const delResult = await removeUserGroupSubgroupsDomain(
+      app.options,
+      requester,
+      toLong(subgroupMutateGroupId),
+      del,
+    );
     if (!delResult.success) {
-      res.status(400).json({ result: "error", msg: delResult.error, code: "BAD_REQUEST" });
+      res
+        .status(400)
+        .json({ result: "error", msg: delResult.error, code: "BAD_REQUEST" });
       return;
     }
   }

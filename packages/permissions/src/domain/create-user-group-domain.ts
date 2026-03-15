@@ -1,6 +1,10 @@
 import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type { Result, AuthenticatedUser, UserGroup } from "@jotster/core/Jotster.Core.js";
+import type {
+  Result,
+  AuthenticatedUser,
+  UserGroup,
+} from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { addUserGroupMembers } from "../repo/add-user-group-members.ts";
@@ -22,7 +26,7 @@ interface CreateUserGroupDomainInput {
 export const createUserGroupDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: CreateUserGroupDomainInput
+  input: CreateUserGroupDomainInput,
 ): Promise<Result<UserGroup, string>> => {
   if (user.role > 200) {
     return err("Admin required");
@@ -56,7 +60,9 @@ export const createUserGroupDomain = async (
     await addUserGroupMembers(options, group.Id, members);
   }
 
-  const resolve = async (id: long | undefined | null): Promise<string | null> => {
+  const resolve = async (
+    id: long | undefined | null,
+  ): Promise<string | null> => {
     return await resolveGroupIdToSetting(options, user.tenantId, id);
   };
 

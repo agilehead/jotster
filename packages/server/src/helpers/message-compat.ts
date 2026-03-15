@@ -2,9 +2,17 @@ import type { int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type { AuthenticatedUser, Message, User } from "@jotster/core/Jotster.Core.js";
+import type {
+  AuthenticatedUser,
+  Message,
+  User,
+} from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, parseId } from "@jotster/core/Jotster.Core.js";
-import { addMessageFlags, getMessage, removeMessageFlags } from "@jotster/messages/Jotster.Messages.js";
+import {
+  addMessageFlags,
+  getMessage,
+  removeMessageFlags,
+} from "@jotster/messages/Jotster.Messages.js";
 import { getUser } from "@jotster/users/Jotster.Users.js";
 import { toLong } from "./body.ts";
 
@@ -42,10 +50,22 @@ type MessagesMatchingNarrowResult = {
   messagesJson?: string;
 };
 
-const VALID_FLAGS = ["read", "starred", "mentioned", "wildcard_mentioned", "has_alert_word", "historical"];
+const VALID_FLAGS = [
+  "read",
+  "starred",
+  "mentioned",
+  "wildcard_mentioned",
+  "has_alert_word",
+  "historical",
+];
 
 const getObjectField = (value: unknown, key: string): unknown => {
-  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== "object" ||
+    Array.isArray(value)
+  ) {
     return undefined;
   }
   for (const [entryKey, entryValue] of Object.entries(value)) {
@@ -112,7 +132,10 @@ const parseNarrowFilters = (value: unknown): NarrowFilter[] | undefined => {
   return filters.ToArray();
 };
 
-const getFilterOperand = (filters: NarrowFilter[], operator: string): unknown => {
+const getFilterOperand = (
+  filters: NarrowFilter[],
+  operator: string,
+): unknown => {
   for (let i = 0; i < filters.length; i++) {
     const filter = filters[i];
     if (filter.op === operator && filter.negated !== true) {
@@ -130,7 +153,11 @@ const toStringValue = (value: unknown): string | undefined => {
   if (typeof value === "string") {
     return value;
   }
-  if (typeof value === "number" || typeof value === "bigint" || typeof value === "boolean") {
+  if (
+    typeof value === "number" ||
+    typeof value === "bigint" ||
+    typeof value === "boolean"
+  ) {
     return `${value}`;
   }
   return undefined;
@@ -163,8 +190,7 @@ const getUserByEmailInTenant = async (
   try {
     const tenantId0 = tenantId;
     const email0 = email;
-    const user = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
+    const user = await db.Users.Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.Email === email0)
       .FirstOrDefaultAsync();
     return user ?? undefined;
@@ -183,9 +209,12 @@ const resolveNarrow = async (
     return undefined;
   }
 
-  const streamOperand = getFilterOperand(filters, "stream") ?? getFilterOperand(filters, "channel");
-  const topicOperand = getFilterOperand(filters, "topic") ?? getFilterOperand(filters, "subject");
-  const dmOperand = getFilterOperand(filters, "dm") ?? getFilterOperand(filters, "pm-with");
+  const streamOperand =
+    getFilterOperand(filters, "stream") ?? getFilterOperand(filters, "channel");
+  const topicOperand =
+    getFilterOperand(filters, "topic") ?? getFilterOperand(filters, "subject");
+  const dmOperand =
+    getFilterOperand(filters, "dm") ?? getFilterOperand(filters, "pm-with");
   const senderOperand = getFilterOperand(filters, "sender");
   const isOperand = getFilterOperand(filters, "is");
 
@@ -195,7 +224,11 @@ const resolveNarrow = async (
 
   const streamValue = toStringValue(streamOperand);
   if (streamValue !== undefined) {
-    resolved.streamId = await resolveChannelIdentifier(options, user.tenantId, streamValue);
+    resolved.streamId = await resolveChannelIdentifier(
+      options,
+      user.tenantId,
+      streamValue,
+    );
     if (resolved.streamId === undefined) {
       return undefined;
     }
@@ -237,8 +270,9 @@ const resolveChannelIdentifier = async (
     const operandId = parseId(operand);
     if (operandId !== undefined) {
       const operandId0 = operandId;
-      const channel = await db.Channels
-        .Where((entry) => entry.TenantId === tenantId0)
+      const channel = await db.Channels.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.Id === operandId0)
         .FirstOrDefaultAsync();
       if (channel !== undefined && channel !== null) {
@@ -247,8 +281,9 @@ const resolveChannelIdentifier = async (
     }
 
     const operand0 = operand;
-    const channelByName = await db.Channels
-      .Where((entry) => entry.TenantId === tenantId0)
+    const channelByName = await db.Channels.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
       .Where((entry) => entry.Name === operand0)
       .FirstOrDefaultAsync();
 
@@ -305,50 +340,70 @@ export const getMatchingMessagesForNarrow = async (
     const tenantId0 = user.tenantId;
     let messages: Message[];
 
-    if (resolved.streamId !== undefined && resolved.topic !== undefined && resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    if (
+      resolved.streamId !== undefined &&
+      resolved.topic !== undefined &&
+      resolved.senderId !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .Where((entry) => entry.Topic === resolved.topic)
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
-    } else if (resolved.streamId !== undefined && resolved.topic !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    } else if (
+      resolved.streamId !== undefined &&
+      resolved.topic !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .Where((entry) => entry.Topic === resolved.topic)
         .ToArrayAsync();
-    } else if (resolved.streamId !== undefined && resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    } else if (
+      resolved.streamId !== undefined &&
+      resolved.senderId !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
     } else if (resolved.streamId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .ToArrayAsync();
-    } else if (resolved.dmGroupId !== undefined && resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    } else if (
+      resolved.dmGroupId !== undefined &&
+      resolved.senderId !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.DmGroupId === resolved.dmGroupId)
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
     } else if (resolved.dmGroupId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.DmGroupId === resolved.dmGroupId)
         .ToArrayAsync();
     } else if (resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
     } else {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
-        .ToArrayAsync();
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      ).ToArrayAsync();
     }
 
     const sortedMessages = sortMessagesChronologically(messages);
@@ -358,8 +413,9 @@ export const getMatchingMessagesForNarrow = async (
 
     const userId0 = user.userId;
     const readFlag = "read";
-    const flags = await db.MessageFlags
-      .Where((entry) => entry.UserId === userId0)
+    const flags = await db.MessageFlags.Where(
+      (entry) => entry.UserId === userId0,
+    )
       .Where((entry) => entry.Flag === readFlag)
       .ToListAsync();
 
@@ -421,7 +477,11 @@ export const updateFlagsForNarrow = async (
     return { error: "Invalid operation" };
   }
 
-  const messages = await getMatchingMessagesForNarrow(options, user, input.narrow);
+  const messages = await getMatchingMessagesForNarrow(
+    options,
+    user,
+    input.narrow,
+  );
   if (messages === undefined) {
     return { error: "Invalid narrow" };
   }
@@ -443,7 +503,13 @@ export const updateFlagsForNarrow = async (
   }
 
   const selectedIds = collectMessageIds(selected);
-  const changedIds = await getIdsThatWouldChange(options, user.userId, selectedIds, input.flag, input.op);
+  const changedIds = await getIdsThatWouldChange(
+    options,
+    user.userId,
+    selectedIds,
+    input.flag,
+    input.op,
+  );
   if (input.op === "add") {
     await addMessageFlags(options, user.userId, selectedIds, input.flag);
   } else {
@@ -454,9 +520,15 @@ export const updateFlagsForNarrow = async (
     processed_count: selectedIds.length,
     updated_count: changedIds.length,
     first_processed_id: selected.length > 0 ? selected[0].Id : null,
-    last_processed_id: selected.length > 0 ? selected[selected.length - 1].Id : null,
-    found_oldest: selected.length === 0 || (anchorIndex >= 0 && selected[0].Id === messages[0].Id),
-    found_newest: selected.length === 0 || (anchorIndex >= 0 && selected[selected.length - 1].Id === messages[messages.length - 1].Id),
+    last_processed_id:
+      selected.length > 0 ? selected[selected.length - 1].Id : null,
+    found_oldest:
+      selected.length === 0 ||
+      (anchorIndex >= 0 && selected[0].Id === messages[0].Id),
+    found_newest:
+      selected.length === 0 ||
+      (anchorIndex >= 0 &&
+        selected[selected.length - 1].Id === messages[messages.length - 1].Id),
   };
 
   if (input.op === "remove" && input.flag === "read") {
@@ -481,8 +553,9 @@ const getIdsThatWouldChange = async (
   try {
     const userId0 = userId;
     const flag0 = flag;
-    const existingFlags = await db.MessageFlags
-      .Where((entry) => entry.UserId === userId0)
+    const existingFlags = await db.MessageFlags.Where(
+      (entry) => entry.UserId === userId0,
+    )
       .Where((entry) => entry.Flag === flag0)
       .ToListAsync();
 
@@ -518,7 +591,12 @@ export const markStreamAsRead = async (
   if (messages === undefined) {
     return;
   }
-  await addMessageFlags(options, user.userId, collectMessageIds(messages), "read");
+  await addMessageFlags(
+    options,
+    user.userId,
+    collectMessageIds(messages),
+    "read",
+  );
 };
 
 export const markTopicAsRead = async (
@@ -535,7 +613,12 @@ export const markTopicAsRead = async (
   if (messages === undefined) {
     return;
   }
-  await addMessageFlags(options, user.userId, collectMessageIds(messages), "read");
+  await addMessageFlags(
+    options,
+    user.userId,
+    collectMessageIds(messages),
+    "read",
+  );
 };
 
 export const getMessagesMatchingNarrow = async (
@@ -544,7 +627,11 @@ export const getMessagesMatchingNarrow = async (
   messageIds: long[],
   narrowValue: unknown,
 ): Promise<MessagesMatchingNarrowResult> => {
-  const matchingMessages = await getMatchingMessagesForNarrow(options, user, narrowValue);
+  const matchingMessages = await getMatchingMessagesForNarrow(
+    options,
+    user,
+    narrowValue,
+  );
   if (matchingMessages === undefined) {
     return { error: "Invalid narrow" };
   }
@@ -566,10 +653,12 @@ export const getMessagesMatchingNarrow = async (
       continue;
     }
 
-    resultEntries.push(`"${messageId}":${JSON.stringify({
-      match_content: message.RenderedContent,
-      match_subject: message.Topic ?? "",
-    })}`);
+    resultEntries.push(
+      `"${messageId}":${JSON.stringify({
+        match_content: message.RenderedContent,
+        match_subject: message.Topic ?? "",
+      })}`,
+    );
   }
 
   return {

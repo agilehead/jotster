@@ -21,10 +21,15 @@ export const updateSingleSubscriptionDomain = async (
   user: AuthenticatedUser,
   channelId: long,
   property: string,
-  value: unknown
+  value: unknown,
 ): Promise<Result<boolean, string>> => {
   // Find subscription by tenantId + userId + channelId
-  const sub = await getSubscription(options, user.tenantId, user.userId, channelId);
+  const sub = await getSubscription(
+    options,
+    user.tenantId,
+    user.userId,
+    channelId,
+  );
   if (sub === undefined) {
     return err("Not subscribed to channel");
   }

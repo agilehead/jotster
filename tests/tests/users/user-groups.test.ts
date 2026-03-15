@@ -2,7 +2,10 @@ import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
-const getGroupIdByName = async (client: Awaited<ReturnType<typeof seedUser>>["client"], name: string): Promise<number> => {
+const getGroupIdByName = async (
+  client: Awaited<ReturnType<typeof seedUser>>["client"],
+  name: string,
+): Promise<number> => {
   const listRes = await client.get("/user_groups");
   const groups = listRes.body.user_groups as Array<{
     id: number;
@@ -39,11 +42,15 @@ describe("GET /api/v1/user_groups", () => {
     expect(createRes.status).to.equal(200);
     expect(createRes.body.group.creator_id).to.equal(admin.userId);
     expect(createRes.body.group).to.have.property("date_created");
-    expect(createRes.body.group.can_remove_members_group).to.equal("role:members");
+    expect(createRes.body.group.can_remove_members_group).to.equal(
+      "role:members",
+    );
     expect(createRes.body.group.deactivated).to.equal(false);
 
     const groupId = createRes.body.group.id as number;
-    const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
+    const deactivateRes = await admin.client.post(
+      `/user_groups/${groupId}/deactivate`,
+    );
     expect(deactivateRes.status).to.equal(200);
 
     const listRes = await admin.client.get("/user_groups");
@@ -55,7 +62,9 @@ describe("GET /api/v1/user_groups", () => {
       include_deactivated_groups: "true",
     });
     expect(includeRes.status).to.equal(200);
-    const included = (includeRes.body.user_groups as Array<Record<string, unknown>>).find((entry) => entry["id"] === groupId);
+    const included = (
+      includeRes.body.user_groups as Array<Record<string, unknown>>
+    ).find((entry) => entry["id"] === groupId);
     expect(included).to.not.equal(undefined);
     expect(included!["creator_id"]).to.equal(admin.userId);
     expect(included!["date_created"]).to.be.a("number");
@@ -154,7 +163,9 @@ describe("PATCH /api/v1/user_groups/{user_group_id}", () => {
     });
     const groupId = createRes.body.group.id as number;
 
-    const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
+    const deactivateRes = await admin.client.post(
+      `/user_groups/${groupId}/deactivate`,
+    );
     expect(deactivateRes.status).to.equal(200);
 
     const updateRes = await admin.client.patch(`/user_groups/${groupId}`, {
@@ -228,12 +239,17 @@ describe("User group compatibility endpoints", () => {
     const parentGroupId = await getGroupIdByName(admin.client, "parent-group");
     const childGroupId = await getGroupIdByName(admin.client, "child-group");
 
-    const mutateRes = await admin.client.post(`/user_groups/${parentGroupId}/members`, {
-      add_subgroups: JSON.stringify([childGroupId]),
-    });
+    const mutateRes = await admin.client.post(
+      `/user_groups/${parentGroupId}/members`,
+      {
+        add_subgroups: JSON.stringify([childGroupId]),
+      },
+    );
     expect(mutateRes.status).to.equal(200);
 
-    const recursiveRes = await admin.client.get(`/user_groups/${parentGroupId}/members/${nestedMember.userId}`);
+    const recursiveRes = await admin.client.get(
+      `/user_groups/${parentGroupId}/members/${nestedMember.userId}`,
+    );
     expect(recursiveRes.status).to.equal(200);
     expect(recursiveRes.body.is_user_group_member).to.equal(true);
 
@@ -263,22 +279,37 @@ describe("User group compatibility endpoints", () => {
       members: JSON.stringify([nestedMember.userId]),
     });
 
-    const parentGroupId = await getGroupIdByName(admin.client, "members-parent");
+    const parentGroupId = await getGroupIdByName(
+      admin.client,
+      "members-parent",
+    );
     const childGroupId = await getGroupIdByName(admin.client, "members-child");
 
     await admin.client.post(`/user_groups/${parentGroupId}/members`, {
       add_subgroups: JSON.stringify([childGroupId]),
     });
 
-    const recursiveRes = await admin.client.get(`/user_groups/${parentGroupId}/members`);
+    const recursiveRes = await admin.client.get(
+      `/user_groups/${parentGroupId}/members`,
+    );
     expect(recursiveRes.status).to.equal(200);
-    expect(recursiveRes.body.members).to.have.members([admin.userId, directMember.userId, nestedMember.userId]);
+    expect(recursiveRes.body.members).to.have.members([
+      admin.userId,
+      directMember.userId,
+      nestedMember.userId,
+    ]);
 
-    const directOnlyRes = await admin.client.get(`/user_groups/${parentGroupId}/members`, {
-      direct_member_only: "true",
-    });
+    const directOnlyRes = await admin.client.get(
+      `/user_groups/${parentGroupId}/members`,
+      {
+        direct_member_only: "true",
+      },
+    );
     expect(directOnlyRes.status).to.equal(200);
-    expect(directOnlyRes.body.members).to.have.members([admin.userId, directMember.userId]);
+    expect(directOnlyRes.body.members).to.have.members([
+      admin.userId,
+      directMember.userId,
+    ]);
   });
 
   it("POST /api/v1/user_groups/{user_group_id}/subgroups and GET /api/v1/user_groups/{user_group_id}/subgroups should return direct-only and recursive subgroup lists", async () => {
@@ -286,9 +317,18 @@ describe("User group compatibility endpoints", () => {
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
 
-    await admin.client.post("/user_groups/create", { name: "root-group", description: "Root" });
-    await admin.client.post("/user_groups/create", { name: "middle-group", description: "Middle" });
-    await admin.client.post("/user_groups/create", { name: "leaf-group", description: "Leaf" });
+    await admin.client.post("/user_groups/create", {
+      name: "root-group",
+      description: "Root",
+    });
+    await admin.client.post("/user_groups/create", {
+      name: "middle-group",
+      description: "Middle",
+    });
+    await admin.client.post("/user_groups/create", {
+      name: "leaf-group",
+      description: "Leaf",
+    });
 
     const rootGroupId = await getGroupIdByName(admin.client, "root-group");
     const middleGroupId = await getGroupIdByName(admin.client, "middle-group");
@@ -301,13 +341,21 @@ describe("User group compatibility endpoints", () => {
       add: JSON.stringify([leafGroupId]),
     });
 
-    const recursiveRes = await admin.client.get(`/user_groups/${rootGroupId}/subgroups`);
+    const recursiveRes = await admin.client.get(
+      `/user_groups/${rootGroupId}/subgroups`,
+    );
     expect(recursiveRes.status).to.equal(200);
-    expect(recursiveRes.body.subgroups).to.have.members([middleGroupId, leafGroupId]);
+    expect(recursiveRes.body.subgroups).to.have.members([
+      middleGroupId,
+      leafGroupId,
+    ]);
 
-    const directOnlyRes = await admin.client.get(`/user_groups/${rootGroupId}/subgroups`, {
-      direct_subgroup_only: "true",
-    });
+    const directOnlyRes = await admin.client.get(
+      `/user_groups/${rootGroupId}/subgroups`,
+      {
+        direct_subgroup_only: "true",
+      },
+    );
     expect(directOnlyRes.status).to.equal(200);
     expect(directOnlyRes.body.subgroups).to.have.members([middleGroupId]);
   });
@@ -336,15 +384,22 @@ describe("User group compatibility endpoints", () => {
       add_subgroups: JSON.stringify([childGroupId]),
     });
 
-    const beforeDelete = await admin.client.get(`/user_groups/${parentGroupId}/members/${nestedMember.userId}`);
+    const beforeDelete = await admin.client.get(
+      `/user_groups/${parentGroupId}/members/${nestedMember.userId}`,
+    );
     expect(beforeDelete.body.is_user_group_member).to.equal(true);
 
-    const deleteRes = await admin.client.post(`/user_groups/${parentGroupId}/members`, {
-      delete_subgroups: JSON.stringify([childGroupId]),
-    });
+    const deleteRes = await admin.client.post(
+      `/user_groups/${parentGroupId}/members`,
+      {
+        delete_subgroups: JSON.stringify([childGroupId]),
+      },
+    );
     expect(deleteRes.status).to.equal(200);
 
-    const afterDelete = await admin.client.get(`/user_groups/${parentGroupId}/members/${nestedMember.userId}`);
+    const afterDelete = await admin.client.get(
+      `/user_groups/${parentGroupId}/members/${nestedMember.userId}`,
+    );
     expect(afterDelete.body.is_user_group_member).to.equal(false);
   });
 });

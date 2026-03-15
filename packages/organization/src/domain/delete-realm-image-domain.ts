@@ -7,7 +7,7 @@ import { updateTenantSettings } from "../repo/update-tenant-settings.ts";
 export const deleteRealmImageDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  imageType: string
+  imageType: string,
 ): Promise<Result<boolean, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {

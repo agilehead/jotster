@@ -1,6 +1,11 @@
 import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalStringArrayField, getOptionalStringField, toLong} from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalStringArrayField,
+  getOptionalStringField,
+  toLong,
+} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import { sendTypingDomain } from "@jotster/presence/Jotster.Presence.js";
@@ -24,11 +29,16 @@ const parseIdArray = (values: string[] | undefined): long[] | undefined => {
 export const handleSendTyping = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -37,7 +47,9 @@ export const handleSendTyping = async (
 
   const op = getOptionalStringField(body, "op");
   if (op === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required field: op" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: op" });
     return;
   }
   const type = getOptionalStringField(body, "type");
@@ -45,7 +57,13 @@ export const handleSendTyping = async (
   const streamId = parseId(getOptionalStringField(body, "stream_id"));
   const topic = getOptionalStringField(body, "topic");
 
-  const result = await sendTypingDomain(app.options, user, { op, type, to: parsedTo, streamId, topic });
+  const result = await sendTypingDomain(app.options, user, {
+    op,
+    type,
+    to: parsedTo,
+    streamId,
+    topic,
+  });
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

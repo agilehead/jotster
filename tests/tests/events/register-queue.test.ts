@@ -1,6 +1,12 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import { seedChannel, seedMessage, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
+import {
+  seedChannel,
+  seedMessage,
+  seedSubscription,
+  seedTenant,
+  seedUser,
+} from "../../utils/test-helpers.js";
 
 describe("POST /api/v1/register", function () {
   this.timeout(10000);
@@ -57,7 +63,9 @@ describe("POST /api/v1/register", function () {
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
 
-    const channelId = await seedChannel(db, tenantId, { name: "register-state" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "register-state",
+    });
     await seedSubscription(db, tenantId, admin.userId, channelId);
     const messageId = await seedMessage(db, tenantId, admin.userId, {
       channelId,
@@ -85,7 +93,9 @@ describe("POST /api/v1/register", function () {
     });
     expect(snippetRes.status).to.equal(200);
 
-    const futureReminderTimestamp = String(Math.floor(Date.now() / 1000) + 3600);
+    const futureReminderTimestamp = String(
+      Math.floor(Date.now() / 1000) + 3600,
+    );
     const reminderRes = await admin.client.post("/reminders", {
       message_id: messageId,
       scheduled_delivery_timestamp: futureReminderTimestamp,
@@ -93,7 +103,9 @@ describe("POST /api/v1/register", function () {
     });
     expect(reminderRes.status).to.equal(200);
 
-    const futureScheduledTimestamp = String(Math.floor(Date.now() / 1000) + 7200);
+    const futureScheduledTimestamp = String(
+      Math.floor(Date.now() / 1000) + 7200,
+    );
     const scheduledMessageRes = await admin.client.post("/scheduled_messages", {
       type: "stream",
       to: channelId,
@@ -141,7 +153,9 @@ describe("POST /api/v1/register", function () {
         id: snippetRes.body.saved_snippet_id,
         title: "Register snippet",
         content: "const answer = 42;",
-        date_created: (registerRes.body.saved_snippets as Array<Record<string, unknown>>)[0].date_created,
+        date_created: (
+          registerRes.body.saved_snippets as Array<Record<string, unknown>>
+        )[0].date_created,
       },
     ]);
 
@@ -171,7 +185,9 @@ describe("POST /api/v1/register", function () {
       },
     ]);
 
-    const groups = registerRes.body.realm_user_groups as Array<Record<string, unknown>>;
+    const groups = registerRes.body.realm_user_groups as Array<
+      Record<string, unknown>
+    >;
     const createdGroup = groups.find((entry) => entry.id === groupId);
     expect(createdGroup).to.not.equal(undefined);
     expect(createdGroup!.name).to.equal("register-group");
@@ -235,7 +251,7 @@ describe("POST /api/v1/register", function () {
       name: "GitHub",
       hint: "Your GitHub username",
       field_type: "7",
-      field_data: "{\"subtype\":\"github\"}",
+      field_data: '{"subtype":"github"}',
       required: "true",
       editable_by_user: "false",
       use_for_user_matching: "true",
@@ -243,14 +259,20 @@ describe("POST /api/v1/register", function () {
     });
     expect(fieldRes.status).to.equal(200);
 
-    const settingsRes = await admin.client.patch("/realm/user_settings_defaults", {
-      twenty_four_hour_time: "true",
-      notification_sound: "ding",
-    });
+    const settingsRes = await admin.client.patch(
+      "/realm/user_settings_defaults",
+      {
+        twenty_four_hour_time: "true",
+        notification_sound: "ding",
+      },
+    );
     expect(settingsRes.status).to.equal(200);
 
     const registerRes = await admin.client.post("/register", {
-      fetch_event_types: JSON.stringify(["custom_profile_fields", "realm_user_settings_defaults"]),
+      fetch_event_types: JSON.stringify([
+        "custom_profile_fields",
+        "realm_user_settings_defaults",
+      ]),
     });
     expect(registerRes.status).to.equal(200);
     expect(registerRes.body.custom_profile_fields).to.deep.equal([
@@ -259,7 +281,7 @@ describe("POST /api/v1/register", function () {
         name: "GitHub",
         hint: "Your GitHub username",
         type: 7,
-        field_data: "{\"subtype\":\"github\"}",
+        field_data: '{"subtype":"github"}',
         order: 1,
         display_in_profile_summary: true,
         required: true,
@@ -268,17 +290,34 @@ describe("POST /api/v1/register", function () {
       },
     ]);
 
-    expect(registerRes.body.realm_user_settings_defaults.twenty_four_hour_time).to.equal(true);
-    expect(registerRes.body.realm_user_settings_defaults.notification_sound).to.equal("ding");
-    expect(registerRes.body.realm_user_settings_defaults.emojiset).to.equal("google");
-    expect(registerRes.body.realm_user_settings_defaults.emojiset_choices).to.deep.equal([
+    expect(
+      registerRes.body.realm_user_settings_defaults.twenty_four_hour_time,
+    ).to.equal(true);
+    expect(
+      registerRes.body.realm_user_settings_defaults.notification_sound,
+    ).to.equal("ding");
+    expect(registerRes.body.realm_user_settings_defaults.emojiset).to.equal(
+      "google",
+    );
+    expect(
+      registerRes.body.realm_user_settings_defaults.emojiset_choices,
+    ).to.deep.equal([
       { key: "google", text: "Google" },
       { key: "twitter", text: "Twitter" },
       { key: "text", text: "Plain text" },
     ]);
-    expect(registerRes.body.realm_user_settings_defaults.available_notification_sounds).to.include("ding");
-    expect(registerRes.body.realm_user_settings_defaults.available_notification_sounds).to.include("zulip");
-    expect(registerRes.body.realm_user_settings_defaults.resolved_topic_notice_auto_read_policy).to.equal("always");
+    expect(
+      registerRes.body.realm_user_settings_defaults
+        .available_notification_sounds,
+    ).to.include("ding");
+    expect(
+      registerRes.body.realm_user_settings_defaults
+        .available_notification_sounds,
+    ).to.include("zulip");
+    expect(
+      registerRes.body.realm_user_settings_defaults
+        .resolved_topic_notice_auto_read_policy,
+    ).to.equal("always");
   });
 
   it("should omit deactivated groups from register state unless include_deactivated_groups is set", async () => {
@@ -293,7 +332,9 @@ describe("POST /api/v1/register", function () {
     expect(createRes.status).to.equal(200);
     const groupId = createRes.body.group.id as number;
 
-    const deactivateRes = await admin.client.post(`/user_groups/${groupId}/deactivate`);
+    const deactivateRes = await admin.client.post(
+      `/user_groups/${groupId}/deactivate`,
+    );
     expect(deactivateRes.status).to.equal(200);
 
     const hiddenRes = await admin.client.post("/register", {
@@ -301,7 +342,9 @@ describe("POST /api/v1/register", function () {
     });
     expect(hiddenRes.status).to.equal(200);
     expect(
-      (hiddenRes.body.realm_user_groups as Array<Record<string, unknown>>).some((entry) => entry.id === groupId),
+      (hiddenRes.body.realm_user_groups as Array<Record<string, unknown>>).some(
+        (entry) => entry.id === groupId,
+      ),
     ).to.equal(false);
 
     const visibleRes = await admin.client.post("/register", {
@@ -309,7 +352,9 @@ describe("POST /api/v1/register", function () {
       client_capabilities: JSON.stringify({ include_deactivated_groups: true }),
     });
     expect(visibleRes.status).to.equal(200);
-    const groups = visibleRes.body.realm_user_groups as Array<Record<string, unknown>>;
+    const groups = visibleRes.body.realm_user_groups as Array<
+      Record<string, unknown>
+    >;
     const group = groups.find((entry) => entry.id === groupId);
     expect(group).to.not.equal(undefined);
     expect(group!.deactivated).to.equal(true);
@@ -319,12 +364,23 @@ describe("POST /api/v1/register", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId, { role: 100 });
-    const subscribedChannelId = await seedChannel(db, tenantId, { name: "subscribed-channel", creatorId: user.userId });
-    const neverSubscribedChannelId = await seedChannel(db, tenantId, { name: "never-subscribed-channel", creatorId: user.userId });
-    const archivedChannelId = await seedChannel(db, tenantId, { name: "archived-channel", creatorId: user.userId });
+    const subscribedChannelId = await seedChannel(db, tenantId, {
+      name: "subscribed-channel",
+      creatorId: user.userId,
+    });
+    const neverSubscribedChannelId = await seedChannel(db, tenantId, {
+      name: "never-subscribed-channel",
+      creatorId: user.userId,
+    });
+    const archivedChannelId = await seedChannel(db, tenantId, {
+      name: "archived-channel",
+      creatorId: user.userId,
+    });
 
     await seedSubscription(db, tenantId, user.userId, subscribedChannelId);
-    await db("channel").where({ tenant_id: tenantId, id: archivedChannelId }).update({ is_archived: 1 });
+    await db("channel")
+      .where({ tenant_id: tenantId, id: archivedChannelId })
+      .update({ is_archived: 1 });
 
     const defaultRes = await user.client.post("/register", {
       fetch_event_types: JSON.stringify(["subscription"]),
@@ -347,7 +403,9 @@ describe("POST /api/v1/register", function () {
         is_archived: false,
         stream_post_policy: 1,
         is_announcement_only: false,
-        date_created: (defaultRes.body.never_subscribed as Array<Record<string, unknown>>)[0].date_created,
+        date_created: (
+          defaultRes.body.never_subscribed as Array<Record<string, unknown>>
+        )[0].date_created,
       },
     ]);
 
@@ -356,12 +414,16 @@ describe("POST /api/v1/register", function () {
       client_capabilities: JSON.stringify({ archived_channels: true }),
     });
     expect(capableRes.status).to.equal(200);
-    const neverSubscribed = capableRes.body.never_subscribed as Array<Record<string, unknown>>;
+    const neverSubscribed = capableRes.body.never_subscribed as Array<
+      Record<string, unknown>
+    >;
     expect(neverSubscribed.map((entry) => entry.stream_id)).to.have.members([
       neverSubscribedChannelId,
       archivedChannelId,
     ]);
-    const archivedEntry = neverSubscribed.find((entry) => entry.stream_id === archivedChannelId);
+    const archivedEntry = neverSubscribed.find(
+      (entry) => entry.stream_id === archivedChannelId,
+    );
     expect(archivedEntry).to.not.equal(undefined);
     expect(archivedEntry!.is_archived).to.equal(true);
     expect(archivedEntry!.stream_post_policy).to.equal(1);

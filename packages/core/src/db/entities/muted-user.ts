@@ -11,6 +11,8 @@ export class MutedUser {
   CreatedAt!: long;
 }
 
-A.on(MutedUser).prop((x) => x.Id).add(KeyAttribute);
+A.on(MutedUser)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(MutedUser).type.add(IndexAttribute, ["TenantId", "UserId", "MutedUserId"]);
 A.on(MutedUser).type.add(IndexAttribute, ["TenantId", "UserId"]);

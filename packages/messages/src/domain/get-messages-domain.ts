@@ -40,7 +40,10 @@ const parseNarrow = (narrowStr: string | undefined): NarrowFilter[] => {
   return parsed;
 };
 
-const extractFilter = (filters: NarrowFilter[], operator: string): string | undefined => {
+const extractFilter = (
+  filters: NarrowFilter[],
+  operator: string,
+): string | undefined => {
   for (let i = 0; i < filters.length; i++) {
     if (filters[i].operator === operator && filters[i].negated !== true) {
       return filters[i].operand;
@@ -52,7 +55,7 @@ const extractFilter = (filters: NarrowFilter[], operator: string): string | unde
 export const getMessagesDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: GetMessagesDomainInput
+  params: GetMessagesDomainInput,
 ): Promise<Result<GetMessagesDomainResult, string>> => {
   const filters = parseNarrow(params.narrow);
 
@@ -62,9 +65,12 @@ export const getMessagesDomain = async (
   let dmGroupId: string | undefined = undefined;
   let senderId: long | undefined = undefined;
 
-  const streamOperand = extractFilter(filters, "stream") ?? extractFilter(filters, "channel");
-  const topicOperand = extractFilter(filters, "topic") ?? extractFilter(filters, "subject");
-  const dmOperand = extractFilter(filters, "dm") ?? extractFilter(filters, "pm-with");
+  const streamOperand =
+    extractFilter(filters, "stream") ?? extractFilter(filters, "channel");
+  const topicOperand =
+    extractFilter(filters, "topic") ?? extractFilter(filters, "subject");
+  const dmOperand =
+    extractFilter(filters, "dm") ?? extractFilter(filters, "pm-with");
   const senderOperand = extractFilter(filters, "sender");
 
   // Resolve channel name/ID
@@ -79,8 +85,10 @@ export const getMessagesDomain = async (
       let found = false;
       if (!isNaN(parsedId)) {
         const operandLong = Convert.ToInt64(parsedId) as long;
-        const channel = await db0.Channels
-          .Where((c) => c.TenantId === tenantId0).Where((c) => c.Id === operandLong)
+        const channel = await db0.Channels.Where(
+          (c) => c.TenantId === tenantId0,
+        )
+          .Where((c) => c.Id === operandLong)
           .FirstOrDefaultAsync();
 
         if (channel !== undefined && channel !== null) {
@@ -92,8 +100,10 @@ export const getMessagesDomain = async (
       if (!found) {
         // Try as name
         const operand0 = streamOperand;
-        const channel = await db0.Channels
-          .Where((c) => c.TenantId === tenantId0).Where((c) => c.Name === operand0)
+        const channel = await db0.Channels.Where(
+          (c) => c.TenantId === tenantId0,
+        )
+          .Where((c) => c.Name === operand0)
           .FirstOrDefaultAsync();
 
         if (channel !== undefined && channel !== null) {
@@ -137,7 +147,7 @@ export const getMessagesDomain = async (
     senderId,
     anchor,
     numBefore,
-    numAfter
+    numAfter,
   );
 
   // Load flags for the requesting user
@@ -147,9 +157,9 @@ export const getMessagesDomain = async (
   try {
     const db2_0 = db2;
     const userId0 = user.userId;
-    const allFlags = await db2_0.MessageFlags
-      .Where((f) => f.UserId === userId0)
-      .ToListAsync();
+    const allFlags = await db2_0.MessageFlags.Where(
+      (f) => f.UserId === userId0,
+    ).ToListAsync();
 
     for (let i = 0; i < allFlags.Count; i++) {
       const flag = allFlags[i];
@@ -177,7 +187,11 @@ export const getMessagesDomain = async (
     const msg = messages[i];
 
     // Load reactions for this message
-    const reactions = await getReactionsForMessage(options, user.tenantId, msg.Id);
+    const reactions = await getReactionsForMessage(
+      options,
+      user.tenantId,
+      msg.Id,
+    );
     const reactionList = new List<Record<string, unknown>>();
     for (let j = 0; j < reactions.length; j++) {
       const r = reactions[j];

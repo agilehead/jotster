@@ -25,11 +25,16 @@ const getUploadedFile = (req: Request): UploadedFile | undefined => {
 export const handleUploadFile = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -43,12 +48,7 @@ export const handleUploadFile = async (
 
   const uploadsDir = app.config.uploadsDir || "./uploads";
 
-  const result = await uploadFileDomain(
-    app.options,
-    user,
-    uploadsDir,
-    file
-  );
+  const result = await uploadFileDomain(app.options, user, uploadsDir, file);
 
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });

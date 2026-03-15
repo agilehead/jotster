@@ -9,7 +9,7 @@ import { deleteChannelFolder } from "../repo/delete-channel-folder.ts";
 export const deleteChannelFolderDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  folderId: long
+  folderId: long,
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Must be an organization administrator");

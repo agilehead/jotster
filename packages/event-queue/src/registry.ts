@@ -1,9 +1,19 @@
 import type { int, long } from "@tsonic/core/types.js";
 import type { Action } from "@tsonic/dotnet/System.js";
-import { DateTimeOffset, Math as ClrMath, Convert } from "@tsonic/dotnet/System.js";
+import {
+  DateTimeOffset,
+  Math as ClrMath,
+  Convert,
+} from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { timers } from "@tsonic/nodejs/index.js";
-import type { EventQueue, QueueEvent, DomainEvent, RegisterParams, ClientCapabilities } from "./types.ts";
+import type {
+  EventQueue,
+  QueueEvent,
+  DomainEvent,
+  RegisterParams,
+  ClientCapabilities,
+} from "./types.ts";
 
 const toLongKey = (id: long): string => Convert.ToString(id);
 
@@ -93,7 +103,10 @@ const gcQueues = (): void => {
     if (queue === undefined) {
       continue;
     }
-    if (Convert.ToInt64(now) - Convert.ToInt64(queue.lastAccessTime) > QUEUE_EXPIRY_MS) {
+    if (
+      Convert.ToInt64(now) - Convert.ToInt64(queue.lastAccessTime) >
+      QUEUE_EXPIRY_MS
+    ) {
       // Signal waiter so blocked long-poll returns
       if (queue.waiterResolve !== undefined) {
         const resolve = queue.waiterResolve;
@@ -124,7 +137,11 @@ const gcQueues = (): void => {
   }
 };
 
-function waitForEventsImpl(queue: EventQueue, timeoutMs: int, resolve: (value: boolean) => void): void {
+function waitForEventsImpl(
+  queue: EventQueue,
+  timeoutMs: int,
+  resolve: (value: boolean) => void,
+): void {
   let settled = false;
 
   const onTimeout = (): void => {
@@ -164,9 +181,16 @@ export function initRegistry(): void {
   }
 }
 
-export function registerQueue(tenantId: long, userId: long, params: RegisterParams): string {
-  const nowSec = ClrMath.Floor(Convert.ToDouble(DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-  const queueId = Convert.ToString(nowSec) + ":" + Convert.ToString(nextQueueSeq);
+export function registerQueue(
+  tenantId: long,
+  userId: long,
+  params: RegisterParams,
+): string {
+  const nowSec = ClrMath.Floor(
+    Convert.ToDouble(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
+  );
+  const queueId =
+    Convert.ToString(nowSec) + ":" + Convert.ToString(nextQueueSeq);
   nextQueueSeq = nextQueueSeq + 1;
 
   const queue: EventQueue = {
@@ -182,7 +206,10 @@ export function registerQueue(tenantId: long, userId: long, params: RegisterPara
     applyMarkdown: params.applyMarkdown !== false,
     clientGravatar: params.clientGravatar === true,
     slimPresence: params.slimPresence === true,
-    clientCapabilities: params.clientCapabilities !== undefined ? params.clientCapabilities : {} as ClientCapabilities,
+    clientCapabilities:
+      params.clientCapabilities !== undefined
+        ? params.clientCapabilities
+        : ({} as ClientCapabilities),
     waiterResolve: undefined,
   };
 
@@ -324,7 +351,11 @@ export function deleteQueueById(
   return { success: true };
 }
 
-export function dispatchEvent(tenantId: long, event: DomainEvent, targetUserIds: long[]): void {
+export function dispatchEvent(
+  tenantId: long,
+  event: DomainEvent,
+  targetUserIds: long[],
+): void {
   for (let u = 0; u < targetUserIds.length; u++) {
     const userKey = toLongKey(tenantId) + ":" + toLongKey(targetUserIds[u]);
     const queueIds = getUserQueueIds(userKey);
@@ -352,14 +383,17 @@ export function dispatchEvent(tenantId: long, event: DomainEvent, targetUserIds:
         }
       }
 
-      if (event.type === "realm_linkifiers" && queue.clientCapabilities.linkifierUrlTemplate !== true) {
+      if (
+        event.type === "realm_linkifiers" &&
+        queue.clientCapabilities.linkifierUrlTemplate !== true
+      ) {
         continue;
       }
 
       if (
-        event.type === "typing"
-        && hasObjectKey(event.data, "stream_id")
-        && queue.clientCapabilities.streamTypingNotifications !== true
+        event.type === "typing" &&
+        hasObjectKey(event.data, "stream_id") &&
+        queue.clientCapabilities.streamTypingNotifications !== true
       ) {
         continue;
       }
@@ -375,7 +409,11 @@ export function dispatchEvent(tenantId: long, event: DomainEvent, targetUserIds:
       }
       queueEvent.data = event.data;
       for (const [key, value] of Object.entries(event.data)) {
-        if (key === "op" && queueEvent.op === undefined && typeof value === "string") {
+        if (
+          key === "op" &&
+          queueEvent.op === undefined &&
+          typeof value === "string"
+        ) {
           queueEvent.op = value as string;
           break;
         }
@@ -392,17 +430,27 @@ export function dispatchEvent(tenantId: long, event: DomainEvent, targetUserIds:
   }
 }
 
-export function dispatchEventToUser(tenantId: long, userId: long, event: DomainEvent): void {
+export function dispatchEventToUser(
+  tenantId: long,
+  userId: long,
+  event: DomainEvent,
+): void {
   dispatchEvent(tenantId, event, [userId]);
 }
 
-export function dispatchEventToTenant(tenantId: long, event: DomainEvent): void {
+export function dispatchEventToTenant(
+  tenantId: long,
+  event: DomainEvent,
+): void {
   const prefix = toLongKey(tenantId) + ":";
   const targetUserIds = new List<long>();
 
   for (let i = 0; i < userKeyList.Count; i++) {
     const key = userKeyList[i];
-    if (key.length > prefix.length && key.substring(0, prefix.length) === prefix) {
+    if (
+      key.length > prefix.length &&
+      key.substring(0, prefix.length) === prefix
+    ) {
       const userIdStr = key.substring(prefix.length);
       targetUserIds.Add(Convert.ToInt64(userIdStr));
     }

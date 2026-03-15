@@ -8,7 +8,7 @@ import { addMessageFlags } from "../repo/add-message-flags.ts";
 
 export const markAllAsReadDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<void, string>> => {
   // Get all messages in the tenant that the user has not read
   const db = new JotsterDbContext(options);
@@ -19,8 +19,8 @@ export const markAllAsReadDomain = async (
     const readFlag = "read";
 
     // Get all read message IDs for this user
-    const readFlags = await db0.MessageFlags
-      .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
+    const readFlags = await db0.MessageFlags.Where((f) => f.UserId === userId0)
+      .Where((f) => f.Flag === readFlag)
       .ToListAsync();
 
     const readMessageIds = new List<long>();
@@ -30,9 +30,9 @@ export const markAllAsReadDomain = async (
     }
 
     // Get all messages in the tenant
-    const allMessages = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0)
-      .ToListAsync();
+    const allMessages = await db0.Messages.Where(
+      (m) => m.TenantId === tenantId0,
+    ).ToListAsync();
 
     // Find unread message IDs
     const unreadIds = new List<long>();

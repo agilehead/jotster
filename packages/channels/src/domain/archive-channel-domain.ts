@@ -8,7 +8,7 @@ import { archiveChannel } from "../repo/archive-channel.ts";
 export const archiveChannelDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: long
+  channelId: long,
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");

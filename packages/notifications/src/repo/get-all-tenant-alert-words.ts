@@ -4,15 +4,15 @@ import { JotsterDbContext, AlertWord } from "@jotster/core/Jotster.Core.js";
 
 export const getAllTenantAlertWords = async (
   options: DbContextOptions,
-  tenantId: long
+  tenantId: long,
 ): Promise<AlertWord[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    const result = await db0.AlertWords
-      .Where((aw) => aw.TenantId === tenantId0)
-      .ToArrayAsync();
+    const result = await db0.AlertWords.Where(
+      (aw) => aw.TenantId === tenantId0,
+    ).ToArrayAsync();
     return result;
   } finally {
     db.Dispose();

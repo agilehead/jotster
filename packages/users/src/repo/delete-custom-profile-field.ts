@@ -5,7 +5,7 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 export const deleteCustomProfileField = async (
   options: DbContextOptions,
   tenantId: long,
-  fieldId: long
+  fieldId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -13,8 +13,8 @@ export const deleteCustomProfileField = async (
     const tenantId0 = tenantId;
     const fieldId0 = fieldId;
 
-    const field = await db0.CustomProfileFields
-      .Where((f) => f.Id === fieldId0).Where((f) => f.TenantId === tenantId0)
+    const field = await db0.CustomProfileFields.Where((f) => f.Id === fieldId0)
+      .Where((f) => f.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (field === undefined) {
@@ -22,8 +22,10 @@ export const deleteCustomProfileField = async (
     }
 
     // Delete all values associated with this field
-    const values = await db0.CustomProfileFieldValues
-      .Where((v) => v.FieldId === fieldId0).Where((v) => v.TenantId === tenantId0)
+    const values = await db0.CustomProfileFieldValues.Where(
+      (v) => v.FieldId === fieldId0,
+    )
+      .Where((v) => v.TenantId === tenantId0)
       .ToListAsync();
 
     for (let i = 0; i < values.Count; i++) {

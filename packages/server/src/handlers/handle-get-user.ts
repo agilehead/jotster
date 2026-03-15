@@ -10,32 +10,55 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleGetUser = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
-  const identifier = req.params["user_id_or_email"] as string ?? req.params["user_id"] as string;
+  const identifier =
+    (req.params["user_id_or_email"] as string) ??
+    (req.params["user_id"] as string);
 
-  const resolvedByEmail = await resolveUserByEmailPath(app.options, user.tenantId, identifier);
+  const resolvedByEmail = await resolveUserByEmailPath(
+    app.options,
+    user.tenantId,
+    identifier,
+  );
   if (resolvedByEmail !== undefined) {
-    res.json({ result: "success", msg: "", user: await buildUserResponse(app.options, resolvedByEmail) });
+    res.json({
+      result: "success",
+      msg: "",
+      user: await buildUserResponse(app.options, resolvedByEmail),
+    });
     return;
   }
 
   const parsedUserId = parseId(identifier);
   if (parsedUserId === undefined) {
-    res.status(400).json({ result: "error", msg: "User not found", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "User not found", code: "BAD_REQUEST" });
     return;
   }
 
-  const result = await getUserByIdDomain(app.options, user.tenantId, toLong(parsedUserId));
+  const result = await getUserByIdDomain(
+    app.options,
+    user.tenantId,
+    toLong(parsedUserId),
+  );
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

@@ -13,7 +13,9 @@ describe("Message compatibility endpoints", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "compat-stream" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "compat-stream",
+    });
     await seedSubscription(db, tenantId, userId, channelId);
 
     const streamMessageId = await seedMessage(db, tenantId, userId, {
@@ -27,7 +29,9 @@ describe("Message compatibility endpoints", () => {
       content: "mark topic",
     });
 
-    const markStreamRes = await client.post("/mark_stream_as_read", { stream_id: channelId });
+    const markStreamRes = await client.post("/mark_stream_as_read", {
+      stream_id: channelId,
+    });
     expect(markStreamRes.status).to.equal(200);
 
     const flagRows = await db("message_flag")
@@ -47,7 +51,9 @@ describe("Message compatibility endpoints", () => {
     const topicFlagRows = await db("message_flag")
       .select("message_id")
       .where({ user_id: userId, flag: "read" });
-    expect(topicFlagRows.map((row) => row.message_id)).to.deep.equal([topicMessageId]);
+    expect(topicFlagRows.map((row) => row.message_id)).to.deep.equal([
+      topicMessageId,
+    ]);
   });
 
   it("mark-as-read compat endpoints should validate required fields", async () => {
@@ -57,7 +63,9 @@ describe("Message compatibility endpoints", () => {
 
     const missingStreamRes = await seeded.client.post("/mark_stream_as_read");
     expect(missingStreamRes.status).to.equal(400);
-    expect(missingStreamRes.body.msg).to.equal("Missing required field: stream_id");
+    expect(missingStreamRes.body.msg).to.equal(
+      "Missing required field: stream_id",
+    );
     expect(missingStreamRes.body.code).to.equal("BAD_REQUEST");
 
     const missingTopicRes = await seeded.client.post("/mark_topic_as_read", {
@@ -72,7 +80,9 @@ describe("Message compatibility endpoints", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "narrow-stream" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "narrow-stream",
+    });
     await seedSubscription(db, tenantId, userId, channelId);
 
     const matchingMessageId = await seedMessage(db, tenantId, userId, {
@@ -108,7 +118,10 @@ describe("Message compatibility endpoints", () => {
       narrow,
     });
     expect(matchingRes.status).to.equal(200);
-    const messages = matchingRes.body.messages as Record<string, Record<string, unknown>>;
+    const messages = matchingRes.body.messages as Record<
+      string,
+      Record<string, unknown>
+    >;
     expect(Object.keys(messages)).to.deep.equal([`${matchingMessageId}`]);
     expect(messages[`${matchingMessageId}`].match_subject).to.equal("incident");
   });
@@ -126,10 +139,13 @@ describe("Message compatibility endpoints", () => {
     expect(missingFlagRes.body.msg).to.equal("Missing required field");
     expect(missingFlagRes.body.code).to.equal("BAD_REQUEST");
 
-    const invalidMsgIdsRes = await seeded.client.get("/messages/matches_narrow", {
-      msg_ids: "not-json",
-      narrow: JSON.stringify([{ operator: "is", operand: "mentioned" }]),
-    });
+    const invalidMsgIdsRes = await seeded.client.get(
+      "/messages/matches_narrow",
+      {
+        msg_ids: "not-json",
+        narrow: JSON.stringify([{ operator: "is", operand: "mentioned" }]),
+      },
+    );
     expect(invalidMsgIdsRes.status).to.equal(400);
     expect(invalidMsgIdsRes.body.msg).to.equal("Invalid msg_ids");
     expect(invalidMsgIdsRes.body.code).to.equal("BAD_REQUEST");
@@ -139,7 +155,9 @@ describe("Message compatibility endpoints", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
-    const moderationChannelId = await seedChannel(db, tenantId, { name: "moderation-requests" });
+    const moderationChannelId = await seedChannel(db, tenantId, {
+      name: "moderation-requests",
+    });
     const sourceChannelId = await seedChannel(db, tenantId, { name: "source" });
     await seedSubscription(db, tenantId, userId, moderationChannelId);
     await seedSubscription(db, tenantId, userId, sourceChannelId);
@@ -154,10 +172,14 @@ describe("Message compatibility endpoints", () => {
     });
     expect(reportRes.status).to.equal(200);
 
-    const typingRes = await client.post(`/messages/${messageId}/typing`, { op: "start" });
+    const typingRes = await client.post(`/messages/${messageId}/typing`, {
+      op: "start",
+    });
     expect(typingRes.status).to.equal(200);
 
-    const thumbnailRes = await client.getRaw(`/thumbnail/status/${tenantId}/example.png`);
+    const thumbnailRes = await client.getRaw(
+      `/thumbnail/status/${tenantId}/example.png`,
+    );
     expect(thumbnailRes.status).to.equal(200);
     expect(thumbnailRes.body.has_thumbnail).to.equal(false);
   });
@@ -166,7 +188,9 @@ describe("Message compatibility endpoints", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "moderation-errors" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "moderation-errors",
+    });
     await seedSubscription(db, tenantId, userId, channelId);
     const messageId = await seedMessage(db, tenantId, userId, {
       channelId,
@@ -174,12 +198,17 @@ describe("Message compatibility endpoints", () => {
       content: "Needs review",
     });
 
-    const missingReportTypeRes = await client.post(`/messages/${messageId}/report`);
+    const missingReportTypeRes = await client.post(
+      `/messages/${messageId}/report`,
+    );
     expect(missingReportTypeRes.status).to.equal(400);
     expect(missingReportTypeRes.body.msg).to.equal("Missing report_type");
     expect(missingReportTypeRes.body.code).to.equal("BAD_REQUEST");
 
-    const invalidTypingOpRes = await client.post(`/messages/${messageId}/typing`, { op: "pause" });
+    const invalidTypingOpRes = await client.post(
+      `/messages/${messageId}/typing`,
+      { op: "pause" },
+    );
     expect(invalidTypingOpRes.status).to.equal(400);
     expect(invalidTypingOpRes.body.msg).to.equal("Invalid op");
     expect(invalidTypingOpRes.body.code).to.equal("BAD_REQUEST");
@@ -190,7 +219,9 @@ describe("Message compatibility endpoints", () => {
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);
     const reader = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "render-and-read-receipts" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "render-and-read-receipts",
+    });
     await seedSubscription(db, tenantId, sender.userId, channelId);
     await seedSubscription(db, tenantId, reader.userId, channelId);
 
@@ -213,7 +244,9 @@ describe("Message compatibility endpoints", () => {
       flag: "read",
     });
 
-    const receiptsRes = await sender.client.get(`/messages/${messageId}/read_receipts`);
+    const receiptsRes = await sender.client.get(
+      `/messages/${messageId}/read_receipts`,
+    );
     expect(receiptsRes.status).to.equal(200);
     expect(receiptsRes.body.result).to.equal("success");
     expect(receiptsRes.body.user_ids).to.deep.equal([reader.userId]);
@@ -227,7 +260,9 @@ describe("Message compatibility endpoints", () => {
     const hidden = await seedUser(db, tenantId);
     const mutedByRequester = await seedUser(db, tenantId);
     const mutedRequester = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "read-receipt-filtering" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "read-receipt-filtering",
+    });
     await seedSubscription(db, tenantId, sender.userId, channelId);
     await seedSubscription(db, tenantId, requester.userId, channelId);
     await seedSubscription(db, tenantId, hidden.userId, channelId);
@@ -240,7 +275,9 @@ describe("Message compatibility endpoints", () => {
       content: "Visibility test",
     });
 
-    await db("user_setting").where({ user_id: hidden.userId }).update({ send_read_receipts: 0 });
+    await db("user_setting")
+      .where({ user_id: hidden.userId })
+      .update({ send_read_receipts: 0 });
     await db("muted_user").insert({
       id: `muted_${Date.now()}_1`,
       tenant_id: tenantId,
@@ -264,7 +301,9 @@ describe("Message compatibility endpoints", () => {
       { user_id: mutedRequester.userId, message_id: messageId, flag: "read" },
     ]);
 
-    const receiptsRes = await requester.client.get(`/messages/${messageId}/read_receipts`);
+    const receiptsRes = await requester.client.get(
+      `/messages/${messageId}/read_receipts`,
+    );
     expect(receiptsRes.status).to.equal(200);
     expect(receiptsRes.body.result).to.equal("success");
     expect(receiptsRes.body.user_ids).to.deep.equal([requester.userId]);

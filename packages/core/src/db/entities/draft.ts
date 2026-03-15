@@ -16,5 +16,7 @@ export class Draft {
   CreatedAt!: long;
 }
 
-A.on(Draft).prop((x) => x.Id).add(KeyAttribute);
+A.on(Draft)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Draft).type.add(IndexAttribute, ["TenantId", "UserId"]);

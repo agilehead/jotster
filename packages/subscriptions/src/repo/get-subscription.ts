@@ -6,7 +6,7 @@ export const getSubscription = async (
   options: DbContextOptions,
   tenantId: long,
   userId: long,
-  channelId: long
+  channelId: long,
 ): Promise<Subscription | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -14,8 +14,11 @@ export const getSubscription = async (
     const tenantId0 = tenantId;
     const userId0 = userId;
     const channelId0 = channelId;
-    const result = await db0.Subscriptions
-      .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+    const result = await db0.Subscriptions.Where(
+      (s) => s.TenantId === tenantId0,
+    )
+      .Where((s) => s.UserId === userId0)
+      .Where((s) => s.ChannelId === channelId0)
       .FirstOrDefaultAsync();
     return result ?? undefined;
   } finally {

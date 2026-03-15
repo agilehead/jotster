@@ -9,7 +9,7 @@ import { getInvitations } from "../repo/get-invitations.ts";
 
 export const getInvitationsDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<Record<string, unknown>[], string>> => {
   if (user.role > 200) {
     return err("Admin required");
@@ -27,9 +27,10 @@ export const getInvitationsDomain = async (
     obj["email"] = inv.Email ?? "";
     obj["is_multiuse"] = inv.IsMultiuse === (1 as int);
     obj["link_token"] = inv.LinkToken;
-    obj["channel_ids"] = inv.ChannelIdsJson.length > 0
-      ? JsonSerializer.Deserialize<string[]>(inv.ChannelIdsJson)
-      : [];
+    obj["channel_ids"] =
+      inv.ChannelIdsJson.length > 0
+        ? JsonSerializer.Deserialize<string[]>(inv.ChannelIdsJson)
+        : [];
     obj["invited_as"] = inv.InvitedAsRole;
     obj["status"] = inv.Status;
     obj["timestamp"] = Convert.ToDouble(inv.CreatedAt) / 1000;

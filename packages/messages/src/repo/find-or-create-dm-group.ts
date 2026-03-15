@@ -1,13 +1,18 @@
 import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, DmGroup, DmGroupMember, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  DmGroup,
+  DmGroupMember,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const findOrCreateDmGroup = async (
   options: DbContextOptions,
   tenantId: long,
-  userIds: long[]
+  userIds: long[],
 ): Promise<DmGroup> => {
   // Sort userIds and create hash
   const sorted = new List<long>();
@@ -18,7 +23,9 @@ export const findOrCreateDmGroup = async (
   const sortedArr = sorted.ToArray();
   let groupHash = "";
   for (let i = 0; i < sortedArr.length; i++) {
-    if (i > 0) { groupHash = groupHash + ","; }
+    if (i > 0) {
+      groupHash = groupHash + ",";
+    }
     groupHash = groupHash + sortedArr[i].toString();
   }
 
@@ -29,8 +36,8 @@ export const findOrCreateDmGroup = async (
     const groupHash0 = groupHash;
 
     // Look up by TenantId + GroupHash
-    const existing = await db0.DmGroups
-      .Where((g) => g.TenantId === tenantId0).Where((g) => g.GroupHash === groupHash0)
+    const existing = await db0.DmGroups.Where((g) => g.TenantId === tenantId0)
+      .Where((g) => g.GroupHash === groupHash0)
       .FirstOrDefaultAsync();
 
     if (existing !== undefined && existing !== null) {

@@ -13,7 +13,7 @@ const DELETE_TIME_LIMIT_MS = 600000;
 export const deleteMessageDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: long
+  messageId: long,
 ): Promise<Result<void, string>> => {
   const message = await getMessage(options, user.tenantId, messageId);
   if (message === undefined) {

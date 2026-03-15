@@ -6,7 +6,10 @@ import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import { getRealmPresence } from "../repo/get-realm-presence.ts";
-import { buildModernPresenceMap, filterPresenceEntries } from "./presence-contract.ts";
+import {
+  buildModernPresenceMap,
+  filterPresenceEntries,
+} from "./presence-contract.ts";
 
 interface RealmPresenceResult {
   presences: Record<string, unknown>;
@@ -20,20 +23,27 @@ export const getRealmPresenceDomain = async (
   historyLimitDays?: int,
 ): Promise<Result<RealmPresenceResult, string>> => {
   const allPresences = await getRealmPresence(options, user.tenantId);
-  const filteredPresences = filterPresenceEntries(allPresences, historyLimitDays);
-  const serverTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
+  const filteredPresences = filterPresenceEntries(
+    allPresences,
+    historyLimitDays,
+  );
+  const serverTimestamp =
+    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   if (slimPresence === true) {
-    return ok({ presences: buildModernPresenceMap(filteredPresences), serverTimestamp });
+    return ok({
+      presences: buildModernPresenceMap(filteredPresences),
+      serverTimestamp,
+    });
   }
 
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = user.tenantId;
-    const users = await db0.Users
-      .Where((u) => u.TenantId === tenantId0)
-      .ToListAsync();
+    const users = await db0.Users.Where(
+      (u) => u.TenantId === tenantId0,
+    ).ToListAsync();
     const presences: Record<string, unknown> = {};
 
     for (let i = 0; i < users.Count; i++) {
@@ -46,7 +56,10 @@ export const getRealmPresenceDomain = async (
           continue;
         }
 
-        if (latestEntry === undefined || entry.Timestamp > latestEntry.Timestamp) {
+        if (
+          latestEntry === undefined ||
+          entry.Timestamp > latestEntry.Timestamp
+        ) {
           latestEntry = entry;
         }
       }

@@ -4,24 +4,41 @@ import { testDb } from "../../test-setup.js";
 import { createApiClient } from "../../utils/api-client.js";
 import { seedTenant, seedUser } from "../../utils/test-helpers.js";
 
-const getBaseUrl = (): string => process.env.JOTSTER_TEST_BASE_URL ?? "http://localhost:9877";
+const getBaseUrl = (): string =>
+  process.env.JOTSTER_TEST_BASE_URL ?? "http://localhost:9877";
 
 const getTenantHostHeader = async (tenantId: number): Promise<string> => {
   const db = testDb.getDb();
-  const row = await db("tenant").select("subdomain").where({ id: tenantId }).first();
+  const row = await db("tenant")
+    .select("subdomain")
+    .where({ id: tenantId })
+    .first();
   const subdomain = row?.subdomain as string;
   const port = new URL(getBaseUrl()).port;
-  return port === "" ? `${subdomain}.test.local` : `${subdomain}.test.local:${port}`;
+  return port === ""
+    ? `${subdomain}.test.local`
+    : `${subdomain}.test.local:${port}`;
 };
 
 const createAnonymousTenantClient = async (tenantId: number) => {
-  return createApiClient(getBaseUrl(), "", "", await getTenantHostHeader(tenantId));
+  return createApiClient(
+    getBaseUrl(),
+    "",
+    "",
+    await getTenantHostHeader(tenantId),
+  );
 };
 
 const setPassword = async (userId: number, password: string): Promise<void> => {
   const salt = "testsalt";
-  const digest = crypto.createHash("sha256").update(`${salt}:${password}`, "utf8").digest("hex");
-  await testDb.getDb()("user").where({ id: userId }).update({ password_hash: `${salt}:${digest}` });
+  const digest = crypto
+    .createHash("sha256")
+    .update(`${salt}:${password}`, "utf8")
+    .digest("hex");
+  await testDb
+    .getDb()("user")
+    .where({ id: userId })
+    .update({ password_hash: `${salt}:${digest}` });
 };
 
 describe("POST /api/v1/fetch_api_key", () => {
@@ -147,7 +164,8 @@ describe("POST /api/v1/fetch_api_key", () => {
     await seedUser(db, tenantId);
 
     const port = new URL(getBaseUrl()).port;
-    const hostHeader = port === "" ? "missing.test.local" : `missing.test.local:${port}`;
+    const hostHeader =
+      port === "" ? "missing.test.local" : `missing.test.local:${port}`;
     const client = createApiClient(getBaseUrl(), "", "", hostHeader);
     const res = await client.post("/fetch_api_key", {
       username: "missing@test.local",

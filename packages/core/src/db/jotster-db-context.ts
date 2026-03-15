@@ -1,9 +1,16 @@
 import { asinterface } from "@tsonic/core/lang.js";
 import type { ExtensionMethods as Linq } from "@tsonic/dotnet/System.Linq.js";
 import type { ExtensionMethods as Ef } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { DbContext, DbContextOptions, ModelBuilder } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import {
+  DbContext,
+  DbContextOptions,
+  ModelBuilder,
+} from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { DbSet } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type { EntityTypeBuilder, PropertyBuilder } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.Metadata.Builders.js";
+import type {
+  EntityTypeBuilder,
+  PropertyBuilder,
+} from "@tsonic/efcore/Microsoft.EntityFrameworkCore.Metadata.Builders.js";
 
 import type { Tenant } from "./entities/tenant.ts";
 import type { User } from "./entities/user.ts";
@@ -61,13 +68,12 @@ function toSnakeCase(name: string): string {
     const current = name[index];
     const previous = index > 0 ? name[index - 1] : undefined;
     const next = index + 1 < name.length ? name[index + 1] : undefined;
-    const isUpper =
-      current >= "A" && current <= "Z";
+    const isUpper = current >= "A" && current <= "Z";
     const previousIsLowerOrDigit =
       previous !== undefined &&
-      ((previous >= "a" && previous <= "z") || (previous >= "0" && previous <= "9"));
-    const nextIsLower =
-      next !== undefined && next >= "a" && next <= "z";
+      ((previous >= "a" && previous <= "z") ||
+        (previous >= "0" && previous <= "9"));
+    const nextIsLower = next !== undefined && next >= "a" && next <= "z";
 
     if (isUpper && (previousIsLowerOrDigit || nextIsLower) && index > 0) {
       result += "_";
@@ -86,7 +92,7 @@ function configureRelationalNames(builder: EntityTypeBuilder): void {
 
   for (const property of relationalBuilder.Metadata.ClrType.GetProperties()) {
     const propertyBuilder = asinterface<RelationalPropertyBuilder>(
-      relationalBuilder.Property(property.PropertyType, property.Name)
+      relationalBuilder.Property(property.PropertyType, property.Name),
     );
     propertyBuilder.HasColumnName(toSnakeCase(property.Name));
   }
@@ -118,11 +124,15 @@ export class JotsterDbContext extends DbContext {
   }
 
   get DefaultChannelGroups(): DbSetQuery<DefaultChannelGroup> {
-    return asinterface<DbSetQuery<DefaultChannelGroup>>(this.Set<DefaultChannelGroup>());
+    return asinterface<DbSetQuery<DefaultChannelGroup>>(
+      this.Set<DefaultChannelGroup>(),
+    );
   }
 
   get DefaultChannelGroupItems(): DbSetQuery<DefaultChannelGroupItem> {
-    return asinterface<DbSetQuery<DefaultChannelGroupItem>>(this.Set<DefaultChannelGroupItem>());
+    return asinterface<DbSetQuery<DefaultChannelGroupItem>>(
+      this.Set<DefaultChannelGroupItem>(),
+    );
   }
 
   get Subscriptions(): DbSetQuery<Subscription> {
@@ -134,7 +144,9 @@ export class JotsterDbContext extends DbContext {
   }
 
   get MessageEditHistories(): DbSetQuery<MessageEditHistory> {
-    return asinterface<DbSetQuery<MessageEditHistory>>(this.Set<MessageEditHistory>());
+    return asinterface<DbSetQuery<MessageEditHistory>>(
+      this.Set<MessageEditHistory>(),
+    );
   }
 
   get MessageFlags(): DbSetQuery<MessageFlag> {
@@ -166,11 +178,15 @@ export class JotsterDbContext extends DbContext {
   }
 
   get UserGroupMembers(): DbSetQuery<UserGroupMember> {
-    return asinterface<DbSetQuery<UserGroupMember>>(this.Set<UserGroupMember>());
+    return asinterface<DbSetQuery<UserGroupMember>>(
+      this.Set<UserGroupMember>(),
+    );
   }
 
   get UserGroupSubgroups(): DbSetQuery<UserGroupSubgroup> {
-    return asinterface<DbSetQuery<UserGroupSubgroup>>(this.Set<UserGroupSubgroup>());
+    return asinterface<DbSetQuery<UserGroupSubgroup>>(
+      this.Set<UserGroupSubgroup>(),
+    );
   }
 
   get MutedUsers(): DbSetQuery<MutedUser> {
@@ -186,7 +202,9 @@ export class JotsterDbContext extends DbContext {
   }
 
   get ChannelFolderItems(): DbSetQuery<ChannelFolderItem> {
-    return asinterface<DbSetQuery<ChannelFolderItem>>(this.Set<ChannelFolderItem>());
+    return asinterface<DbSetQuery<ChannelFolderItem>>(
+      this.Set<ChannelFolderItem>(),
+    );
   }
 
   get Attachments(): DbSetQuery<Attachment> {
@@ -194,7 +212,9 @@ export class JotsterDbContext extends DbContext {
   }
 
   get AttachmentMessages(): DbSetQuery<AttachmentMessage> {
-    return asinterface<DbSetQuery<AttachmentMessage>>(this.Set<AttachmentMessage>());
+    return asinterface<DbSetQuery<AttachmentMessage>>(
+      this.Set<AttachmentMessage>(),
+    );
   }
 
   get CustomEmojis(): DbSetQuery<CustomEmoji> {
@@ -202,11 +222,15 @@ export class JotsterDbContext extends DbContext {
   }
 
   get CustomProfileFields(): DbSetQuery<CustomProfileField> {
-    return asinterface<DbSetQuery<CustomProfileField>>(this.Set<CustomProfileField>());
+    return asinterface<DbSetQuery<CustomProfileField>>(
+      this.Set<CustomProfileField>(),
+    );
   }
 
   get CustomProfileFieldValues(): DbSetQuery<CustomProfileFieldValue> {
-    return asinterface<DbSetQuery<CustomProfileFieldValue>>(this.Set<CustomProfileFieldValue>());
+    return asinterface<DbSetQuery<CustomProfileFieldValue>>(
+      this.Set<CustomProfileFieldValue>(),
+    );
   }
 
   get Drafts(): DbSetQuery<Draft> {
@@ -222,7 +246,9 @@ export class JotsterDbContext extends DbContext {
   }
 
   get ScheduledMessages(): DbSetQuery<ScheduledMessage> {
-    return asinterface<DbSetQuery<ScheduledMessage>>(this.Set<ScheduledMessage>());
+    return asinterface<DbSetQuery<ScheduledMessage>>(
+      this.Set<ScheduledMessage>(),
+    );
   }
 
   get NavigationViews(): DbSetQuery<NavigationView> {
@@ -242,7 +268,9 @@ export class JotsterDbContext extends DbContext {
   }
 
   get TenantUserSettingDefaults(): DbSetQuery<TenantUserSettingDefault> {
-    return asinterface<DbSetQuery<TenantUserSettingDefault>>(this.Set<TenantUserSettingDefault>());
+    return asinterface<DbSetQuery<TenantUserSettingDefault>>(
+      this.Set<TenantUserSettingDefault>(),
+    );
   }
 
   get Invitations(): DbSetQuery<Invitation> {
@@ -250,7 +278,9 @@ export class JotsterDbContext extends DbContext {
   }
 
   get OutgoingWebhooks(): DbSetQuery<OutgoingWebhook> {
-    return asinterface<DbSetQuery<OutgoingWebhook>>(this.Set<OutgoingWebhook>());
+    return asinterface<DbSetQuery<OutgoingWebhook>>(
+      this.Set<OutgoingWebhook>(),
+    );
   }
 
   get BotStorages(): DbSetQuery<BotStorage> {
@@ -262,7 +292,9 @@ export class JotsterDbContext extends DbContext {
   }
 
   get PushDeviceTokens(): DbSetQuery<PushDeviceToken> {
-    return asinterface<DbSetQuery<PushDeviceToken>>(this.Set<PushDeviceToken>());
+    return asinterface<DbSetQuery<PushDeviceToken>>(
+      this.Set<PushDeviceToken>(),
+    );
   }
 
   get ClientDevices(): DbSetQuery<ClientDevice> {
@@ -323,6 +355,8 @@ export class JotsterDbContext extends DbContext {
   }
 }
 
-export function createJotsterDbContext(options: DbContextOptions): JotsterDbContext {
+export function createJotsterDbContext(
+  options: DbContextOptions,
+): JotsterDbContext {
   return new JotsterDbContext(options);
 }

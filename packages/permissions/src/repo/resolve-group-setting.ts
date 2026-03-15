@@ -9,7 +9,7 @@ import { JotsterDbContext, parseId } from "@jotster/core/Jotster.Core.js";
 export const resolveGroupSettingToId = async (
   options: DbContextOptions,
   tenantId: long,
-  value: string
+  value: string,
 ): Promise<long | undefined> => {
   // Try parsing as a numeric ID first
   const numericId = parseId(value);
@@ -28,8 +28,9 @@ export const resolveGroupSettingToId = async (
     const tenantId0 = tenantId;
     const value0 = value;
     const one = 1 as int;
-    const group = await db0.UserGroups
-      .Where((g) => g.TenantId === tenantId0).Where((g) => g.IsSystemGroup === one).Where((g) => g.Name === value0)
+    const group = await db0.UserGroups.Where((g) => g.TenantId === tenantId0)
+      .Where((g) => g.IsSystemGroup === one)
+      .Where((g) => g.Name === value0)
       .FirstOrDefaultAsync();
 
     if (group === undefined || group === null) {
@@ -50,7 +51,7 @@ export const resolveGroupSettingToId = async (
 export const resolveGroupIdToSetting = async (
   options: DbContextOptions,
   tenantId: long,
-  groupId: long | undefined | null
+  groupId: long | undefined | null,
 ): Promise<string | null> => {
   if (groupId === undefined || groupId === null) {
     return null;
@@ -61,8 +62,8 @@ export const resolveGroupIdToSetting = async (
     const db0 = db;
     const tenantId0 = tenantId;
     const groupId0 = groupId;
-    const group = await db0.UserGroups
-      .Where((g) => g.TenantId === tenantId0).Where((g) => g.Id === groupId0)
+    const group = await db0.UserGroups.Where((g) => g.TenantId === tenantId0)
+      .Where((g) => g.Id === groupId0)
       .FirstOrDefaultAsync();
 
     if (group === undefined || group === null) {

@@ -7,11 +7,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleDeleteQueue = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -19,16 +24,22 @@ export const handleDeleteQueue = async (
   const body = getBodyObject(req);
   const query = req.query as Record<string, unknown>;
 
-  const queueId = getOptionalStringField(body, "queue_id") ?? getOptionalStringField(query, "queue_id");
+  const queueId =
+    getOptionalStringField(body, "queue_id") ??
+    getOptionalStringField(query, "queue_id");
   if (!queueId) {
-    res.status(400).json({ result: "error", msg: "Missing required parameter: queue_id" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required parameter: queue_id" });
     return;
   }
 
   const result = deleteQueueById(user.tenantId, user.userId, queueId);
 
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error ?? "Queue not found" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error ?? "Queue not found" });
     return;
   }
 

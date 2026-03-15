@@ -48,7 +48,9 @@ describe("Persisted object event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
-    const { queueId, lastEventId } = await registerQueue(admin.client, ["navigation_view"]);
+    const { queueId, lastEventId } = await registerQueue(admin.client, [
+      "navigation_view",
+    ]);
 
     const createRes = await admin.client.post("/navigation_views", {
       fragment: "narrow/is/alerted",
@@ -70,12 +72,19 @@ describe("Persisted object event compatibility", function () {
       },
     });
 
-    const updateRes = await admin.client.patch("/navigation_views/narrow/is/alerted", {
-      is_pinned: "false",
-    });
+    const updateRes = await admin.client.patch(
+      "/navigation_views/narrow/is/alerted",
+      {
+        is_pinned: "false",
+      },
+    );
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(admin.client, queueId, createEvents[0].id as number);
+    const updateEvents = await getEvents(
+      admin.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
     expect(updateEvents[0]).to.deep.equal({
       id: updateEvents[0].id,
@@ -87,10 +96,16 @@ describe("Persisted object event compatibility", function () {
       },
     });
 
-    const deleteRes = await admin.client.delete("/navigation_views/narrow/is/alerted");
+    const deleteRes = await admin.client.delete(
+      "/navigation_views/narrow/is/alerted",
+    );
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(admin.client, queueId, updateEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      admin.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,
@@ -104,7 +119,9 @@ describe("Persisted object event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId);
-    const { queueId, lastEventId } = await registerQueue(user.client, ["saved_snippets"]);
+    const { queueId, lastEventId } = await registerQueue(user.client, [
+      "saved_snippets",
+    ]);
 
     const createRes = await user.client.post("/saved_snippets", {
       title: "Example",
@@ -115,7 +132,10 @@ describe("Persisted object event compatibility", function () {
 
     const createEvents = await getEvents(user.client, queueId, lastEventId);
     expect(createEvents).to.have.length(1);
-    const createdSavedSnippet = createEvents[0].saved_snippet as Record<string, unknown>;
+    const createdSavedSnippet = createEvents[0].saved_snippet as Record<
+      string,
+      unknown
+    >;
     expect(createEvents[0]).to.deep.equal({
       id: createEvents[0].id,
       type: "saved_snippets",
@@ -133,9 +153,16 @@ describe("Persisted object event compatibility", function () {
     });
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(user.client, queueId, createEvents[0].id as number);
+    const updateEvents = await getEvents(
+      user.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
-    const updatedSavedSnippet = updateEvents[0].saved_snippet as Record<string, unknown>;
+    const updatedSavedSnippet = updateEvents[0].saved_snippet as Record<
+      string,
+      unknown
+    >;
     expect(updateEvents[0]).to.deep.equal({
       id: updateEvents[0].id,
       type: "saved_snippets",
@@ -151,7 +178,11 @@ describe("Persisted object event compatibility", function () {
     const deleteRes = await user.client.delete(`/saved_snippets/${snippetId}`);
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(user.client, queueId, updateEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      user.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,
@@ -165,16 +196,22 @@ describe("Persisted object event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "reminders-events" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "reminders-events",
+    });
     await seedSubscription(db, tenantId, user.userId, channelId);
     const messageId = await seedMessage(db, tenantId, user.userId, {
       channelId,
       topic: "reminders",
       content: "Reminder target",
     });
-    const { queueId, lastEventId } = await registerQueue(user.client, ["reminders"]);
+    const { queueId, lastEventId } = await registerQueue(user.client, [
+      "reminders",
+    ]);
 
-    const scheduledDeliveryTimestamp = String(Math.floor(Date.now() / 1000) + 3600);
+    const scheduledDeliveryTimestamp = String(
+      Math.floor(Date.now() / 1000) + 3600,
+    );
     const createRes = await user.client.post("/reminders", {
       message_id: messageId,
       scheduled_delivery_timestamp: scheduledDeliveryTimestamp,
@@ -206,7 +243,11 @@ describe("Persisted object event compatibility", function () {
     const deleteRes = await user.client.delete(`/reminders/${reminderId}`);
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(user.client, queueId, createEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      user.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,
@@ -220,11 +261,17 @@ describe("Persisted object event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "scheduled-events" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "scheduled-events",
+    });
     await seedSubscription(db, tenantId, user.userId, channelId);
-    const { queueId, lastEventId } = await registerQueue(user.client, ["scheduled_messages"]);
+    const { queueId, lastEventId } = await registerQueue(user.client, [
+      "scheduled_messages",
+    ]);
 
-    const scheduledDeliveryTimestamp = String(Math.floor(Date.now() / 1000) + 3600);
+    const scheduledDeliveryTimestamp = String(
+      Math.floor(Date.now() / 1000) + 3600,
+    );
     const createRes = await user.client.post("/scheduled_messages", {
       type: "stream",
       to: channelId,
@@ -255,15 +302,24 @@ describe("Persisted object event compatibility", function () {
       ],
     });
 
-    const updatedScheduledDeliveryTimestamp = String(Math.floor(Date.now() / 1000) + 7200);
-    const updateRes = await user.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
-      topic: "Edited topic",
-      content: "Edited stream message",
-      scheduled_delivery_timestamp: updatedScheduledDeliveryTimestamp,
-    });
+    const updatedScheduledDeliveryTimestamp = String(
+      Math.floor(Date.now() / 1000) + 7200,
+    );
+    const updateRes = await user.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+      {
+        topic: "Edited topic",
+        content: "Edited stream message",
+        scheduled_delivery_timestamp: updatedScheduledDeliveryTimestamp,
+      },
+    );
     expect(updateRes.status).to.equal(200);
 
-    const updateEvents = await getEvents(user.client, queueId, createEvents[0].id as number);
+    const updateEvents = await getEvents(
+      user.client,
+      queueId,
+      createEvents[0].id as number,
+    );
     expect(updateEvents).to.have.length(1);
     expect(updateEvents[0]).to.deep.equal({
       id: updateEvents[0].id,
@@ -281,10 +337,16 @@ describe("Persisted object event compatibility", function () {
       },
     });
 
-    const deleteRes = await user.client.delete(`/scheduled_messages/${scheduledMessageId}`);
+    const deleteRes = await user.client.delete(
+      `/scheduled_messages/${scheduledMessageId}`,
+    );
     expect(deleteRes.status).to.equal(200);
 
-    const deleteEvents = await getEvents(user.client, queueId, updateEvents[0].id as number);
+    const deleteEvents = await getEvents(
+      user.client,
+      queueId,
+      updateEvents[0].id as number,
+    );
     expect(deleteEvents).to.have.length(1);
     expect(deleteEvents[0]).to.deep.equal({
       id: deleteEvents[0].id,

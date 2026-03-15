@@ -4,25 +4,25 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const deleteChannelFolder = async (
   options: DbContextOptions,
-  folderId: long
+  folderId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const folderId0 = folderId;
 
-    const folder = await db0.ChannelFolders
-      .Where((f) => f.Id === folderId0)
-      .FirstOrDefaultAsync();
+    const folder = await db0.ChannelFolders.Where(
+      (f) => f.Id === folderId0,
+    ).FirstOrDefaultAsync();
 
     if (folder === undefined) {
       return false;
     }
 
     // Remove all items in the folder
-    const items = await db0.ChannelFolderItems
-      .Where((item) => item.ChannelFolderId === folderId0)
-      .ToListAsync();
+    const items = await db0.ChannelFolderItems.Where(
+      (item) => item.ChannelFolderId === folderId0,
+    ).ToListAsync();
 
     for (let i = 0; i < items.Count; i++) {
       const item = items[i];

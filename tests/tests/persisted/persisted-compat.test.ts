@@ -23,7 +23,10 @@ describe("Persisted compatibility endpoints", () => {
 
     const listRes = await client.get("/navigation_views");
     expect(listRes.status).to.equal(200);
-    expect((listRes.body.navigation_views as Array<Record<string, unknown>>)[0].fragment).to.equal("streams/all");
+    expect(
+      (listRes.body.navigation_views as Array<Record<string, unknown>>)[0]
+        .fragment,
+    ).to.equal("streams/all");
 
     const updateRes = await client.patch("/navigation_views/streams/all", {
       is_pinned: "false",
@@ -46,7 +49,9 @@ describe("Persisted compatibility endpoints", () => {
       name: "Recent view",
     });
     expect(builtInNamedRes.status).to.equal(400);
-    expect(builtInNamedRes.body.msg).to.equal("Built-in views cannot have a custom name.");
+    expect(builtInNamedRes.body.msg).to.equal(
+      "Built-in views cannot have a custom name.",
+    );
     expect(builtInNamedRes.body.code).to.equal("BAD_REQUEST");
 
     const customWithoutNameRes = await client.post("/navigation_views", {
@@ -54,7 +59,9 @@ describe("Persisted compatibility endpoints", () => {
       is_pinned: "true",
     });
     expect(customWithoutNameRes.status).to.equal(400);
-    expect(customWithoutNameRes.body.msg).to.equal("Custom views must have a valid name.");
+    expect(customWithoutNameRes.body.msg).to.equal(
+      "Custom views must have a valid name.",
+    );
     expect(customWithoutNameRes.body.code).to.equal("BAD_REQUEST");
   });
 
@@ -76,7 +83,9 @@ describe("Persisted compatibility endpoints", () => {
       name: "Alert Words",
     });
     expect(duplicateCreateRes.status).to.equal(400);
-    expect(duplicateCreateRes.body.msg).to.equal("Navigation view already exists.");
+    expect(duplicateCreateRes.body.msg).to.equal(
+      "Navigation view already exists.",
+    );
     expect(duplicateCreateRes.body.code).to.equal("BAD_REQUEST");
 
     await client.post("/navigation_views", {
@@ -85,12 +94,17 @@ describe("Persisted compatibility endpoints", () => {
       name: "Attachments",
     });
 
-    const duplicateUpdateRes = await client.patch("/navigation_views/narrow/is/attachment", {
-      name: "Alert Words",
-      is_pinned: "false",
-    });
+    const duplicateUpdateRes = await client.patch(
+      "/navigation_views/narrow/is/attachment",
+      {
+        name: "Alert Words",
+        is_pinned: "false",
+      },
+    );
     expect(duplicateUpdateRes.status).to.equal(400);
-    expect(duplicateUpdateRes.body.msg).to.equal("Navigation view already exists.");
+    expect(duplicateUpdateRes.body.msg).to.equal(
+      "Navigation view already exists.",
+    );
     expect(duplicateUpdateRes.body.code).to.equal("BAD_REQUEST");
   });
 
@@ -123,7 +137,9 @@ describe("Persisted compatibility endpoints", () => {
 
     const listRes = await client.get("/saved_snippets");
     expect(listRes.status).to.equal(200);
-    expect((listRes.body.saved_snippets as Array<Record<string, unknown>>)[0].id).to.equal(snippetId);
+    expect(
+      (listRes.body.saved_snippets as Array<Record<string, unknown>>)[0].id,
+    ).to.equal(snippetId);
 
     const updateRes = await client.patch(`/saved_snippets/${snippetId}`, {
       title: "Updated snippet",
@@ -206,7 +222,9 @@ describe("Persisted compatibility endpoints", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "reminder-ordering" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "reminder-ordering",
+    });
     await seedSubscription(db, tenantId, userId, channelId);
     const firstMessageId = await seedMessage(db, tenantId, userId, {
       channelId,
@@ -236,14 +254,19 @@ describe("Persisted compatibility endpoints", () => {
     expect(reminders).to.have.length(2);
     expect(reminders[0].content).to.equal("Sooner");
     expect(reminders[1].content).to.equal("Later");
-    expect((reminders[0].scheduled_delivery_timestamp as number) < (reminders[1].scheduled_delivery_timestamp as number)).to.equal(true);
+    expect(
+      (reminders[0].scheduled_delivery_timestamp as number) <
+        (reminders[1].scheduled_delivery_timestamp as number),
+    ).to.equal(true);
   });
 
   it("POST /api/v1/reminders should reject past timestamps and invalid message ids", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client, userId } = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "reminders-errors" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "reminders-errors",
+    });
     const messageId = await seedMessage(db, tenantId, userId, {
       channelId,
       topic: "follow-up",
@@ -256,7 +279,9 @@ describe("Persisted compatibility endpoints", () => {
       scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) - 3600}`,
     });
     expect(pastRes.status).to.equal(400);
-    expect(pastRes.body.msg).to.equal("Scheduled delivery time must be in the future.");
+    expect(pastRes.body.msg).to.equal(
+      "Scheduled delivery time must be in the future.",
+    );
     expect(pastRes.body.code).to.equal("BAD_REQUEST");
 
     const invalidMessageRes = await client.post("/reminders", {
@@ -286,14 +311,22 @@ describe("Persisted compatibility endpoints", () => {
 
     const listRes = await sender.client.get("/scheduled_messages");
     expect(listRes.status).to.equal(200);
-    expect((listRes.body.scheduled_messages as Array<Record<string, unknown>>)[0].scheduled_message_id).to.equal(scheduledMessageId);
+    expect(
+      (listRes.body.scheduled_messages as Array<Record<string, unknown>>)[0]
+        .scheduled_message_id,
+    ).to.equal(scheduledMessageId);
 
-    const updateRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
-      content: "Updated scheduled hello",
-    });
+    const updateRes = await sender.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+      {
+        content: "Updated scheduled hello",
+      },
+    );
     expect(updateRes.status).to.equal(200);
 
-    const deleteRes = await sender.client.delete(`/scheduled_messages/${scheduledMessageId}`);
+    const deleteRes = await sender.client.delete(
+      `/scheduled_messages/${scheduledMessageId}`,
+    );
     expect(deleteRes.status).to.equal(200);
   });
 
@@ -303,14 +336,19 @@ describe("Persisted compatibility endpoints", () => {
     const sender = await seedUser(db, tenantId);
     const recipient = await seedUser(db, tenantId);
 
-    const invalidRecipientRes = await sender.client.post("/scheduled_messages", {
-      type: "direct",
-      to: JSON.stringify([recipient.email]),
-      content: "Scheduled hello",
-      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
-    });
+    const invalidRecipientRes = await sender.client.post(
+      "/scheduled_messages",
+      {
+        type: "direct",
+        to: JSON.stringify([recipient.email]),
+        content: "Scheduled hello",
+        scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) + 7200}`,
+      },
+    );
     expect(invalidRecipientRes.status).to.equal(400);
-    expect(invalidRecipientRes.body.msg).to.equal('to["int"] is not an integer');
+    expect(invalidRecipientRes.body.msg).to.equal(
+      'to["int"] is not an integer',
+    );
     expect(invalidRecipientRes.body.code).to.equal("BAD_REQUEST");
 
     const pastTimestampRes = await sender.client.post("/scheduled_messages", {
@@ -320,7 +358,9 @@ describe("Persisted compatibility endpoints", () => {
       scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) - 7200}`,
     });
     expect(pastTimestampRes.status).to.equal(400);
-    expect(pastTimestampRes.body.msg).to.equal("Scheduled delivery time must be in the future.");
+    expect(pastTimestampRes.body.msg).to.equal(
+      "Scheduled delivery time must be in the future.",
+    );
     expect(pastTimestampRes.body.code).to.equal("BAD_REQUEST");
   });
 
@@ -356,7 +396,9 @@ describe("Persisted compatibility endpoints", () => {
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);
     const recipient = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "scheduled-shapes" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "scheduled-shapes",
+    });
     await seedSubscription(db, tenantId, sender.userId, channelId);
 
     await sender.client.post("/scheduled_messages", {
@@ -375,7 +417,9 @@ describe("Persisted compatibility endpoints", () => {
 
     const res = await sender.client.get("/scheduled_messages");
     expect(res.status).to.equal(200);
-    const scheduledMessages = res.body.scheduled_messages as Array<Record<string, unknown>>;
+    const scheduledMessages = res.body.scheduled_messages as Array<
+      Record<string, unknown>
+    >;
     expect(scheduledMessages).to.have.length(2);
     expect(scheduledMessages[0].type).to.equal("stream");
     expect(scheduledMessages[0].to).to.equal(channelId);
@@ -383,7 +427,10 @@ describe("Persisted compatibility endpoints", () => {
     expect(scheduledMessages[1].type).to.equal("private");
     expect(scheduledMessages[1].to).to.deep.equal([recipient.userId]);
     expect(scheduledMessages[1]).to.not.have.property("topic");
-    expect((scheduledMessages[0].scheduled_delivery_timestamp as number) < (scheduledMessages[1].scheduled_delivery_timestamp as number)).to.equal(true);
+    expect(
+      (scheduledMessages[0].scheduled_delivery_timestamp as number) <
+        (scheduledMessages[1].scheduled_delivery_timestamp as number),
+    ).to.equal(true);
   });
 
   it("PATCH /api/v1/scheduled_messages/{scheduled_message_id} should enforce Zulip's mutation preconditions", async () => {
@@ -391,7 +438,9 @@ describe("Persisted compatibility endpoints", () => {
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);
     const recipient = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "scheduled-errors" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "scheduled-errors",
+    });
     await seedSubscription(db, tenantId, sender.userId, channelId);
 
     const createRes = await sender.client.post("/scheduled_messages", {
@@ -402,31 +451,48 @@ describe("Persisted compatibility endpoints", () => {
     });
     const scheduledMessageId = createRes.body.scheduled_message_id as number;
 
-    const noOpRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`);
+    const noOpRes = await sender.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+    );
     expect(noOpRes.status).to.equal(400);
     expect(noOpRes.body.msg).to.equal("Nothing to change");
     expect(noOpRes.body.code).to.equal("BAD_REQUEST");
 
-    const missingRecipientRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
-      type: "direct",
-    });
+    const missingRecipientRes = await sender.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+      {
+        type: "direct",
+      },
+    );
     expect(missingRecipientRes.status).to.equal(400);
-    expect(missingRecipientRes.body.msg).to.equal("Recipient required when updating type of scheduled message.");
+    expect(missingRecipientRes.body.msg).to.equal(
+      "Recipient required when updating type of scheduled message.",
+    );
     expect(missingRecipientRes.body.code).to.equal("BAD_REQUEST");
 
-    const missingTopicRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
-      type: "channel",
-      to: JSON.stringify([channelId]),
-    });
+    const missingTopicRes = await sender.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+      {
+        type: "channel",
+        to: JSON.stringify([channelId]),
+      },
+    );
     expect(missingTopicRes.status).to.equal(400);
-    expect(missingTopicRes.body.msg).to.equal("Topic required when updating scheduled message type to channel.");
+    expect(missingTopicRes.body.msg).to.equal(
+      "Topic required when updating scheduled message type to channel.",
+    );
     expect(missingTopicRes.body.code).to.equal("BAD_REQUEST");
 
-    const pastTimestampRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
-      scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) - 7200}`,
-    });
+    const pastTimestampRes = await sender.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+      {
+        scheduled_delivery_timestamp: `${Math.floor(Date.now() / 1000) - 7200}`,
+      },
+    );
     expect(pastTimestampRes.status).to.equal(400);
-    expect(pastTimestampRes.body.msg).to.equal("Scheduled delivery time must be in the future.");
+    expect(pastTimestampRes.body.msg).to.equal(
+      "Scheduled delivery time must be in the future.",
+    );
     expect(pastTimestampRes.body.code).to.equal("BAD_REQUEST");
   });
 
@@ -445,19 +511,25 @@ describe("Persisted compatibility endpoints", () => {
     const scheduledMessageId = createRes.body.scheduled_message_id as number;
 
     const invalidUserId = 999999;
-    const invalidDirectRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
-      type: "direct",
-      to: JSON.stringify([invalidUserId]),
-    });
+    const invalidDirectRes = await sender.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+      {
+        type: "direct",
+        to: JSON.stringify([invalidUserId]),
+      },
+    );
     expect(invalidDirectRes.status).to.equal(400);
     expect(invalidDirectRes.body.code).to.equal("BAD_REQUEST");
 
     const invalidChannelId = 999999;
-    const invalidChannelRes = await sender.client.patch(`/scheduled_messages/${scheduledMessageId}`, {
-      type: "stream",
-      to: invalidChannelId,
-      topic: "Support",
-    });
+    const invalidChannelRes = await sender.client.patch(
+      `/scheduled_messages/${scheduledMessageId}`,
+      {
+        type: "stream",
+        to: invalidChannelId,
+        topic: "Support",
+      },
+    );
     expect(invalidChannelRes.status).to.equal(400);
     expect(invalidChannelRes.body.code).to.equal("STREAM_DOES_NOT_EXIST");
   });

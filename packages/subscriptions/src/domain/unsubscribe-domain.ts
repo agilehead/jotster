@@ -8,7 +8,7 @@ import { deleteSubscription } from "../repo/delete-subscription.ts";
 export const unsubscribeDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelNames: string[]
+  channelNames: string[],
 ): Promise<Result<{ removed: string[]; notRemoved: string[] }, string>> => {
   const db = new JotsterDbContext(options);
   try {
@@ -22,8 +22,8 @@ export const unsubscribeDomain = async (
       const channelName0 = channelNames[i];
 
       // Look up channel by name
-      const channel = await db0.Channels
-        .Where((c) => c.TenantId === tenantId0).Where((c) => c.Name === channelName0)
+      const channel = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+        .Where((c) => c.Name === channelName0)
         .FirstOrDefaultAsync();
 
       if (channel === undefined || channel === null) {
@@ -32,7 +32,12 @@ export const unsubscribeDomain = async (
       }
 
       // Check if user is subscribed
-      const sub = await getSubscription(options, user.tenantId, user.userId, channel.Id);
+      const sub = await getSubscription(
+        options,
+        user.tenantId,
+        user.userId,
+        channel.Id,
+      );
       if (sub === undefined) {
         notRemoved.Add(channelName0);
         continue;

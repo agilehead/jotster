@@ -25,13 +25,18 @@ const VALID_PROPERTIES = [
 export const updateSubscriptionPropertiesDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  updates: SubscriptionPropertyUpdate[]
+  updates: SubscriptionPropertyUpdate[],
 ): Promise<Result<boolean, string>> => {
   for (let i = 0; i < updates.length; i++) {
     const update = updates[i];
 
     // Find subscription by user.tenantId + user.userId + streamId (as channelId)
-    const sub = await getSubscription(options, user.tenantId, user.userId, update.streamId);
+    const sub = await getSubscription(
+      options,
+      user.tenantId,
+      user.userId,
+      update.streamId,
+    );
     if (sub === undefined) {
       return err("Not subscribed to channel");
     }
@@ -49,7 +54,12 @@ export const updateSubscriptionPropertiesDomain = async (
     }
 
     // Apply update via repo
-    await updateSubscriptionProperty(options, sub.Id, update.property, update.propValue);
+    await updateSubscriptionProperty(
+      options,
+      sub.Id,
+      update.property,
+      update.propValue,
+    );
   }
 
   return ok(true);

@@ -5,7 +5,7 @@ import { getAllUsers } from "../repo/get-all-users.ts";
 
 export const getUsers = async (
   options: DbContextOptions,
-  tenantId: long
+  tenantId: long,
 ): Promise<User[]> => {
   return await getAllUsers(options, tenantId);
 };

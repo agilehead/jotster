@@ -24,6 +24,8 @@ export class User {
   UpdatedAt!: long;
 }
 
-A.on(User).prop((x) => x.Id).add(KeyAttribute);
+A.on(User)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(User).type.add(IndexAttribute, ["TenantId", "Email"]);
 A.on(User).type.add(IndexAttribute, ["TenantId", "IsActive"]);

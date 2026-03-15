@@ -7,25 +7,45 @@ import { getOptionalStringField } from "../helpers/body.ts";
 export const handleGetStreamId = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
-  const streamName = getOptionalStringField(req.query as Record<string, unknown>, "stream");
+  const streamName = getOptionalStringField(
+    req.query as Record<string, unknown>,
+    "stream",
+  );
 
   if (!streamName) {
-    res.status(400).json({ result: "error", msg: "Missing required parameter: stream", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required parameter: stream",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
-  const result = await getChannelIdByName(app.options, user.tenantId, streamName);
+  const result = await getChannelIdByName(
+    app.options,
+    user.tenantId,
+    streamName,
+  );
   if (!result.success) {
-    res.status(404).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(404)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

@@ -1,12 +1,16 @@
 import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, DefaultChannel, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  DefaultChannel,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 export const addDefaultChannel = async (
   options: DbContextOptions,
   tenantId: long,
-  channelId: long
+  channelId: long,
 ): Promise<DefaultChannel> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

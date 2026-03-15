@@ -8,7 +8,7 @@ import { getTenantBySubdomain } from "../repo/get-tenant-by-subdomain.ts";
 export const resolveTenant = async (
   options: DbContextOptions,
   config: ServerConfig,
-  host: string
+  host: string,
 ): Promise<Result<Tenant, string>> => {
   if (config.mode === "single-tenant" && config.singleTenantId !== "") {
     const tenantId = Convert.ToInt64(config.singleTenantId);

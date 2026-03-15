@@ -7,7 +7,7 @@ import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.j
 
 export const deactivateOrgDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<boolean, string>> => {
   // Validate owner role (role === 100)
   if (user.role !== 100) {
@@ -19,9 +19,9 @@ export const deactivateOrgDomain = async (
     const db0 = db;
     const tenantId0 = user.tenantId;
 
-    const tenant = await db0.Tenants
-      .Where((x) => x.Id === tenantId0)
-      .FirstOrDefaultAsync();
+    const tenant = await db0.Tenants.Where(
+      (x) => x.Id === tenantId0,
+    ).FirstOrDefaultAsync();
 
     if (tenant === undefined) {
       return err("Organization not found");

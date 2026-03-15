@@ -115,7 +115,7 @@ export const updateSettingsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   updates: Record<string, unknown>,
-  updateKeys: List<string>
+  updateKeys: List<string>,
 ): Promise<Result<Record<string, unknown>[], string>> => {
   const validUpdates: Record<string, unknown> = {};
   const validUpdateKeys = new List<string>();
@@ -156,7 +156,13 @@ export const updateSettingsDomain = async (
     ignoredParams.Add(ignoredEntry);
   }
 
-  const setting = await updateUserSetting(options, user.userId, user.tenantId, validUpdates, validUpdateKeys);
+  const setting = await updateUserSetting(
+    options,
+    user.userId,
+    user.tenantId,
+    validUpdates,
+    validUpdateKeys,
+  );
   if (setting === undefined) {
     return err("User settings not found");
   }

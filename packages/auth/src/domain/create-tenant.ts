@@ -23,7 +23,7 @@ export const createTenantAdmin = async (
     description?: string;
     adminEmail?: string;
     adminPassword?: string;
-  }
+  },
 ): Promise<Result<Tenant, string>> => {
   if (config.rootToken.length === 0 || rootToken !== config.rootToken) {
     return err("Unauthorized");

@@ -8,11 +8,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleResendInvite = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -24,7 +29,11 @@ export const handleResendInvite = async (
   }
 
   // Verify the invitation exists and belongs to this tenant
-  const invitation = await getInvitationById(app.options, user.tenantId, toLong(inviteId));
+  const invitation = await getInvitationById(
+    app.options,
+    user.tenantId,
+    toLong(inviteId),
+  );
   if (invitation === undefined) {
     res.status(400).json({ result: "error", msg: "Invitation not found" });
     return;

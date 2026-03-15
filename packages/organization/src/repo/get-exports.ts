@@ -4,14 +4,13 @@ import { JotsterDbContext, DataExport } from "@jotster/core/Jotster.Core.js";
 
 export const getExports = async (
   options: DbContextOptions,
-  tenantId: long
+  tenantId: long,
 ): Promise<DataExport[]> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    const result = await db0.DataExports
-      .Where((x) => x.TenantId === tenantId0)
+    const result = await db0.DataExports.Where((x) => x.TenantId === tenantId0)
       .OrderByDescending((x) => x.CreatedAt)
       .ToArrayAsync();
     return result;

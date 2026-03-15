@@ -10,7 +10,7 @@ export const registerDeviceDomain = async (
   user: AuthenticatedUser,
   kind: string,
   token: string,
-  iosAppId: string | undefined
+  iosAppId: string | undefined,
 ): Promise<Result<Record<string, unknown>, string>> => {
   // Validate token is non-empty
   if (!token || token.trim().length === 0) {
@@ -25,13 +25,20 @@ export const registerDeviceDomain = async (
         options,
         existingTokens[i].TenantId,
         existingTokens[i].UserId,
-        token
+        token,
       );
     }
   }
 
   // Upsert via registerPushToken
-  await registerPushToken(options, user.tenantId, user.userId, kind, token, iosAppId);
+  await registerPushToken(
+    options,
+    user.tenantId,
+    user.userId,
+    kind,
+    token,
+    iosAppId,
+  );
 
   const result: Record<string, unknown> = {};
   result["msg"] = "";

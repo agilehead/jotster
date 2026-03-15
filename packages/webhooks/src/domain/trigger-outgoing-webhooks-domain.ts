@@ -1,6 +1,9 @@
 import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, OutgoingWebhook } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  OutgoingWebhook,
+} from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getOutgoingWebhooksForChannel } from "../repo/get-outgoing-webhooks-for-channel.ts";
 import { getMentionTriggeredWebhooks } from "../repo/get-mention-triggered-webhooks.ts";
@@ -28,7 +31,7 @@ interface OutgoingWebhookDispatch {
 
 export const triggerOutgoingWebhooksDomain = async (
   options: DbContextOptions,
-  input: TriggerOutgoingWebhooksInput
+  input: TriggerOutgoingWebhooksInput,
 ): Promise<OutgoingWebhookDispatch[]> => {
   const dispatches = new List<OutgoingWebhookDispatch>();
 
@@ -38,7 +41,7 @@ export const triggerOutgoingWebhooksDomain = async (
     const channelWebhooks = await getOutgoingWebhooksForChannel(
       options,
       input.tenantId,
-      chId
+      chId,
     );
 
     for (let i = 0; i < channelWebhooks.length; i++) {
@@ -58,7 +61,7 @@ export const triggerOutgoingWebhooksDomain = async (
           botUserId: webhook.BotUserId,
           token: webhook.Token,
         },
-        webhook.InterfaceType
+        webhook.InterfaceType,
       );
 
       dispatches.Add({ url: webhook.Url, payload });
@@ -66,8 +69,14 @@ export const triggerOutgoingWebhooksDomain = async (
   }
 
   // 2. Check for mention-triggered webhooks
-  if (input.mentionedUserIds !== undefined && input.mentionedUserIds.length > 0) {
-    const mentionWebhooks = await getMentionTriggeredWebhooks(options, input.tenantId);
+  if (
+    input.mentionedUserIds !== undefined &&
+    input.mentionedUserIds.length > 0
+  ) {
+    const mentionWebhooks = await getMentionTriggeredWebhooks(
+      options,
+      input.tenantId,
+    );
 
     for (let i = 0; i < mentionWebhooks.length; i++) {
       const webhook = mentionWebhooks[i];
@@ -87,8 +96,8 @@ export const triggerOutgoingWebhooksDomain = async (
           const db0 = db;
           const botUserId0 = webhook.BotUserId;
           const tenantId0 = input.tenantId;
-          const botUser = await db0.Users
-            .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === botUserId0)
+          const botUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+            .Where((u) => u.Id === botUserId0)
             .FirstOrDefaultAsync();
 
           if (botUser !== undefined && botUser !== null) {
@@ -109,7 +118,7 @@ export const triggerOutgoingWebhooksDomain = async (
                   botUserId: webhook.BotUserId,
                   token: webhook.Token,
                 },
-                webhook.InterfaceType
+                webhook.InterfaceType,
               );
 
               dispatches.Add({ url: webhook.Url, payload });

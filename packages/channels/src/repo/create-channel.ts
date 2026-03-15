@@ -16,7 +16,7 @@ interface CreateChannelInput {
 
 export const createChannel = async (
   options: DbContextOptions,
-  input: CreateChannelInput
+  input: CreateChannelInput,
 ): Promise<Channel> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
@@ -27,7 +27,8 @@ export const createChannel = async (
   channel.RenderedDescription = "";
   channel.IsPrivate = (input.isPrivate ?? 0) as int;
   channel.IsWebPublic = (input.isWebPublic ?? 0) as int;
-  channel.HistoryPublicToSubscribers = (input.historyPublicToSubscribers ?? 1) as int;
+  channel.HistoryPublicToSubscribers = (input.historyPublicToSubscribers ??
+    1) as int;
   channel.CreatorId = input.creatorId;
   channel.MessageRetentionDays = input.messageRetentionDays;
   channel.IsArchived = 0 as int;

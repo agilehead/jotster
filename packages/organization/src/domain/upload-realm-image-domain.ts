@@ -12,7 +12,7 @@ export const uploadRealmImageDomain = async (
   user: AuthenticatedUser,
   uploadsDir: string,
   imageType: string,
-  file: UploadedFile
+  file: UploadedFile,
 ): Promise<Result<{ url: string }, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {

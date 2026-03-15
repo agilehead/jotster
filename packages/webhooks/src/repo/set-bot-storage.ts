@@ -6,15 +6,17 @@ export const setBotStorage = async (
   options: DbContextOptions,
   botUserId: long,
   key: string,
-  value: string
+  value: string,
 ): Promise<BotStorage> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const botUserId0 = botUserId;
     const key0 = key;
-    const existing = await db0.BotStorages
-      .Where((s) => s.BotUserId === botUserId0).Where((s) => s.Key === key0)
+    const existing = await db0.BotStorages.Where(
+      (s) => s.BotUserId === botUserId0,
+    )
+      .Where((s) => s.Key === key0)
       .FirstOrDefaultAsync();
 
     if (existing !== undefined && existing !== null) {

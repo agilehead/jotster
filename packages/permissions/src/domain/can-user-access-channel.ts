@@ -10,7 +10,7 @@ export const canUserAccessChannel = async (
   tenantId: long,
   userId: long,
   userRole: number,
-  channelId: long
+  channelId: long,
 ): Promise<Result<boolean, string>> => {
   const channel = await getChannelForAccessCheck(options, tenantId, channelId);
 
@@ -34,7 +34,7 @@ export const canUserAccessChannel = async (
       options,
       tenantId,
       userId,
-      channelId
+      channelId,
     );
     return ok(subscribed);
   }
@@ -44,7 +44,7 @@ export const canUserAccessChannel = async (
     options,
     tenantId,
     userId,
-    channelId
+    channelId,
   );
   return ok(subscribed);
 };

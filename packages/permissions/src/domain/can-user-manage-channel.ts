@@ -9,7 +9,7 @@ export const canUserManageChannel = async (
   tenantId: long,
   userId: long,
   userRole: number,
-  channelId: long
+  channelId: long,
 ): Promise<Result<boolean, string>> => {
   // Admins can always manage channels
   if (userRole <= 200) {
@@ -23,8 +23,8 @@ export const canUserManageChannel = async (
     const tenantId0 = tenantId;
     const channelId0 = channelId;
 
-    const channel = await db0.Channels
-      .Where((c) => c.Id === channelId0).Where((c) => c.TenantId === tenantId0)
+    const channel = await db0.Channels.Where((c) => c.Id === channelId0)
+      .Where((c) => c.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (channel === undefined) {

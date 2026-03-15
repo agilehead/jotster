@@ -7,16 +7,16 @@ import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 export const updateTenantSettings = async (
   options: DbContextOptions,
   tenantId: long,
-  settings: Record<string, unknown>
+  settings: Record<string, unknown>,
 ): Promise<Tenant | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
 
-    const tenant = await db0.Tenants
-      .Where((x) => x.Id === tenantId0)
-      .FirstOrDefaultAsync();
+    const tenant = await db0.Tenants.Where(
+      (x) => x.Id === tenantId0,
+    ).FirstOrDefaultAsync();
 
     if (tenant === undefined) {
       return undefined;
@@ -25,7 +25,9 @@ export const updateTenantSettings = async (
     // Parse existing settings
     let existingSettings: Record<string, unknown> = {};
     if (tenant.SettingsJson.length > 0) {
-      const parsed = JsonSerializer.Deserialize<Record<string, unknown>>(tenant.SettingsJson);
+      const parsed = JsonSerializer.Deserialize<Record<string, unknown>>(
+        tenant.SettingsJson,
+      );
       if (parsed !== undefined) {
         existingSettings = parsed;
       }

@@ -17,5 +17,7 @@ export class Tenant {
   UpdatedAt!: long;
 }
 
-A.on(Tenant).prop((x) => x.Id).add(KeyAttribute);
+A.on(Tenant)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Tenant).type.add(IndexAttribute, ["Subdomain"]);

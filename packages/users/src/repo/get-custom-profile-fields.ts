@@ -1,17 +1,21 @@
 import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, CustomProfileField } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  CustomProfileField,
+} from "@jotster/core/Jotster.Core.js";
 
 export async function getCustomProfileFields(
   options: DbContextOptions,
-  tenantId: long
+  tenantId: long,
 ): Promise<CustomProfileField[]> {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
-    const result = await db0.CustomProfileFields
-      .Where((f) => f.TenantId === tenantId0)
+    const result = await db0.CustomProfileFields.Where(
+      (f) => f.TenantId === tenantId0,
+    )
       .OrderBy((f) => f.Ordering)
       .ToArrayAsync();
     return result;

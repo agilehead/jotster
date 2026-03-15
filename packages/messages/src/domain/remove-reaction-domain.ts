@@ -16,7 +16,7 @@ export const removeReactionDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   messageId: long,
-  params: RemoveReactionDomainInput
+  params: RemoveReactionDomainInput,
 ): Promise<Result<void, string>> => {
   // Verify message exists in tenant
   const message = await getMessage(options, user.tenantId, messageId);
@@ -31,7 +31,7 @@ export const removeReactionDomain = async (
     messageId,
     user.userId,
     params.emojiCode,
-    params.reactionType
+    params.reactionType,
   );
 
   if (!result) {

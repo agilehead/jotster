@@ -9,15 +9,20 @@ export const updateRealmDomainDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   domain: string,
-  allowSubdomains: boolean
+  allowSubdomains: boolean,
 ): Promise<Result<RealmDomain, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {
     return err("Insufficient permission");
   }
 
-  const allowSub = allowSubdomains ? 1 as int : 0 as int;
-  const realmDomain = await updateRealmDomain(options, user.tenantId, domain, allowSub);
+  const allowSub = allowSubdomains ? (1 as int) : (0 as int);
+  const realmDomain = await updateRealmDomain(
+    options,
+    user.tenantId,
+    domain,
+    allowSub,
+  );
 
   if (realmDomain === undefined) {
     return err("Domain not found");

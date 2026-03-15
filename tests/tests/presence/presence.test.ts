@@ -64,7 +64,9 @@ describe("POST /api/v1/users/me/presence", () => {
     expect(pingRes.body).to.not.have.property("presences");
     expect(pingRes.body).to.not.have.property("server_timestamp");
 
-    const userPresenceRes = await client.get(`/users/${encodeURIComponent(email)}/presence`);
+    const userPresenceRes = await client.get(
+      `/users/${encodeURIComponent(email)}/presence`,
+    );
     expect(userPresenceRes.status).to.equal(200);
     expect(userPresenceRes.body.presence).to.have.property("website");
     expect(userPresenceRes.body.presence).to.have.property("aggregated");
@@ -92,7 +94,9 @@ describe("POST /api/v1/users/me/presence", () => {
     expect(initialRes.body.result).to.equal("success");
     expect(initialRes.body.presences).to.have.property(user1.userId);
     expect(initialRes.body.presences).to.have.property(user2.userId);
-    expect(initialRes.body.presences[user1.userId]).to.have.property("active_timestamp");
+    expect(initialRes.body.presences[user1.userId]).to.have.property(
+      "active_timestamp",
+    );
     expect(initialRes.body).to.have.property("presence_last_update_id");
 
     const lastUpdateId = initialRes.body.presence_last_update_id as number;
@@ -110,9 +114,15 @@ describe("POST /api/v1/users/me/presence", () => {
     expect(deltaRes.body.result).to.equal("success");
     expect(deltaRes.body.presences).to.have.property(user1.userId);
     expect(deltaRes.body.presences).to.have.property(user2.userId);
-    expect(deltaRes.body.presences[user1.userId]).to.have.property("active_timestamp");
-    expect(deltaRes.body.presences[user2.userId]).to.have.property("active_timestamp");
-    expect((deltaRes.body.presence_last_update_id as number) >= lastUpdateId).to.equal(true);
+    expect(deltaRes.body.presences[user1.userId]).to.have.property(
+      "active_timestamp",
+    );
+    expect(deltaRes.body.presences[user2.userId]).to.have.property(
+      "active_timestamp",
+    );
+    expect(
+      (deltaRes.body.presence_last_update_id as number) >= lastUpdateId,
+    ).to.equal(true);
   });
 });
 
@@ -128,7 +138,9 @@ describe("GET /api/v1/users/{user_id_or_email}/presence", () => {
       client: "website",
     });
 
-    const res = await client.get(`/users/${encodeURIComponent(email)}/presence`);
+    const res = await client.get(
+      `/users/${encodeURIComponent(email)}/presence`,
+    );
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
     expect(res.body).to.have.property("presence");
@@ -172,7 +184,10 @@ describe("GET /api/v1/realm/presence", () => {
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
     expect(res.body).to.have.property("presences");
-    const presences = res.body.presences as Record<string, Record<string, unknown>>;
+    const presences = res.body.presences as Record<
+      string,
+      Record<string, unknown>
+    >;
     const ownPresence = presences[email] ?? Object.values(presences)[0];
     expect(ownPresence).to.have.property("website");
     expect(ownPresence).to.have.property("aggregated");

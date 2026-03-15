@@ -5,7 +5,7 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 export const removeRealmDomain = async (
   options: DbContextOptions,
   tenantId: long,
-  domain: string
+  domain: string,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -13,8 +13,10 @@ export const removeRealmDomain = async (
     const tenantId0 = tenantId;
     const domain0 = domain;
 
-    const realmDomain = await db0.RealmDomains
-      .Where((x) => x.TenantId === tenantId0).Where((x) => x.Domain === domain0)
+    const realmDomain = await db0.RealmDomains.Where(
+      (x) => x.TenantId === tenantId0,
+    )
+      .Where((x) => x.Domain === domain0)
       .FirstOrDefaultAsync();
 
     if (realmDomain === undefined) {

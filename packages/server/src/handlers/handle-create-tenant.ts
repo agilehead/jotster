@@ -6,10 +6,12 @@ import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 export const handleCreateTenant = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
   const authHeader = req.get("authorization") ?? "";
-  const rootToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7).trim() : "";
+  const rootToken = authHeader.startsWith("Bearer ")
+    ? authHeader.substring(7).trim()
+    : "";
 
   const body = getBodyObject(req);
   const subdomain = getOptionalStringField(body, "subdomain");
@@ -19,13 +21,22 @@ export const handleCreateTenant = async (
   const adminPassword = getOptionalStringField(body, "admin_password");
 
   if (!subdomain || !name) {
-    res.status(400).json({ result: "error", msg: "Missing required fields: subdomain, name" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required fields: subdomain, name",
+      });
     return;
   }
 
-  const result = await createTenantAdmin(app.options, app.config, rootToken, ({
-    subdomain, name, description, adminEmail, adminPassword,
-  }));
+  const result = await createTenantAdmin(app.options, app.config, rootToken, {
+    subdomain,
+    name,
+    description,
+    adminEmail,
+    adminPassword,
+  });
 
   if (!result.success) {
     const status = result.error === "Unauthorized" ? 401 : 400;

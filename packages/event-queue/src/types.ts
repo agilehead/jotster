@@ -46,7 +46,9 @@ export interface EventQueue {
   lastEventId: int;
   events: List<QueueEvent>;
   lastAccessTime: long;
-  narrow: { operator: string; operand: string; negated?: boolean }[] | undefined;
+  narrow:
+    | { operator: string; operand: string; negated?: boolean }[]
+    | undefined;
   allPublicStreams: boolean;
   applyMarkdown: boolean;
   clientGravatar: boolean;

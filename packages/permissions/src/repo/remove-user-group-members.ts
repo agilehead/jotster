@@ -5,7 +5,7 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 export const removeUserGroupMembers = async (
   options: DbContextOptions,
   groupId: long,
-  userIds: long[]
+  userIds: long[],
 ): Promise<void> => {
   const db = new JotsterDbContext(options);
   try {
@@ -14,8 +14,10 @@ export const removeUserGroupMembers = async (
 
     for (let i = 0; i < userIds.length; i++) {
       const userId0 = userIds[i];
-      const member = await db0.UserGroupMembers
-        .Where((m) => m.UserGroupId === groupId0).Where((m) => m.UserId === userId0)
+      const member = await db0.UserGroupMembers.Where(
+        (m) => m.UserGroupId === groupId0,
+      )
+        .Where((m) => m.UserId === userId0)
         .FirstOrDefaultAsync();
 
       if (member !== undefined && member !== null) {

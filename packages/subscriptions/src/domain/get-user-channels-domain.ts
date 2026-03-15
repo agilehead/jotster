@@ -10,7 +10,7 @@ export const getUserChannelsDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
   targetUserId: long,
-  includeSubscribers: boolean
+  includeSubscribers: boolean,
 ): Promise<Result<Record<string, unknown>[], string>> => {
   // Must be admin or self (role <= 200 or actingUser.userId === targetUserId)
   if (actingUser.role > 200 && actingUser.userId !== targetUserId) {
@@ -24,8 +24,8 @@ export const getUserChannelsDomain = async (
     const targetUserId0 = targetUserId;
 
     // Verify target user exists
-    const targetUser = await db0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === targetUserId0)
+    const targetUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+      .Where((u) => u.Id === targetUserId0)
       .FirstOrDefaultAsync();
 
     if (targetUser === undefined || targetUser === null) {
@@ -33,15 +33,19 @@ export const getUserChannelsDomain = async (
     }
 
     // Get subscriptions for target user
-    const subscriptions = await getSubscriptionsForUser(options, actingUser.tenantId, targetUserId);
+    const subscriptions = await getSubscriptionsForUser(
+      options,
+      actingUser.tenantId,
+      targetUserId,
+    );
     const result = new List<Record<string, unknown>>();
 
     for (let i = 0; i < subscriptions.Count; i++) {
       const sub = subscriptions[i];
       const channelId0 = sub.ChannelId;
 
-      const channel = await db0.Channels
-        .Where((c) => c.TenantId === tenantId0).Where((c) => c.Id === channelId0)
+      const channel = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+        .Where((c) => c.Id === channelId0)
         .FirstOrDefaultAsync();
 
       if (channel === undefined || channel === null) {
@@ -59,17 +63,32 @@ export const getUserChannelsDomain = async (
         color: sub.Color,
         pin_to_top: sub.PinToTop === 1,
         is_muted: sub.IsMuted === 1,
-        desktop_notifications: sub.DesktopNotifications !== undefined ? sub.DesktopNotifications : null,
-        push_notifications: sub.PushNotifications !== undefined ? sub.PushNotifications : null,
-        audible_notifications: sub.AudibleNotifications !== undefined ? sub.AudibleNotifications : null,
-        email_notifications: sub.EmailNotifications !== undefined ? sub.EmailNotifications : null,
-        wildcard_mentions_notify: sub.WildcardMentionsNotify !== undefined ? sub.WildcardMentionsNotify : null,
+        desktop_notifications:
+          sub.DesktopNotifications !== undefined
+            ? sub.DesktopNotifications
+            : null,
+        push_notifications:
+          sub.PushNotifications !== undefined ? sub.PushNotifications : null,
+        audible_notifications:
+          sub.AudibleNotifications !== undefined
+            ? sub.AudibleNotifications
+            : null,
+        email_notifications:
+          sub.EmailNotifications !== undefined ? sub.EmailNotifications : null,
+        wildcard_mentions_notify:
+          sub.WildcardMentionsNotify !== undefined
+            ? sub.WildcardMentionsNotify
+            : null,
         date_created: channel.CreatedAt,
         creator_id: channel.CreatorId !== undefined ? channel.CreatorId : null,
       };
 
       if (includeSubscribers) {
-        const channelSubs = await getSubscriptionsForChannel(options, actingUser.tenantId, channel.Id);
+        const channelSubs = await getSubscriptionsForChannel(
+          options,
+          actingUser.tenantId,
+          channel.Id,
+        );
         const subscriberList = new List<long>();
         for (let j = 0; j < channelSubs.Count; j++) {
           const channelSub = channelSubs[j];

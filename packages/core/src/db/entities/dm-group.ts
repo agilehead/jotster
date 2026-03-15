@@ -10,5 +10,7 @@ export class DmGroup {
   CreatedAt!: long;
 }
 
-A.on(DmGroup).prop((x) => x.Id).add(KeyAttribute);
+A.on(DmGroup)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(DmGroup).type.add(IndexAttribute, ["TenantId", "GroupHash"]);

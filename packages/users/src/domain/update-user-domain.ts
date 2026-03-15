@@ -9,7 +9,7 @@ export const updateUserDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
   targetUserId: long,
-  updates: { fullName?: string; role?: int }
+  updates: { fullName?: string; role?: int },
 ): Promise<Result<User, string>> => {
   const isSelf = actingUser.userId === targetUserId;
   const isAdmin = actingUser.role <= 200;

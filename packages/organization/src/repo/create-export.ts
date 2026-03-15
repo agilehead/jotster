@@ -7,7 +7,7 @@ export const createExport = async (
   options: DbContextOptions,
   tenantId: long,
   requesterId: long,
-  exportType: string
+  exportType: string,
 ): Promise<DataExport> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

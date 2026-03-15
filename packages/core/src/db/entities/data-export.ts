@@ -16,5 +16,7 @@ export class DataExport {
   FailedAt?: long;
 }
 
-A.on(DataExport).prop((x) => x.Id).add(KeyAttribute);
+A.on(DataExport)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(DataExport).type.add(IndexAttribute, ["TenantId", "CreatedAt"]);

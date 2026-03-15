@@ -2,7 +2,13 @@ import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
-import { JotsterDbContext, ApiKey, generateId, ok, err } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  ApiKey,
+  generateId,
+  ok,
+  err,
+} from "@jotster/core/Jotster.Core.js";
 import { generateApiKey, hashApiKey } from "@jotster/auth/Jotster.Auth.js";
 import { getUserByEmail } from "../repo/get-user-by-email.ts";
 import { createUser } from "../repo/create-user.ts";
@@ -11,7 +17,7 @@ import { createUserSetting } from "../repo/create-user-setting.ts";
 export const createBotDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  input: { fullName: string; shortName: string; botType?: int }
+  input: { fullName: string; shortName: string; botType?: int },
 ): Promise<Result<{ userId: long; apiKey: string }, string>> => {
   const botEmail = `${input.shortName}-bot@jotster.local`;
 

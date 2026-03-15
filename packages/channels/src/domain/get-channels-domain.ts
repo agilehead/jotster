@@ -8,7 +8,7 @@ import { getChannels } from "../repo/get-channels.ts";
 export const getChannelsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  includeArchived: boolean
+  includeArchived: boolean,
 ): Promise<Channel[]> => {
   const channels = await getChannels(options, user.tenantId, includeArchived);
 
@@ -23,8 +23,8 @@ export const getChannelsDomain = async (
     const db0 = db;
     const tenantId0 = user.tenantId;
     const userId0 = user.userId;
-    const subs = await db0.Subscriptions
-      .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
+    const subs = await db0.Subscriptions.Where((s) => s.TenantId === tenantId0)
+      .Where((s) => s.UserId === userId0)
       .ToListAsync();
 
     const subscribedChannelIds = new List<long>();

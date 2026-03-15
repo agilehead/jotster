@@ -1,7 +1,11 @@
 import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, PushDeviceToken, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  PushDeviceToken,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 export const registerPushToken = async (
   options: DbContextOptions,
@@ -9,7 +13,7 @@ export const registerPushToken = async (
   userId: long,
   kind: string,
   token: string,
-  iosAppId: string | undefined
+  iosAppId: string | undefined,
 ): Promise<void> => {
   const db = new JotsterDbContext(options);
   try {
@@ -20,8 +24,11 @@ export const registerPushToken = async (
     const tenantId0 = tenantId;
     const userId0 = userId;
     const token0 = token;
-    const existing = await db0.PushDeviceTokens
-      .Where((x) => x.TenantId === tenantId0).Where((x) => x.UserId === userId0).Where((x) => x.Token === token0)
+    const existing = await db0.PushDeviceTokens.Where(
+      (x) => x.TenantId === tenantId0,
+    )
+      .Where((x) => x.UserId === userId0)
+      .Where((x) => x.Token === token0)
       .FirstOrDefaultAsync();
 
     if (existing !== undefined && existing !== null) {

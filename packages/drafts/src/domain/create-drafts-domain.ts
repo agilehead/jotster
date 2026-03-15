@@ -18,7 +18,7 @@ interface CreateDraftApiInput {
 export const createDraftsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  drafts: CreateDraftApiInput[]
+  drafts: CreateDraftApiInput[],
 ): Promise<Result<long[], string>> => {
   if (drafts.length === 0) {
     return err("No drafts provided");
@@ -33,7 +33,8 @@ export const createDraftsDomain = async (
       return err("Invalid draft type: " + input.type);
     }
 
-    const channelId = input.type === "stream" ? Int64.Parse(input.to) as long : undefined;
+    const channelId =
+      input.type === "stream" ? (Int64.Parse(input.to) as long) : undefined;
     const recipientIdsJson = input.type === "private" ? input.to : undefined;
     const topic = input.topic;
 
@@ -49,7 +50,9 @@ export const createDraftsDomain = async (
 
     ids.Add(draft.Id);
 
-    const draftRecords: Record<string, unknown>[] = [mapDraftToCompatRecord(draft)];
+    const draftRecords: Record<string, unknown>[] = [
+      mapDraftToCompatRecord(draft),
+    ];
 
     dispatchEventToUser(user.tenantId, user.userId, {
       type: "drafts",

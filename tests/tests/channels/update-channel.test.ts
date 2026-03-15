@@ -35,7 +35,9 @@ describe("PATCH /api/v1/streams/{stream_id}", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 400 });
-    const channelId = await seedChannel(db, tenantId, { name: "member-no-edit" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "member-no-edit",
+    });
 
     const res = await client.patch(`/streams/${channelId}`, {
       new_name: "should-not-work",

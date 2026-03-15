@@ -3,16 +3,21 @@ import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserChannelsDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getOptionalStringField, toLong} from "../helpers/body.ts";
+import { getOptionalStringField, toLong } from "../helpers/body.ts";
 
 export const handleGetUserChannels = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -22,9 +27,18 @@ export const handleGetUserChannels = async (
     res.status(400).json({ result: "error", msg: "Invalid user_id" });
     return;
   }
-  const includeSubscribers = (getOptionalStringField(req.query as Record<string, unknown>, "include_subscribers") ?? "0") === "1";
+  const includeSubscribers =
+    (getOptionalStringField(
+      req.query as Record<string, unknown>,
+      "include_subscribers",
+    ) ?? "0") === "1";
 
-  const result = await getUserChannelsDomain(app.options, user, toLong(targetUserId), includeSubscribers);
+  const result = await getUserChannelsDomain(
+    app.options,
+    user,
+    toLong(targetUserId),
+    includeSubscribers,
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

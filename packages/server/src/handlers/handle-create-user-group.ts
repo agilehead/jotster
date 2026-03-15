@@ -2,9 +2,18 @@ import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
-import { createUserGroupDomain, resolveGroupSettingToId, resolveGroupIdToSetting } from "@jotster/permissions/Jotster.Permissions.js";
+import {
+  createUserGroupDomain,
+  resolveGroupSettingToId,
+  resolveGroupIdToSetting,
+} from "@jotster/permissions/Jotster.Permissions.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalStringArrayField, getOptionalStringField, toLong} from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalStringArrayField,
+  getOptionalStringField,
+  toLong,
+} from "../helpers/body.ts";
 
 const parseIdArray = (values: string[] | undefined): long[] | undefined => {
   if (values === undefined) {
@@ -24,11 +33,16 @@ const parseIdArray = (values: string[] | undefined): long[] | undefined => {
 export const handleCreateUserGroup = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -37,7 +51,9 @@ export const handleCreateUserGroup = async (
 
   const name = getOptionalStringField(body, "name");
   if (!name) {
-    res.status(400).json({ result: "error", msg: "Missing required field: name" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: name" });
     return;
   }
 
@@ -51,7 +67,7 @@ export const handleCreateUserGroup = async (
     return await resolveGroupSettingToId(app.options, user.tenantId, value);
   };
 
-  const result = await createUserGroupDomain(app.options, user, ({
+  const result = await createUserGroupDomain(app.options, user, {
     name,
     description: getOptionalStringField(body, "description"),
     members,
@@ -61,7 +77,7 @@ export const handleCreateUserGroup = async (
     canManageGroupId: await resolveInput("can_manage_group"),
     canMentionGroupId: await resolveInput("can_mention_group"),
     canRemoveMembersGroupId: await resolveInput("can_remove_members_group"),
-  }));
+  });
 
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
@@ -69,7 +85,9 @@ export const handleCreateUserGroup = async (
   }
 
   const group = result.data;
-  const resolveOutput = async (id: long | undefined | null): Promise<string | null> => {
+  const resolveOutput = async (
+    id: long | undefined | null,
+  ): Promise<string | null> => {
     return await resolveGroupIdToSetting(app.options, user.tenantId, id);
   };
 
@@ -87,7 +105,9 @@ export const handleCreateUserGroup = async (
   g["can_leave_group"] = await resolveOutput(group.CanLeaveGroupId);
   g["can_manage_group"] = await resolveOutput(group.CanManageGroupId);
   g["can_mention_group"] = await resolveOutput(group.CanMentionGroupId);
-  g["can_remove_members_group"] = await resolveOutput(group.CanRemoveMembersGroupId);
+  g["can_remove_members_group"] = await resolveOutput(
+    group.CanRemoveMembersGroupId,
+  );
   g["deactivated"] = group.IsActive !== 1;
 
   res.json({ result: "success", msg: "", group: g });

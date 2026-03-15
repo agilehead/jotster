@@ -6,10 +6,12 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleListTenants = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
   const authHeader = req.get("authorization") ?? "";
-  const rootToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7).trim() : "";
+  const rootToken = authHeader.startsWith("Bearer ")
+    ? authHeader.substring(7).trim()
+    : "";
 
   const result = await listTenantsAdmin(app.options, app.config, rootToken);
   if (!result.success) {

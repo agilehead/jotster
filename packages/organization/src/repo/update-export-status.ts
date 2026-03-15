@@ -9,16 +9,16 @@ export const updateExportStatus = async (
   exportId: long,
   status: string,
   url?: string,
-  errorMessage?: string
+  errorMessage?: string,
 ): Promise<Result<boolean, string>> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const exportId0 = exportId;
 
-    const dataExport = await db0.DataExports
-      .Where((x) => x.Id === exportId0)
-      .FirstOrDefaultAsync();
+    const dataExport = await db0.DataExports.Where(
+      (x) => x.Id === exportId0,
+    ).FirstOrDefaultAsync();
 
     if (dataExport === undefined) {
       return err("Export not found");

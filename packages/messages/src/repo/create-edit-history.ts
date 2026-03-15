@@ -1,7 +1,11 @@
 import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, MessageEditHistory, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  MessageEditHistory,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 interface CreateEditHistoryInput {
   messageId: long;
@@ -14,7 +18,7 @@ interface CreateEditHistoryInput {
 
 export const createEditHistory = async (
   options: DbContextOptions,
-  input: CreateEditHistoryInput
+  input: CreateEditHistoryInput,
 ): Promise<MessageEditHistory> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

@@ -9,16 +9,25 @@ export const checkPermission = async (
   options: DbContextOptions,
   tenantId: long,
   userId: long,
-  settingName: string
+  settingName: string,
 ): Promise<Result<boolean, string>> => {
-  const settingResult = await getPermissionSetting(options, tenantId, settingName);
+  const settingResult = await getPermissionSetting(
+    options,
+    tenantId,
+    settingName,
+  );
 
   if (!settingResult.success) {
     return err(settingResult.error);
   }
 
   const groupId = settingResult.data;
-  const membershipResult = await isUserInGroup(options, tenantId, userId, groupId);
+  const membershipResult = await isUserInGroup(
+    options,
+    tenantId,
+    userId,
+    groupId,
+  );
 
   return membershipResult;
 };

@@ -10,9 +10,14 @@ import { getMutedUsers } from "../repo/get-muted-users.ts";
 export const unmuteUserDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  mutedUserId: long
+  mutedUserId: long,
 ): Promise<Result<void, string>> => {
-  const removed = await unmuteUser(options, user.tenantId, user.userId, mutedUserId);
+  const removed = await unmuteUser(
+    options,
+    user.tenantId,
+    user.userId,
+    mutedUserId,
+  );
 
   if (!removed) {
     return err("User is not muted");

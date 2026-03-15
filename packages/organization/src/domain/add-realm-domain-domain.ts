@@ -9,7 +9,7 @@ export const addRealmDomainDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   domain: string,
-  allowSubdomains: boolean
+  allowSubdomains: boolean,
 ): Promise<Result<RealmDomain, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {
@@ -26,8 +26,13 @@ export const addRealmDomainDomain = async (
     return err("Invalid domain format");
   }
 
-  const allowSub = allowSubdomains ? 1 as int : 0 as int;
-  const realmDomain = await addRealmDomain(options, user.tenantId, trimmed, allowSub);
+  const allowSub = allowSubdomains ? (1 as int) : (0 as int);
+  const realmDomain = await addRealmDomain(
+    options,
+    user.tenantId,
+    trimmed,
+    allowSub,
+  );
 
   if (realmDomain === undefined) {
     return err("Domain already exists for this organization");
