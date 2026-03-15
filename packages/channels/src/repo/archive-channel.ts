@@ -5,15 +5,15 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const archiveChannel = async (
   options: DbContextOptions,
-  channelId: string
+  channelId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const channelId0 = channelId;
-    const channel = await db0.Channels
-      .Where((c) => c.Id === channelId0)
-      .FirstOrDefaultAsync();
+    const channel = await db0.Channels.Where(
+      (c) => c.Id === channelId0,
+    ).FirstOrDefaultAsync();
 
     if (channel === undefined) {
       return false;

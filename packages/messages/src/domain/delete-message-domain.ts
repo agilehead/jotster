@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -12,7 +13,7 @@ const DELETE_TIME_LIMIT_MS = 600000;
 export const deleteMessageDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: string
+  messageId: long,
 ): Promise<Result<void, string>> => {
   const message = await getMessage(options, user.tenantId, messageId);
   if (message === undefined) {

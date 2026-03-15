@@ -5,10 +5,12 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class DmGroup {
   Id!: string;
-  TenantId!: string;
+  TenantId!: long;
   GroupHash!: string;
   CreatedAt!: long;
 }
 
-A.on(DmGroup).prop((x) => x.Id).add(KeyAttribute);
+A.on(DmGroup)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(DmGroup).type.add(IndexAttribute, ["TenantId", "GroupHash"]);

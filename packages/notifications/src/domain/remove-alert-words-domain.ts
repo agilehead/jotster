@@ -9,12 +9,16 @@ import { getAlertWords } from "../repo/get-alert-words.ts";
 export const removeAlertWordsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  words: string[]
+  words: string[],
 ): Promise<Result<string[], string>> => {
   await removeAlertWords(options, user.tenantId, user.userId, words);
 
   // Get full updated list
-  const allAlertWords = await getAlertWords(options, user.tenantId, user.userId);
+  const allAlertWords = await getAlertWords(
+    options,
+    user.tenantId,
+    user.userId,
+  );
   const wordList = new List<string>();
   for (let i = 0; i < allAlertWords.length; i++) {
     wordList.Add(allAlertWords[i].Word);

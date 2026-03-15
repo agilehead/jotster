@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const removeRealmDomain = async (
   options: DbContextOptions,
-  tenantId: string,
-  domain: string
+  tenantId: long,
+  domain: string,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -12,8 +13,10 @@ export const removeRealmDomain = async (
     const tenantId0 = tenantId;
     const domain0 = domain;
 
-    const realmDomain = await db0.RealmDomains
-      .Where((x) => x.TenantId === tenantId0).Where((x) => x.Domain === domain0)
+    const realmDomain = await db0.RealmDomains.Where(
+      (x) => x.TenantId === tenantId0,
+    )
+      .Where((x) => x.Domain === domain0)
       .FirstOrDefaultAsync();
 
     if (realmDomain === undefined) {

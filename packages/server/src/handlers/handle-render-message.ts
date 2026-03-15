@@ -7,24 +7,37 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleRenderMessage = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const body = getBodyObject(req);
   const content = getOptionalStringField(body, "content");
   if (content === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required field: content", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required field: content",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const result = await renderMarkdownDomain(content);
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

@@ -4,9 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Attachment {
-  Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  Id!: long;
+  TenantId!: long;
+  UserId!: long;
   FileName!: string;
   PathId!: string;
   Size!: long;
@@ -15,6 +15,8 @@ export class Attachment {
   CreatedAt!: long;
 }
 
-A.on(Attachment).prop((x) => x.Id).add(KeyAttribute);
+A.on(Attachment)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Attachment).type.add(IndexAttribute, ["TenantId", "PathId"]);
 A.on(Attachment).type.add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);

@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
@@ -6,18 +7,18 @@ import { getMessageForPermissionCheck } from "../repo/get-message-for-permission
 
 export const canUserDeleteMessage = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  messageId: string,
+  tenantId: long,
+  userId: long,
+  messageId: long,
   deleteContentLimitSeconds: number,
-  now: number
+  now: number,
 ): Promise<Result<boolean, string>> => {
   // Check can_delete_any_message first
   const deleteAnyResult = await checkPermission(
     options,
     tenantId,
     userId,
-    "can_delete_any_message"
+    "can_delete_any_message",
   );
 
   if (!deleteAnyResult.success) {
@@ -29,7 +30,11 @@ export const canUserDeleteMessage = async (
   }
 
   // Fetch the message
-  const message = await getMessageForPermissionCheck(options, tenantId, messageId);
+  const message = await getMessageForPermissionCheck(
+    options,
+    tenantId,
+    messageId,
+  );
 
   if (message === undefined) {
     return ok(false);
@@ -45,7 +50,7 @@ export const canUserDeleteMessage = async (
     options,
     tenantId,
     userId,
-    "can_delete_own_message"
+    "can_delete_own_message",
   );
 
   if (!deleteOwnResult.success) {

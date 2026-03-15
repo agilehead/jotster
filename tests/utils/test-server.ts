@@ -5,7 +5,9 @@ import path from "path";
 import { TEST_DB_PATH, TEST_UPLOADS_DIR } from "./test-environment.js";
 
 const SERVER_HOST = "127.0.0.1";
-const BUILD_OUTPUT_DIR = path.resolve("packages/server/generated/bin/Release/net10.0/linux-x64");
+const BUILD_OUTPUT_DIR = path.resolve(
+  "packages/server/generated/bin/Release/net10.0/linux-x64",
+);
 const NATIVE_BINARY_PATH = path.join(BUILD_OUTPUT_DIR, "jotster");
 const MANAGED_BINARY_PATH = path.join(BUILD_OUTPUT_DIR, "jotster.dll");
 const TEST_BASE_URL_ENV = "JOTSTER_TEST_BASE_URL";
@@ -47,7 +49,9 @@ async function allocatePort(): Promise<number> {
     server.listen(0, SERVER_HOST, () => {
       const address = server.address();
       if (address === null || typeof address === "string") {
-        server.close(() => reject(new Error("Failed to allocate test server port.")));
+        server.close(() =>
+          reject(new Error("Failed to allocate test server port.")),
+        );
         return;
       }
 
@@ -102,8 +106,12 @@ export class TestServer {
       stdio: "pipe",
     });
 
-    this.process.stdout?.on("data", (chunk) => this.captureOutput(String(chunk)));
-    this.process.stderr?.on("data", (chunk) => this.captureOutput(String(chunk)));
+    this.process.stdout?.on("data", (chunk) =>
+      this.captureOutput(String(chunk)),
+    );
+    this.process.stderr?.on("data", (chunk) =>
+      this.captureOutput(String(chunk)),
+    );
 
     await this.waitForReady();
   }
@@ -146,9 +154,17 @@ export class TestServer {
       }
 
       if (this.process.exitCode !== null || this.process.signalCode !== null) {
-        const status = this.process.exitCode !== null ? `exit code ${this.process.exitCode}` : `signal ${this.process.signalCode}`;
-        const details = this.recentOutput.length > 0 ? `\nRecent server output:\n${this.recentOutput.join("")}` : "";
-        throw new Error(`Server exited before becoming ready (${status}).${details}`);
+        const status =
+          this.process.exitCode !== null
+            ? `exit code ${this.process.exitCode}`
+            : `signal ${this.process.signalCode}`;
+        const details =
+          this.recentOutput.length > 0
+            ? `\nRecent server output:\n${this.recentOutput.join("")}`
+            : "";
+        throw new Error(
+          `Server exited before becoming ready (${status}).${details}`,
+        );
       }
 
       try {
@@ -160,7 +176,10 @@ export class TestServer {
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
-    const details = this.recentOutput.length > 0 ? `\nRecent server output:\n${this.recentOutput.join("")}` : "";
+    const details =
+      this.recentOutput.length > 0
+        ? `\nRecent server output:\n${this.recentOutput.join("")}`
+        : "";
     throw new Error(`Server failed to start within timeout.${details}`);
   }
 
@@ -193,7 +212,11 @@ export class TestServer {
       await Promise.race([
         waitForExit(),
         new Promise<void>((_, reject) => {
-          setTimeout(() => reject(new Error("Timed out waiting for test server to stop.")), 5000);
+          setTimeout(
+            () =>
+              reject(new Error("Timed out waiting for test server to stop.")),
+            5000,
+          );
         }),
       ]);
       return;

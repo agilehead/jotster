@@ -1,29 +1,28 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, UserGroup, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, UserGroup } from "@jotster/core/Jotster.Core.js";
 
 interface CreateUserGroupInput {
-  tenantId: string;
-  creatorId?: string;
+  tenantId: long;
+  creatorId?: long;
   name: string;
   description?: string;
-  canAddMembersGroupId?: string;
-  canJoinGroupId?: string;
-  canLeaveGroupId?: string;
-  canManageGroupId?: string;
-  canMentionGroupId?: string;
-  canRemoveMembersGroupId?: string;
+  canAddMembersGroupId?: long;
+  canJoinGroupId?: long;
+  canLeaveGroupId?: long;
+  canManageGroupId?: long;
+  canMentionGroupId?: long;
+  canRemoveMembersGroupId?: long;
 }
 
 export const createUserGroup = async (
   options: DbContextOptions,
-  input: CreateUserGroupInput
+  input: CreateUserGroupInput,
 ): Promise<UserGroup> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const group = new UserGroup();
-  group.Id = generateId();
   group.TenantId = input.tenantId;
   group.Name = input.name;
   group.Description = input.description ?? "";
@@ -34,7 +33,8 @@ export const createUserGroup = async (
   group.CanLeaveGroupId = input.canLeaveGroupId;
   group.CanManageGroupId = input.canManageGroupId;
   group.CanMentionGroupId = input.canMentionGroupId;
-  group.CanRemoveMembersGroupId = input.canRemoveMembersGroupId ?? input.canManageGroupId;
+  group.CanRemoveMembersGroupId =
+    input.canRemoveMembersGroupId ?? input.canManageGroupId;
   group.IsActive = 1 as int;
   group.CreatedAt = now;
   group.UpdatedAt = now;

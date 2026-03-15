@@ -1,6 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
-import { ok, err, MAX_MESSAGE_LENGTH, MAX_TOPIC_LENGTH } from "@jotster/core/Jotster.Core.js";
+import {
+  ok,
+  err,
+  MAX_MESSAGE_LENGTH,
+  MAX_TOPIC_LENGTH,
+} from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getMessage } from "../repo/get-message.ts";
 import { updateMessage } from "../repo/update-message.ts";
@@ -10,15 +16,15 @@ import { renderMarkdownDomain } from "./render-markdown-domain.ts";
 interface EditMessageDomainInput {
   content?: string;
   topic?: string;
-  channelId?: string;
+  channelId?: long;
   propagateMode?: string;
 }
 
 export const editMessageDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: string,
-  params: EditMessageDomainInput
+  messageId: long,
+  params: EditMessageDomainInput,
 ): Promise<Result<void, string>> => {
   const message = await getMessage(options, user.tenantId, messageId);
   if (message === undefined) {

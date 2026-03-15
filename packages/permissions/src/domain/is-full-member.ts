@@ -2,7 +2,7 @@ export const isFullMember = (
   userRole: number,
   dateJoined: number,
   waitingPeriodThresholdDays: number,
-  now: number
+  now: number,
 ): boolean => {
   if (userRole > 400) return false;
   if (waitingPeriodThresholdDays === 0) return true;

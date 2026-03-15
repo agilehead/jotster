@@ -4,23 +4,25 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class UserGroup {
-  Id!: string;
-  TenantId!: string;
+  Id!: long;
+  TenantId!: long;
   Name!: string;
   Description!: string;
   IsSystemGroup!: int;
-  CreatorId?: string;
-  CanAddMembersGroupId?: string;
-  CanJoinGroupId?: string;
-  CanLeaveGroupId?: string;
-  CanManageGroupId?: string;
-  CanMentionGroupId?: string;
-  CanRemoveMembersGroupId?: string;
+  CreatorId?: long;
+  CanAddMembersGroupId?: long;
+  CanJoinGroupId?: long;
+  CanLeaveGroupId?: long;
+  CanManageGroupId?: long;
+  CanMentionGroupId?: long;
+  CanRemoveMembersGroupId?: long;
   IsActive!: int;
   CreatedAt!: long;
   UpdatedAt!: long;
 }
 
-A.on(UserGroup).prop((x) => x.Id).add(KeyAttribute);
+A.on(UserGroup)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(UserGroup).type.add(IndexAttribute, ["TenantId"]);
 A.on(UserGroup).type.add(IndexAttribute, ["TenantId", "Name"]);

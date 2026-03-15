@@ -1,6 +1,11 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import { seedChannel, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
+import {
+  seedChannel,
+  seedSubscription,
+  seedTenant,
+  seedUser,
+} from "../../utils/test-helpers.js";
 
 const registerQueue = async (
   client: Awaited<ReturnType<typeof seedUser>>["client"],
@@ -47,7 +52,9 @@ describe("Client capability event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "typing-capability" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "typing-capability",
+    });
     await seedSubscription(db, tenantId, sender.userId, channelId);
 
     const legacyQueue = await registerQueue(sender.client, ["typing"]);
@@ -63,10 +70,18 @@ describe("Client capability event compatibility", function () {
     });
     expect(typingRes.status).to.equal(200);
 
-    const legacyEvents = await getEvents(sender.client, legacyQueue.queueId, legacyQueue.lastEventId);
+    const legacyEvents = await getEvents(
+      sender.client,
+      legacyQueue.queueId,
+      legacyQueue.lastEventId,
+    );
     expect(legacyEvents).to.deep.equal([]);
 
-    const capableEvents = await getEvents(sender.client, capableQueue.queueId, capableQueue.lastEventId);
+    const capableEvents = await getEvents(
+      sender.client,
+      capableQueue.queueId,
+      capableQueue.lastEventId,
+    );
     expect(capableEvents).to.have.length(1);
     expect(capableEvents[0]).to.deep.equal({
       id: capableEvents[0].id,
@@ -95,7 +110,11 @@ describe("Client capability event compatibility", function () {
     });
     expect(typingRes.status).to.equal(200);
 
-    const events = await getEvents(recipient.client, queue.queueId, queue.lastEventId);
+    const events = await getEvents(
+      recipient.client,
+      queue.queueId,
+      queue.lastEventId,
+    );
     expect(events).to.have.length(1);
     expect(events[0]).to.deep.equal({
       id: events[0].id,

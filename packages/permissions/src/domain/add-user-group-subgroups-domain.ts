@@ -1,4 +1,5 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,8 +10,8 @@ import { addUserGroupSubgroups } from "../repo/add-user-group-subgroups.ts";
 export const addUserGroupSubgroupsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  groupId: string,
-  subgroupIds: string[]
+  groupId: long,
+  subgroupIds: long[],
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");
@@ -34,10 +35,12 @@ export const addUserGroupSubgroupsDomain = async (
   for (let i = 0; i < subgroupIds.length; i++) {
     const subgroup = await getUserGroupById(options, subgroupIds[i]);
     if (subgroup === undefined) {
-      return err("Subgroup not found: " + subgroupIds[i]);
+      return err("Subgroup not found: " + Convert.ToString(subgroupIds[i]));
     }
     if (subgroup.IsActive === zero) {
-      return err("Subgroup is deactivated: " + subgroupIds[i]);
+      return err(
+        "Subgroup is deactivated: " + Convert.ToString(subgroupIds[i]),
+      );
     }
     if (subgroupIds[i] === groupId) {
       return err("A group cannot be its own subgroup");

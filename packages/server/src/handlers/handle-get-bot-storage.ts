@@ -6,17 +6,24 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleGetBotStorage = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   if (user.isBot !== 1) {
-    res.status(403).json({ result: "error", msg: "Only bot users can access bot storage" });
+    res
+      .status(403)
+      .json({ result: "error", msg: "Only bot users can access bot storage" });
     return;
   }
 

@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, Channel } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +8,7 @@ import { getChannels } from "../repo/get-channels.ts";
 export const getChannelsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  includeArchived: boolean
+  includeArchived: boolean,
 ): Promise<Channel[]> => {
   const channels = await getChannels(options, user.tenantId, includeArchived);
 
@@ -23,11 +23,11 @@ export const getChannelsDomain = async (
     const db0 = db;
     const tenantId0 = user.tenantId;
     const userId0 = user.userId;
-    const subs = await db0.Subscriptions
-      .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0)
+    const subs = await db0.Subscriptions.Where((s) => s.TenantId === tenantId0)
+      .Where((s) => s.UserId === userId0)
       .ToListAsync();
 
-    const subscribedChannelIds = new List<string>();
+    const subscribedChannelIds = new List<long>();
     for (let i = 0; i < subs.Count; i++) {
       const sub = subs[i];
       subscribedChannelIds.Add(sub.ChannelId);

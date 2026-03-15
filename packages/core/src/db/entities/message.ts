@@ -4,11 +4,11 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Message {
-  Id!: string;
-  TenantId!: string;
-  SenderId!: string;
+  Id!: long;
+  TenantId!: long;
+  SenderId!: long;
   Type!: string;
-  ChannelId?: string;
+  ChannelId?: long;
   Topic?: string;
   DmGroupId?: string;
   Content!: string;
@@ -20,7 +20,14 @@ export class Message {
   EditedAt?: long;
 }
 
-A.on(Message).prop((x) => x.Id).add(KeyAttribute);
-A.on(Message).type.add(IndexAttribute, ["TenantId", "ChannelId", "Topic", "Id"]);
+A.on(Message)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
+A.on(Message).type.add(IndexAttribute, [
+  "TenantId",
+  "ChannelId",
+  "Topic",
+  "Id",
+]);
 A.on(Message).type.add(IndexAttribute, ["TenantId", "DmGroupId", "Id"]);
 A.on(Message).type.add(IndexAttribute, ["TenantId", "SenderId", "Id"]);

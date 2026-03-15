@@ -1,15 +1,16 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import {
   JotsterDbContext,
+  Channel,
   ok,
   err,
   MAX_MESSAGE_LENGTH,
   MAX_TOPIC_LENGTH,
 } from "@jotster/core/Jotster.Core.js";
 import { Convert } from "@tsonic/dotnet/System.js";
-import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
+
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { sendMessage } from "../repo/send-message.ts";
@@ -26,8 +27,8 @@ interface SendMessageDomainInput {
 export const sendMessageDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: SendMessageDomainInput
-): Promise<Result<{ id: string }, string>> => {
+  params: SendMessageDomainInput,
+): Promise<Result<{ id: long }, string>> => {
   // Validate content
   const content = params.content.trim();
   if (content.length === 0) {
@@ -66,21 +67,36 @@ export const sendMessageDomain = async (
     try {
       const db0 = db;
       const tenantId0 = user.tenantId;
-      const to0 = to;
 
       // Try to find by ID first
-      let channel = await db0.Channels
-        .Where((c) => c.TenantId === tenantId0).Where((c) => c.Id === to0)
-        .FirstOrDefaultAsync();
+      const parsedId = parseInt(to, 10);
+      let channel: Channel = undefined!;
+      let channelFound = false;
 
-      // If not found by ID, try by name
-      if (channel === undefined || channel === null) {
-        channel = await db0.Channels
-          .Where((c) => c.TenantId === tenantId0).Where((c) => c.Name === to0)
+      if (!isNaN(parsedId)) {
+        const toLong = Convert.ToInt64(parsedId) as long;
+        const found = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+          .Where((c) => c.Id === toLong)
           .FirstOrDefaultAsync();
+        if (found !== undefined && found !== null) {
+          channel = found;
+          channelFound = true;
+        }
       }
 
-      if (channel === undefined || channel === null) {
+      // If not found by ID, try by name
+      if (!channelFound) {
+        const to0 = to;
+        const found = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+          .Where((c) => c.Name === to0)
+          .FirstOrDefaultAsync();
+        if (found !== undefined && found !== null) {
+          channel = found;
+          channelFound = true;
+        }
+      }
+
+      if (!channelFound) {
         return err("Channel not found");
       }
 
@@ -92,8 +108,11 @@ export const sendMessageDomain = async (
       // Verify user is subscribed to the channel
       const userId0 = user.userId;
       const channelId0 = channel.Id;
-      const subscription = await db0.Subscriptions
-        .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+      const subscription = await db0.Subscriptions.Where(
+        (s) => s.TenantId === tenantId0,
+      )
+        .Where((s) => s.UserId === userId0)
+        .Where((s) => s.ChannelId === channelId0)
         .FirstOrDefaultAsync();
 
       if (subscription === undefined || subscription === null) {
@@ -133,62 +152,77 @@ export const sendMessageDomain = async (
 
   if (params.type === "direct" || params.type === "private") {
     // Parse `to` as JSON array of user IDs/emails
-    const parsedTo = JsonSerializer.Deserialize<string[]>(params.to);
-    if (parsedTo === undefined) {
+    let userIdStrs: string[];
+    try {
+      const parsed = JSON.parse(params.to) as unknown;
+      if (!Array.isArray(parsed)) {
+        return err("Invalid 'to' parameter: expected JSON array of user IDs");
+      }
+      const arr = parsed as unknown[];
+      userIdStrs = [];
+      for (let i = 0; i < arr.length; i++) {
+        const item = arr[i];
+        if (typeof item === "number") {
+          userIdStrs.push(`${item}`);
+        } else if (typeof item === "string") {
+          userIdStrs.push(item as string);
+        } else {
+          return err("Invalid 'to' parameter: expected JSON array of user IDs");
+        }
+      }
+    } catch {
       return err("Invalid 'to' parameter: expected JSON array of user IDs");
     }
-    let userIds: string[] = parsedTo;
 
-    if (userIds.length === 0) {
+    if (userIdStrs.length === 0) {
       return err("Recipient list must not be empty");
     }
 
-    // Ensure the sender is included in the DM group
-    let senderIncluded = false;
-    for (let i = 0; i < userIds.length; i++) {
-      if (userIds[i] === user.userId) {
-        senderIncluded = true;
-        break;
-      }
-    }
-    if (!senderIncluded) {
-      const userIdsList = new List<string>();
-      for (let ui = 0; ui < userIds.length; ui++) {
-        userIdsList.Add(userIds[ui]);
-      }
-      userIdsList.Add(user.userId);
-      userIds = userIdsList.ToArray();
-    }
-
-    // Resolve email addresses to user IDs if needed
-    const resolvedIds = new List<string>();
+    // Resolve email addresses to user IDs and convert to long
+    const resolvedIds = new List<long>();
     const db = new JotsterDbContext(options);
     try {
       const db0 = db;
       const tenantId0 = user.tenantId;
 
-      for (let i = 0; i < userIds.length; i++) {
-        const candidate = userIds[i];
+      for (let i = 0; i < userIdStrs.length; i++) {
+        const candidate = userIdStrs[i];
         // If it contains @ it's an email, resolve to userId
         if (candidate.includes("@")) {
           const email0 = candidate;
-          const u = await db0.Users
-            .Where((usr) => usr.TenantId === tenantId0).Where((usr) => usr.Email === email0)
+          const u = await db0.Users.Where((usr) => usr.TenantId === tenantId0)
+            .Where((usr) => usr.Email === email0)
             .FirstOrDefaultAsync();
           if (u === undefined || u === null) {
             return err("User not found: " + candidate);
           }
           resolvedIds.Add(u.Id);
         } else {
-          resolvedIds.Add(candidate);
+          resolvedIds.Add(Convert.ToInt64(parseInt(candidate, 10)) as long);
         }
       }
     } finally {
       db.Dispose();
     }
 
+    // Ensure the sender is included in the DM group
+    let senderIncluded = false;
+    for (let i = 0; i < resolvedIds.Count; i++) {
+      if (resolvedIds[i] === user.userId) {
+        senderIncluded = true;
+        break;
+      }
+    }
+    if (!senderIncluded) {
+      resolvedIds.Add(user.userId);
+    }
+
     // Find or create DM group
-    const dmGroup = await findOrCreateDmGroup(options, user.tenantId, resolvedIds.ToArray());
+    const dmGroup = await findOrCreateDmGroup(
+      options,
+      user.tenantId,
+      resolvedIds.ToArray(),
+    );
 
     // Send the message
     const message = await sendMessage(options, {

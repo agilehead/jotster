@@ -4,10 +4,11 @@ import {
   ZULIP_FEATURE_LEVEL,
 } from "@jotster/core/Jotster.Core.js";
 
-const escapeHtml = (value: string): string => value
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;");
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 
 const renderRealmDescription = (value: string): string => {
   if (value.length === 0) {

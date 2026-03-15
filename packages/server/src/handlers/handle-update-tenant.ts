@@ -1,19 +1,22 @@
 import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { updateTenantAdmin } from "@jotster/auth/Jotster.Auth.js";
-import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
+import { getBodyObject, toOptionalInt, toLong } from "../helpers/body.ts";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleUpdateTenant = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
   const authHeader = req.get("authorization") ?? "";
-  const rootToken = authHeader.startsWith("Bearer ") ? authHeader.substring(7).trim() : "";
+  const rootToken = authHeader.startsWith("Bearer ")
+    ? authHeader.substring(7).trim()
+    : "";
 
-  const tenantId = req.params["tenant_id"] ?? "";
-  if (!tenantId) {
+  const tenantId = parseId(req.params["tenant_id"] ?? "");
+  if (tenantId === undefined) {
     res.status(400).json({ result: "error", msg: "Missing tenant_id" });
     return;
   }
@@ -21,10 +24,18 @@ export const handleUpdateTenant = async (
   const body = getBodyObject(req);
   const updates: { name?: string; description?: string; active?: int } = {};
   if (body["name"] !== undefined) updates.name = body["name"] as string;
-  if (body["description"] !== undefined) updates.description = body["description"] as string;
-  if (body["active"] !== undefined) updates.active = toOptionalInt(body["active"]);
+  if (body["description"] !== undefined)
+    updates.description = body["description"] as string;
+  if (body["active"] !== undefined)
+    updates.active = toOptionalInt(body["active"]);
 
-  const result = await updateTenantAdmin(app.options, app.config, rootToken, tenantId, updates);
+  const result = await updateTenantAdmin(
+    app.options,
+    app.config,
+    rootToken,
+    toLong(tenantId),
+    updates,
+  );
   if (!result.success) {
     const status = result.error === "Unauthorized" ? 401 : 400;
     res.status(status).json({ result: "error", msg: result.error });

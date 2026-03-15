@@ -50,7 +50,8 @@ export const filterPresenceEntries = (
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
   const days = getHistoryLimitDays(historyLimitDays);
   const cutoff = Convert.ToInt64(
-    Convert.ToDouble(now) - (Convert.ToDouble(days) * Convert.ToDouble(MILLIS_PER_DAY))
+    Convert.ToDouble(now) -
+      Convert.ToDouble(days) * Convert.ToDouble(MILLIS_PER_DAY),
   );
 
   for (let i = 0; i < entries.length; i++) {
@@ -90,7 +91,7 @@ export const getPresenceLastUpdateId = (
 export const buildModernPresenceMap = (
   entries: Presence[],
 ): Record<string, unknown> => {
-  const userIds: string[] = [];
+  const userIds: long[] = [];
   const activeTimestamps: long[] = [];
   const idleTimestamps: long[] = [];
   const hasActiveTimestamps: boolean[] = [];
@@ -117,13 +118,19 @@ export const buildModernPresenceMap = (
 
     if (entry.Status === "active") {
       const activeTimestamp = activeTimestamps[currentIndex];
-      if (!hasActiveTimestamps[currentIndex] || Convert.ToDouble(entry.Timestamp) > Convert.ToDouble(activeTimestamp)) {
+      if (
+        !hasActiveTimestamps[currentIndex] ||
+        Convert.ToDouble(entry.Timestamp) > Convert.ToDouble(activeTimestamp)
+      ) {
         activeTimestamps[currentIndex] = entry.Timestamp;
         hasActiveTimestamps[currentIndex] = true;
       }
     } else if (entry.Status === "idle") {
       const idleTimestamp = idleTimestamps[currentIndex];
-      if (!hasIdleTimestamps[currentIndex] || Convert.ToDouble(entry.Timestamp) > Convert.ToDouble(idleTimestamp)) {
+      if (
+        !hasIdleTimestamps[currentIndex] ||
+        Convert.ToDouble(entry.Timestamp) > Convert.ToDouble(idleTimestamp)
+      ) {
         idleTimestamps[currentIndex] = entry.Timestamp;
         hasIdleTimestamps[currentIndex] = true;
       }
@@ -139,7 +146,7 @@ export const buildModernPresenceMap = (
     if (hasIdleTimestamps[i]) {
       presence["idle_timestamp"] = idleTimestamps[i] as unknown;
     }
-    presences[userIds[i]] = presence as unknown;
+    presences[Convert.ToString(userIds[i])] = presence as unknown;
   }
 
   return presences;
@@ -154,7 +161,10 @@ export const buildLegacyUserPresenceMap = (
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-    if (!hasLatest || Convert.ToDouble(entry.Timestamp) > Convert.ToDouble(latestTimestamp)) {
+    if (
+      !hasLatest ||
+      Convert.ToDouble(entry.Timestamp) > Convert.ToDouble(latestTimestamp)
+    ) {
       latestTimestamp = entry.Timestamp;
       latestStatus = entry.Status;
       hasLatest = true;

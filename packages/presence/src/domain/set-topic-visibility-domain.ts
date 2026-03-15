@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +8,7 @@ import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js"
 import { setTopicVisibility } from "../repo/set-topic-visibility.ts";
 
 interface SetTopicVisibilityParams {
-  channelId: string;
+  channelId: long;
   topic: string;
   visibilityPolicy: int;
 }
@@ -16,13 +16,15 @@ interface SetTopicVisibilityParams {
 export const setTopicVisibilityDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: SetTopicVisibilityParams
+  params: SetTopicVisibilityParams,
 ): Promise<Result<void, string>> => {
   const policy = Convert.ToInt32(params.visibilityPolicy);
 
   // Validate policy is 0-3
   if (policy < 0 || policy > 3) {
-    return err("Invalid visibility policy: must be 0 (inherit), 1 (muted), 2 (unmuted), or 3 (followed)");
+    return err(
+      "Invalid visibility policy: must be 0 (inherit), 1 (muted), 2 (unmuted), or 3 (followed)",
+    );
   }
 
   // Validate channel exists and user has access
@@ -33,8 +35,8 @@ export const setTopicVisibilityDomain = async (
     const channelId0 = params.channelId;
     const userId0 = user.userId;
 
-    const channel = await db0.Channels
-      .Where((c) => c.Id === channelId0).Where((c) => c.TenantId === tenantId0)
+    const channel = await db0.Channels.Where((c) => c.Id === channelId0)
+      .Where((c) => c.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (channel === undefined || channel === null) {
@@ -43,8 +45,9 @@ export const setTopicVisibilityDomain = async (
 
     // For private channels, check subscription
     if (channel.IsPrivate === 1) {
-      const sub = await db0.Subscriptions
-        .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === channelId0)
+      const sub = await db0.Subscriptions.Where((s) => s.TenantId === tenantId0)
+        .Where((s) => s.UserId === userId0)
+        .Where((s) => s.ChannelId === channelId0)
         .FirstOrDefaultAsync();
 
       if (sub === undefined || sub === null) {
@@ -61,7 +64,7 @@ export const setTopicVisibilityDomain = async (
     user.userId,
     params.channelId,
     params.topic,
-    params.visibilityPolicy
+    params.visibilityPolicy,
   );
 
   // Dispatch user_topic event to user

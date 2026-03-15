@@ -8,16 +8,25 @@ import { getOptionalStringField } from "../helpers/body.ts";
 export const handleGetStreams = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
-  const includeArchived = (getOptionalStringField(req.query as Record<string, unknown>, "include_archived") ?? "0") === "1";
+  const includeArchived =
+    (getOptionalStringField(
+      req.query as Record<string, unknown>,
+      "include_archived",
+    ) ?? "0") === "1";
 
   const channels = await getChannelsDomain(app.options, user, includeArchived);
 

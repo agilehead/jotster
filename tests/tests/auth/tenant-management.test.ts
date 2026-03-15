@@ -55,7 +55,10 @@ describe("Internal Admin Tenant Management", () => {
   describe("PATCH /internal/admin/tenants/:tenant_id", () => {
     it("should update a tenant", async () => {
       const db = testDb.getDb();
-      const tenantId = await seedTenant(db, { subdomain: "update-me", name: "Original Name" });
+      const tenantId = await seedTenant(db, {
+        subdomain: "update-me",
+        name: "Original Name",
+      });
 
       const client = getRootClient();
 

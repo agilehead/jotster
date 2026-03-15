@@ -52,7 +52,9 @@ describe("Attachments and Uploads", () => {
 
       const listRes = await client.get("/attachments");
       expect(listRes.status).to.equal(200);
-      const attachments = listRes.body.attachments as Array<Record<string, unknown>>;
+      const attachments = listRes.body.attachments as Array<
+        Record<string, unknown>
+      >;
       expect(attachments).to.have.length(1);
       const attachment = attachments[0];
       expect(attachment.name).to.equal("zulip.txt");
@@ -61,12 +63,14 @@ describe("Attachments and Uploads", () => {
       expect(fileRes.status).to.equal(200);
       expect(fileRes.body.equals(TEXT_FILE)).to.equal(true);
 
-      const deleteRes = await client.delete(`/attachments/${attachment.id as string}`);
+      const deleteRes = await client.delete(
+        `/attachments/${attachment.id as number}`,
+      );
       expect(deleteRes.status).to.equal(200);
       expect(deleteRes.body.result).to.equal("success");
 
       const afterDelete = await client.get("/attachments");
-      expect((afterDelete.body.attachments as Array<unknown>)).to.have.length(0);
+      expect(afterDelete.body.attachments as Array<unknown>).to.have.length(0);
     });
   });
 });

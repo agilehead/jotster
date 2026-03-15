@@ -11,7 +11,7 @@ const escapeHtml = (text: string): string => {
       result = result + "&lt;";
     } else if (ch === ">") {
       result = result + "&gt;";
-    } else if (ch === "\"") {
+    } else if (ch === '"') {
       result = result + "&quot;";
     } else {
       result = result + ch;
@@ -75,7 +75,7 @@ const renderInline = (text: string): string => {
 };
 
 export const renderMarkdownDomain = (
-  content: string
+  content: string,
 ): Result<{ rendered: string }, string> => {
   if (content.length === 0) {
     return ok({ rendered: "" });

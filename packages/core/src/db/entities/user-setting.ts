@@ -1,10 +1,10 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { attributes as A } from "@tsonic/core/lang.js";
 import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotations.js";
 
 export class UserSetting {
-  UserId!: string;
-  TenantId!: string;
+  UserId!: long;
+  TenantId!: long;
   TwentyFourHourTime!: int;
   DenseMode!: int;
   WebFontSizePx!: int;
@@ -56,4 +56,6 @@ export class UserSetting {
   WebChannelDefaultView!: int;
 }
 
-A.on(UserSetting).prop((x) => x.UserId).add(KeyAttribute);
+A.on(UserSetting)
+  .prop((x) => x.UserId)
+  .add(KeyAttribute);

@@ -1,18 +1,19 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Message } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getMessages = async (
   options: DbContextOptions,
-  tenantId: string,
-  channelId: string | undefined,
+  tenantId: long,
+  channelId: long | undefined,
   topic: string | undefined,
   dmGroupId: string | undefined,
-  senderId: string | undefined,
+  senderId: long | undefined,
   anchorId: string | undefined,
   numBefore: int,
-  numAfter: int
+  numAfter: int,
 ): Promise<Message[]> => {
   const db = new JotsterDbContext(options);
   try {
@@ -22,26 +23,27 @@ export const getMessages = async (
     const topic0 = topic;
     const dmGroupId0 = dmGroupId;
     const senderId0 = senderId;
-    const anchorId0 = anchorId;
     const numBefore0 = numBefore;
     const numAfter0 = numAfter;
 
-    // Build base query with filters
-    // We apply filters step by step since Tsonic lambda capture requires local consts
-
-    if (anchorId0 === "newest" || anchorId0 === undefined) {
+    if (anchorId === "newest" || anchorId === undefined) {
       // Get last N messages (numBefore count)
       if (channelId0 !== undefined && topic0 !== undefined) {
         if (senderId0 !== undefined) {
-          const result = await db0.Messages
-            .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0).Where((m) => m.SenderId === senderId0)
+          const result = await db0.Messages.Where(
+            (m) => m.TenantId === tenantId0,
+          )
+            .Where((m) => m.ChannelId === channelId0)
+            .Where((m) => m.Topic === topic0)
+            .Where((m) => m.SenderId === senderId0)
             .OrderByDescending((m) => m.Id)
             .Take(numBefore0)
             .ToArrayAsync();
           return reverseArray(result);
         }
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.ChannelId === channelId0)
+          .Where((m) => m.Topic === topic0)
           .OrderByDescending((m) => m.Id)
           .Take(numBefore0)
           .ToArrayAsync();
@@ -50,15 +52,18 @@ export const getMessages = async (
 
       if (channelId0 !== undefined) {
         if (senderId0 !== undefined) {
-          const result = await db0.Messages
-            .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.SenderId === senderId0)
+          const result = await db0.Messages.Where(
+            (m) => m.TenantId === tenantId0,
+          )
+            .Where((m) => m.ChannelId === channelId0)
+            .Where((m) => m.SenderId === senderId0)
             .OrderByDescending((m) => m.Id)
             .Take(numBefore0)
             .ToArrayAsync();
           return reverseArray(result);
         }
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.ChannelId === channelId0)
           .OrderByDescending((m) => m.Id)
           .Take(numBefore0)
           .ToArrayAsync();
@@ -67,15 +72,18 @@ export const getMessages = async (
 
       if (dmGroupId0 !== undefined) {
         if (senderId0 !== undefined) {
-          const result = await db0.Messages
-            .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.SenderId === senderId0)
+          const result = await db0.Messages.Where(
+            (m) => m.TenantId === tenantId0,
+          )
+            .Where((m) => m.DmGroupId === dmGroupId0)
+            .Where((m) => m.SenderId === senderId0)
             .OrderByDescending((m) => m.Id)
             .Take(numBefore0)
             .ToArrayAsync();
           return reverseArray(result);
         }
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.DmGroupId === dmGroupId0)
           .OrderByDescending((m) => m.Id)
           .Take(numBefore0)
           .ToArrayAsync();
@@ -83,35 +91,39 @@ export const getMessages = async (
       }
 
       if (senderId0 !== undefined) {
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.SenderId === senderId0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.SenderId === senderId0)
           .OrderByDescending((m) => m.Id)
           .Take(numBefore0)
           .ToArrayAsync();
         return reverseArray(result);
       }
 
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
         .OrderByDescending((m) => m.Id)
         .Take(numBefore0)
         .ToArrayAsync();
       return reverseArray(result);
     }
 
-    if (anchorId0 === "oldest") {
+    if (anchorId === "oldest") {
       // Get first N messages (numAfter count)
       if (channelId0 !== undefined && topic0 !== undefined) {
         if (senderId0 !== undefined) {
-          const result = await db0.Messages
-            .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0).Where((m) => m.SenderId === senderId0)
+          const result = await db0.Messages.Where(
+            (m) => m.TenantId === tenantId0,
+          )
+            .Where((m) => m.ChannelId === channelId0)
+            .Where((m) => m.Topic === topic0)
+            .Where((m) => m.SenderId === senderId0)
             .OrderBy((m) => m.Id)
             .Take(numAfter0)
             .ToArrayAsync();
           return result;
         }
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.ChannelId === channelId0)
+          .Where((m) => m.Topic === topic0)
           .OrderBy((m) => m.Id)
           .Take(numAfter0)
           .ToArrayAsync();
@@ -120,15 +132,18 @@ export const getMessages = async (
 
       if (channelId0 !== undefined) {
         if (senderId0 !== undefined) {
-          const result = await db0.Messages
-            .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.SenderId === senderId0)
+          const result = await db0.Messages.Where(
+            (m) => m.TenantId === tenantId0,
+          )
+            .Where((m) => m.ChannelId === channelId0)
+            .Where((m) => m.SenderId === senderId0)
             .OrderBy((m) => m.Id)
             .Take(numAfter0)
             .ToArrayAsync();
           return result;
         }
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.ChannelId === channelId0)
           .OrderBy((m) => m.Id)
           .Take(numAfter0)
           .ToArrayAsync();
@@ -137,15 +152,18 @@ export const getMessages = async (
 
       if (dmGroupId0 !== undefined) {
         if (senderId0 !== undefined) {
-          const result = await db0.Messages
-            .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.SenderId === senderId0)
+          const result = await db0.Messages.Where(
+            (m) => m.TenantId === tenantId0,
+          )
+            .Where((m) => m.DmGroupId === dmGroupId0)
+            .Where((m) => m.SenderId === senderId0)
             .OrderBy((m) => m.Id)
             .Take(numAfter0)
             .ToArrayAsync();
           return result;
         }
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.DmGroupId === dmGroupId0)
           .OrderBy((m) => m.Id)
           .Take(numAfter0)
           .ToArrayAsync();
@@ -153,25 +171,43 @@ export const getMessages = async (
       }
 
       if (senderId0 !== undefined) {
-        const result = await db0.Messages
-          .Where((m) => m.TenantId === tenantId0).Where((m) => m.SenderId === senderId0)
+        const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+          .Where((m) => m.SenderId === senderId0)
           .OrderBy((m) => m.Id)
           .Take(numAfter0)
           .ToArrayAsync();
         return result;
       }
 
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
         .OrderBy((m) => m.Id)
         .Take(numAfter0)
         .ToArrayAsync();
       return result;
     }
 
-    // Anchor-based: fetch before and after separately
-    const beforeMessages = await fetchBefore(db0, tenantId0, channelId0, topic0, dmGroupId0, senderId0, anchorId0, numBefore0);
-    const afterMessages = await fetchAfter(db0, tenantId0, channelId0, topic0, dmGroupId0, senderId0, anchorId0, numAfter0);
+    // Anchor-based: parse anchor as long, fetch before and after separately
+    const anchorLong = Convert.ToInt64(parseInt(anchorId, 10)) as long;
+    const beforeMessages = await fetchBefore(
+      db0,
+      tenantId0,
+      channelId0,
+      topic0,
+      dmGroupId0,
+      senderId0,
+      anchorLong,
+      numBefore0,
+    );
+    const afterMessages = await fetchAfter(
+      db0,
+      tenantId0,
+      channelId0,
+      topic0,
+      dmGroupId0,
+      senderId0,
+      anchorLong,
+      numAfter0,
+    );
 
     // Combine: before (reversed to chronological) + after (already chronological)
     const combined = new List<Message>();
@@ -189,13 +225,13 @@ export const getMessages = async (
 
 const fetchBefore = async (
   db0: JotsterDbContext,
-  tenantId0: string,
-  channelId0: string | undefined,
+  tenantId0: long,
+  channelId0: long | undefined,
   topic0: string | undefined,
   dmGroupId0: string | undefined,
-  senderId0: string | undefined,
-  anchorId0: string,
-  numBefore0: int
+  senderId0: long | undefined,
+  anchorId0: long,
+  numBefore0: int,
 ): Promise<Message[]> => {
   if (numBefore0 === (0 as int)) {
     return [];
@@ -203,15 +239,20 @@ const fetchBefore = async (
 
   if (channelId0 !== undefined && topic0 !== undefined) {
     if (senderId0 !== undefined) {
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id < anchorId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+        .Where((m) => m.ChannelId === channelId0)
+        .Where((m) => m.Topic === topic0)
+        .Where((m) => m.SenderId === senderId0)
+        .Where((m) => m.Id < anchorId0)
         .OrderByDescending((m) => m.Id)
         .Take(numBefore0)
         .ToArrayAsync();
       return reverseArray(result);
     }
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0).Where((m) => m.Id < anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.ChannelId === channelId0)
+      .Where((m) => m.Topic === topic0)
+      .Where((m) => m.Id < anchorId0)
       .OrderByDescending((m) => m.Id)
       .Take(numBefore0)
       .ToArrayAsync();
@@ -220,15 +261,18 @@ const fetchBefore = async (
 
   if (channelId0 !== undefined) {
     if (senderId0 !== undefined) {
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id < anchorId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+        .Where((m) => m.ChannelId === channelId0)
+        .Where((m) => m.SenderId === senderId0)
+        .Where((m) => m.Id < anchorId0)
         .OrderByDescending((m) => m.Id)
         .Take(numBefore0)
         .ToArrayAsync();
       return reverseArray(result);
     }
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Id < anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.ChannelId === channelId0)
+      .Where((m) => m.Id < anchorId0)
       .OrderByDescending((m) => m.Id)
       .Take(numBefore0)
       .ToArrayAsync();
@@ -237,15 +281,18 @@ const fetchBefore = async (
 
   if (dmGroupId0 !== undefined) {
     if (senderId0 !== undefined) {
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id < anchorId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+        .Where((m) => m.DmGroupId === dmGroupId0)
+        .Where((m) => m.SenderId === senderId0)
+        .Where((m) => m.Id < anchorId0)
         .OrderByDescending((m) => m.Id)
         .Take(numBefore0)
         .ToArrayAsync();
       return reverseArray(result);
     }
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.Id < anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.DmGroupId === dmGroupId0)
+      .Where((m) => m.Id < anchorId0)
       .OrderByDescending((m) => m.Id)
       .Take(numBefore0)
       .ToArrayAsync();
@@ -253,16 +300,17 @@ const fetchBefore = async (
   }
 
   if (senderId0 !== undefined) {
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id < anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.SenderId === senderId0)
+      .Where((m) => m.Id < anchorId0)
       .OrderByDescending((m) => m.Id)
       .Take(numBefore0)
       .ToArrayAsync();
     return reverseArray(result);
   }
 
-  const result = await db0.Messages
-    .Where((m) => m.TenantId === tenantId0).Where((m) => m.Id < anchorId0)
+  const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+    .Where((m) => m.Id < anchorId0)
     .OrderByDescending((m) => m.Id)
     .Take(numBefore0)
     .ToArrayAsync();
@@ -271,13 +319,13 @@ const fetchBefore = async (
 
 const fetchAfter = async (
   db0: JotsterDbContext,
-  tenantId0: string,
-  channelId0: string | undefined,
+  tenantId0: long,
+  channelId0: long | undefined,
   topic0: string | undefined,
   dmGroupId0: string | undefined,
-  senderId0: string | undefined,
-  anchorId0: string,
-  numAfter0: int
+  senderId0: long | undefined,
+  anchorId0: long,
+  numAfter0: int,
 ): Promise<Message[]> => {
   if (numAfter0 === (0 as int)) {
     return [];
@@ -285,15 +333,20 @@ const fetchAfter = async (
 
   if (channelId0 !== undefined && topic0 !== undefined) {
     if (senderId0 !== undefined) {
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id > anchorId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+        .Where((m) => m.ChannelId === channelId0)
+        .Where((m) => m.Topic === topic0)
+        .Where((m) => m.SenderId === senderId0)
+        .Where((m) => m.Id > anchorId0)
         .OrderBy((m) => m.Id)
         .Take(numAfter0)
         .ToArrayAsync();
       return result;
     }
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Topic === topic0).Where((m) => m.Id > anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.ChannelId === channelId0)
+      .Where((m) => m.Topic === topic0)
+      .Where((m) => m.Id > anchorId0)
       .OrderBy((m) => m.Id)
       .Take(numAfter0)
       .ToArrayAsync();
@@ -302,15 +355,18 @@ const fetchAfter = async (
 
   if (channelId0 !== undefined) {
     if (senderId0 !== undefined) {
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id > anchorId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+        .Where((m) => m.ChannelId === channelId0)
+        .Where((m) => m.SenderId === senderId0)
+        .Where((m) => m.Id > anchorId0)
         .OrderBy((m) => m.Id)
         .Take(numAfter0)
         .ToArrayAsync();
       return result;
     }
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.ChannelId === channelId0).Where((m) => m.Id > anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.ChannelId === channelId0)
+      .Where((m) => m.Id > anchorId0)
       .OrderBy((m) => m.Id)
       .Take(numAfter0)
       .ToArrayAsync();
@@ -319,15 +375,18 @@ const fetchAfter = async (
 
   if (dmGroupId0 !== undefined) {
     if (senderId0 !== undefined) {
-      const result = await db0.Messages
-        .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id > anchorId0)
+      const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+        .Where((m) => m.DmGroupId === dmGroupId0)
+        .Where((m) => m.SenderId === senderId0)
+        .Where((m) => m.Id > anchorId0)
         .OrderBy((m) => m.Id)
         .Take(numAfter0)
         .ToArrayAsync();
       return result;
     }
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.DmGroupId === dmGroupId0).Where((m) => m.Id > anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.DmGroupId === dmGroupId0)
+      .Where((m) => m.Id > anchorId0)
       .OrderBy((m) => m.Id)
       .Take(numAfter0)
       .ToArrayAsync();
@@ -335,16 +394,17 @@ const fetchAfter = async (
   }
 
   if (senderId0 !== undefined) {
-    const result = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.SenderId === senderId0).Where((m) => m.Id > anchorId0)
+    const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.SenderId === senderId0)
+      .Where((m) => m.Id > anchorId0)
       .OrderBy((m) => m.Id)
       .Take(numAfter0)
       .ToArrayAsync();
     return result;
   }
 
-  const result = await db0.Messages
-    .Where((m) => m.TenantId === tenantId0).Where((m) => m.Id > anchorId0)
+  const result = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+    .Where((m) => m.Id > anchorId0)
     .OrderBy((m) => m.Id)
     .Take(numAfter0)
     .ToArrayAsync();

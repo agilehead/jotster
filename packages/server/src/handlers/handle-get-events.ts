@@ -3,7 +3,11 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getEventsFromQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { copyRecord, getOptionalStringField, toOptionalInt } from "../helpers/body.ts";
+import {
+  copyRecord,
+  getOptionalStringField,
+  toOptionalInt,
+} from "../helpers/body.ts";
 
 const serializeQueueEvent = (value: object): Record<string, unknown> => {
   const sourceEvent = copyRecord(value);
@@ -19,10 +23,19 @@ const serializeQueueEvent = (value: object): Record<string, unknown> => {
   }
 
   const payload = sourceEvent["data"];
-  if (payload !== undefined && payload !== null && typeof payload === "object" && !Array.isArray(payload)) {
+  if (
+    payload !== undefined &&
+    payload !== null &&
+    typeof payload === "object" &&
+    !Array.isArray(payload)
+  ) {
     const payloadRecord = copyRecord(payload as object);
     for (const [key, payloadValue] of Object.entries(payloadRecord)) {
-      if (key === "op" && serialized["op"] === undefined && typeof payloadValue === "string") {
+      if (
+        key === "op" &&
+        serialized["op"] === undefined &&
+        typeof payloadValue === "string"
+      ) {
         serialized["op"] = payloadValue;
         continue;
       }
@@ -36,11 +49,16 @@ const serializeQueueEvent = (value: object): Record<string, unknown> => {
 export const handleGetEvents = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -49,24 +67,48 @@ export const handleGetEvents = async (
 
   const queueId = getOptionalStringField(query, "queue_id");
   if (!queueId) {
-    res.status(400).json({ result: "error", msg: "Missing required parameter: queue_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required parameter: queue_id",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const lastEventIdRaw = getOptionalStringField(query, "last_event_id");
   if (lastEventIdRaw === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required parameter: last_event_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required parameter: last_event_id",
+        code: "BAD_REQUEST",
+      });
     return;
   }
   const lastEventId = toOptionalInt(lastEventIdRaw);
   if (lastEventId === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid last_event_id", code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Invalid last_event_id",
+        code: "BAD_REQUEST",
+      });
     return;
   }
 
   const dontBlock = getOptionalStringField(query, "dont_block") === "true";
 
-  const result = await getEventsFromQueue(user.tenantId, user.userId, queueId, lastEventId, dontBlock);
+  const result = await getEventsFromQueue(
+    user.tenantId,
+    user.userId,
+    queueId,
+    lastEventId,
+    dontBlock,
+  );
 
   if ("error" in result) {
     const status = result["code"] === "BAD_EVENT_QUEUE_ID" ? 400 : 400;

@@ -9,7 +9,7 @@ import { getUserById } from "../repo/get-user-by-id.ts";
 
 export const authenticateRequest = async (
   options: DbContextOptions,
-  authHeader: string
+  authHeader: string,
 ): Promise<Result<AuthenticatedUser, string>> => {
   if (!authHeader.startsWith("Basic ")) {
     return err("Authentication required");

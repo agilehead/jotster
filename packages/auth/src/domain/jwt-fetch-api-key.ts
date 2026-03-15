@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
 import { HMACSHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
@@ -17,7 +18,10 @@ export type JwtPayload = {
 
 type JwtVerificationResult =
   | { success: true; payload: JwtPayload }
-  | { success: false; error: "segments" | "header" | "payload" | "signature" | "expired" };
+  | {
+      success: false;
+      error: "segments" | "header" | "payload" | "signature" | "expired";
+    };
 
 const normalizeBase64Url = (segment: string): string => {
   let normalized = segment.split("-").join("+").split("_").join("/");
@@ -33,7 +37,12 @@ const normalizeBase64Url = (segment: string): string => {
 };
 
 const getObjectField = (value: unknown, key: string): unknown => {
-  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== "object" ||
+    Array.isArray(value)
+  ) {
     return undefined;
   }
   for (const [entryKey, entryValue] of Object.entries(value)) {
@@ -52,7 +61,11 @@ const decodeJsonSegment = (segment: string): unknown => {
     }
     const json = Encoding.UTF8.GetString(Convert.FromBase64String(normalized));
     const parsed = JSON.parse(json) as unknown;
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+    if (
+      parsed === null ||
+      typeof parsed !== "object" ||
+      Array.isArray(parsed)
+    ) {
       return undefined;
     }
     return parsed;
@@ -84,12 +97,16 @@ const verifyJwt = (token: string, secret: string): JwtVerificationResult => {
       Encoding.UTF8.GetBytes(secret),
       Encoding.UTF8.GetBytes(signingInput),
     );
-    const expectedSignatureHex = Convert.ToHexStringLower(expectedSignatureBytes);
+    const expectedSignatureHex = Convert.ToHexStringLower(
+      expectedSignatureBytes,
+    );
     const normalizedSignature = normalizeBase64Url(signatureSegment);
     if (normalizedSignature.length === 0) {
       return { success: false, error: "signature" };
     }
-    const actualSignatureHex = Convert.ToHexStringLower(Convert.FromBase64String(normalizedSignature));
+    const actualSignatureHex = Convert.ToHexStringLower(
+      Convert.FromBase64String(normalizedSignature),
+    );
     if (expectedSignatureHex !== actualSignatureHex) {
       return { success: false, error: "signature" };
     }
@@ -123,7 +140,7 @@ const verifyJwt = (token: string, secret: string): JwtVerificationResult => {
 export const fetchJwtApiKey = async (
   options: DbContextOptions,
   config: ServerConfig,
-  tenantId: string,
+  tenantId: long,
   token: string,
   includeProfile: boolean,
 ): Promise<Result<{ api_key: string; email: string; user?: User }, string>> => {
@@ -156,7 +173,11 @@ export const fetchJwtApiKey = async (
   }
 
   const activeApiKey = await getActiveApiKey(options, tenantId, user.Id);
-  if (activeApiKey?.RawKey !== undefined && activeApiKey.RawKey !== null && activeApiKey.RawKey !== "") {
+  if (
+    activeApiKey?.RawKey !== undefined &&
+    activeApiKey.RawKey !== null &&
+    activeApiKey.RawKey !== ""
+  ) {
     return ok({
       api_key: activeApiKey.RawKey,
       email: user.Email,

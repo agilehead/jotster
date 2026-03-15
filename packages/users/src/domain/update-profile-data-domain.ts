@@ -1,7 +1,9 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import type { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getCustomProfileFieldById } from "../repo/get-custom-profile-field-by-id.ts";
 import { setCustomProfileFieldValue } from "../repo/set-custom-profile-field-value.ts";
@@ -11,7 +13,7 @@ export const updateProfileDataDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
   profileData: Record<string, { value: string }>,
-  profileDataKeys: List<string>
+  profileDataKeys: List<string>,
 ): Promise<Result<boolean, string>> => {
   if (profileDataKeys.Count === 0) {
     return err("No profile data provided");
@@ -19,31 +21,40 @@ export const updateProfileDataDomain = async (
 
   // Validate all fields exist and set values
   for (let i = 0; i < profileDataKeys.Count; i++) {
-    const fieldId = profileDataKeys[i];
-    const field = await getCustomProfileFieldById(options, actingUser.tenantId, fieldId);
+    const fieldIdStr = profileDataKeys[i];
+    const fieldId = Convert.ToInt64(parseInt(fieldIdStr, 10));
+    const field = await getCustomProfileFieldById(
+      options,
+      actingUser.tenantId,
+      fieldId,
+    );
     if (field === undefined) {
-      return err("Custom profile field not found: " + fieldId);
+      return err("Custom profile field not found: " + fieldIdStr);
     }
 
-    const entry = profileData[fieldId];
+    const entry = profileData[fieldIdStr];
     await setCustomProfileFieldValue(
       options,
       actingUser.tenantId,
       actingUser.userId,
       fieldId,
-      entry.value
+      entry.value,
     );
   }
 
   // Build profile_data for event
-  const allValues = await getCustomProfileFieldValues(options, actingUser.tenantId, actingUser.userId);
+  const allValues = await getCustomProfileFieldValues(
+    options,
+    actingUser.tenantId,
+    actingUser.userId,
+  );
   const profileDataResponse: Record<string, unknown> = {};
   for (let i = 0; i < allValues.length; i++) {
     const v = allValues[i];
     const valObj: Record<string, unknown> = {};
     valObj["value"] = v.Value;
     valObj["rendered_value"] = v.RenderedValue;
-    profileDataResponse[v.FieldId] = valObj;
+    profileDataResponse["" + v.FieldId] = valObj;
   }
 
   const personData: Record<string, unknown> = {};

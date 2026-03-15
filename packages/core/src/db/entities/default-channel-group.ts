@@ -5,11 +5,13 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class DefaultChannelGroup {
   Id!: string;
-  TenantId!: string;
+  TenantId!: long;
   Name!: string;
   Description!: string;
   CreatedAt!: long;
 }
 
-A.on(DefaultChannelGroup).prop((x) => x.Id).add(KeyAttribute);
+A.on(DefaultChannelGroup)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(DefaultChannelGroup).type.add(IndexAttribute, ["TenantId", "Name"]);

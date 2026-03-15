@@ -6,7 +6,6 @@ import {
   JotsterDbContext,
   Tenant,
   User,
-  generateId,
   ok,
   err,
 } from "@jotster/core/Jotster.Core.js";
@@ -24,7 +23,7 @@ export const createTenantAdmin = async (
     description?: string;
     adminEmail?: string;
     adminPassword?: string;
-  }
+  },
 ): Promise<Result<Tenant, string>> => {
   if (config.rootToken.length === 0 || rootToken !== config.rootToken) {
     return err("Unauthorized");
@@ -46,7 +45,6 @@ export const createTenantAdmin = async (
     if (input.adminEmail !== undefined && input.adminPassword !== undefined) {
       const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
       const user = new User();
-      user.Id = generateId();
       user.TenantId = tenant.Id;
       user.Email = input.adminEmail;
       user.FullName = "Admin";

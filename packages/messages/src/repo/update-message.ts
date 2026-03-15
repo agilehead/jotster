@@ -7,22 +7,22 @@ interface UpdateMessageInput {
   content?: string;
   renderedContent?: string;
   topic?: string;
-  channelId?: string;
+  channelId?: long;
 }
 
 export const updateMessage = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string,
-  updates: UpdateMessageInput
+  tenantId: long,
+  messageId: long,
+  updates: UpdateMessageInput,
 ): Promise<Message | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
     const messageId0 = messageId;
-    const message = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.Id === messageId0)
+    const message = await db0.Messages.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.Id === messageId0)
       .FirstOrDefaultAsync();
 
     if (message === undefined || message === null) {

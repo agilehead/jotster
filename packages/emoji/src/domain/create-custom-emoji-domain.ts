@@ -1,5 +1,9 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type { Result, AuthenticatedUser, CustomEmoji } from "@jotster/core/Jotster.Core.js";
+import type {
+  Result,
+  AuthenticatedUser,
+  CustomEmoji,
+} from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getCustomEmojiByName } from "../repo/get-custom-emoji-by-name.ts";
@@ -21,7 +25,11 @@ export const createCustomEmojiDomain = async (
   }
 
   // Check uniqueness among active emoji
-  const existing = await getCustomEmojiByName(options, user.tenantId, emojiName);
+  const existing = await getCustomEmojiByName(
+    options,
+    user.tenantId,
+    emojiName,
+  );
   if (existing !== undefined) {
     return err("An emoji with this name already exists");
   }
@@ -35,7 +43,12 @@ export const createCustomEmojiDomain = async (
     authorId: user.userId,
   });
 
-  const emojiDir = path.join(uploadsDir, user.tenantId, "emoji", emoji.Id);
+  const emojiDir = path.join(
+    uploadsDir,
+    String(user.tenantId),
+    "emoji",
+    String(emoji.Id),
+  );
   if (!fs.existsSync(emojiDir)) {
     fs.mkdirSync(emojiDir, { recursive: true });
   }
@@ -56,7 +69,10 @@ export const createCustomEmojiDomain = async (
   return ok(emoji);
 };
 
-const resolveStoredFileName = (emojiName: string, originalName: string): string => {
+const resolveStoredFileName = (
+  emojiName: string,
+  originalName: string,
+): string => {
   const ext = path.extname(originalName);
   if (ext === "") {
     return emojiName + ".png";

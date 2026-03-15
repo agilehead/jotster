@@ -1,24 +1,27 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, OutgoingWebhook } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  OutgoingWebhook,
+} from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getOutgoingWebhooksForChannel } from "../repo/get-outgoing-webhooks-for-channel.ts";
 import { getMentionTriggeredWebhooks } from "../repo/get-mention-triggered-webhooks.ts";
 import { formatOutgoingPayload } from "./format-outgoing-payload.ts";
 
 interface TriggerOutgoingWebhooksInput {
-  tenantId: string;
-  messageId: string;
-  senderId: string;
+  tenantId: long;
+  messageId: long;
+  senderId: long;
   senderEmail: string;
   senderFullName: string;
   type: string;
-  channelId?: string;
+  channelId?: long;
   channelName?: string;
   topic?: string;
   content: string;
   timestamp: number;
-  mentionedUserIds?: string[];
+  mentionedUserIds?: long[];
 }
 
 interface OutgoingWebhookDispatch {
@@ -28,16 +31,17 @@ interface OutgoingWebhookDispatch {
 
 export const triggerOutgoingWebhooksDomain = async (
   options: DbContextOptions,
-  input: TriggerOutgoingWebhooksInput
+  input: TriggerOutgoingWebhooksInput,
 ): Promise<OutgoingWebhookDispatch[]> => {
   const dispatches = new List<OutgoingWebhookDispatch>();
 
   // 1. Check for channel-triggered webhooks
   if (input.type === "stream" && input.channelId !== undefined) {
+    const chId = input.channelId as long;
     const channelWebhooks = await getOutgoingWebhooksForChannel(
       options,
       input.tenantId,
-      input.channelId
+      chId,
     );
 
     for (let i = 0; i < channelWebhooks.length; i++) {
@@ -49,7 +53,7 @@ export const triggerOutgoingWebhooksDomain = async (
           senderEmail: input.senderEmail,
           senderFullName: input.senderFullName,
           type: input.type,
-          channelId: input.channelId,
+          channelId: chId,
           channelName: input.channelName,
           topic: input.topic,
           content: input.content,
@@ -57,7 +61,7 @@ export const triggerOutgoingWebhooksDomain = async (
           botUserId: webhook.BotUserId,
           token: webhook.Token,
         },
-        webhook.InterfaceType
+        webhook.InterfaceType,
       );
 
       dispatches.Add({ url: webhook.Url, payload });
@@ -65,8 +69,14 @@ export const triggerOutgoingWebhooksDomain = async (
   }
 
   // 2. Check for mention-triggered webhooks
-  if (input.mentionedUserIds !== undefined && input.mentionedUserIds.length > 0) {
-    const mentionWebhooks = await getMentionTriggeredWebhooks(options, input.tenantId);
+  if (
+    input.mentionedUserIds !== undefined &&
+    input.mentionedUserIds.length > 0
+  ) {
+    const mentionWebhooks = await getMentionTriggeredWebhooks(
+      options,
+      input.tenantId,
+    );
 
     for (let i = 0; i < mentionWebhooks.length; i++) {
       const webhook = mentionWebhooks[i];
@@ -86,8 +96,8 @@ export const triggerOutgoingWebhooksDomain = async (
           const db0 = db;
           const botUserId0 = webhook.BotUserId;
           const tenantId0 = input.tenantId;
-          const botUser = await db0.Users
-            .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === botUserId0)
+          const botUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+            .Where((u) => u.Id === botUserId0)
             .FirstOrDefaultAsync();
 
           if (botUser !== undefined && botUser !== null) {
@@ -108,7 +118,7 @@ export const triggerOutgoingWebhooksDomain = async (
                   botUserId: webhook.BotUserId,
                   token: webhook.Token,
                 },
-                webhook.InterfaceType
+                webhook.InterfaceType,
               );
 
               dispatches.Add({ url: webhook.Url, payload });

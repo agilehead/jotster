@@ -5,12 +5,12 @@ import { JotsterDbContext, UserStatus } from "@jotster/core/Jotster.Core.js";
 
 export const setUserStatus = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   statusText: string,
   emojiName?: string,
   emojiCode?: string,
-  reactionType?: string
+  reactionType?: string,
 ): Promise<UserStatus> => {
   const db = new JotsterDbContext(options);
   try {
@@ -18,9 +18,9 @@ export const setUserStatus = async (
     const userId0 = userId;
     const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
-    const existing = await db0.UserStatuses
-      .Where((s) => s.UserId === userId0)
-      .FirstOrDefaultAsync();
+    const existing = await db0.UserStatuses.Where(
+      (s) => s.UserId === userId0,
+    ).FirstOrDefaultAsync();
 
     if (existing !== undefined && existing !== null) {
       existing.StatusText = statusText;

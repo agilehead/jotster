@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -10,7 +11,7 @@ import { getMutedUsers } from "../repo/get-muted-users.ts";
 export const muteUserDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  mutedUserId: string
+  mutedUserId: long,
 ): Promise<Result<void, string>> => {
   // Validate not self-muting
   if (user.userId === mutedUserId) {
@@ -23,8 +24,8 @@ export const muteUserDomain = async (
     const db0 = db;
     const tenantId0 = user.tenantId;
     const mutedUserId0 = mutedUserId;
-    const targetUser = await db0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === mutedUserId0)
+    const targetUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+      .Where((u) => u.Id === mutedUserId0)
       .FirstOrDefaultAsync();
 
     if (targetUser === undefined || targetUser === null) {
@@ -35,7 +36,11 @@ export const muteUserDomain = async (
   }
 
   // Check not already muted
-  const existingMuted = await getMutedUsers(options, user.tenantId, user.userId);
+  const existingMuted = await getMutedUsers(
+    options,
+    user.tenantId,
+    user.userId,
+  );
   for (let i = 0; i < existingMuted.length; i++) {
     const mutedEntry = existingMuted[i];
     if (mutedEntry.MutedUserId === mutedUserId) {
@@ -48,8 +53,12 @@ export const muteUserDomain = async (
 
   // Get full list and dispatch event
   const allMuted = await getMutedUsers(options, user.tenantId, user.userId);
-  const mutedUserIds = new List<string>();
-  for (let allMutedIndex = 0; allMutedIndex < allMuted.length; allMutedIndex++) {
+  const mutedUserIds = new List<long>();
+  for (
+    let allMutedIndex = 0;
+    allMutedIndex < allMuted.length;
+    allMutedIndex++
+  ) {
     const mutedEntry = allMuted[allMutedIndex];
     mutedUserIds.Add(mutedEntry.MutedUserId);
   }

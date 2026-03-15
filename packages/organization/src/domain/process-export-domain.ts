@@ -1,3 +1,5 @@
+import type { long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { updateExportStatus } from "../repo/update-export-status.ts";
@@ -6,9 +8,9 @@ import { buildExportEventPayload } from "./build-export-event-payload.ts";
 
 export const processExportDomain = async (
   options: DbContextOptions,
-  exportId: string,
-  tenantId: string,
-  exportType: string
+  exportId: long,
+  tenantId: long,
+  exportType: string,
 ): Promise<void> => {
   try {
     // Update status to "in_progress"
@@ -25,7 +27,7 @@ export const processExportDomain = async (
     // archive in the Zulip-compatible data export format.
 
     // For now, mark as completed with a placeholder URL
-    const exportUrl = "/exports/" + tenantId + "/" + exportId + ".tar.gz";
+    const exportUrl = "/exports/" + Convert.ToString(exportId) + ".tar.gz";
     await updateExportStatus(options, exportId, "completed", exportUrl);
 
     // Emit realm_export event with completed status
@@ -34,7 +36,13 @@ export const processExportDomain = async (
     dispatchEventToTenant(tenantId, payload);
   } catch {
     // If any step fails, update status to "failed"
-    await updateExportStatus(options, exportId, "failed", undefined, "Export processing failed");
+    await updateExportStatus(
+      options,
+      exportId,
+      "failed",
+      undefined,
+      "Export processing failed",
+    );
 
     // Emit realm_export event with failed status
     const exports = await getExports(options, tenantId);

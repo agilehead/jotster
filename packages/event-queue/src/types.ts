@@ -40,13 +40,15 @@ export interface QueueEvent {
 
 export interface EventQueue {
   queueId: string;
-  tenantId: string;
-  userId: string;
+  tenantId: long;
+  userId: long;
   eventTypes: string[] | undefined;
   lastEventId: int;
   events: List<QueueEvent>;
   lastAccessTime: long;
-  narrow: { operator: string; operand: string; negated?: boolean }[] | undefined;
+  narrow:
+    | { operator: string; operand: string; negated?: boolean }[]
+    | undefined;
   allPublicStreams: boolean;
   applyMarkdown: boolean;
   clientGravatar: boolean;

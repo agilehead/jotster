@@ -5,15 +5,15 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const deactivateUserGroup = async (
   options: DbContextOptions,
-  groupId: string
+  groupId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const groupId0 = groupId;
-    const group = await db0.UserGroups
-      .Where((g) => g.Id === groupId0)
-      .FirstOrDefaultAsync();
+    const group = await db0.UserGroups.Where(
+      (g) => g.Id === groupId0,
+    ).FirstOrDefaultAsync();
 
     if (group === undefined) {
       return false;

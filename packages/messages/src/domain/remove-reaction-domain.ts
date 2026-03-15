@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -14,8 +15,8 @@ interface RemoveReactionDomainInput {
 export const removeReactionDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageId: string,
-  params: RemoveReactionDomainInput
+  messageId: long,
+  params: RemoveReactionDomainInput,
 ): Promise<Result<void, string>> => {
   // Verify message exists in tenant
   const message = await getMessage(options, user.tenantId, messageId);
@@ -30,7 +31,7 @@ export const removeReactionDomain = async (
     messageId,
     user.userId,
     params.emojiCode,
-    params.reactionType
+    params.reactionType,
   );
 
   if (!result) {

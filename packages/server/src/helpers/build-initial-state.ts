@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import {
@@ -14,7 +15,10 @@ import {
 import { getAllUsers } from "@jotster/users/Jotster.Users.js";
 import { getUserSetting } from "@jotster/users/Jotster.Users.js";
 import { getSubscriptionsForUser } from "@jotster/subscriptions/Jotster.Subscriptions.js";
-import { getChannels, getChannelSubscribers } from "@jotster/channels/Jotster.Channels.js";
+import {
+  getChannels,
+  getChannelSubscribers,
+} from "@jotster/channels/Jotster.Channels.js";
 import type { RegisterParams } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getUserGroupsDomain } from "@jotster/permissions/Jotster.Permissions.js";
 import { getUserSettingDefaults } from "@jotster/organization/Jotster.Organization.js";
@@ -36,7 +40,7 @@ import {
 import { buildRealmUserSettingDefaultsState } from "./realm-user-setting-defaults.ts";
 
 const mapUserToZulip = (u: {
-  Id: string;
+  Id: number;
   Email: string;
   FullName: string;
   AvatarUrl?: string;
@@ -46,7 +50,7 @@ const mapUserToZulip = (u: {
   DateJoined: number;
   Timezone: string;
   BotType?: number;
-  BotOwnerId?: string;
+  BotOwnerId?: number;
 }): Record<string, unknown> => {
   const obj: Record<string, unknown> = {};
   obj.user_id = u.Id;
@@ -69,8 +73,8 @@ const mapUserToZulip = (u: {
 
 export const buildInitialState = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   fetchEventTypes: string[] | undefined,
   params: RegisterParams,
   includeDeactivatedGroups: boolean,
@@ -100,8 +104,10 @@ export const buildInitialState = async (
     const bootstrapDb0 = bootstrapDb;
     const tenantId0 = tenantId;
     const userId0 = userId;
-    const requester = await bootstrapDb0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === userId0)
+    const requester = await bootstrapDb0.Users.Where(
+      (u) => u.TenantId === tenantId0,
+    )
+      .Where((u) => u.Id === userId0)
       .FirstOrDefaultAsync();
     if (requester !== undefined && requester !== null) {
       compatRequester.email = requester.Email;
@@ -184,15 +190,23 @@ export const buildInitialState = async (
   // --- subscriptions ---
   if (shouldInclude("subscription")) {
     const userSubs = await getSubscriptionsForUser(options, tenantId, userId);
-    const allChannels = await getChannels(options, tenantId, params.clientCapabilities?.archivedChannels === true);
+    const allChannels = await getChannels(
+      options,
+      tenantId,
+      params.clientCapabilities?.archivedChannels === true,
+    );
 
     const subscriptions = new List<Record<string, unknown>>();
-    const subscribedChannelIds: string[] = [];
+    const subscribedChannelIds: long[] = [];
 
     for (let i = 0; i < userSubs.Count; i++) {
       const sub = userSubs[i];
       let ch = undefined as (typeof allChannels)[number] | undefined;
-      for (let channelIndex = 0; channelIndex < allChannels.length; channelIndex++) {
+      for (
+        let channelIndex = 0;
+        channelIndex < allChannels.length;
+        channelIndex++
+      ) {
         if (allChannels[channelIndex].Id === sub.ChannelId) {
           ch = allChannels[channelIndex];
           break;
@@ -203,7 +217,11 @@ export const buildInitialState = async (
       }
       subscribedChannelIds.push(sub.ChannelId);
 
-      const subscriberIds = await getChannelSubscribers(options, tenantId, sub.ChannelId);
+      const subscriberIds = await getChannelSubscribers(
+        options,
+        tenantId,
+        sub.ChannelId,
+      );
       const entry: Record<string, unknown> = {};
       entry.stream_id = ch.Id;
       entry.name = ch.Name;
@@ -223,11 +241,26 @@ export const buildInitialState = async (
       entry.pin_to_top = sub.PinToTop === 1;
       entry.is_muted = sub.IsMuted === 1;
       entry.in_home_view = sub.IsMuted !== 1;
-      entry.desktop_notifications = sub.DesktopNotifications !== undefined ? sub.DesktopNotifications === 1 : null;
-      entry.push_notifications = sub.PushNotifications !== undefined ? sub.PushNotifications === 1 : null;
-      entry.audible_notifications = sub.AudibleNotifications !== undefined ? sub.AudibleNotifications === 1 : null;
-      entry.email_notifications = sub.EmailNotifications !== undefined ? sub.EmailNotifications === 1 : null;
-      entry.wildcard_mentions_notify = sub.WildcardMentionsNotify !== undefined ? sub.WildcardMentionsNotify === 1 : null;
+      entry.desktop_notifications =
+        sub.DesktopNotifications !== undefined
+          ? sub.DesktopNotifications === 1
+          : null;
+      entry.push_notifications =
+        sub.PushNotifications !== undefined
+          ? sub.PushNotifications === 1
+          : null;
+      entry.audible_notifications =
+        sub.AudibleNotifications !== undefined
+          ? sub.AudibleNotifications === 1
+          : null;
+      entry.email_notifications =
+        sub.EmailNotifications !== undefined
+          ? sub.EmailNotifications === 1
+          : null;
+      entry.wildcard_mentions_notify =
+        sub.WildcardMentionsNotify !== undefined
+          ? sub.WildcardMentionsNotify === 1
+          : null;
       entry.subscribers = subscriberIds;
 
       subscriptions.Add(entry);
@@ -239,7 +272,11 @@ export const buildInitialState = async (
     for (let i = 0; i < allChannels.length; i++) {
       const ch = allChannels[i];
       let isSubscribed = false;
-      for (let subscribedIndex = 0; subscribedIndex < subscribedChannelIds.length; subscribedIndex++) {
+      for (
+        let subscribedIndex = 0;
+        subscribedIndex < subscribedChannelIds.length;
+        subscribedIndex++
+      ) {
         if (subscribedChannelIds[subscribedIndex] === ch.Id) {
           isSubscribed = true;
           break;
@@ -285,44 +322,68 @@ export const buildInitialState = async (
       settings.display_emoji_reaction_users = s.DisplayEmojiReactionUsers === 1;
       settings.default_language = s.DefaultLanguage;
       settings.default_view = s.DefaultView;
-      settings.escape_navigates_to_default_view = s.EscapeNavigatesToDefaultView === 1;
+      settings.escape_navigates_to_default_view =
+        s.EscapeNavigatesToDefaultView === 1;
       settings.left_side_userlist = s.LeftSideUserlist === 1;
       settings.emojiset = s.Emojiset;
       settings.demote_inactive_streams = s.DemoteInactiveStreams;
-      settings.enable_stream_desktop_notifications = s.EnableStreamDesktopNotifications === 1;
-      settings.enable_stream_email_notifications = s.EnableStreamEmailNotifications === 1;
-      settings.enable_stream_push_notifications = s.EnableStreamPushNotifications === 1;
-      settings.enable_stream_audible_notifications = s.EnableStreamAudibleNotifications === 1;
+      settings.enable_stream_desktop_notifications =
+        s.EnableStreamDesktopNotifications === 1;
+      settings.enable_stream_email_notifications =
+        s.EnableStreamEmailNotifications === 1;
+      settings.enable_stream_push_notifications =
+        s.EnableStreamPushNotifications === 1;
+      settings.enable_stream_audible_notifications =
+        s.EnableStreamAudibleNotifications === 1;
       settings.notification_sound = s.NotificationSound;
-      settings.enable_desktop_notifications = s.EnableDesktopNotifications === 1;
+      settings.enable_desktop_notifications =
+        s.EnableDesktopNotifications === 1;
       settings.enable_sounds = s.EnableSounds === 1;
-      settings.enable_offline_email_notifications = s.EnableOfflineEmailNotifications === 1;
-      settings.enable_offline_push_notifications = s.EnableOfflinePushNotifications === 1;
-      settings.enable_online_push_notifications = s.EnableOnlinePushNotifications === 1;
-      settings.enable_followed_topic_desktop_notifications = s.EnableFollowedTopicDesktopNotifications === 1;
-      settings.enable_followed_topic_email_notifications = s.EnableFollowedTopicEmailNotifications === 1;
-      settings.enable_followed_topic_push_notifications = s.EnableFollowedTopicPushNotifications === 1;
-      settings.enable_followed_topic_audible_notifications = s.EnableFollowedTopicAudibleNotifications === 1;
+      settings.enable_offline_email_notifications =
+        s.EnableOfflineEmailNotifications === 1;
+      settings.enable_offline_push_notifications =
+        s.EnableOfflinePushNotifications === 1;
+      settings.enable_online_push_notifications =
+        s.EnableOnlinePushNotifications === 1;
+      settings.enable_followed_topic_desktop_notifications =
+        s.EnableFollowedTopicDesktopNotifications === 1;
+      settings.enable_followed_topic_email_notifications =
+        s.EnableFollowedTopicEmailNotifications === 1;
+      settings.enable_followed_topic_push_notifications =
+        s.EnableFollowedTopicPushNotifications === 1;
+      settings.enable_followed_topic_audible_notifications =
+        s.EnableFollowedTopicAudibleNotifications === 1;
       settings.wildcard_mentions_notify = s.WildcardMentionsNotify === 1;
-      settings.pm_content_in_desktop_notifications = s.PmContentInDesktopNotifications === 1;
+      settings.pm_content_in_desktop_notifications =
+        s.PmContentInDesktopNotifications === 1;
       settings.presence_enabled = s.PresenceEnabled === 1;
-      settings.send_private_typing_notifications = s.SendPrivateTypingNotifications === 1;
-      settings.send_stream_typing_notifications = s.SendStreamTypingNotifications === 1;
+      settings.send_private_typing_notifications =
+        s.SendPrivateTypingNotifications === 1;
+      settings.send_stream_typing_notifications =
+        s.SendStreamTypingNotifications === 1;
       settings.send_read_receipts = s.SendReadReceipts === 1;
       settings.email_address_visibility = s.EmailAddressVisibility;
-      settings.email_notifications_batching_period_seconds = s.EmailNotificationsBatchingPeriodSeconds;
-      settings.enable_drafts_synchronization = s.EnableDraftsSynchronization === 1;
-      settings.message_content_in_email_notifications = s.MessageContentInEmailNotifications === 1;
+      settings.email_notifications_batching_period_seconds =
+        s.EmailNotificationsBatchingPeriodSeconds;
+      settings.enable_drafts_synchronization =
+        s.EnableDraftsSynchronization === 1;
+      settings.message_content_in_email_notifications =
+        s.MessageContentInEmailNotifications === 1;
       settings.web_font_size_px = s.WebFontSizePx;
       settings.web_line_height_percent = s.WebLineHeightPercent;
       settings.starred_message_counts = s.StarredMessageCounts === 1;
       settings.fluid_layout_width = s.FluidLayoutWidth === 1;
-      settings.realm_name_in_email_notifications_policy = s.RealmNameInEmailNotificationsPolicy;
-      settings.automatically_follow_topics_policy = s.AutomaticallyFollowTopicsPolicy;
-      settings.automatically_unmute_topics_in_muted_streams_policy = s.AutomaticallyUnmuteTopicsInMutedStreamsPolicy;
-      settings.automatically_follow_topics_where_mentioned = s.AutomaticallyFollowTopicsWhereMentioned === 1;
+      settings.realm_name_in_email_notifications_policy =
+        s.RealmNameInEmailNotificationsPolicy;
+      settings.automatically_follow_topics_policy =
+        s.AutomaticallyFollowTopicsPolicy;
+      settings.automatically_unmute_topics_in_muted_streams_policy =
+        s.AutomaticallyUnmuteTopicsInMutedStreamsPolicy;
+      settings.automatically_follow_topics_where_mentioned =
+        s.AutomaticallyFollowTopicsWhereMentioned === 1;
       settings.user_list_style = s.UserListStyle;
-      settings.web_stream_unreads_count_display_policy = s.WebStreamUnreadsCountDisplayPolicy;
+      settings.web_stream_unreads_count_display_policy =
+        s.WebStreamUnreadsCountDisplayPolicy;
       settings.web_navigate_to_sent_message = s.WebNavigateToSentMessage === 1;
       settings.web_channel_default_view = s.WebChannelDefaultView;
       settings.enter_sends = true;
@@ -338,9 +399,9 @@ export const buildInitialState = async (
     try {
       const db0 = db;
       const tenantId0 = tenantId;
-      const tenant = await db0.Tenants
-        .Where((t) => t.Id === tenantId0)
-        .FirstOrDefaultAsync();
+      const tenant = await db0.Tenants.Where(
+        (t) => t.Id === tenantId0,
+      ).FirstOrDefaultAsync();
 
       if (tenant !== undefined && tenant !== null) {
         state.realm_name = tenant.Name;
@@ -389,7 +450,10 @@ export const buildInitialState = async (
       group["can_leave_group"] = item.group.CanLeaveGroupId ?? null;
       group["can_manage_group"] = item.group.CanManageGroupId ?? null;
       group["can_mention_group"] = item.group.CanMentionGroupId ?? null;
-      group["can_remove_members_group"] = item.group.CanRemoveMembersGroupId ?? item.group.CanManageGroupId ?? null;
+      group["can_remove_members_group"] =
+        item.group.CanRemoveMembersGroupId ??
+        item.group.CanManageGroupId ??
+        null;
       group["deactivated"] = item.group.IsActive !== 1;
       realmUserGroups.push(group);
     }
@@ -424,10 +488,15 @@ export const buildInitialState = async (
   }
 
   if (shouldInclude("scheduled_messages")) {
-    const scheduledMessages = await listScheduledMessages(options, compatRequester);
+    const scheduledMessages = await listScheduledMessages(
+      options,
+      compatRequester,
+    );
     const scheduledMessagePayloads: Record<string, unknown>[] = [];
     for (let i = 0; i < scheduledMessages.length; i++) {
-      scheduledMessagePayloads.push(mapScheduledMessageToCompatResponse(scheduledMessages[i]));
+      scheduledMessagePayloads.push(
+        mapScheduledMessageToCompatResponse(scheduledMessages[i]),
+      );
     }
     state.scheduled_messages = scheduledMessagePayloads;
   }
@@ -445,7 +514,8 @@ export const buildInitialState = async (
 
   if (shouldInclude("realm_user_settings_defaults")) {
     const defaults = await getUserSettingDefaults(options, tenantId);
-    state.realm_user_settings_defaults = buildRealmUserSettingDefaultsState(defaults);
+    state.realm_user_settings_defaults =
+      buildRealmUserSettingDefaultsState(defaults);
   }
 
   // --- Empty/default sections for not-yet-implemented modules ---
@@ -454,7 +524,10 @@ export const buildInitialState = async (
   }
 
   if (shouldInclude("custom_profile_fields")) {
-    const fieldsResult = await getCustomProfileFieldsDomain(options, compatRequester);
+    const fieldsResult = await getCustomProfileFieldsDomain(
+      options,
+      compatRequester,
+    );
     state.custom_profile_fields = fieldsResult.success ? fieldsResult.data : [];
   }
 

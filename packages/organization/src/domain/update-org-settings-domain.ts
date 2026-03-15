@@ -8,7 +8,7 @@ import { updateTenantSettings } from "../repo/update-tenant-settings.ts";
 export const updateOrgSettingsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  settings: Record<string, unknown>
+  settings: Record<string, unknown>,
 ): Promise<Result<boolean, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {

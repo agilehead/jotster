@@ -5,16 +5,23 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class Reaction {
   Id!: string;
-  TenantId!: string;
-  MessageId!: string;
-  UserId!: string;
+  TenantId!: long;
+  MessageId!: long;
+  UserId!: long;
   EmojiName!: string;
   EmojiCode!: string;
   ReactionType!: string;
   CreatedAt!: long;
 }
 
-A.on(Reaction).prop((x) => x.Id).add(KeyAttribute);
-A.on(Reaction).type.add(IndexAttribute, ["MessageId", "UserId", "EmojiCode", "ReactionType"]);
+A.on(Reaction)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
+A.on(Reaction).type.add(IndexAttribute, [
+  "MessageId",
+  "UserId",
+  "EmojiCode",
+  "ReactionType",
+]);
 A.on(Reaction).type.add(IndexAttribute, ["TenantId", "MessageId"]);
 A.on(Reaction).type.add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);

@@ -5,12 +5,14 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class MutedUser {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
-  MutedUserId!: string;
+  TenantId!: long;
+  UserId!: long;
+  MutedUserId!: long;
   CreatedAt!: long;
 }
 
-A.on(MutedUser).prop((x) => x.Id).add(KeyAttribute);
+A.on(MutedUser)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(MutedUser).type.add(IndexAttribute, ["TenantId", "UserId", "MutedUserId"]);
 A.on(MutedUser).type.add(IndexAttribute, ["TenantId", "UserId"]);

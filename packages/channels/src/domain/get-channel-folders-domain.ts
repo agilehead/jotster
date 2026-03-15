@@ -1,6 +1,9 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
-import { ChannelFolder, ChannelFolderItem } from "@jotster/core/Jotster.Core.js";
+import {
+  ChannelFolder,
+  ChannelFolderItem,
+} from "@jotster/core/Jotster.Core.js";
 import { getChannelFolders } from "../repo/get-channel-folders.ts";
 
 interface ChannelFolderWithItems {
@@ -13,6 +16,10 @@ export const getChannelFoldersDomain = async (
   user: AuthenticatedUser,
   includeArchived: boolean,
 ): Promise<ChannelFolderWithItems[]> => {
-  const folders = await getChannelFolders(options, user.tenantId, includeArchived);
+  const folders = await getChannelFolders(
+    options,
+    user.tenantId,
+    includeArchived,
+  );
   return folders;
 };

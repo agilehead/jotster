@@ -5,7 +5,7 @@ import { getTokensForUser } from "../repo/get-tokens-for-user.ts";
 
 export const sendTestNotificationDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<Record<string, unknown>, string>> => {
   const tokens = await getTokensForUser(options, user.tenantId, user.userId);
 

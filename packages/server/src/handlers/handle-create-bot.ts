@@ -8,11 +8,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleCreateBot = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -23,16 +28,30 @@ export const handleCreateBot = async (
   const botType = toOptionalInt(body["bot_type"]);
 
   if (!fullName || !shortName) {
-    res.status(400).json({ result: "error", msg: "Missing required fields: full_name, short_name" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required fields: full_name, short_name",
+      });
     return;
   }
 
-  const input: { fullName: string; shortName: string; botType?: int } = { fullName, shortName, botType };
+  const input: { fullName: string; shortName: string; botType?: int } = {
+    fullName,
+    shortName,
+    botType,
+  };
   const result = await createBotDomain(app.options, user, input);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;
   }
 
-  res.json({ result: "success", msg: "", user_id: result.data.userId, api_key: result.data.apiKey });
+  res.json({
+    result: "success",
+    msg: "",
+    user_id: result.data.userId,
+    api_key: result.data.apiKey,
+  });
 };

@@ -1,29 +1,32 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, User, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  User,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 interface CreateUserInput {
-  tenantId: string;
+  tenantId: long;
   email: string;
   fullName: string;
   passwordHash?: string;
   role?: int;
   isBot?: int;
   botType?: int;
-  botOwnerId?: string;
+  botOwnerId?: long;
   timezone?: string;
   deliveryEmail?: string;
 }
 
 export const createUser = async (
   options: DbContextOptions,
-  input: CreateUserInput
+  input: CreateUserInput,
 ): Promise<User> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const user = new User();
-  user.Id = generateId();
   user.TenantId = input.tenantId;
   user.Email = input.email;
   user.FullName = input.fullName;

@@ -5,14 +5,16 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class ApiKey {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  TenantId!: long;
+  UserId!: long;
   KeyHash!: string;
   RawKey?: string;
   CreatedAt!: long;
   RevokedAt?: long;
 }
 
-A.on(ApiKey).prop((x) => x.Id).add(KeyAttribute);
+A.on(ApiKey)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(ApiKey).type.add(IndexAttribute, ["TenantId", "UserId"]);
 A.on(ApiKey).type.add(IndexAttribute, ["KeyHash"]);

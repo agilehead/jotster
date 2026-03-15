@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok } from "@jotster/core/Jotster.Core.js";
@@ -7,7 +8,7 @@ import { addMessageFlags } from "../repo/add-message-flags.ts";
 
 export const markAllAsReadDomain = async (
   options: DbContextOptions,
-  user: AuthenticatedUser
+  user: AuthenticatedUser,
 ): Promise<Result<void, string>> => {
   // Get all messages in the tenant that the user has not read
   const db = new JotsterDbContext(options);
@@ -18,23 +19,23 @@ export const markAllAsReadDomain = async (
     const readFlag = "read";
 
     // Get all read message IDs for this user
-    const readFlags = await db0.MessageFlags
-      .Where((f) => f.UserId === userId0).Where((f) => f.Flag === readFlag)
+    const readFlags = await db0.MessageFlags.Where((f) => f.UserId === userId0)
+      .Where((f) => f.Flag === readFlag)
       .ToListAsync();
 
-    const readMessageIds = new List<string>();
+    const readMessageIds = new List<long>();
     for (let i = 0; i < readFlags.Count; i++) {
       const readFlagEntry = readFlags[i];
       readMessageIds.Add(readFlagEntry.MessageId);
     }
 
     // Get all messages in the tenant
-    const allMessages = await db0.Messages
-      .Where((m) => m.TenantId === tenantId0)
-      .ToListAsync();
+    const allMessages = await db0.Messages.Where(
+      (m) => m.TenantId === tenantId0,
+    ).ToListAsync();
 
     // Find unread message IDs
-    const unreadIds = new List<string>();
+    const unreadIds = new List<long>();
     for (let j = 0; j < allMessages.Count; j++) {
       const message = allMessages[j];
       let isRead = false;

@@ -1,11 +1,11 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const getChannelForAccessCheck = async (
   options: DbContextOptions,
-  tenantId: string,
-  channelId: string
+  tenantId: long,
+  channelId: long,
 ): Promise<
   { isPrivate: boolean; isWebPublic: boolean; isArchived: boolean } | undefined
 > => {
@@ -15,8 +15,8 @@ export const getChannelForAccessCheck = async (
     const tenantId0 = tenantId;
     const channelId0 = channelId;
 
-    const ch = await db0.Channels
-      .Where((c) => c.Id === channelId0).Where((c) => c.TenantId === tenantId0)
+    const ch = await db0.Channels.Where((c) => c.Id === channelId0)
+      .Where((c) => c.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (ch === undefined) {

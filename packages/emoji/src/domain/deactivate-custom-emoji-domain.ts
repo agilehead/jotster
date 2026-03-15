@@ -9,10 +9,14 @@ import { getCustomEmojisDomain } from "./get-custom-emojis-domain.ts";
 export const deactivateCustomEmojiDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  emojiName: string
+  emojiName: string,
 ): Promise<Result<void, string>> => {
   // Validate emoji exists and is active
-  const existing = await getCustomEmojiByName(options, user.tenantId, emojiName);
+  const existing = await getCustomEmojiByName(
+    options,
+    user.tenantId,
+    emojiName,
+  );
   if (existing === undefined) {
     return err("Emoji not found");
   }

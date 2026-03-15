@@ -7,11 +7,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleSendMessage = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -23,11 +28,18 @@ export const handleSendMessage = async (
   const topic = getOptionalStringField(body, "topic");
   const content = getOptionalStringField(body, "content");
   if (type === undefined || to === undefined || content === undefined) {
-    res.status(400).json({ result: "error", msg: "Missing required message fields" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required message fields" });
     return;
   }
 
-  const result = await sendMessageDomain(app.options, user, { type, to, topic, content });
+  const result = await sendMessageDomain(app.options, user, {
+    type,
+    to,
+    topic,
+    content,
+  });
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

@@ -4,9 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class NavigationView {
-  Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  Id!: long;
+  TenantId!: long;
+  UserId!: long;
   Fragment!: string;
   IsPinned!: int;
   Name?: string;
@@ -14,6 +14,12 @@ export class NavigationView {
   UpdatedAt!: long;
 }
 
-A.on(NavigationView).prop((x) => x.Id).add(KeyAttribute);
-A.on(NavigationView).type.add(IndexAttribute, ["TenantId", "UserId", "Fragment"]);
+A.on(NavigationView)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
+A.on(NavigationView).type.add(IndexAttribute, [
+  "TenantId",
+  "UserId",
+  "Fragment",
+]);
 A.on(NavigationView).type.add(IndexAttribute, ["TenantId", "UserId"]);

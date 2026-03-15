@@ -12,7 +12,7 @@ export const uploadFileDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   uploadsDir: string,
-  file: UploadedFile
+  file: UploadedFile,
 ): Promise<Result<{ filename: string; uri: string; url: string }, string>> => {
   const fileName = file.originalname;
   const size = file.size as long;
@@ -21,7 +21,8 @@ export const uploadFileDomain = async (
   const ext = path.extname(fileName);
   const pathId = generateId() + ext;
 
-  const dirPath = path.join(uploadsDir, user.tenantId);
+  const tenantIdStr = String(user.tenantId);
+  const dirPath = path.join(uploadsDir, tenantIdStr);
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
@@ -38,7 +39,13 @@ export const uploadFileDomain = async (
     contentType,
   });
 
-  const url = "/user_uploads/" + user.tenantId + "/" + pathId + "/" + encodePathSegment(fileName);
+  const url =
+    "/user_uploads/" +
+    tenantIdStr +
+    "/" +
+    pathId +
+    "/" +
+    encodePathSegment(fileName);
   const uri = url;
 
   const messagesArr: unknown[] = [];

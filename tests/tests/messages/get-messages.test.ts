@@ -131,7 +131,7 @@ describe("GET /api/v1/messages/{message_id}", function () {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
 
-    const res = await client.get("/messages/msg_nonexistent999");
+    const res = await client.get("/messages/999999");
 
     expect(res.body.result).to.equal("error");
     expect(res.body).to.have.property("msg");

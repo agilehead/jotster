@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ChannelFolder, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -15,7 +16,7 @@ interface CreateChannelFolderDomainInput {
 export const createChannelFolderDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: CreateChannelFolderDomainInput
+  input: CreateChannelFolderDomainInput,
 ): Promise<Result<ChannelFolder, string>> => {
   if (user.role > 200) {
     return err("Must be an organization administrator");

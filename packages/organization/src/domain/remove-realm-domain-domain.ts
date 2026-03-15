@@ -7,7 +7,7 @@ import { removeRealmDomain } from "../repo/remove-realm-domain.ts";
 export const removeRealmDomainDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  domain: string
+  domain: string,
 ): Promise<Result<boolean, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {

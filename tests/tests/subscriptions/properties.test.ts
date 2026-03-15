@@ -86,7 +86,9 @@ describe("POST /api/v1/users/me/subscriptions/properties", function () {
     expect(successRes.status).to.equal(200);
     expect(successRes.body.result).to.equal("success");
     expect(successRes.body.msg).to.equal("");
-    expect(successRes.body.ignored_parameters_unsupported).to.deep.equal(["ignored_extra"]);
+    expect(successRes.body.ignored_parameters_unsupported).to.deep.equal([
+      "ignored_extra",
+    ]);
 
     const invalidRes = await client.post("/users/me/subscriptions/properties", {
       subscription_data: JSON.stringify([
@@ -94,7 +96,9 @@ describe("POST /api/v1/users/me/subscriptions/properties", function () {
       ]),
     });
     expect(invalidRes.status).to.equal(400);
-    expect(invalidRes.body.msg).to.equal("Invalid value for property: is_muted");
+    expect(invalidRes.body.msg).to.equal(
+      "Invalid value for property: is_muted",
+    );
     expect(invalidRes.body.code).to.equal("BAD_REQUEST");
   });
 });
@@ -111,9 +115,7 @@ describe("GET /api/v1/users/{user_id}/subscriptions/{stream_id}", function () {
     });
     await seedSubscription(db, tenantId, userId, channelId);
 
-    const res = await client.get(
-      `/users/${userId}/subscriptions/${channelId}`
-    );
+    const res = await client.get(`/users/${userId}/subscriptions/${channelId}`);
 
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
@@ -129,9 +131,7 @@ describe("GET /api/v1/users/{user_id}/subscriptions/{stream_id}", function () {
       name: "not-sub-channel",
     });
 
-    const res = await client.get(
-      `/users/${userId}/subscriptions/${channelId}`
-    );
+    const res = await client.get(`/users/${userId}/subscriptions/${channelId}`);
 
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
@@ -211,16 +211,24 @@ describe("PATCH /api/v1/users/me/subscriptions/{stream_id}", function () {
     });
     await seedSubscription(db, tenantId, userId, channelId);
 
-    const missingPropertyRes = await client.patch(`/users/me/subscriptions/${channelId}`, {
-      value: "true",
-    });
+    const missingPropertyRes = await client.patch(
+      `/users/me/subscriptions/${channelId}`,
+      {
+        value: "true",
+      },
+    );
     expect(missingPropertyRes.status).to.equal(400);
-    expect(missingPropertyRes.body.msg).to.equal("Missing required field: property");
+    expect(missingPropertyRes.body.msg).to.equal(
+      "Missing required field: property",
+    );
     expect(missingPropertyRes.body.code).to.equal("BAD_REQUEST");
 
-    const missingValueRes = await client.patch(`/users/me/subscriptions/${channelId}`, {
-      property: "is_muted",
-    });
+    const missingValueRes = await client.patch(
+      `/users/me/subscriptions/${channelId}`,
+      {
+        property: "is_muted",
+      },
+    );
     expect(missingValueRes.status).to.equal(400);
     expect(missingValueRes.body.msg).to.equal("Missing required field: value");
     expect(missingValueRes.body.code).to.equal("BAD_REQUEST");
@@ -261,12 +269,12 @@ describe("PATCH /api/v1/users/me/subscriptions", function () {
       .select("id")
       .where({ tenant_id: tenantId, name: "bulk-new-channel" })
       .first();
-    expect(newChannel?.id).to.be.a("string");
+    expect(newChannel?.id).to.be.a("number");
 
     const addedRows = await db("subscription").where({
       tenant_id: tenantId,
       user_id: userId,
-      channel_id: newChannel!.id as string,
+      channel_id: newChannel!.id as number,
     });
     expect(addedRows).to.have.length(1);
   });

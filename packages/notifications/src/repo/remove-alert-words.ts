@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const removeAlertWords = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  words: string[]
+  tenantId: long,
+  userId: long,
+  words: string[],
 ): Promise<void> => {
   const db = new JotsterDbContext(options);
   try {
@@ -19,8 +20,11 @@ export const removeAlertWords = async (
       const tenantId0 = tenantId;
       const userId0 = userId;
       const wordLower0 = wordLower;
-      const existing = await db0.AlertWords
-        .Where((aw) => aw.TenantId === tenantId0).Where((aw) => aw.UserId === userId0).Where((aw) => aw.Word === wordLower0)
+      const existing = await db0.AlertWords.Where(
+        (aw) => aw.TenantId === tenantId0,
+      )
+        .Where((aw) => aw.UserId === userId0)
+        .Where((aw) => aw.Word === wordLower0)
         .FirstOrDefaultAsync();
 
       if (existing !== undefined && existing !== null) {

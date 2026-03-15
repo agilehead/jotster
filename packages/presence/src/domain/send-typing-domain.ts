@@ -1,21 +1,25 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
-import { dispatchEventToTenant, dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
+import {
+  dispatchEventToTenant,
+  dispatchEventToUser,
+} from "@jotster/event-queue/Jotster.EventQueue.js";
 
 interface SendTypingParams {
   op: string;
   type?: string;
-  to?: string[];
-  streamId?: string;
+  to?: long[];
+  streamId?: long;
   topic?: string;
 }
 
 export const sendTypingDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: SendTypingParams
+  params: SendTypingParams,
 ): Promise<Result<void, string>> => {
   // Validate op
   if (params.op !== "start" && params.op !== "stop") {
@@ -63,8 +67,8 @@ export const sendTypingDomain = async (
       const streamId0 = params.streamId;
       const userId0 = user.userId;
 
-      const channel = await db0.Channels
-        .Where((c) => c.Id === streamId0).Where((c) => c.TenantId === tenantId0)
+      const channel = await db0.Channels.Where((c) => c.Id === streamId0)
+        .Where((c) => c.TenantId === tenantId0)
         .FirstOrDefaultAsync();
 
       if (channel === undefined || channel === null) {
@@ -73,8 +77,11 @@ export const sendTypingDomain = async (
 
       // For private channels, check subscription
       if (channel.IsPrivate === 1) {
-        const sub = await db0.Subscriptions
-          .Where((s) => s.TenantId === tenantId0).Where((s) => s.UserId === userId0).Where((s) => s.ChannelId === streamId0)
+        const sub = await db0.Subscriptions.Where(
+          (s) => s.TenantId === tenantId0,
+        )
+          .Where((s) => s.UserId === userId0)
+          .Where((s) => s.ChannelId === streamId0)
           .FirstOrDefaultAsync();
 
         if (sub === undefined || sub === null) {
@@ -82,10 +89,14 @@ export const sendTypingDomain = async (
         }
       }
 
-      const setting = await db0.UserSettings
-        .Where((entry) => entry.UserId === userId0)
-        .FirstOrDefaultAsync();
-      if (setting !== undefined && setting !== null && setting.SendStreamTypingNotifications !== 1) {
+      const setting = await db0.UserSettings.Where(
+        (entry) => entry.UserId === userId0,
+      ).FirstOrDefaultAsync();
+      if (
+        setting !== undefined &&
+        setting !== null &&
+        setting.SendStreamTypingNotifications !== 1
+      ) {
         return ok(undefined);
       }
     } finally {
@@ -109,5 +120,7 @@ export const sendTypingDomain = async (
     return ok(undefined);
   }
 
-  return err("Invalid type: must be 'direct', 'private', 'channel', or 'stream'");
+  return err(
+    "Invalid type: must be 'direct', 'private', 'channel', or 'stream'",
+  );
 };

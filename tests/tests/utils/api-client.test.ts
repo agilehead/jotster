@@ -12,7 +12,9 @@ describe("ApiClient", () => {
       res.end(JSON.stringify({ result: "success" }));
     });
 
-    await new Promise<void>((resolve) => server.listen(9989, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      server.listen(9989, "127.0.0.1", resolve),
+    );
 
     try {
       const client = createApiClient(
@@ -47,7 +49,9 @@ describe("ApiClient", () => {
       });
     });
 
-    await new Promise<void>((resolve) => server.listen(9990, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      server.listen(9990, "127.0.0.1", resolve),
+    );
 
     try {
       const client = createApiClient(

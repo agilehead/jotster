@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { JotsterDbContext, UserSetting } from "@jotster/core/Jotster.Core.js";
@@ -6,18 +6,18 @@ import { createUserSetting } from "./create-user-setting.ts";
 
 export const updateUserSetting = async (
   options: DbContextOptions,
-  userId: string,
-  tenantId: string,
+  userId: long,
+  tenantId: long,
   updates: Record<string, unknown>,
-  updateKeys: List<string>
+  updateKeys: List<string>,
 ): Promise<UserSetting | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const userId0 = userId;
-    const setting = await db0.UserSettings
-      .Where((s) => s.UserId === userId0)
-      .FirstOrDefaultAsync();
+    const setting = await db0.UserSettings.Where(
+      (s) => s.UserId === userId0,
+    ).FirstOrDefaultAsync();
 
     let setting0 = setting;
     if (setting0 === undefined) {
@@ -112,7 +112,9 @@ export const updateUserSetting = async (
         setting0.RealmNameInEmailNotificationsPolicy = value as int;
       } else if (key === "automatically_follow_topics_policy") {
         setting0.AutomaticallyFollowTopicsPolicy = value as int;
-      } else if (key === "automatically_unmute_topics_in_muted_streams_policy") {
+      } else if (
+        key === "automatically_unmute_topics_in_muted_streams_policy"
+      ) {
         setting0.AutomaticallyUnmuteTopicsInMutedStreamsPolicy = value as int;
       } else if (key === "automatically_follow_topics_where_mentioned") {
         setting0.AutomaticallyFollowTopicsWhereMentioned = value as int;

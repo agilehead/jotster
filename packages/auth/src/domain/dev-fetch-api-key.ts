@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, ServerConfig } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -10,9 +11,11 @@ import { getActiveApiKey } from "../repo/get-active-api-key.ts";
 export const devFetchApiKey = async (
   options: DbContextOptions,
   _config: ServerConfig,
-  tenantId: string,
-  email: string
-): Promise<Result<{ api_key: string; email: string; user_id: string }, string>> => {
+  tenantId: long,
+  email: string,
+): Promise<
+  Result<{ api_key: string; email: string; user_id: long }, string>
+> => {
   const user = await getUserByEmail(options, tenantId, email);
   if (user === undefined) {
     return err("Your username or password is incorrect");
@@ -22,8 +25,16 @@ export const devFetchApiKey = async (
   }
 
   const activeApiKey = await getActiveApiKey(options, tenantId, user.Id);
-  if (activeApiKey?.RawKey !== undefined && activeApiKey.RawKey !== null && activeApiKey.RawKey !== "") {
-    return ok({ api_key: activeApiKey.RawKey, email: user.Email, user_id: user.Id });
+  if (
+    activeApiKey?.RawKey !== undefined &&
+    activeApiKey.RawKey !== null &&
+    activeApiKey.RawKey !== ""
+  ) {
+    return ok({
+      api_key: activeApiKey.RawKey,
+      email: user.Email,
+      user_id: user.Id,
+    });
   }
 
   const rawKey = generateApiKey();

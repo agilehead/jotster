@@ -1,11 +1,15 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, OutgoingWebhook, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  OutgoingWebhook,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 interface CreateOutgoingWebhookInput {
-  tenantId: string;
-  botUserId: string;
+  tenantId: long;
+  botUserId: long;
   url: string;
   token: string;
   triggerType: string;
@@ -15,7 +19,7 @@ interface CreateOutgoingWebhookInput {
 
 export const createOutgoingWebhook = async (
   options: DbContextOptions,
-  input: CreateOutgoingWebhookInput
+  input: CreateOutgoingWebhookInput,
 ): Promise<OutgoingWebhook> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

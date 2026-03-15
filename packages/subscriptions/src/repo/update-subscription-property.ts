@@ -19,15 +19,15 @@ export const updateSubscriptionProperty = async (
   options: DbContextOptions,
   subscriptionId: string,
   property: string,
-  value: unknown
+  value: unknown,
 ): Promise<Subscription | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const subscriptionId0 = subscriptionId;
-    const sub = await db0.Subscriptions
-      .Where((s) => s.Id === subscriptionId0)
-      .FirstOrDefaultAsync();
+    const sub = await db0.Subscriptions.Where(
+      (s) => s.Id === subscriptionId0,
+    ).FirstOrDefaultAsync();
     if (sub === undefined || sub === null) {
       return undefined;
     }

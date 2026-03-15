@@ -4,9 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class ChannelFolder {
-  Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  Id!: long;
+  TenantId!: long;
+  UserId!: long;
   Name!: string;
   Description!: string;
   IsArchived!: int;
@@ -15,6 +15,8 @@ export class ChannelFolder {
   UpdatedAt!: long;
 }
 
-A.on(ChannelFolder).prop((x) => x.Id).add(KeyAttribute);
+A.on(ChannelFolder)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(ChannelFolder).type.add(IndexAttribute, ["TenantId", "UserId", "Name"]);
 A.on(ChannelFolder).type.add(IndexAttribute, ["TenantId", "UserId"]);

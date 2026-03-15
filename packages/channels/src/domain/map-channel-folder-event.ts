@@ -1,10 +1,11 @@
 import type { ChannelFolder } from "@jotster/core/Jotster.Core.js";
 import { Convert, Math as ClrMath } from "@tsonic/dotnet/System.js";
 
-const escapeHtml = (value: string): string => value
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;");
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 
 const renderDescription = (value: string): string => {
   if (value.length === 0) {

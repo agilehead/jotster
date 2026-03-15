@@ -1,10 +1,13 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, CustomProfileField, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  CustomProfileField,
+} from "@jotster/core/Jotster.Core.js";
 
 interface CreateCustomProfileFieldInput {
-  tenantId: string;
+  tenantId: long;
   name: string;
   hint: string;
   fieldType: int;
@@ -18,12 +21,11 @@ interface CreateCustomProfileFieldInput {
 
 export const createCustomProfileField = async (
   options: DbContextOptions,
-  input: CreateCustomProfileFieldInput
+  input: CreateCustomProfileFieldInput,
 ): Promise<CustomProfileField> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const field = new CustomProfileField();
-  field.Id = generateId();
   field.TenantId = input.tenantId;
   field.Name = input.name;
   field.Hint = input.hint;

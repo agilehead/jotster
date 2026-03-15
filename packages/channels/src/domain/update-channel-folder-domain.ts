@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ChannelFolder, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -17,8 +17,8 @@ interface UpdateChannelFolderDomainInput {
 export const updateChannelFolderDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  folderId: string,
-  updates: UpdateChannelFolderDomainInput
+  folderId: long,
+  updates: UpdateChannelFolderDomainInput,
 ): Promise<Result<ChannelFolder, string>> => {
   if (user.role > 200) {
     return err("Must be an organization administrator");
@@ -39,7 +39,11 @@ export const updateChannelFolderDomain = async (
       return err("Folder name must not be empty");
     }
 
-    const existingFolders = await getChannelFolders(options, user.tenantId, true);
+    const existingFolders = await getChannelFolders(
+      options,
+      user.tenantId,
+      true,
+    );
     for (let i = 0; i < existingFolders.length; i++) {
       const folder = existingFolders[i].folder;
       if (folder.Id !== folderId && folder.Name === name) {

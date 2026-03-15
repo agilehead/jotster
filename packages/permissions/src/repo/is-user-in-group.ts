@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
@@ -8,18 +8,18 @@ import { ok, err } from "@jotster/core/Jotster.Core.js";
 
 export const isUserInGroup = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  groupId: string
+  tenantId: long,
+  userId: long,
+  groupId: long,
 ): Promise<Result<boolean, string>> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const groupId0 = groupId;
 
-    const group = await db0.UserGroups
-      .Where((g) => g.Id === groupId0)
-      .FirstOrDefaultAsync();
+    const group = await db0.UserGroups.Where(
+      (g) => g.Id === groupId0,
+    ).FirstOrDefaultAsync();
 
     if (group === undefined) {
       return err("Group not found");
@@ -32,8 +32,8 @@ export const isUserInGroup = async (
       const tenantId0 = tenantId;
       const userId0 = userId;
 
-      const user = await db0.Users
-        .Where((u) => u.Id === userId0).Where((u) => u.TenantId === tenantId0)
+      const user = await db0.Users.Where((u) => u.Id === userId0)
+        .Where((u) => u.TenantId === tenantId0)
         .FirstOrDefaultAsync();
 
       if (user === undefined) {
@@ -62,15 +62,17 @@ export const isUserInGroup = async (
         }
 
         const tenantId1 = tenantId;
-        const tenant = await db0.Tenants
-          .Where((t) => t.Id === tenantId1)
-          .FirstOrDefaultAsync();
+        const tenant = await db0.Tenants.Where(
+          (t) => t.Id === tenantId1,
+        ).FirstOrDefaultAsync();
 
         if (tenant === undefined) {
           return ok(false);
         }
 
-        const settingsOrNull = JsonSerializer.Deserialize<Record<string, string>>(tenant.SettingsJson);
+        const settingsOrNull = JsonSerializer.Deserialize<
+          Record<string, string>
+        >(tenant.SettingsJson);
         if (settingsOrNull === undefined) {
           return ok(true);
         }
@@ -117,8 +119,10 @@ export const isUserInGroup = async (
     const groupId1 = groupId;
     const userId1 = userId;
 
-    const member = await db0.UserGroupMembers
-      .Where((m) => m.UserGroupId === groupId1).Where((m) => m.UserId === userId1)
+    const member = await db0.UserGroupMembers.Where(
+      (m) => m.UserGroupId === groupId1,
+    )
+      .Where((m) => m.UserId === userId1)
       .FirstOrDefaultAsync();
 
     return ok(member !== undefined);

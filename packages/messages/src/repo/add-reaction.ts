@@ -1,12 +1,16 @@
 import type { long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Reaction, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  Reaction,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 interface AddReactionInput {
-  tenantId: string;
-  messageId: string;
-  userId: string;
+  tenantId: long;
+  messageId: long;
+  userId: long;
   emojiName: string;
   emojiCode: string;
   reactionType: string;
@@ -14,7 +18,7 @@ interface AddReactionInput {
 
 export const addReaction = async (
   options: DbContextOptions,
-  input: AddReactionInput
+  input: AddReactionInput,
 ): Promise<Reaction> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

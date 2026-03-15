@@ -1,11 +1,14 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, CustomProfileField } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  CustomProfileField,
+} from "@jotster/core/Jotster.Core.js";
 
 export const updateCustomProfileField = async (
   options: DbContextOptions,
-  tenantId: string,
-  fieldId: string,
+  tenantId: long,
+  fieldId: long,
   updates: {
     name?: string;
     hint?: string;
@@ -16,15 +19,15 @@ export const updateCustomProfileField = async (
     editableByUser?: int;
     useForUserMatching?: int;
     ordering?: int;
-  }
+  },
 ): Promise<CustomProfileField | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
     const fieldId0 = fieldId;
-    const field = await db0.CustomProfileFields
-      .Where((f) => f.Id === fieldId0).Where((f) => f.TenantId === tenantId0)
+    const field = await db0.CustomProfileFields.Where((f) => f.Id === fieldId0)
+      .Where((f) => f.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (field === undefined) {

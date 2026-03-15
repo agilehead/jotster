@@ -1,10 +1,20 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type { AuthenticatedUser, Message, User } from "@jotster/core/Jotster.Core.js";
-import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
-import { addMessageFlags, getMessage, removeMessageFlags } from "@jotster/messages/Jotster.Messages.js";
+import type {
+  AuthenticatedUser,
+  Message,
+  User,
+} from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, parseId } from "@jotster/core/Jotster.Core.js";
+import {
+  addMessageFlags,
+  getMessage,
+  removeMessageFlags,
+} from "@jotster/messages/Jotster.Messages.js";
 import { getUser } from "@jotster/users/Jotster.Users.js";
+import { toLong } from "./body.ts";
 
 type NarrowFilter = {
   op: string;
@@ -13,10 +23,10 @@ type NarrowFilter = {
 };
 
 type ResolvedNarrow = {
-  streamId?: string;
+  streamId?: long;
   topic?: string;
   dmGroupId?: string;
-  senderId?: string;
+  senderId?: long;
   unreadOnly: boolean;
 };
 
@@ -40,10 +50,22 @@ type MessagesMatchingNarrowResult = {
   messagesJson?: string;
 };
 
-const VALID_FLAGS = ["read", "starred", "mentioned", "wildcard_mentioned", "has_alert_word", "historical"];
+const VALID_FLAGS = [
+  "read",
+  "starred",
+  "mentioned",
+  "wildcard_mentioned",
+  "has_alert_word",
+  "historical",
+];
 
 const getObjectField = (value: unknown, key: string): unknown => {
-  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value !== "object" ||
+    Array.isArray(value)
+  ) {
     return undefined;
   }
   for (const [entryKey, entryValue] of Object.entries(value)) {
@@ -110,7 +132,10 @@ const parseNarrowFilters = (value: unknown): NarrowFilter[] | undefined => {
   return filters.ToArray();
 };
 
-const getFilterOperand = (filters: NarrowFilter[], operator: string): unknown => {
+const getFilterOperand = (
+  filters: NarrowFilter[],
+  operator: string,
+): unknown => {
   for (let i = 0; i < filters.length; i++) {
     const filter = filters[i];
     if (filter.op === operator && filter.negated !== true) {
@@ -128,7 +153,11 @@ const toStringValue = (value: unknown): string | undefined => {
   if (typeof value === "string") {
     return value;
   }
-  if (typeof value === "number" || typeof value === "bigint" || typeof value === "boolean") {
+  if (
+    typeof value === "number" ||
+    typeof value === "bigint" ||
+    typeof value === "boolean"
+  ) {
     return `${value}`;
   }
   return undefined;
@@ -136,9 +165,9 @@ const toStringValue = (value: unknown): string | undefined => {
 
 const resolveSenderId = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   operand: unknown,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   const candidate = toStringValue(operand);
   if (candidate === undefined) {
     return undefined;
@@ -149,20 +178,19 @@ const resolveSenderId = async (
     return user?.Id;
   }
 
-  return candidate;
+  return parseId(candidate);
 };
 
 const getUserByEmailInTenant = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   email: string,
 ): Promise<User | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
     const email0 = email;
-    const user = await db.Users
-      .Where((entry) => entry.TenantId === tenantId0)
+    const user = await db.Users.Where((entry) => entry.TenantId === tenantId0)
       .Where((entry) => entry.Email === email0)
       .FirstOrDefaultAsync();
     return user ?? undefined;
@@ -181,9 +209,12 @@ const resolveNarrow = async (
     return undefined;
   }
 
-  const streamOperand = getFilterOperand(filters, "stream") ?? getFilterOperand(filters, "channel");
-  const topicOperand = getFilterOperand(filters, "topic") ?? getFilterOperand(filters, "subject");
-  const dmOperand = getFilterOperand(filters, "dm") ?? getFilterOperand(filters, "pm-with");
+  const streamOperand =
+    getFilterOperand(filters, "stream") ?? getFilterOperand(filters, "channel");
+  const topicOperand =
+    getFilterOperand(filters, "topic") ?? getFilterOperand(filters, "subject");
+  const dmOperand =
+    getFilterOperand(filters, "dm") ?? getFilterOperand(filters, "pm-with");
   const senderOperand = getFilterOperand(filters, "sender");
   const isOperand = getFilterOperand(filters, "is");
 
@@ -193,7 +224,11 @@ const resolveNarrow = async (
 
   const streamValue = toStringValue(streamOperand);
   if (streamValue !== undefined) {
-    resolved.streamId = await resolveChannelIdentifier(options, user.tenantId, streamValue);
+    resolved.streamId = await resolveChannelIdentifier(
+      options,
+      user.tenantId,
+      streamValue,
+    );
     if (resolved.streamId === undefined) {
       return undefined;
     }
@@ -225,27 +260,34 @@ const resolveNarrow = async (
 
 const resolveChannelIdentifier = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   operand: string,
-): Promise<string | undefined> => {
+): Promise<long | undefined> => {
   const db = new JotsterDbContext(options);
   try {
     const tenantId0 = tenantId;
-    const operand0 = operand;
 
-    let channel = await db.Channels
-      .Where((entry) => entry.TenantId === tenantId0)
-      .Where((entry) => entry.Id === operand0)
-      .FirstOrDefaultAsync();
-
-    if (channel === undefined || channel === null) {
-      channel = await db.Channels
-        .Where((entry) => entry.TenantId === tenantId0)
-        .Where((entry) => entry.Name === operand0)
+    const operandId = parseId(operand);
+    if (operandId !== undefined) {
+      const operandId0 = operandId;
+      const channel = await db.Channels.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
+        .Where((entry) => entry.Id === operandId0)
         .FirstOrDefaultAsync();
+      if (channel !== undefined && channel !== null) {
+        return channel.Id;
+      }
     }
 
-    return channel?.Id;
+    const operand0 = operand;
+    const channelByName = await db.Channels.Where(
+      (entry) => entry.TenantId === tenantId0,
+    )
+      .Where((entry) => entry.Name === operand0)
+      .FirstOrDefaultAsync();
+
+    return channelByName?.Id;
   } finally {
     db.Dispose();
   }
@@ -266,15 +308,15 @@ const sortMessagesChronologically = (messages: Message[]): Message[] => {
   return copy;
 };
 
-const collectMessageIds = (messages: Message[]): string[] => {
-  const result = new List<string>();
+const collectMessageIds = (messages: Message[]): long[] => {
+  const result = new List<long>();
   for (let i = 0; i < messages.length; i++) {
     result.Add(messages[i].Id);
   }
   return result.ToArray();
 };
 
-const containsId = (values: string[], candidate: string): boolean => {
+const containsLongId = (values: long[], candidate: long): boolean => {
   for (let i = 0; i < values.length; i++) {
     if (values[i] === candidate) {
       return true;
@@ -298,50 +340,70 @@ export const getMatchingMessagesForNarrow = async (
     const tenantId0 = user.tenantId;
     let messages: Message[];
 
-    if (resolved.streamId !== undefined && resolved.topic !== undefined && resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    if (
+      resolved.streamId !== undefined &&
+      resolved.topic !== undefined &&
+      resolved.senderId !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .Where((entry) => entry.Topic === resolved.topic)
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
-    } else if (resolved.streamId !== undefined && resolved.topic !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    } else if (
+      resolved.streamId !== undefined &&
+      resolved.topic !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .Where((entry) => entry.Topic === resolved.topic)
         .ToArrayAsync();
-    } else if (resolved.streamId !== undefined && resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    } else if (
+      resolved.streamId !== undefined &&
+      resolved.senderId !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
     } else if (resolved.streamId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.ChannelId === resolved.streamId)
         .ToArrayAsync();
-    } else if (resolved.dmGroupId !== undefined && resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+    } else if (
+      resolved.dmGroupId !== undefined &&
+      resolved.senderId !== undefined
+    ) {
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.DmGroupId === resolved.dmGroupId)
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
     } else if (resolved.dmGroupId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.DmGroupId === resolved.dmGroupId)
         .ToArrayAsync();
     } else if (resolved.senderId !== undefined) {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      )
         .Where((entry) => entry.SenderId === resolved.senderId)
         .ToArrayAsync();
     } else {
-      messages = await db.Messages
-        .Where((entry) => entry.TenantId === tenantId0)
-        .ToArrayAsync();
+      messages = await db.Messages.Where(
+        (entry) => entry.TenantId === tenantId0,
+      ).ToArrayAsync();
     }
 
     const sortedMessages = sortMessagesChronologically(messages);
@@ -351,12 +413,13 @@ export const getMatchingMessagesForNarrow = async (
 
     const userId0 = user.userId;
     const readFlag = "read";
-    const flags = await db.MessageFlags
-      .Where((entry) => entry.UserId === userId0)
+    const flags = await db.MessageFlags.Where(
+      (entry) => entry.UserId === userId0,
+    )
       .Where((entry) => entry.Flag === readFlag)
       .ToListAsync();
 
-    const readIds: string[] = [];
+    const readIds: long[] = [];
     for (let i = 0; i < flags.Count; i++) {
       readIds.push(flags[i].MessageId);
     }
@@ -364,7 +427,7 @@ export const getMatchingMessagesForNarrow = async (
     const unreadMessages: Message[] = [];
     for (let i = 0; i < sortedMessages.length; i++) {
       const message = sortedMessages[i];
-      if (!containsId(readIds, message.Id)) {
+      if (!containsLongId(readIds, message.Id)) {
         unreadMessages.push(message);
       }
     }
@@ -390,9 +453,12 @@ const findAnchorIndex = (messages: Message[], anchor: string): number => {
     return 0;
   }
 
-  for (let i = 0; i < messages.length; i++) {
-    if (messages[i].Id === anchor) {
-      return i;
+  const anchorId = parseId(anchor);
+  if (anchorId !== undefined) {
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].Id === anchorId) {
+        return i;
+      }
     }
   }
 
@@ -411,7 +477,11 @@ export const updateFlagsForNarrow = async (
     return { error: "Invalid operation" };
   }
 
-  const messages = await getMatchingMessagesForNarrow(options, user, input.narrow);
+  const messages = await getMatchingMessagesForNarrow(
+    options,
+    user,
+    input.narrow,
+  );
   if (messages === undefined) {
     return { error: "Invalid narrow" };
   }
@@ -433,7 +503,13 @@ export const updateFlagsForNarrow = async (
   }
 
   const selectedIds = collectMessageIds(selected);
-  const changedIds = await getIdsThatWouldChange(options, user.userId, selectedIds, input.flag, input.op);
+  const changedIds = await getIdsThatWouldChange(
+    options,
+    user.userId,
+    selectedIds,
+    input.flag,
+    input.op,
+  );
   if (input.op === "add") {
     await addMessageFlags(options, user.userId, selectedIds, input.flag);
   } else {
@@ -444,9 +520,15 @@ export const updateFlagsForNarrow = async (
     processed_count: selectedIds.length,
     updated_count: changedIds.length,
     first_processed_id: selected.length > 0 ? selected[0].Id : null,
-    last_processed_id: selected.length > 0 ? selected[selected.length - 1].Id : null,
-    found_oldest: selected.length === 0 || (anchorIndex >= 0 && selected[0].Id === messages[0].Id),
-    found_newest: selected.length === 0 || (anchorIndex >= 0 && selected[selected.length - 1].Id === messages[messages.length - 1].Id),
+    last_processed_id:
+      selected.length > 0 ? selected[selected.length - 1].Id : null,
+    found_oldest:
+      selected.length === 0 ||
+      (anchorIndex >= 0 && selected[0].Id === messages[0].Id),
+    found_newest:
+      selected.length === 0 ||
+      (anchorIndex >= 0 &&
+        selected[selected.length - 1].Id === messages[messages.length - 1].Id),
   };
 
   if (input.op === "remove" && input.flag === "read") {
@@ -458,11 +540,11 @@ export const updateFlagsForNarrow = async (
 
 const getIdsThatWouldChange = async (
   options: DbContextOptions,
-  userId: string,
-  messageIds: string[],
+  userId: long,
+  messageIds: long[],
   flag: string,
   op: string,
-): Promise<string[]> => {
+): Promise<long[]> => {
   if (messageIds.length === 0) {
     return [];
   }
@@ -471,20 +553,21 @@ const getIdsThatWouldChange = async (
   try {
     const userId0 = userId;
     const flag0 = flag;
-    const existingFlags = await db.MessageFlags
-      .Where((entry) => entry.UserId === userId0)
+    const existingFlags = await db.MessageFlags.Where(
+      (entry) => entry.UserId === userId0,
+    )
       .Where((entry) => entry.Flag === flag0)
       .ToListAsync();
 
-    const existingIds: string[] = [];
+    const existingIds: long[] = [];
     for (let i = 0; i < existingFlags.Count; i++) {
       existingIds.push(existingFlags[i].MessageId);
     }
 
-    const changed: string[] = [];
+    const changed: long[] = [];
     for (let i = 0; i < messageIds.length; i++) {
       const messageId = messageIds[i];
-      const exists = containsId(existingIds, messageId);
+      const exists = containsLongId(existingIds, messageId);
       if ((op === "add" && !exists) || (op === "remove" && exists)) {
         changed.push(messageId);
       }
@@ -499,47 +582,61 @@ const getIdsThatWouldChange = async (
 export const markStreamAsRead = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  streamId: string,
+  streamId: long,
 ): Promise<void> => {
   const messages = await getMatchingMessagesForNarrow(options, user, [
-    { operator: "channel", operand: streamId },
+    { operator: "channel", operand: `${streamId}` },
     { operator: "is", operand: "unread" },
   ]);
   if (messages === undefined) {
     return;
   }
-  await addMessageFlags(options, user.userId, collectMessageIds(messages), "read");
+  await addMessageFlags(
+    options,
+    user.userId,
+    collectMessageIds(messages),
+    "read",
+  );
 };
 
 export const markTopicAsRead = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  streamId: string,
+  streamId: long,
   topic: string,
 ): Promise<void> => {
   const messages = await getMatchingMessagesForNarrow(options, user, [
-    { operator: "channel", operand: streamId },
+    { operator: "channel", operand: `${streamId}` },
     { operator: "topic", operand: topic },
     { operator: "is", operand: "unread" },
   ]);
   if (messages === undefined) {
     return;
   }
-  await addMessageFlags(options, user.userId, collectMessageIds(messages), "read");
+  await addMessageFlags(
+    options,
+    user.userId,
+    collectMessageIds(messages),
+    "read",
+  );
 };
 
 export const getMessagesMatchingNarrow = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  messageIds: string[],
+  messageIds: long[],
   narrowValue: unknown,
 ): Promise<MessagesMatchingNarrowResult> => {
-  const matchingMessages = await getMatchingMessagesForNarrow(options, user, narrowValue);
+  const matchingMessages = await getMatchingMessagesForNarrow(
+    options,
+    user,
+    narrowValue,
+  );
   if (matchingMessages === undefined) {
     return { error: "Invalid narrow" };
   }
 
-  const matchingIds: string[] = [];
+  const matchingIds: long[] = [];
   for (let i = 0; i < matchingMessages.length; i++) {
     matchingIds.push(matchingMessages[i].Id);
   }
@@ -547,7 +644,7 @@ export const getMessagesMatchingNarrow = async (
   const resultEntries: string[] = [];
   for (let i = 0; i < messageIds.length; i++) {
     const messageId = messageIds[i];
-    if (!containsId(matchingIds, messageId)) {
+    if (!containsLongId(matchingIds, messageId)) {
       continue;
     }
 
@@ -556,10 +653,12 @@ export const getMessagesMatchingNarrow = async (
       continue;
     }
 
-    resultEntries.push(`${JSON.stringify(messageId)}:${JSON.stringify({
-      match_content: message.RenderedContent,
-      match_subject: message.Topic ?? "",
-    })}`);
+    resultEntries.push(
+      `"${messageId}":${JSON.stringify({
+        match_content: message.RenderedContent,
+        match_subject: message.Topic ?? "",
+      })}`,
+    );
   }
 
   return {

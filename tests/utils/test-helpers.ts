@@ -7,45 +7,63 @@ function getServerBaseUrl(): string {
 }
 
 /**
- * Seed a tenant directly into the database and return its ID.
+ * Seed a tenant directly into the database and return its auto-generated integer ID.
  */
 export async function seedTenant(
   db: Knex,
   overrides?: Partial<{
-    id: string;
     subdomain: string;
     name: string;
     description: string;
     iconUrl: string;
     settingsJson: string;
     ownerFullContentAccess: number;
-  }>
-): Promise<string> {
-  const id = overrides?.id ?? `tenant_${randomId()}`;
+  }>,
+): Promise<number> {
   const now = Date.now();
-  await db("tenant").insert({
-    id,
-    subdomain: overrides?.subdomain ?? `test-${randomId()}`,
-    name: overrides?.name ?? "Test Org",
-    description: overrides?.description ?? "",
-    icon_url: overrides?.iconUrl ?? null,
-    settings_json: overrides?.settingsJson ?? "{}",
-    owner_full_content_access: overrides?.ownerFullContentAccess ?? 0,
-    active: 1,
-    created_at: now,
-    updated_at: now,
-  });
-  return id;
+  const [row] = await db("tenant")
+    .insert({
+      subdomain: overrides?.subdomain ?? `test-${randomId()}`,
+      name: overrides?.name ?? "Test Org",
+      description: overrides?.description ?? "",
+      icon_url: overrides?.iconUrl ?? null,
+      settings_json: overrides?.settingsJson ?? "{}",
+      owner_full_content_access: overrides?.ownerFullContentAccess ?? 0,
+      active: 1,
+      created_at: now,
+      updated_at: now,
+    })
+    .returning("id");
+  const tenantId =
+    typeof row === "object"
+      ? ((row as Record<string, unknown>).id as number)
+      : (row as number);
+
+  // Always seed system groups for the new tenant
+  await seedSystemGroups(db, tenantId);
+
+  return tenantId;
 }
 
-async function getTenantHostHeader(db: Knex, tenantId: string, serverBaseUrl: string): Promise<string> {
-  const row = await db("tenant").select("subdomain").where({ id: tenantId }).first();
+async function getTenantHostHeader(
+  db: Knex,
+  tenantId: number,
+  serverBaseUrl: string,
+): Promise<string> {
+  const row = await db("tenant")
+    .select("subdomain")
+    .where({ id: tenantId })
+    .first();
   const subdomain = row?.subdomain as string | undefined;
   if (!subdomain) {
-    throw new Error(`Tenant ${tenantId} not found while constructing test client host header`);
+    throw new Error(
+      `Tenant ${tenantId} not found while constructing test client host header`,
+    );
   }
   const port = new URL(serverBaseUrl).port;
-  return port === "" ? `${subdomain}.test.local` : `${subdomain}.test.local:${port}`;
+  return port === ""
+    ? `${subdomain}.test.local`
+    : `${subdomain}.test.local:${port}`;
 }
 
 /**
@@ -54,9 +72,8 @@ async function getTenantHostHeader(db: Knex, tenantId: string, serverBaseUrl: st
  */
 export async function seedUser(
   db: Knex,
-  tenantId: string,
+  tenantId: number,
   overrides?: Partial<{
-    id: string;
     email: string;
     fullName: string;
     role: number;
@@ -64,38 +81,42 @@ export async function seedUser(
     timezone: string;
     isBot: number;
     botType: number;
-    botOwnerId: string;
+    botOwnerId: number;
     isBillingAdmin: number;
-  }>
+  }>,
 ): Promise<{
-  userId: string;
+  userId: number;
   email: string;
   apiKey: string;
   client: ApiClient;
 }> {
-  const userId = overrides?.id ?? `user_${randomId()}`;
   const email = overrides?.email ?? `user-${randomId()}@test.local`;
   const now = Date.now();
 
-  await db("user").insert({
-    id: userId,
-    tenant_id: tenantId,
-    email,
-    full_name: overrides?.fullName ?? "Test User",
-    role: overrides?.role ?? 400,
-    avatar_url: overrides?.avatarUrl ?? null,
-    avatar_source: "gravatar",
-    is_bot: overrides?.isBot ?? 0,
-    bot_type: overrides?.botType ?? null,
-    bot_owner_id: overrides?.botOwnerId ?? null,
-    is_active: 1,
-    timezone: overrides?.timezone ?? "UTC",
-    date_joined: now,
-    is_billing_admin: overrides?.isBillingAdmin ?? 0,
-    delivery_email: email,
-    created_at: now,
-    updated_at: now,
-  });
+  const [row] = await db("user")
+    .insert({
+      tenant_id: tenantId,
+      email,
+      full_name: overrides?.fullName ?? "Test User",
+      role: overrides?.role ?? 400,
+      avatar_url: overrides?.avatarUrl ?? null,
+      avatar_source: "gravatar",
+      is_bot: overrides?.isBot ?? 0,
+      bot_type: overrides?.botType ?? null,
+      bot_owner_id: overrides?.botOwnerId ?? null,
+      is_active: 1,
+      timezone: overrides?.timezone ?? "UTC",
+      date_joined: now,
+      is_billing_admin: overrides?.isBillingAdmin ?? 0,
+      delivery_email: email,
+      created_at: now,
+      updated_at: now,
+    })
+    .returning("id");
+  const userId =
+    typeof row === "object"
+      ? ((row as Record<string, unknown>).id as number)
+      : (row as number);
 
   await db("user_setting").insert({
     user_id: userId,
@@ -174,32 +195,33 @@ export async function seedUser(
  */
 export async function seedChannel(
   db: Knex,
-  tenantId: string,
+  tenantId: number,
   overrides?: Partial<{
-    id: string;
     name: string;
     isPrivate: number;
     isWebPublic: number;
-    creatorId: string;
-  }>
-): Promise<string> {
-  const id = overrides?.id ?? `ch_${randomId()}`;
+    creatorId: number;
+  }>,
+): Promise<number> {
   const now = Date.now();
-  await db("channel").insert({
-    id,
-    tenant_id: tenantId,
-    name: overrides?.name ?? `channel-${randomId()}`,
-    description: "",
-    rendered_description: "",
-    is_private: overrides?.isPrivate ?? 0,
-    is_web_public: overrides?.isWebPublic ?? 0,
-    history_public_to_subscribers: 1,
-    creator_id: overrides?.creatorId ?? null,
-    is_archived: 0,
-    created_at: now,
-    updated_at: now,
-  });
-  return id;
+  const [row] = await db("channel")
+    .insert({
+      tenant_id: tenantId,
+      name: overrides?.name ?? `channel-${randomId()}`,
+      description: "",
+      rendered_description: "",
+      is_private: overrides?.isPrivate ?? 0,
+      is_web_public: overrides?.isWebPublic ?? 0,
+      history_public_to_subscribers: 1,
+      creator_id: overrides?.creatorId ?? null,
+      is_archived: 0,
+      created_at: now,
+      updated_at: now,
+    })
+    .returning("id");
+  return typeof row === "object"
+    ? ((row as Record<string, unknown>).id as number)
+    : (row as number);
 }
 
 /**
@@ -207,9 +229,9 @@ export async function seedChannel(
  */
 export async function seedSubscription(
   db: Knex,
-  tenantId: string,
-  userId: string,
-  channelId: string
+  tenantId: number,
+  userId: number,
+  channelId: number,
 ): Promise<string> {
   const id = `sub_${randomId()}`;
   const now = Date.now();
@@ -231,35 +253,36 @@ export async function seedSubscription(
  */
 export async function seedMessage(
   db: Knex,
-  tenantId: string,
-  senderId: string,
+  tenantId: number,
+  senderId: number,
   overrides?: Partial<{
-    id: string;
-    channelId: string;
+    channelId: number;
     topic: string;
     dmGroupId: string;
     content: string;
-  }>
-): Promise<string> {
-  const id = overrides?.id ?? `msg_${randomId()}`;
+  }>,
+): Promise<number> {
   const now = Date.now();
   const type = overrides?.channelId ? "stream" : "private";
-  await db("message").insert({
-    id,
-    tenant_id: tenantId,
-    sender_id: senderId,
-    type,
-    channel_id: overrides?.channelId ?? null,
-    topic: overrides?.topic ?? null,
-    dm_group_id: overrides?.dmGroupId ?? null,
-    content: overrides?.content ?? "Hello, world!",
-    rendered_content: `<p>${overrides?.content ?? "Hello, world!"}</p>`,
-    has_attachment: 0,
-    has_image: 0,
-    has_link: 0,
-    created_at: now,
-  });
-  return id;
+  const [row] = await db("message")
+    .insert({
+      tenant_id: tenantId,
+      sender_id: senderId,
+      type,
+      channel_id: overrides?.channelId ?? null,
+      topic: overrides?.topic ?? null,
+      dm_group_id: overrides?.dmGroupId ?? null,
+      content: overrides?.content ?? "Hello, world!",
+      rendered_content: `<p>${overrides?.content ?? "Hello, world!"}</p>`,
+      has_attachment: 0,
+      has_image: 0,
+      has_link: 0,
+      created_at: now,
+    })
+    .returning("id");
+  return typeof row === "object"
+    ? ((row as Record<string, unknown>).id as number)
+    : (row as number);
 }
 
 /**
@@ -267,9 +290,9 @@ export async function seedMessage(
  */
 export async function seedSystemGroups(
   db: Knex,
-  tenantId: string
-): Promise<Record<string, string>> {
-  const groups: Record<string, string> = {};
+  tenantId: number,
+): Promise<Record<string, number>> {
+  const groups: Record<string, number> = {};
   const now = Date.now();
   const systemGroupNames = [
     "role:everyone",
@@ -283,18 +306,21 @@ export async function seedSystemGroups(
   ];
 
   for (const name of systemGroupNames) {
-    const id = `grp_${randomId()}`;
-    groups[name] = id;
-    await db("user_group").insert({
-      id,
-      tenant_id: tenantId,
-      name,
-      description: `System group: ${name}`,
-      is_system_group: 1,
-      is_active: 1,
-      created_at: now,
-      updated_at: now,
-    });
+    const [row] = await db("user_group")
+      .insert({
+        tenant_id: tenantId,
+        name,
+        description: `System group: ${name}`,
+        is_system_group: 1,
+        is_active: 1,
+        created_at: now,
+        updated_at: now,
+      })
+      .returning("id");
+    groups[name] =
+      typeof row === "object"
+        ? ((row as Record<string, unknown>).id as number)
+        : (row as number);
   }
 
   return groups;

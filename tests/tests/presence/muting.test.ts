@@ -15,7 +15,7 @@ describe("POST /api/v1/users/me/muted_users/{muted_user_id}", () => {
     const user2 = await seedUser(db, tenantId);
 
     const res = await user1.client.post(
-      `/users/me/muted_users/${user2.userId}`
+      `/users/me/muted_users/${user2.userId}`,
     );
 
     expect(res.status).to.equal(200);
@@ -34,7 +34,7 @@ describe("POST /api/v1/users/me/muted_users/{muted_user_id}", () => {
 
     // Mute again
     const res = await user1.client.post(
-      `/users/me/muted_users/${user2.userId}`
+      `/users/me/muted_users/${user2.userId}`,
     );
 
     expect(res.body.result).to.equal("error");
@@ -53,7 +53,7 @@ describe("DELETE /api/v1/users/me/muted_users/{muted_user_id}", () => {
 
     // Unmute
     const res = await user1.client.delete(
-      `/users/me/muted_users/${user2.userId}`
+      `/users/me/muted_users/${user2.userId}`,
     );
 
     expect(res.status).to.equal(200);
@@ -68,7 +68,7 @@ describe("DELETE /api/v1/users/me/muted_users/{muted_user_id}", () => {
     const user2 = await seedUser(db, tenantId);
 
     const res = await user1.client.delete(
-      `/users/me/muted_users/${user2.userId}`
+      `/users/me/muted_users/${user2.userId}`,
     );
 
     expect(res.body.result).to.equal("error");

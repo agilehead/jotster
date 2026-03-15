@@ -16,7 +16,7 @@ interface SendInvitationsInput {
 export const sendInvitationsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: SendInvitationsInput
+  input: SendInvitationsInput,
 ): Promise<Result<boolean, string>> => {
   // Check permission - admin or member with invite policy
   if (user.role > 400) {
@@ -45,7 +45,10 @@ export const sendInvitationsDomain = async (
   for (let i = 0; i < input.inviteeEmails.length; i++) {
     const email = input.inviteeEmails[i].trim().toLowerCase();
     for (let j = 0; j < pendingInvitations.length; j++) {
-      if (pendingInvitations[j].Email !== undefined && pendingInvitations[j].Email!.toLowerCase() === email) {
+      if (
+        pendingInvitations[j].Email !== undefined &&
+        pendingInvitations[j].Email!.toLowerCase() === email
+      ) {
         return err("An invitation has already been sent to " + email);
       }
     }

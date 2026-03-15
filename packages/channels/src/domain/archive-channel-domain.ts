@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +8,7 @@ import { archiveChannel } from "../repo/archive-channel.ts";
 export const archiveChannelDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: string
+  channelId: long,
 ): Promise<Result<boolean, string>> => {
   if (user.role > 200) {
     return err("Admin required");

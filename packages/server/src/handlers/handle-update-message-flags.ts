@@ -1,21 +1,29 @@
+import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject, getOptionalJsonArrayField, getOptionalStringField } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalJsonArrayField,
+  getOptionalStringField,
+  toLong,
+} from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import { updateFlagsDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
-const toStringArray = (value: unknown[] | undefined): string[] | undefined => {
+const toLongArray = (value: unknown[] | undefined): long[] | undefined => {
   if (value === undefined) {
     return undefined;
   }
 
-  const result: string[] = [];
+  const result: long[] = [];
   for (let i = 0; i < value.length; i++) {
     const entry = value[i];
-    if (typeof entry !== "string") {
+    const parsed = parseId(`${entry}`);
+    if (parsed === undefined) {
       return undefined;
     }
-    result.push(entry as string);
+    result.push(toLong(parsed));
   }
   return result;
 };
@@ -23,26 +31,39 @@ const toStringArray = (value: unknown[] | undefined): string[] | undefined => {
 export const handleUpdateMessageFlags = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const parsedMessages = toStringArray(getOptionalJsonArrayField(body, "messages"));
+  const parsedMessages = toLongArray(
+    getOptionalJsonArrayField(body, "messages"),
+  );
   const op = getOptionalStringField(body, "op");
   const flag = getOptionalStringField(body, "flag");
   if (parsedMessages === undefined || op === undefined || flag === undefined) {
-    res.status(400).json({ result: "error", msg: "Invalid message flags payload" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Invalid message flags payload" });
     return;
   }
 
-  const result = await updateFlagsDomain(app.options, user, { messages: parsedMessages, op, flag });
+  const result = await updateFlagsDomain(app.options, user, {
+    messages: parsedMessages,
+    op,
+    flag,
+  });
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

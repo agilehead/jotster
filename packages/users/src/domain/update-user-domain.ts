@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { User, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,8 +8,8 @@ import { updateUser } from "../repo/update-user.ts";
 export const updateUserDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  targetUserId: string,
-  updates: { fullName?: string; role?: int }
+  targetUserId: long,
+  updates: { fullName?: string; role?: int },
 ): Promise<Result<User, string>> => {
   const isSelf = actingUser.userId === targetUserId;
   const isAdmin = actingUser.role <= 200;

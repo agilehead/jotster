@@ -1,13 +1,14 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const removeReaction = async (
   options: DbContextOptions,
-  tenantId: string,
-  messageId: string,
-  userId: string,
+  tenantId: long,
+  messageId: long,
+  userId: long,
   emojiCode: string,
-  reactionType: string
+  reactionType: string,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -18,8 +19,11 @@ export const removeReaction = async (
     const emojiCode0 = emojiCode;
     const reactionType0 = reactionType;
 
-    const reaction = await db0.Reactions
-      .Where((r) => r.TenantId === tenantId0).Where((r) => r.MessageId === messageId0).Where((r) => r.UserId === userId0).Where((r) => r.EmojiCode === emojiCode0).Where((r) => r.ReactionType === reactionType0)
+    const reaction = await db0.Reactions.Where((r) => r.TenantId === tenantId0)
+      .Where((r) => r.MessageId === messageId0)
+      .Where((r) => r.UserId === userId0)
+      .Where((r) => r.EmojiCode === emojiCode0)
+      .Where((r) => r.ReactionType === reactionType0)
       .FirstOrDefaultAsync();
 
     if (reaction === undefined || reaction === null) {

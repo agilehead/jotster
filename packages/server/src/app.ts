@@ -32,12 +32,17 @@ export function main(): void {
 
   // Error handler
   app.useError(async (err, _req, res, _next) => {
-    res.status(500).json({ result: "error", msg: `Internal server error: ${err}` });
+    res
+      .status(500)
+      .json({ result: "error", msg: `Internal server error: ${err}` });
   });
 
   // Parse port from listenUrl (e.g., "http://localhost:8080" -> 8080)
   const urlParts = config.listenUrl.split(":");
-  const parsedPort = urlParts.length >= 3 ? toOptionalInt(urlParts[urlParts.length - 1]) : undefined;
+  const parsedPort =
+    urlParts.length >= 3
+      ? toOptionalInt(urlParts[urlParts.length - 1])
+      : undefined;
   if (urlParts.length >= 3 && parsedPort === undefined) {
     throw new Error("Invalid listenUrl port");
   }

@@ -5,9 +5,9 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class Subscription {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
-  ChannelId!: string;
+  TenantId!: long;
+  UserId!: long;
+  ChannelId!: long;
   Color!: string;
   PinToTop!: int;
   IsMuted!: int;
@@ -19,7 +19,13 @@ export class Subscription {
   CreatedAt!: long;
 }
 
-A.on(Subscription).prop((x) => x.Id).add(KeyAttribute);
-A.on(Subscription).type.add(IndexAttribute, ["TenantId", "UserId", "ChannelId"]);
+A.on(Subscription)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
+A.on(Subscription).type.add(IndexAttribute, [
+  "TenantId",
+  "UserId",
+  "ChannelId",
+]);
 A.on(Subscription).type.add(IndexAttribute, ["TenantId", "ChannelId"]);
 A.on(Subscription).type.add(IndexAttribute, ["TenantId", "UserId"]);

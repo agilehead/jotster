@@ -12,7 +12,7 @@ describe("GET /api/v1/realm/profile_fields", () => {
       name: "GitHub",
       hint: "Your GitHub username",
       field_type: "7",
-      field_data: "{\"subtype\":\"github\"}",
+      field_data: '{"subtype":"github"}',
       required: "true",
       editable_by_user: "false",
       use_for_user_matching: "true",
@@ -30,7 +30,7 @@ describe("GET /api/v1/realm/profile_fields", () => {
         name: "GitHub",
         hint: "Your GitHub username",
         type: 7,
-        field_data: "{\"subtype\":\"github\"}",
+        field_data: '{"subtype":"github"}',
         order: 1,
         display_in_profile_summary: true,
         required: true,
@@ -62,7 +62,9 @@ describe("POST /api/v1/realm/profile_fields", () => {
       id: res.body.id,
     });
 
-    const row = await db("custom_profile_field").where({ id: res.body.id }).first();
+    const row = await db("custom_profile_field")
+      .where({ id: res.body.id })
+      .first();
     expect(row).to.include({
       name: "Phone number",
       hint: "Work phone",
@@ -98,21 +100,31 @@ describe("POST /api/v1/realm/profile_fields", () => {
     expect(blankLabelRes.status).to.equal(400);
     expect(blankLabelRes.body.msg).to.equal("Label cannot be blank.");
 
-    const incompatibleSummaryRes = await admin.client.post("/realm/profile_fields", {
-      name: "Mentor",
-      field_type: "6",
-      display_in_profile_summary: "true",
-    });
+    const incompatibleSummaryRes = await admin.client.post(
+      "/realm/profile_fields",
+      {
+        name: "Mentor",
+        field_type: "6",
+        display_in_profile_summary: "true",
+      },
+    );
     expect(incompatibleSummaryRes.status).to.equal(400);
-    expect(incompatibleSummaryRes.body.msg).to.equal("Field type not supported for display in profile summary.");
+    expect(incompatibleSummaryRes.body.msg).to.equal(
+      "Field type not supported for display in profile summary.",
+    );
 
-    const incompatibleMatchingRes = await admin.client.post("/realm/profile_fields", {
-      name: "Biography",
-      field_type: "2",
-      use_for_user_matching: "true",
-    });
+    const incompatibleMatchingRes = await admin.client.post(
+      "/realm/profile_fields",
+      {
+        name: "Biography",
+        field_type: "2",
+        use_for_user_matching: "true",
+      },
+    );
     expect(incompatibleMatchingRes.status).to.equal(400);
-    expect(incompatibleMatchingRes.body.msg).to.equal("Field type not supported for use for user matching.");
+    expect(incompatibleMatchingRes.body.msg).to.equal(
+      "Field type not supported for use for user matching.",
+    );
 
     const first = await admin.client.post("/realm/profile_fields", {
       name: "Summary 1",
@@ -133,14 +145,18 @@ describe("POST /api/v1/realm/profile_fields", () => {
       display_in_profile_summary: "true",
     });
     expect(thirdSummaryRes.status).to.equal(400);
-    expect(thirdSummaryRes.body.msg).to.equal("Only 2 custom profile fields can be displayed in the profile summary.");
+    expect(thirdSummaryRes.body.msg).to.equal(
+      "Only 2 custom profile fields can be displayed in the profile summary.",
+    );
 
     const duplicateLabelRes = await admin.client.post("/realm/profile_fields", {
       name: "Summary 1",
       field_type: "1",
     });
     expect(duplicateLabelRes.status).to.equal(400);
-    expect(duplicateLabelRes.body.msg).to.equal("A field with that label already exists.");
+    expect(duplicateLabelRes.body.msg).to.equal(
+      "A field with that label already exists.",
+    );
   });
 });
 
@@ -160,11 +176,14 @@ describe("PATCH /api/v1/realm/profile_fields/:field_id", () => {
     });
     expect(createRes.status).to.equal(200);
 
-    const res = await client.patch(`/realm/profile_fields/${createRes.body.id}`, {
-      name: "Phone number",
-      hint: "",
-      display_in_profile_summary: "true",
-    });
+    const res = await client.patch(
+      `/realm/profile_fields/${createRes.body.id}`,
+      {
+        name: "Phone number",
+        hint: "",
+        display_in_profile_summary: "true",
+      },
+    );
 
     expect(res.status).to.equal(200);
     expect(res.body).to.deep.equal({ result: "success", msg: "" });
@@ -197,13 +216,18 @@ describe("PATCH /api/v1/realm/profile_fields/:field_id", () => {
       field_type: "1",
     });
     expect(createRes.status).to.equal(200);
-    const fieldId = createRes.body.id as string;
+    const fieldId = createRes.body.id as number;
 
-    const memberRes = await member.client.patch(`/realm/profile_fields/${fieldId}`, {
-      name: "Nope",
-    });
+    const memberRes = await member.client.patch(
+      `/realm/profile_fields/${fieldId}`,
+      {
+        name: "Nope",
+      },
+    );
     expect(memberRes.status).to.equal(400);
-    expect(memberRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberRes.body.msg).to.equal(
+      "Must be an organization administrator",
+    );
     expect(memberRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
 
     const missingRes = await admin.client.patch("/realm/profile_fields/9001", {
@@ -213,15 +237,21 @@ describe("PATCH /api/v1/realm/profile_fields/:field_id", () => {
     expect(missingRes.body.msg).to.equal("Field id 9001 not found.");
     expect(missingRes.body.code).to.equal("BAD_REQUEST");
 
-    const invalidRequiredRes = await admin.client.patch(`/realm/profile_fields/${fieldId}`, {
-      required: "invalid value",
-    });
+    const invalidRequiredRes = await admin.client.patch(
+      `/realm/profile_fields/${fieldId}`,
+      {
+        required: "invalid value",
+      },
+    );
     expect(invalidRequiredRes.status).to.equal(400);
     expect(invalidRequiredRes.body.msg).to.equal("required is not valid JSON");
 
-    const blankLabelRes = await admin.client.patch(`/realm/profile_fields/${fieldId}`, {
-      name: "",
-    });
+    const blankLabelRes = await admin.client.patch(
+      `/realm/profile_fields/${fieldId}`,
+      {
+        name: "",
+      },
+    );
     expect(blankLabelRes.status).to.equal(400);
     expect(blankLabelRes.body.msg).to.equal("Label cannot be blank.");
   });
@@ -254,7 +284,9 @@ describe("DELETE /api/v1/realm/profile_fields/:field_id", () => {
 
     const memberRes = await member.client.delete("/realm/profile_fields/9001");
     expect(memberRes.status).to.equal(400);
-    expect(memberRes.body.msg).to.equal("Must be an organization administrator");
+    expect(memberRes.body.msg).to.equal(
+      "Must be an organization administrator",
+    );
     expect(memberRes.body.code).to.equal("UNAUTHORIZED_PRINCIPAL");
 
     const res = await admin.client.delete("/realm/profile_fields/9001");

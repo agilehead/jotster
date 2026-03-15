@@ -29,7 +29,7 @@ describe("POST /api/v1/messages", function () {
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
     expect(res.body).to.have.property("id");
-    expect(res.body.id).to.be.a("string");
+    expect(res.body.id).to.be.a("number");
   });
 
   it("should send a channel message by stream_id", async () => {

@@ -8,8 +8,8 @@ import { getUser } from "../repo/get-user.ts";
 export const updateBotDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  botId: string,
-  updates: { fullName?: string; botOwnerId?: string }
+  botId: long,
+  updates: { fullName?: string; botOwnerId?: long },
 ): Promise<Result<User, string>> => {
   const bot = await getUser(options, botId);
   if (bot === undefined) {
@@ -41,8 +41,8 @@ export const updateBotDomain = async (
     const db0 = db;
     const botId0 = botId;
     const tenantId0 = actingUser.tenantId;
-    const botEntity = await db0.Users
-      .Where((u) => u.Id === botId0).Where((u) => u.TenantId === tenantId0)
+    const botEntity = await db0.Users.Where((u) => u.Id === botId0)
+      .Where((u) => u.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (botEntity === undefined) {
@@ -56,7 +56,8 @@ export const updateBotDomain = async (
       botEntity.BotOwnerId = updates.botOwnerId;
     }
 
-    botEntity.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
+    botEntity.UpdatedAt =
+      DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
     await db0.SaveChangesAsync();
     return ok(botEntity);
   } finally {

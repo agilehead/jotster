@@ -2,26 +2,49 @@ import type { int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateCustomProfileFieldDomain } from "@jotster/users/Jotster.Users.js";
+import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
-import { getBodyObject, getOptionalFlagIntField, getOptionalIntField, getOptionalStringField, hasField } from "../helpers/body.ts";
+import {
+  getBodyObject,
+  getOptionalFlagIntField,
+  getOptionalIntField,
+  getOptionalStringField,
+  hasField,
+  toLong,
+} from "../helpers/body.ts";
 
 export const handleUpdateCustomProfileField = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   if (user.role > 200) {
-    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Must be an organization administrator",
+        code: "UNAUTHORIZED_PRINCIPAL",
+      });
     return;
   }
-  const fieldId = req.params["field_id"] as string;
+  const fieldId = parseId(req.params["field_id"] as string);
+  if (fieldId === undefined) {
+    res.status(400).json({ result: "error", msg: "Invalid field_id" });
+    return;
+  }
   const body = getBodyObject(req);
 
   const updates: {
@@ -50,9 +73,17 @@ export const handleUpdateCustomProfileField = async (
   const fieldData = getOptionalStringField(body, "field_data");
   if (fieldData !== undefined) updates.fieldDataJson = fieldData;
   if (hasField(body, "display_in_profile_summary")) {
-    const displayInProfileSummary = getOptionalFlagIntField(body, "display_in_profile_summary");
+    const displayInProfileSummary = getOptionalFlagIntField(
+      body,
+      "display_in_profile_summary",
+    );
     if (displayInProfileSummary === undefined) {
-      res.status(400).json({ result: "error", msg: "display_in_profile_summary is not valid JSON" });
+      res
+        .status(400)
+        .json({
+          result: "error",
+          msg: "display_in_profile_summary is not valid JSON",
+        });
       return;
     }
     updates.displayInProfileSummary = displayInProfileSummary;
@@ -60,7 +91,9 @@ export const handleUpdateCustomProfileField = async (
   if (hasField(body, "required")) {
     const required = getOptionalFlagIntField(body, "required");
     if (required === undefined) {
-      res.status(400).json({ result: "error", msg: "required is not valid JSON" });
+      res
+        .status(400)
+        .json({ result: "error", msg: "required is not valid JSON" });
       return;
     }
     updates.required = required;
@@ -68,15 +101,25 @@ export const handleUpdateCustomProfileField = async (
   if (hasField(body, "editable_by_user")) {
     const editableByUser = getOptionalFlagIntField(body, "editable_by_user");
     if (editableByUser === undefined) {
-      res.status(400).json({ result: "error", msg: "editable_by_user is not valid JSON" });
+      res
+        .status(400)
+        .json({ result: "error", msg: "editable_by_user is not valid JSON" });
       return;
     }
     updates.editableByUser = editableByUser;
   }
   if (hasField(body, "use_for_user_matching")) {
-    const useForUserMatching = getOptionalFlagIntField(body, "use_for_user_matching");
+    const useForUserMatching = getOptionalFlagIntField(
+      body,
+      "use_for_user_matching",
+    );
     if (useForUserMatching === undefined) {
-      res.status(400).json({ result: "error", msg: "use_for_user_matching is not valid JSON" });
+      res
+        .status(400)
+        .json({
+          result: "error",
+          msg: "use_for_user_matching is not valid JSON",
+        });
       return;
     }
     updates.useForUserMatching = useForUserMatching;
@@ -90,9 +133,16 @@ export const handleUpdateCustomProfileField = async (
     updates.ordering = ordering;
   }
 
-  const result = await updateCustomProfileFieldDomain(app.options, user, fieldId, updates);
+  const result = await updateCustomProfileFieldDomain(
+    app.options,
+    user,
+    toLong(fieldId),
+    updates,
+  );
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

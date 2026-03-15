@@ -1,6 +1,8 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { Int64 } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { createDraft } from "../repo/create-draft.ts";
@@ -16,13 +18,13 @@ interface CreateDraftApiInput {
 export const createDraftsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  drafts: CreateDraftApiInput[]
-): Promise<Result<string[], string>> => {
+  drafts: CreateDraftApiInput[],
+): Promise<Result<long[], string>> => {
   if (drafts.length === 0) {
     return err("No drafts provided");
   }
 
-  const ids = new List<string>();
+  const ids = new List<long>();
 
   for (let i = 0; i < drafts.length; i++) {
     const input = drafts[i];
@@ -31,7 +33,8 @@ export const createDraftsDomain = async (
       return err("Invalid draft type: " + input.type);
     }
 
-    const channelId = input.type === "stream" ? input.to : undefined;
+    const channelId =
+      input.type === "stream" ? (Int64.Parse(input.to) as long) : undefined;
     const recipientIdsJson = input.type === "private" ? input.to : undefined;
     const topic = input.topic;
 
@@ -47,7 +50,9 @@ export const createDraftsDomain = async (
 
     ids.Add(draft.Id);
 
-    const draftRecords: Record<string, unknown>[] = [mapDraftToCompatRecord(draft)];
+    const draftRecords: Record<string, unknown>[] = [
+      mapDraftToCompatRecord(draft),
+    ];
 
     dispatchEventToUser(user.tenantId, user.userId, {
       type: "drafts",

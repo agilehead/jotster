@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -12,7 +12,10 @@ interface IncomingWebhookInput {
   body: Record<string, unknown>;
 }
 
-const getBodyString = (body: Record<string, unknown>, key: string): string | undefined => {
+const getBodyString = (
+  body: Record<string, unknown>,
+  key: string,
+): string | undefined => {
   for (const [entryKey, entryValue] of Object.entries(body)) {
     if (entryKey === key) {
       if (typeof entryValue === "string") {
@@ -27,16 +30,16 @@ const getBodyString = (body: Record<string, unknown>, key: string): string | und
 export const handleIncomingWebhookDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: IncomingWebhookInput
-): Promise<Result<{ id: string }, string>> => {
+  input: IncomingWebhookInput,
+): Promise<Result<{ id: long }, string>> => {
   // Verify the user is a bot of type 2 (incoming webhook bot)
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const userId0 = user.userId;
     const tenantId0 = user.tenantId;
-    const botUser = await db0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === userId0)
+    const botUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+      .Where((u) => u.Id === userId0)
       .FirstOrDefaultAsync();
 
     if (botUser === undefined || botUser === null) {
@@ -61,15 +64,30 @@ export const handleIncomingWebhookDomain = async (
   let content = "";
   let stream = "";
 
-  if (input.integrationName === "generic" || input.integrationName === undefined) {
+  if (
+    input.integrationName === "generic" ||
+    input.integrationName === undefined
+  ) {
     // Generic format: read topic + content from body or params
     topic = (input.topic ?? getBodyString(input.body, "topic") ?? "").trim();
-    content = (input.content ?? getBodyString(input.body, "content") ?? "").trim();
+    content = (
+      input.content ??
+      getBodyString(input.body, "content") ??
+      ""
+    ).trim();
     stream = (input.stream ?? getBodyString(input.body, "stream") ?? "").trim();
   } else {
     // For other integrations, fall back to generic format for MVP
-    topic = (input.topic ?? getBodyString(input.body, "topic") ?? input.integrationName).trim();
-    content = (input.content ?? getBodyString(input.body, "content") ?? "").trim();
+    topic = (
+      input.topic ??
+      getBodyString(input.body, "topic") ??
+      input.integrationName
+    ).trim();
+    content = (
+      input.content ??
+      getBodyString(input.body, "content") ??
+      ""
+    ).trim();
     stream = (input.stream ?? getBodyString(input.body, "stream") ?? "").trim();
 
     // If content is still empty, try to extract a reasonable default

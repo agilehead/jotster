@@ -4,8 +4,8 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class User {
-  Id!: string;
-  TenantId!: string;
+  Id!: long;
+  TenantId!: long;
   Email!: string;
   FullName!: string;
   PasswordHash?: string;
@@ -14,7 +14,7 @@ export class User {
   AvatarSource!: string;
   IsBot!: int;
   BotType?: int;
-  BotOwnerId?: string;
+  BotOwnerId?: long;
   IsActive!: int;
   Timezone!: string;
   DateJoined!: long;
@@ -24,6 +24,8 @@ export class User {
   UpdatedAt!: long;
 }
 
-A.on(User).prop((x) => x.Id).add(KeyAttribute);
+A.on(User)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(User).type.add(IndexAttribute, ["TenantId", "Email"]);
 A.on(User).type.add(IndexAttribute, ["TenantId", "IsActive"]);

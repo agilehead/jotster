@@ -1,11 +1,12 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const unmuteUser = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  mutedUserId: string
+  tenantId: long,
+  userId: long,
+  mutedUserId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
@@ -13,8 +14,9 @@ export const unmuteUser = async (
     const tenantId0 = tenantId;
     const userId0 = userId;
     const mutedUserId0 = mutedUserId;
-    const existing = await db0.MutedUsers
-      .Where((m) => m.TenantId === tenantId0).Where((m) => m.UserId === userId0).Where((m) => m.MutedUserId === mutedUserId0)
+    const existing = await db0.MutedUsers.Where((m) => m.TenantId === tenantId0)
+      .Where((m) => m.UserId === userId0)
+      .Where((m) => m.MutedUserId === mutedUserId0)
       .FirstOrDefaultAsync();
 
     if (existing === undefined || existing === null) {

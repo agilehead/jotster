@@ -6,11 +6,12 @@ import { createJotsterDbContext } from "./jotster-db-context.ts";
 import type { JotsterDbContext } from "./jotster-db-context.ts";
 import { createDbOptions } from "./create-db-options.ts";
 
-export class JotsterDbContextFactory
-  implements Interface<IDesignTimeDbContextFactory<JotsterDbContext>>
-{
+export class JotsterDbContextFactory implements Interface<
+  IDesignTimeDbContextFactory<JotsterDbContext>
+> {
   CreateDbContext(_args: string[]): JotsterDbContext {
-    const dbPath = Environment.GetEnvironmentVariable("JOTSTER_DB") ?? "jotster.db";
+    const dbPath =
+      Environment.GetEnvironmentVariable("JOTSTER_DB") ?? "jotster.db";
     return createJotsterDbContext(createDbOptions(dbPath));
   }
 }

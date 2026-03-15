@@ -121,7 +121,7 @@ describe("PATCH /api/v1/drafts/{draft_id}", () => {
     const createRes = await client.post("/drafts", {
       drafts: JSON.stringify(drafts),
     });
-    const draftId = (createRes.body.ids as string[])[0];
+    const draftId = (createRes.body.ids as number[])[0];
 
     // Update the draft
     const updatedDraft = {
@@ -161,7 +161,7 @@ describe("DELETE /api/v1/drafts/{draft_id}", () => {
     const createRes = await client.post("/drafts", {
       drafts: JSON.stringify(drafts),
     });
-    const draftId = (createRes.body.ids as string[])[0];
+    const draftId = (createRes.body.ids as number[])[0];
 
     // Delete the draft
     const res = await client.delete(`/drafts/${draftId}`);
@@ -174,7 +174,7 @@ describe("DELETE /api/v1/drafts/{draft_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId);
 
-    const res = await client.delete("/drafts/nonexistent_draft_id");
+    const res = await client.delete("/drafts/999999");
     expect(res.body.result).to.equal("error");
   });
 });

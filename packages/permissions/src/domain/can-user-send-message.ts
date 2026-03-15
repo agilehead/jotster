@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
@@ -7,10 +8,10 @@ import { getChannelForAccessCheck } from "../repo/get-channel-for-access-check.t
 
 export const canUserSendMessage = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
+  tenantId: long,
+  userId: long,
   userRole: number,
-  channelId: string | undefined
+  channelId: long | undefined,
 ): Promise<Result<boolean, string>> => {
   // DM — check direct_message_permission_group
   if (channelId === undefined) {
@@ -18,9 +19,11 @@ export const canUserSendMessage = async (
       options,
       tenantId,
       userId,
-      "direct_message_permission_group"
+      "direct_message_permission_group",
     );
   }
+
+  const chId = channelId as long;
 
   // Channel message — check access first
   const accessResult = await canUserAccessChannel(
@@ -28,7 +31,7 @@ export const canUserSendMessage = async (
     tenantId,
     userId,
     userRole,
-    channelId
+    chId,
   );
 
   if (!accessResult.success) {
@@ -40,7 +43,7 @@ export const canUserSendMessage = async (
   }
 
   // Check if channel is archived
-  const channel = await getChannelForAccessCheck(options, tenantId, channelId);
+  const channel = await getChannelForAccessCheck(options, tenantId, chId);
 
   if (channel === undefined) {
     return ok(false);

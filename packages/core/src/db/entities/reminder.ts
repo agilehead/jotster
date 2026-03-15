@@ -4,10 +4,10 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Reminder {
-  Id!: string;
-  TenantId!: string;
-  UserId!: string;
-  MessageId!: string;
+  Id!: long;
+  TenantId!: long;
+  UserId!: long;
+  MessageId!: long;
   Note?: string;
   Content!: string;
   RenderedContent!: string;
@@ -17,6 +17,12 @@ export class Reminder {
   UpdatedAt!: long;
 }
 
-A.on(Reminder).prop((x) => x.Id).add(KeyAttribute);
+A.on(Reminder)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Reminder).type.add(IndexAttribute, ["TenantId", "UserId"]);
-A.on(Reminder).type.add(IndexAttribute, ["TenantId", "UserId", "ScheduledDeliveryTimestamp"]);
+A.on(Reminder).type.add(IndexAttribute, [
+  "TenantId",
+  "UserId",
+  "ScheduledDeliveryTimestamp",
+]);

@@ -1,4 +1,11 @@
-import { copyRecord, getOptionalBooleanField, getOptionalField, getOptionalIntField, getOptionalStringField, hasField } from "./body.ts";
+import {
+  copyRecord,
+  getOptionalBooleanField,
+  getOptionalField,
+  getOptionalIntField,
+  getOptionalStringField,
+  hasField,
+} from "./body.ts";
 
 const REALM_USER_SETTING_DEFAULTS_BASE: Record<string, unknown> = {
   twenty_four_hour_time: false,
@@ -160,7 +167,11 @@ export const normalizeRealmUserSettingDefaultsUpdates = (
     if (hasKnownKey(REALM_USER_SETTING_BOOLEAN_KEYS, key)) {
       const value = getOptionalBooleanField(body, key);
       if (value === undefined) {
-        return { updates: {}, ignoredParametersUnsupported, error: key + " is not valid JSON" };
+        return {
+          updates: {},
+          ignoredParametersUnsupported,
+          error: key + " is not valid JSON",
+        };
       }
       updates[key] = value;
       continue;
@@ -174,12 +185,20 @@ export const normalizeRealmUserSettingDefaultsUpdates = (
           return {
             updates: {},
             ignoredParametersUnsupported,
-            error: "Invalid email batching period: " + String(original) + " seconds",
+            error:
+              "Invalid email batching period: " + String(original) + " seconds",
           };
         }
-        return { updates: {}, ignoredParametersUnsupported, error: "Invalid " + key };
+        return {
+          updates: {},
+          ignoredParametersUnsupported,
+          error: "Invalid " + key,
+        };
       }
-      if (key === "email_notifications_batching_period_seconds" && (value <= 0 || value > 604800)) {
+      if (
+        key === "email_notifications_batching_period_seconds" &&
+        (value <= 0 || value > 604800)
+      ) {
         return {
           updates: {},
           ignoredParametersUnsupported,
@@ -192,8 +211,18 @@ export const normalizeRealmUserSettingDefaultsUpdates = (
 
     if (key === "notification_sound") {
       const value = getOptionalStringField(body, key);
-      if (value === undefined || AVAILABLE_NOTIFICATION_SOUNDS.indexOf(value) === -1) {
-        return { updates: {}, ignoredParametersUnsupported, error: "Invalid notification sound '" + String(getOptionalField(body, key)) + "'" };
+      if (
+        value === undefined ||
+        AVAILABLE_NOTIFICATION_SOUNDS.indexOf(value) === -1
+      ) {
+        return {
+          updates: {},
+          ignoredParametersUnsupported,
+          error:
+            "Invalid notification sound '" +
+            String(getOptionalField(body, key)) +
+            "'",
+        };
       }
       updates[key] = value;
       continue;
@@ -201,8 +230,16 @@ export const normalizeRealmUserSettingDefaultsUpdates = (
 
     if (key === "emojiset") {
       const value = getOptionalStringField(body, key);
-      if (value === undefined || (value !== "google" && value !== "twitter" && value !== "text")) {
-        return { updates: {}, ignoredParametersUnsupported, error: "Invalid emojiset: Value error, Not in the list of possible values" };
+      if (
+        value === undefined ||
+        (value !== "google" && value !== "twitter" && value !== "text")
+      ) {
+        return {
+          updates: {},
+          ignoredParametersUnsupported,
+          error:
+            "Invalid emojiset: Value error, Not in the list of possible values",
+        };
       }
       updates[key] = value;
       continue;
@@ -210,8 +247,17 @@ export const normalizeRealmUserSettingDefaultsUpdates = (
 
     if (key === "resolved_topic_notice_auto_read_policy") {
       const value = getOptionalStringField(body, key);
-      if (value === undefined || (value !== "always" && value !== "conversation_view" && value !== "never")) {
-        return { updates: {}, ignoredParametersUnsupported, error: "Invalid resolved_topic_notice_auto_read_policy" };
+      if (
+        value === undefined ||
+        (value !== "always" &&
+          value !== "conversation_view" &&
+          value !== "never")
+      ) {
+        return {
+          updates: {},
+          ignoredParametersUnsupported,
+          error: "Invalid resolved_topic_notice_auto_read_policy",
+        };
       }
       updates[key] = value;
       continue;

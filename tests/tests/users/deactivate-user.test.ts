@@ -7,7 +7,9 @@ describe("DELETE /api/v1/users/{user_id}", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client: adminClient } = await seedUser(db, tenantId, { role: 200 });
-    const { userId: targetUserId } = await seedUser(db, tenantId, { fullName: "To Deactivate" });
+    const { userId: targetUserId } = await seedUser(db, tenantId, {
+      fullName: "To Deactivate",
+    });
 
     const res = await adminClient.delete(`/users/${targetUserId}`);
     expect(res.status).to.equal(200);
@@ -17,7 +19,9 @@ describe("DELETE /api/v1/users/{user_id}", () => {
   it("should not allow a regular member to deactivate another user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
-    const { client: memberClient } = await seedUser(db, tenantId, { role: 400 });
+    const { client: memberClient } = await seedUser(db, tenantId, {
+      role: 400,
+    });
     const { userId: targetUserId } = await seedUser(db, tenantId);
 
     const res = await memberClient.delete(`/users/${targetUserId}`);
@@ -30,7 +34,7 @@ describe("DELETE /api/v1/users/{user_id}", () => {
     const tenantId = await seedTenant(db);
     const { client } = await seedUser(db, tenantId, { role: 200 });
 
-    const res = await client.delete("/users/nonexistent_id_999");
+    const res = await client.delete("/users/999999");
     expect(res.body.result).to.equal("error");
     expect(res.body.code).to.equal("BAD_REQUEST");
   });
@@ -69,7 +73,9 @@ describe("POST /api/v1/users/{user_id}/reactivate", () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const { client: adminClient } = await seedUser(db, tenantId, { role: 200 });
-    const { client: memberClient } = await seedUser(db, tenantId, { role: 400 });
+    const { client: memberClient } = await seedUser(db, tenantId, {
+      role: 400,
+    });
     const { userId: targetUserId } = await seedUser(db, tenantId);
 
     // Admin deactivates

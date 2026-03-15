@@ -1,23 +1,22 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, CustomEmoji, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, CustomEmoji } from "@jotster/core/Jotster.Core.js";
 
 interface CreateCustomEmojiInput {
-  tenantId: string;
+  tenantId: long;
   name: string;
   fileName: string;
-  authorId: string;
+  authorId: long;
 }
 
 export const createCustomEmoji = async (
   options: DbContextOptions,
-  input: CreateCustomEmojiInput
+  input: CreateCustomEmojiInput,
 ): Promise<CustomEmoji> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
   const emoji = new CustomEmoji();
-  emoji.Id = generateId();
   emoji.TenantId = input.tenantId;
   emoji.Name = input.name;
   emoji.FileName = input.fileName;

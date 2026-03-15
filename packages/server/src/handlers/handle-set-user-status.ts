@@ -7,11 +7,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleSetUserStatus = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -23,9 +28,16 @@ export const handleSetUserStatus = async (
   const emojiCode = getOptionalStringField(body, "emoji_code");
   const reactionType = getOptionalStringField(body, "reaction_type");
 
-  const result = await setUserStatusDomain(app.options, user, { statusText, emojiName, emojiCode, reactionType });
+  const result = await setUserStatusDomain(app.options, user, {
+    statusText,
+    emojiName,
+    emojiCode,
+    reactionType,
+  });
   if (!result.success) {
-    res.status(400).json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: result.error, code: "BAD_REQUEST" });
     return;
   }
 

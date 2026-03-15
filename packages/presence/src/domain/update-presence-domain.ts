@@ -32,7 +32,7 @@ interface PresenceResult {
 export const updatePresenceDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: UpdatePresenceParams
+  params: UpdatePresenceParams,
 ): Promise<Result<PresenceResult, string>> => {
   if (params.status !== "active" && params.status !== "idle") {
     return err("Invalid status: must be 'active' or 'idle'");
@@ -46,7 +46,7 @@ export const updatePresenceDomain = async (
     user.userId,
     clientName,
     params.status,
-    params.pingOnly
+    params.pingOnly,
   );
 
   // Dispatch presence event to tenant
@@ -70,14 +70,23 @@ export const updatePresenceDomain = async (
   });
 
   const allPresences = await getRealmPresence(options, user.tenantId);
-  const presenceLastUpdateId = getPresenceLastUpdateId(allPresences, params.lastUpdateId);
+  const presenceLastUpdateId = getPresenceLastUpdateId(
+    allPresences,
+    params.lastUpdateId,
+  );
   if (params.pingOnly === true) {
     return ok({ presenceLastUpdateId });
   }
 
-  const filteredPresences = filterPresenceEntries(allPresences, params.historyLimitDays, params.lastUpdateId);
-  const serverTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
-  const shouldUseModernFormat = params.lastUpdateId !== undefined || params.slimPresence === true;
+  const filteredPresences = filterPresenceEntries(
+    allPresences,
+    params.historyLimitDays,
+    params.lastUpdateId,
+  );
+  const serverTimestamp =
+    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
+  const shouldUseModernFormat =
+    params.lastUpdateId !== undefined || params.slimPresence === true;
 
   if (shouldUseModernFormat) {
     return ok({
@@ -91,9 +100,9 @@ export const updatePresenceDomain = async (
   try {
     const db0 = db;
     const tenantId0 = user.tenantId;
-    const users = await db0.Users
-      .Where((u) => u.TenantId === tenantId0)
-      .ToListAsync();
+    const users = await db0.Users.Where(
+      (u) => u.TenantId === tenantId0,
+    ).ToListAsync();
     const presences: Record<string, unknown> = {};
 
     for (let i = 0; i < users.Count; i++) {
@@ -106,7 +115,10 @@ export const updatePresenceDomain = async (
           continue;
         }
 
-        if (latestEntry === undefined || entry.Timestamp > latestEntry.Timestamp) {
+        if (
+          latestEntry === undefined ||
+          entry.Timestamp > latestEntry.Timestamp
+        ) {
           latestEntry = entry;
         }
       }

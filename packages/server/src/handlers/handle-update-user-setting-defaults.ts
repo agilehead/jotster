@@ -8,24 +8,37 @@ import { normalizeRealmUserSettingDefaultsUpdates } from "../helpers/realm-user-
 export const handleUpdateUserSettingDefaults = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   if (user.role > 200) {
-    res.status(400).json({ result: "error", msg: "Must be an organization administrator", code: "UNAUTHORIZED_PRINCIPAL" });
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Must be an organization administrator",
+        code: "UNAUTHORIZED_PRINCIPAL",
+      });
     return;
   }
   const body = getBodyObject(req);
   const normalized = normalizeRealmUserSettingDefaultsUpdates(body);
 
   if (normalized.error !== undefined) {
-    res.status(400).json({ result: "error", msg: normalized.error, code: "BAD_REQUEST" });
+    res
+      .status(400)
+      .json({ result: "error", msg: normalized.error, code: "BAD_REQUEST" });
     return;
   }
 
@@ -34,7 +47,11 @@ export const handleUpdateUserSettingDefaults = async (
     return;
   }
 
-  const result = await updateUserSettingDefaultsDomain(app.options, user, normalized.updates);
+  const result = await updateUserSettingDefaultsDomain(
+    app.options,
+    user,
+    normalized.updates,
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;
@@ -42,7 +59,8 @@ export const handleUpdateUserSettingDefaults = async (
 
   const response: Record<string, unknown> = { result: "success", msg: "" };
   if (normalized.ignoredParametersUnsupported.length > 0) {
-    response["ignored_parameters_unsupported"] = normalized.ignoredParametersUnsupported;
+    response["ignored_parameters_unsupported"] =
+      normalized.ignoredParametersUnsupported;
   }
   res.json(response);
 };

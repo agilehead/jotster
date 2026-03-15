@@ -5,14 +5,16 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class PushDeviceToken {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  TenantId!: long;
+  UserId!: long;
   Kind!: string;
   Token!: string;
   IosAppId?: string;
   CreatedAt!: long;
 }
 
-A.on(PushDeviceToken).prop((x) => x.Id).add(KeyAttribute);
+A.on(PushDeviceToken)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(PushDeviceToken).type.add(IndexAttribute, ["TenantId", "UserId", "Token"]);
 A.on(PushDeviceToken).type.add(IndexAttribute, ["TenantId", "UserId"]);

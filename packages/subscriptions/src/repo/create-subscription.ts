@@ -1,18 +1,22 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, Subscription, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  Subscription,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 interface CreateSubscriptionInput {
-  tenantId: string;
-  userId: string;
-  channelId: string;
+  tenantId: long;
+  userId: long;
+  channelId: long;
   color?: string;
 }
 
 export const createSubscription = async (
   options: DbContextOptions,
-  input: CreateSubscriptionInput
+  input: CreateSubscriptionInput,
 ): Promise<Subscription> => {
   const now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 

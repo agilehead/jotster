@@ -1,28 +1,33 @@
 /**
  * Initial schema migration for Jotster.
- * Creates all 37 tables in dependency order.
+ * Creates all 44 tables in dependency order.
  *
  * @param {import("knex").Knex} knex
  */
 export async function up(knex) {
-  // 1. tenant - root entity
+  // 1. tenant - root entity (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("tenant", (table) => {
-    table.string("id").primary();
+    table.bigIncrements("id");
     table.string("subdomain").notNullable().unique();
     table.string("name").notNullable();
     table.string("description").notNullable().defaultTo("");
     table.string("icon_url");
     table.string("logo_url");
     table.text("settings_json").notNullable().defaultTo("{}");
+    table.integer("owner_full_content_access").notNullable().defaultTo(0);
     table.integer("active").notNullable().defaultTo(1);
     table.bigInteger("created_at").notNullable();
     table.bigInteger("updated_at").notNullable();
   });
 
-  // 2. user - FK to tenant
+  // 2. user - FK to tenant (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("user", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("email").notNullable();
     table.string("full_name").notNullable();
     table.string("password_hash");
@@ -31,7 +36,7 @@ export async function up(knex) {
     table.string("avatar_source").notNullable().defaultTo("gravatar");
     table.integer("is_bot").notNullable().defaultTo(0);
     table.integer("bot_type");
-    table.string("bot_owner_id").references("id").inTable("user");
+    table.bigInteger("bot_owner_id").references("id").inTable("user");
     table.integer("is_active").notNullable().defaultTo(1);
     table.string("timezone").notNullable().defaultTo("");
     table.bigInteger("date_joined").notNullable();
@@ -44,10 +49,14 @@ export async function up(knex) {
     table.index(["tenant_id", "is_active"]);
   });
 
-  // 3. user_setting - PK is user_id
+  // 3. user_setting - PK is user_id (FK to user, bigInteger PK)
   await knex.schema.createTable("user_setting", (table) => {
-    table.string("user_id").primary().references("id").inTable("user");
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigInteger("user_id").primary().references("id").inTable("user");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
 
     // Display settings
     table.integer("twenty_four_hour_time").defaultTo(0);
@@ -88,9 +97,7 @@ export async function up(knex) {
     table.integer("enable_followed_topic_audible_notifications").defaultTo(1);
 
     // Email and notification behavior
-    table
-      .integer("email_notifications_batching_period_seconds")
-      .defaultTo(120);
+    table.integer("email_notifications_batching_period_seconds").defaultTo(120);
     table.integer("enable_drafts_synchronization").defaultTo(1);
     table.integer("message_content_in_email_notifications").defaultTo(1);
     table.integer("pm_content_in_desktop_notifications").defaultTo(1);
@@ -109,23 +116,25 @@ export async function up(knex) {
     table
       .integer("automatically_unmute_topics_in_muted_streams_policy")
       .defaultTo(0);
-    table
-      .integer("automatically_follow_topics_where_mentioned")
-      .defaultTo(1);
+    table.integer("automatically_follow_topics_where_mentioned").defaultTo(1);
     table.integer("user_list_style").defaultTo(1);
-    table
-      .integer("web_stream_unreads_count_display_policy")
-      .defaultTo(1);
+    table.integer("web_stream_unreads_count_display_policy").defaultTo(1);
     table.integer("web_navigate_to_sent_message").defaultTo(1);
     table.integer("web_channel_default_view").defaultTo(1);
+    table.integer("allow_private_data_export").defaultTo(0);
   });
 
-  // 4. api_key - FK to tenant, user
+  // 4. api_key - FK to tenant, user (non-Zulip: string PK)
   await knex.schema.createTable("api_key", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("key_hash").notNullable();
+    table.string("raw_key");
     table.bigInteger("created_at").notNullable();
     table.bigInteger("revoked_at");
 
@@ -133,22 +142,23 @@ export async function up(knex) {
     table.index(["key_hash"]);
   });
 
-  // 5. channel - FK to tenant, creator_id FK->user
+  // 5. channel - FK to tenant, creator_id FK->user (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("channel", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("name").notNullable();
     table.string("description").notNullable().defaultTo("");
     table.string("rendered_description").notNullable().defaultTo("");
     table.integer("is_private").notNullable().defaultTo(0);
     table.integer("is_web_public").notNullable().defaultTo(0);
-    table
-      .integer("history_public_to_subscribers")
-      .notNullable()
-      .defaultTo(1);
-    table.string("creator_id").references("id").inTable("user");
+    table.integer("history_public_to_subscribers").notNullable().defaultTo(1);
+    table.bigInteger("creator_id").references("id").inTable("user");
     table.integer("message_retention_days");
-    table.string("first_message_id");
+    table.bigInteger("first_message_id");
     table.integer("is_archived").notNullable().defaultTo(0);
     table.bigInteger("created_at").notNullable();
     table.bigInteger("updated_at").notNullable();
@@ -157,16 +167,16 @@ export async function up(knex) {
     table.index(["tenant_id", "is_archived"]);
   });
 
-  // 6. default_channel - FK to tenant, channel
+  // 6. default_channel - FK to tenant, channel (non-Zulip: string PK)
   await knex.schema.createTable("default_channel", (table) => {
     table.string("id").primary();
     table
-      .string("tenant_id")
+      .bigInteger("tenant_id")
       .notNullable()
       .references("id")
       .inTable("tenant");
     table
-      .string("channel_id")
+      .bigInteger("channel_id")
       .notNullable()
       .references("id")
       .inTable("channel");
@@ -175,10 +185,14 @@ export async function up(knex) {
     table.unique(["tenant_id", "channel_id"]);
   });
 
-  // 7. default_channel_group - FK to tenant
+  // 7. default_channel_group - FK to tenant (non-Zulip: string PK)
   await knex.schema.createTable("default_channel_group", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("name").notNullable();
     table.string("description").notNullable().defaultTo("");
     table.bigInteger("created_at").notNullable();
@@ -186,7 +200,7 @@ export async function up(knex) {
     table.unique(["tenant_id", "name"]);
   });
 
-  // 8. default_channel_group_item - FK to default_channel_group, channel
+  // 8. default_channel_group_item - FK to default_channel_group (string), channel (bigInteger)
   await knex.schema.createTable("default_channel_group_item", (table) => {
     table
       .string("default_channel_group_id")
@@ -194,7 +208,7 @@ export async function up(knex) {
       .references("id")
       .inTable("default_channel_group");
     table
-      .string("channel_id")
+      .bigInteger("channel_id")
       .notNullable()
       .references("id")
       .inTable("channel");
@@ -202,13 +216,17 @@ export async function up(knex) {
     table.primary(["default_channel_group_id", "channel_id"]);
   });
 
-  // 9. subscription - FK to tenant, user, channel
+  // 9. subscription - FK to tenant, user, channel (non-Zulip: string PK)
   await knex.schema.createTable("subscription", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
     table
-      .string("channel_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("channel_id")
       .notNullable()
       .references("id")
       .inTable("channel");
@@ -227,40 +245,48 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id"]);
   });
 
-  // 10. dm_group - FK to tenant
+  // 10. dm_group - FK to tenant (non-Zulip: string PK)
   await knex.schema.createTable("dm_group", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("group_hash").notNullable();
     table.bigInteger("created_at").notNullable();
 
     table.unique(["tenant_id", "group_hash"]);
   });
 
-  // 11. dm_group_member - FK to dm_group, user
+  // 11. dm_group_member - FK to dm_group (string), user (bigInteger)
   await knex.schema.createTable("dm_group_member", (table) => {
     table
       .string("dm_group_id")
       .notNullable()
       .references("id")
       .inTable("dm_group");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
 
     table.primary(["dm_group_id", "user_id"]);
     table.index(["user_id", "dm_group_id"]);
   });
 
-  // 12. message - FK to tenant, sender_id FK->user, channel_id FK->channel, dm_group_id FK->dm_group
+  // 12. message - FK to tenant, sender_id FK->user, channel_id FK->channel, dm_group_id FK->dm_group (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("message", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigIncrements("id");
     table
-      .string("sender_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table
+      .bigInteger("sender_id")
       .notNullable()
       .references("id")
       .inTable("user");
     table.string("type").notNullable();
-    table.string("channel_id").references("id").inTable("channel");
+    table.bigInteger("channel_id").references("id").inTable("channel");
     table.string("topic");
     table.string("dm_group_id").references("id").inTable("dm_group");
     table.text("content").notNullable();
@@ -276,15 +302,15 @@ export async function up(knex) {
     table.index(["tenant_id", "sender_id", "id"]);
   });
 
-  // 13. message_edit_history - FK to message, user
+  // 13. message_edit_history - FK to message, user (non-Zulip: string PK)
   await knex.schema.createTable("message_edit_history", (table) => {
     table.string("id").primary();
     table
-      .string("message_id")
+      .bigInteger("message_id")
       .notNullable()
       .references("id")
       .inTable("message");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.text("prev_content");
     table.text("prev_rendered_content");
     table.string("prev_topic");
@@ -294,11 +320,11 @@ export async function up(knex) {
     table.index(["message_id", "timestamp"]);
   });
 
-  // 14. message_flag - FK to user, message
+  // 14. message_flag - FK to user, message (composite PK)
   await knex.schema.createTable("message_flag", (table) => {
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table
-      .string("message_id")
+      .bigInteger("message_id")
       .notNullable()
       .references("id")
       .inTable("message");
@@ -309,16 +335,20 @@ export async function up(knex) {
     table.index(["user_id", "flag", "message_id"]);
   });
 
-  // 15. reaction - FK to tenant, message, user
+  // 15. reaction - FK to tenant, message, user (non-Zulip: string PK)
   await knex.schema.createTable("reaction", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
     table
-      .string("message_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table
+      .bigInteger("message_id")
       .notNullable()
       .references("id")
       .inTable("message");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("emoji_name").notNullable();
     table.string("emoji_code").notNullable();
     table.string("reaction_type").notNullable();
@@ -329,31 +359,40 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id", "created_at"]);
   });
 
-  // 16. user_group - FK to tenant, self-referential FKs
+  // 16. user_group - FK to tenant, self-referential FKs (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("user_group", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("name").notNullable();
     table.string("description").notNullable().defaultTo("");
     table.integer("is_system_group").notNullable().defaultTo(0);
+    table.bigInteger("creator_id").references("id").inTable("user");
     table
-      .string("can_add_members_group_id")
+      .bigInteger("can_add_members_group_id")
       .references("id")
       .inTable("user_group");
     table
-      .string("can_join_group_id")
+      .bigInteger("can_join_group_id")
       .references("id")
       .inTable("user_group");
     table
-      .string("can_leave_group_id")
+      .bigInteger("can_leave_group_id")
       .references("id")
       .inTable("user_group");
     table
-      .string("can_manage_group_id")
+      .bigInteger("can_manage_group_id")
       .references("id")
       .inTable("user_group");
     table
-      .string("can_mention_group_id")
+      .bigInteger("can_mention_group_id")
+      .references("id")
+      .inTable("user_group");
+    table
+      .bigInteger("can_remove_members_group_id")
       .references("id")
       .inTable("user_group");
     table.integer("is_active").notNullable().defaultTo(1);
@@ -363,28 +402,28 @@ export async function up(knex) {
     table.unique(["tenant_id", "name"]);
   });
 
-  // 17. user_group_member - FK to user_group, user
+  // 17. user_group_member - FK to user_group (bigInteger), user (bigInteger)
   await knex.schema.createTable("user_group_member", (table) => {
     table
-      .string("user_group_id")
+      .bigInteger("user_group_id")
       .notNullable()
       .references("id")
       .inTable("user_group");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
 
     table.primary(["user_group_id", "user_id"]);
     table.index(["user_id"]);
   });
 
-  // 18. user_group_subgroup - FK to user_group (both parent and child)
+  // 18. user_group_subgroup - FK to user_group (both parent and child, bigInteger)
   await knex.schema.createTable("user_group_subgroup", (table) => {
     table
-      .string("parent_group_id")
+      .bigInteger("parent_group_id")
       .notNullable()
       .references("id")
       .inTable("user_group");
     table
-      .string("subgroup_id")
+      .bigInteger("subgroup_id")
       .notNullable()
       .references("id")
       .inTable("user_group");
@@ -393,10 +432,14 @@ export async function up(knex) {
     table.index(["subgroup_id"]);
   });
 
-  // 19. user_status - PK is user_id
+  // 19. user_status - PK is user_id (FK to user, bigInteger PK)
   await knex.schema.createTable("user_status", (table) => {
-    table.string("user_id").primary().references("id").inTable("user");
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigInteger("user_id").primary().references("id").inTable("user");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("status_text").notNullable().defaultTo("");
     table.string("emoji_name");
     table.string("emoji_code");
@@ -406,10 +449,14 @@ export async function up(knex) {
     table.index(["tenant_id"]);
   });
 
-  // 20. presence - FK to user, tenant
+  // 20. presence - FK to user, tenant (composite PK: user_id bigInteger, client_name string)
   await knex.schema.createTable("presence", (table) => {
-    table.string("user_id").notNullable().references("id").inTable("user");
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("client_name").notNullable();
     table.string("status").notNullable();
     table.bigInteger("timestamp").notNullable();
@@ -419,13 +466,17 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id"]);
   });
 
-  // 21. muted_user - FK to tenant, user (both muter and mutee)
+  // 21. muted_user - FK to tenant, user (both muter and mutee) (non-Zulip: string PK)
   await knex.schema.createTable("muted_user", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
     table
-      .string("muted_user_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("muted_user_id")
       .notNullable()
       .references("id")
       .inTable("user");
@@ -435,13 +486,17 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id"]);
   });
 
-  // 22. user_topic - FK to tenant, user, channel
+  // 22. user_topic - FK to tenant, user, channel (non-Zulip: string PK)
   await knex.schema.createTable("user_topic", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
     table
-      .string("channel_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("channel_id")
       .notNullable()
       .references("id")
       .inTable("channel");
@@ -454,12 +509,18 @@ export async function up(knex) {
     table.index(["tenant_id", "channel_id", "topic"]);
   });
 
-  // 23. channel_folder - FK to tenant, user
+  // 23. channel_folder - FK to tenant, user (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("channel_folder", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("name").notNullable();
+    table.text("description").notNullable().defaultTo("");
+    table.integer("is_archived").notNullable().defaultTo(0);
     table.bigInteger("created_at").notNullable();
     table.integer("ordering").notNullable().defaultTo(0);
     table.bigInteger("updated_at").notNullable();
@@ -468,15 +529,15 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id"]);
   });
 
-  // 24. channel_folder_item - FK to channel_folder, channel
+  // 24. channel_folder_item - FK to channel_folder (bigInteger), channel (bigInteger)
   await knex.schema.createTable("channel_folder_item", (table) => {
     table
-      .string("channel_folder_id")
+      .bigInteger("channel_folder_id")
       .notNullable()
       .references("id")
       .inTable("channel_folder");
     table
-      .string("channel_id")
+      .bigInteger("channel_id")
       .notNullable()
       .references("id")
       .inTable("channel");
@@ -485,11 +546,15 @@ export async function up(knex) {
     table.index(["channel_id"]);
   });
 
-  // 25. attachment - FK to tenant, user
+  // 25. attachment - FK to tenant, user (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("attachment", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("file_name").notNullable();
     table.string("path_id").notNullable();
     table.integer("size").notNullable();
@@ -501,15 +566,15 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id", "created_at"]);
   });
 
-  // 26. attachment_message - FK to attachment, message
+  // 26. attachment_message - FK to attachment (bigInteger), message (bigInteger)
   await knex.schema.createTable("attachment_message", (table) => {
     table
-      .string("attachment_id")
+      .bigInteger("attachment_id")
       .notNullable()
       .references("id")
       .inTable("attachment");
     table
-      .string("message_id")
+      .bigInteger("message_id")
       .notNullable()
       .references("id")
       .inTable("message");
@@ -518,14 +583,18 @@ export async function up(knex) {
     table.index(["message_id"]);
   });
 
-  // 27. custom_emoji - FK to tenant, author_id FK->user
+  // 27. custom_emoji - FK to tenant, author_id FK->user (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("custom_emoji", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("name").notNullable();
     table.string("file_name").notNullable();
     table
-      .string("author_id")
+      .bigInteger("author_id")
       .notNullable()
       .references("id")
       .inTable("user");
@@ -535,15 +604,22 @@ export async function up(knex) {
     table.index(["tenant_id", "is_active"]);
   });
 
-  // 28. custom_profile_field - FK to tenant
+  // 28. custom_profile_field - FK to tenant (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("custom_profile_field", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("name").notNullable();
     table.string("hint").notNullable().defaultTo("");
     table.integer("field_type").notNullable();
     table.text("field_data_json").notNullable().defaultTo("{}");
     table.integer("display_in_profile_summary").notNullable().defaultTo(0);
+    table.integer("required").notNullable().defaultTo(0);
+    table.integer("editable_by_user").notNullable().defaultTo(1);
+    table.integer("use_for_user_matching").notNullable().defaultTo(0);
     table.integer("ordering").notNullable();
     table.bigInteger("created_at").notNullable();
 
@@ -551,13 +627,17 @@ export async function up(knex) {
     table.index(["tenant_id", "ordering"]);
   });
 
-  // 29. custom_profile_field_value - FK to tenant, user, custom_profile_field
+  // 29. custom_profile_field_value - FK to tenant, user, custom_profile_field (non-Zulip: string PK)
   await knex.schema.createTable("custom_profile_field_value", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
     table
-      .string("field_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("field_id")
       .notNullable()
       .references("id")
       .inTable("custom_profile_field");
@@ -569,13 +649,17 @@ export async function up(knex) {
     table.index(["field_id"]);
   });
 
-  // 30. draft - FK to tenant, user
+  // 30. draft - FK to tenant, user (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("draft", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("type").notNullable();
-    table.string("channel_id");
+    table.bigInteger("channel_id");
     table.string("topic");
     table.text("recipient_ids_json");
     table.text("content").notNullable();
@@ -585,11 +669,15 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id"]);
   });
 
-  // 31. alert_word - FK to tenant, user
+  // 31. alert_word - FK to tenant, user (non-Zulip: string PK)
   await knex.schema.createTable("alert_word", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("word").notNullable();
     table.bigInteger("created_at").notNullable();
 
@@ -598,10 +686,14 @@ export async function up(knex) {
     table.index(["tenant_id"]);
   });
 
-  // 32. realm_domain - FK to tenant
+  // 32. realm_domain - FK to tenant (non-Zulip: string PK)
   await knex.schema.createTable("realm_domain", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
     table.string("domain").notNullable();
     table.integer("allow_subdomains").notNullable().defaultTo(0);
     table.bigInteger("created_at").notNullable();
@@ -609,22 +701,22 @@ export async function up(knex) {
     table.unique(["tenant_id", "domain"]);
   });
 
-  // 33. tenant_user_setting_default - PK is tenant_id
+  // 33. tenant_user_setting_default - PK is tenant_id (FK to tenant, bigInteger PK)
   await knex.schema.createTable("tenant_user_setting_default", (table) => {
-    table
-      .string("tenant_id")
-      .primary()
-      .references("id")
-      .inTable("tenant");
+    table.bigInteger("tenant_id").primary().references("id").inTable("tenant");
     table.text("settings_json").notNullable().defaultTo("{}");
   });
 
-  // 34. invitation - FK to tenant, inviter_id FK->user
+  // 34. invitation - FK to tenant, inviter_id FK->user (Zulip-visible: bigIncrements PK)
   await knex.schema.createTable("invitation", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+    table.bigIncrements("id");
     table
-      .string("inviter_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table
+      .bigInteger("inviter_id")
       .notNullable()
       .references("id")
       .inTable("user");
@@ -641,12 +733,16 @@ export async function up(knex) {
     table.index(["tenant_id", "inviter_id"]);
   });
 
-  // 35. outgoing_webhook - FK to tenant, bot_user_id FK->user
+  // 35. outgoing_webhook - FK to tenant, bot_user_id FK->user (non-Zulip: string PK)
   await knex.schema.createTable("outgoing_webhook", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
     table
-      .string("bot_user_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table
+      .bigInteger("bot_user_id")
       .notNullable()
       .unique()
       .references("id")
@@ -662,10 +758,10 @@ export async function up(knex) {
     table.index(["tenant_id"]);
   });
 
-  // 36. bot_storage - FK to bot_user_id FK->user
+  // 36. bot_storage - FK to bot_user_id FK->user (composite PK: bot_user_id bigInteger, key string)
   await knex.schema.createTable("bot_storage", (table) => {
     table
-      .string("bot_user_id")
+      .bigInteger("bot_user_id")
       .notNullable()
       .references("id")
       .inTable("user");
@@ -675,11 +771,15 @@ export async function up(knex) {
     table.primary(["bot_user_id", "key"]);
   });
 
-  // 37. push_device_token - FK to tenant, user
+  // 37. push_device_token - FK to tenant, user (non-Zulip: string PK)
   await knex.schema.createTable("push_device_token", (table) => {
     table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
-    table.string("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
     table.string("kind").notNullable();
     table.string("token").notNullable();
     table.string("ios_app_id");
@@ -689,12 +789,136 @@ export async function up(knex) {
     table.index(["tenant_id", "user_id"]);
   });
 
-  // 38. data_export - FK to tenant, requester_id FK->user
-  await knex.schema.createTable("data_export", (table) => {
-    table.string("id").primary();
-    table.string("tenant_id").notNullable().references("id").inTable("tenant");
+  // 38. saved_snippet - FK to tenant, user (Zulip-visible: bigIncrements PK)
+  await knex.schema.createTable("saved_snippet", (table) => {
+    table.bigIncrements("id");
     table
-      .string("requester_id")
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table.string("title").notNullable();
+    table.text("content").notNullable();
+    table.bigInteger("created_at").notNullable();
+    table.bigInteger("updated_at").notNullable();
+
+    table.index(["tenant_id", "user_id"]);
+  });
+
+  // 39. reminder - FK to tenant, user, message (Zulip-visible: bigIncrements PK)
+  await knex.schema.createTable("reminder", (table) => {
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table
+      .bigInteger("message_id")
+      .notNullable()
+      .references("id")
+      .inTable("message");
+    table.text("note");
+    table.text("content").notNullable();
+    table.text("rendered_content").notNullable();
+    table.bigInteger("scheduled_delivery_timestamp").notNullable();
+    table.integer("failed").notNullable().defaultTo(0);
+    table.bigInteger("created_at").notNullable();
+    table.bigInteger("updated_at").notNullable();
+
+    table.index(["tenant_id", "user_id"]);
+    table.index(["tenant_id", "user_id", "scheduled_delivery_timestamp"]);
+  });
+
+  // 40. scheduled_message - FK to tenant, user (Zulip-visible: bigIncrements PK)
+  await knex.schema.createTable("scheduled_message", (table) => {
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table.string("type").notNullable();
+    table.bigInteger("channel_id").references("id").inTable("channel");
+    table.string("topic");
+    table.text("recipient_ids_json");
+    table.text("content").notNullable();
+    table.text("rendered_content").notNullable();
+    table.bigInteger("scheduled_delivery_timestamp").notNullable();
+    table.integer("failed").notNullable().defaultTo(0);
+    table.bigInteger("created_at").notNullable();
+    table.bigInteger("updated_at").notNullable();
+
+    table.index(["tenant_id", "user_id"]);
+    table.index(["tenant_id", "user_id", "scheduled_delivery_timestamp"]);
+  });
+
+  // 41. navigation_view - FK to tenant, user (Zulip-visible: bigIncrements PK)
+  await knex.schema.createTable("navigation_view", (table) => {
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table.string("fragment").notNullable();
+    table.integer("is_pinned").notNullable().defaultTo(0);
+    table.string("name");
+    table.bigInteger("created_at").notNullable();
+    table.bigInteger("updated_at").notNullable();
+
+    table.unique(["tenant_id", "user_id", "fragment"]);
+    table.index(["tenant_id", "user_id"]);
+  });
+
+  // 42. linkifier - FK to tenant (Zulip-visible: bigIncrements PK)
+  await knex.schema.createTable("linkifier", (table) => {
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.string("pattern").notNullable();
+    table.string("url_template").notNullable();
+    table.string("example_input");
+    table.string("reverse_template");
+    table.text("alternative_url_templates_json");
+    table.integer("ordering").notNullable().defaultTo(0);
+    table.bigInteger("created_at").notNullable();
+    table.bigInteger("updated_at").notNullable();
+
+    table.index(["tenant_id"]);
+  });
+
+  // 43. client_device - FK to tenant, user (non-Zulip: string PK)
+  await knex.schema.createTable("client_device", (table) => {
+    table.string("id").primary();
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table.bigInteger("user_id").notNullable().references("id").inTable("user");
+    table.bigInteger("created_at").notNullable();
+
+    table.index(["tenant_id", "user_id"]);
+  });
+
+  // 44. data_export - FK to tenant, requester_id FK->user (Zulip-visible: bigIncrements PK)
+  await knex.schema.createTable("data_export", (table) => {
+    table.bigIncrements("id");
+    table
+      .bigInteger("tenant_id")
+      .notNullable()
+      .references("id")
+      .inTable("tenant");
+    table
+      .bigInteger("requester_id")
       .notNullable()
       .references("id")
       .inTable("user");
@@ -716,6 +940,12 @@ export async function up(knex) {
  * @param {import("knex").Knex} knex
  */
 export async function down(knex) {
+  await knex.schema.dropTableIfExists("client_device");
+  await knex.schema.dropTableIfExists("linkifier");
+  await knex.schema.dropTableIfExists("navigation_view");
+  await knex.schema.dropTableIfExists("scheduled_message");
+  await knex.schema.dropTableIfExists("reminder");
+  await knex.schema.dropTableIfExists("saved_snippet");
   await knex.schema.dropTableIfExists("push_device_token");
   await knex.schema.dropTableIfExists("data_export");
   await knex.schema.dropTableIfExists("bot_storage");

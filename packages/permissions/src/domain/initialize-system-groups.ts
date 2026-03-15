@@ -1,7 +1,7 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, UserGroup, generateId } from "@jotster/core/Jotster.Core.js";
+import { JotsterDbContext, UserGroup } from "@jotster/core/Jotster.Core.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok } from "@jotster/core/Jotster.Core.js";
 
@@ -18,7 +18,7 @@ const SYSTEM_GROUP_NAMES: string[] = [
 
 export const initializeSystemGroups = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long,
 ): Promise<Result<boolean, string>> => {
   const db = new JotsterDbContext(options);
   try {
@@ -27,8 +27,8 @@ export const initializeSystemGroups = async (
     const one = 1 as int;
 
     // Fetch existing system groups for this tenant
-    const existing = await db0.UserGroups
-      .Where((g) => g.TenantId === tenantId0).Where((g) => g.IsSystemGroup === one)
+    const existing = await db0.UserGroups.Where((g) => g.TenantId === tenantId0)
+      .Where((g) => g.IsSystemGroup === one)
       .ToListAsync();
 
     // Build a set of existing group names
@@ -48,7 +48,6 @@ export const initializeSystemGroups = async (
       }
 
       const group = new UserGroup();
-      group.Id = generateId();
       group.TenantId = tenantId;
       group.Name = name;
       group.Description = "";

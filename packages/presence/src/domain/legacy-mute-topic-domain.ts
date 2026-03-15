@@ -1,4 +1,5 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -14,7 +15,7 @@ interface LegacyMuteTopicParams {
 export const legacyMuteTopicDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  params: LegacyMuteTopicParams
+  params: LegacyMuteTopicParams,
 ): Promise<Result<void, string>> => {
   // Map op to visibility policy
   let visibilityPolicy: int;
@@ -32,21 +33,22 @@ export const legacyMuteTopicDomain = async (
 
   // Resolve channel by name or ID
   const db = new JotsterDbContext(options);
-  let channelId: string | undefined;
+  let channelId: long = 0 as long;
   try {
     const db0 = db;
     const tenantId0 = user.tenantId;
     const streamRef0 = params.streamOrStreamId;
+    const streamRefAsLong = Convert.ToInt64(streamRef0);
 
     // Try by ID first
-    let channel = await db0.Channels
-      .Where((c) => c.TenantId === tenantId0).Where((c) => c.Id === streamRef0)
+    let channel = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+      .Where((c) => c.Id === streamRefAsLong)
       .FirstOrDefaultAsync();
 
     if (channel === undefined || channel === null) {
       // Try by name
-      channel = await db0.Channels
-        .Where((c) => c.TenantId === tenantId0).Where((c) => c.Name === streamRef0)
+      channel = await db0.Channels.Where((c) => c.TenantId === tenantId0)
+        .Where((c) => c.Name === streamRef0)
         .FirstOrDefaultAsync();
     }
 

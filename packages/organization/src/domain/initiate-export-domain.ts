@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -10,8 +11,8 @@ import { buildExportEventPayload } from "./build-export-event-payload.ts";
 export const initiateExportDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  exportType: string
-): Promise<Result<string, string>> => {
+  exportType: string,
+): Promise<Result<long, string>> => {
   if (
     exportType !== "public" &&
     exportType !== "full_with_consent" &&
@@ -29,12 +30,18 @@ export const initiateExportDomain = async (
     const db = new JotsterDbContext(options);
     try {
       const tenantId0 = user.tenantId;
-      const tenant = await db.Tenants
-        .Where((entry) => entry.Id === tenantId0)
-        .FirstOrDefaultAsync();
+      const tenant = await db.Tenants.Where(
+        (entry) => entry.Id === tenantId0,
+      ).FirstOrDefaultAsync();
 
-      if (tenant === undefined || tenant === null || tenant.OwnerFullContentAccess !== 1) {
-        return err("Exports of all public and private data are not enabled for this organization.");
+      if (
+        tenant === undefined ||
+        tenant === null ||
+        tenant.OwnerFullContentAccess !== 1
+      ) {
+        return err(
+          "Exports of all public and private data are not enabled for this organization.",
+        );
       }
     } finally {
       db.Dispose();
@@ -55,7 +62,12 @@ export const initiateExportDomain = async (
   }
 
   // Create export record
-  const dataExport = await createExport(options, user.tenantId, user.userId, exportType);
+  const dataExport = await createExport(
+    options,
+    user.tenantId,
+    user.userId,
+    exportType,
+  );
 
   // Start processing asynchronously (fire-and-forget)
   void processExportDomain(options, dataExport.Id, user.tenantId, exportType);

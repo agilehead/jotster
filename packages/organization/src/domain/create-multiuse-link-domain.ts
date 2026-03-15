@@ -13,7 +13,7 @@ interface CreateMultiuseLinkInput {
 export const createMultiuseLinkDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: CreateMultiuseLinkInput
+  input: CreateMultiuseLinkInput,
 ): Promise<Result<{ link: string }, string>> => {
   // Check permission - admin or member with invite policy
   if (user.role > 400) {

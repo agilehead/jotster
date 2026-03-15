@@ -6,11 +6,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleGetRealmLogo = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -19,9 +24,9 @@ export const handleGetRealmLogo = async (
   try {
     const db0 = db;
     const tenantId0 = user.tenantId;
-    const tenant = await db0.Tenants
-      .Where((x) => x.Id === tenantId0)
-      .FirstOrDefaultAsync();
+    const tenant = await db0.Tenants.Where(
+      (x) => x.Id === tenantId0,
+    ).FirstOrDefaultAsync();
 
     if (tenant === undefined) {
       res.status(404).json({ result: "error", msg: "Organization not found" });

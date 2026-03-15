@@ -5,16 +5,16 @@ import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const reactivateUser = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string
+  tenantId: long,
+  userId: long,
 ): Promise<boolean> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const tenantId0 = tenantId;
     const userId0 = userId;
-    const user = await db0.Users
-      .Where((u) => u.Id === userId0).Where((u) => u.TenantId === tenantId0)
+    const user = await db0.Users.Where((u) => u.Id === userId0)
+      .Where((u) => u.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
     if (user === undefined) {

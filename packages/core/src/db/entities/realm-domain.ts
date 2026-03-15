@@ -5,11 +5,13 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class RealmDomain {
   Id!: string;
-  TenantId!: string;
+  TenantId!: long;
   Domain!: string;
   AllowSubdomains!: int;
   CreatedAt!: long;
 }
 
-A.on(RealmDomain).prop((x) => x.Id).add(KeyAttribute);
+A.on(RealmDomain)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(RealmDomain).type.add(IndexAttribute, ["TenantId", "Domain"]);

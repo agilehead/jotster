@@ -7,11 +7,16 @@ import { getBodyObject, getOptionalBooleanField } from "../helpers/body.ts";
 export const handleUpdateRealmDomain = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -19,9 +24,15 @@ export const handleUpdateRealmDomain = async (
   const domain = req.params["domain"] as string;
   const body = getBodyObject(req);
 
-  const allowSubdomains = getOptionalBooleanField(body, "allow_subdomains") ?? false;
+  const allowSubdomains =
+    getOptionalBooleanField(body, "allow_subdomains") ?? false;
 
-  const result = await updateRealmDomainDomain(app.options, user, domain, allowSubdomains);
+  const result = await updateRealmDomainDomain(
+    app.options,
+    user,
+    domain,
+    allowSubdomains,
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

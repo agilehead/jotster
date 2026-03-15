@@ -5,7 +5,7 @@ import { JotsterDbContext, Draft } from "@jotster/core/Jotster.Core.js";
 
 interface UpdateDraftInput {
   type?: string;
-  channelId?: string;
+  channelId?: long;
   topic?: string;
   recipientIdsJson?: string;
   content?: string;
@@ -13,10 +13,10 @@ interface UpdateDraftInput {
 
 export const updateDraft = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string,
-  draftId: string,
-  updates: UpdateDraftInput
+  tenantId: long,
+  userId: long,
+  draftId: long,
+  updates: UpdateDraftInput,
 ): Promise<Draft | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -24,8 +24,9 @@ export const updateDraft = async (
     const tenantId0 = tenantId;
     const userId0 = userId;
     const draftId0 = draftId;
-    const draft = await db0.Drafts
-      .Where((d) => d.TenantId === tenantId0).Where((d) => d.UserId === userId0).Where((d) => d.Id === draftId0)
+    const draft = await db0.Drafts.Where((d) => d.TenantId === tenantId0)
+      .Where((d) => d.UserId === userId0)
+      .Where((d) => d.Id === draftId0)
       .FirstOrDefaultAsync();
 
     if (draft === undefined || draft === null) {

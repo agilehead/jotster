@@ -1,3 +1,4 @@
+import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, ServerConfig } from "@jotster/core/Jotster.Core.js";
 import { Tenant, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -7,10 +8,11 @@ import { getTenantBySubdomain } from "../repo/get-tenant-by-subdomain.ts";
 export const resolveTenant = async (
   options: DbContextOptions,
   config: ServerConfig,
-  host: string
+  host: string,
 ): Promise<Result<Tenant, string>> => {
   if (config.mode === "single-tenant" && config.singleTenantId !== "") {
-    const tenant = await getTenantById(options, config.singleTenantId);
+    const tenantId = Convert.ToInt64(config.singleTenantId);
+    const tenant = await getTenantById(options, tenantId);
     if (tenant === undefined) {
       return err("Tenant not found");
     }

@@ -35,7 +35,11 @@ const toFormFieldValue = (value: unknown): string => {
   if (typeof value === "string") {
     return value;
   }
-  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+  if (
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "bigint"
+  ) {
     return value.toString();
   }
   return JSON.stringify(value);
@@ -46,19 +50,31 @@ export class ApiClient {
   private authHeader?: string;
   private hostHeader?: string;
 
-  constructor(baseUrl: string, email: string, apiKey: string, hostHeader?: string) {
+  constructor(
+    baseUrl: string,
+    email: string,
+    apiKey: string,
+    hostHeader?: string,
+  ) {
     this.baseUrl = baseUrl;
-    this.authHeader = "Basic " + Buffer.from(`${email}:${apiKey}`).toString("base64");
+    this.authHeader =
+      "Basic " + Buffer.from(`${email}:${apiKey}`).toString("base64");
     this.hostHeader = hostHeader;
   }
 
-  static bearer(baseUrl: string, token: string, hostHeader?: string): ApiClient {
+  static bearer(
+    baseUrl: string,
+    token: string,
+    hostHeader?: string,
+  ): ApiClient {
     const client = new ApiClient(baseUrl, "", "", hostHeader);
     client.authHeader = `Bearer ${token}`;
     return client;
   }
 
-  private withAuthHeaders(extra?: Record<string, string>): Record<string, string> {
+  private withAuthHeaders(
+    extra?: Record<string, string>,
+  ): Record<string, string> {
     const headers: Record<string, string> = {
       ...(extra ?? {}),
     };
@@ -71,7 +87,11 @@ export class ApiClient {
     return headers;
   }
 
-  async get(path: string, params?: Record<string, string>, options?: RequestOptions): Promise<ApiResponse> {
+  async get(
+    path: string,
+    params?: Record<string, string>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
     const url = new URL(`${this.baseUrl}${ZULIP_API_BASE}${path}`);
     if (params) {
       for (const [key, value] of Object.entries(params)) {
@@ -81,7 +101,11 @@ export class ApiClient {
     return this.request(url, "GET", undefined, options);
   }
 
-  async post(path: string, data?: Record<string, unknown>, options?: RequestOptions): Promise<ApiResponse> {
+  async post(
+    path: string,
+    data?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
     return this.request(
       new URL(`${this.baseUrl}${ZULIP_API_BASE}${path}`),
       "POST",
@@ -90,7 +114,11 @@ export class ApiClient {
     );
   }
 
-  async patch(path: string, data?: Record<string, unknown>, options?: RequestOptions): Promise<ApiResponse> {
+  async patch(
+    path: string,
+    data?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
     return this.request(
       new URL(`${this.baseUrl}${ZULIP_API_BASE}${path}`),
       "PATCH",
@@ -99,7 +127,11 @@ export class ApiClient {
     );
   }
 
-  async put(path: string, data?: Record<string, unknown>, options?: RequestOptions): Promise<ApiResponse> {
+  async put(
+    path: string,
+    data?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
     return this.request(
       new URL(`${this.baseUrl}${ZULIP_API_BASE}${path}`),
       "PUT",
@@ -108,7 +140,11 @@ export class ApiClient {
     );
   }
 
-  async delete(path: string, data?: Record<string, unknown>, options?: RequestOptions): Promise<ApiResponse> {
+  async delete(
+    path: string,
+    data?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
     return this.request(
       new URL(`${this.baseUrl}${ZULIP_API_BASE}${path}`),
       "DELETE",
@@ -117,20 +153,51 @@ export class ApiClient {
     );
   }
 
-  async postRaw(path: string, data?: Record<string, unknown>, options?: RequestOptions): Promise<ApiResponse> {
-    return this.request(new URL(`${this.baseUrl}${path}`), "POST", data, options);
+  async postRaw(
+    path: string,
+    data?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
+    return this.request(
+      new URL(`${this.baseUrl}${path}`),
+      "POST",
+      data,
+      options,
+    );
   }
 
   async getRaw(path: string, options?: RequestOptions): Promise<ApiResponse> {
-    return this.request(new URL(`${this.baseUrl}${path}`), "GET", undefined, options);
+    return this.request(
+      new URL(`${this.baseUrl}${path}`),
+      "GET",
+      undefined,
+      options,
+    );
   }
 
-  async getRawBuffer(path: string, options?: RequestOptions): Promise<BinaryApiResponse> {
-    return this.requestBuffer(new URL(`${this.baseUrl}${path}`), "GET", undefined, options);
+  async getRawBuffer(
+    path: string,
+    options?: RequestOptions,
+  ): Promise<BinaryApiResponse> {
+    return this.requestBuffer(
+      new URL(`${this.baseUrl}${path}`),
+      "GET",
+      undefined,
+      options,
+    );
   }
 
-  async patchRaw(path: string, data?: Record<string, unknown>, options?: RequestOptions): Promise<ApiResponse> {
-    return this.request(new URL(`${this.baseUrl}${path}`), "PATCH", data, options);
+  async patchRaw(
+    path: string,
+    data?: Record<string, unknown>,
+    options?: RequestOptions,
+  ): Promise<ApiResponse> {
+    return this.request(
+      new URL(`${this.baseUrl}${path}`),
+      "PATCH",
+      data,
+      options,
+    );
   }
 
   async postMultipart(
@@ -139,12 +206,15 @@ export class ApiClient {
     file: MultipartFile,
     options?: RequestOptions,
   ): Promise<ApiResponse> {
-    const boundary = "----jotster-test-boundary-" + Math.random().toString(16).slice(2);
+    const boundary =
+      "----jotster-test-boundary-" + Math.random().toString(16).slice(2);
     const buffers: Buffer[] = [];
 
     for (const [key, value] of Object.entries(fields ?? {})) {
       buffers.push(Buffer.from(`--${boundary}\r\n`));
-      buffers.push(Buffer.from(`Content-Disposition: form-data; name="${key}"\r\n\r\n`));
+      buffers.push(
+        Buffer.from(`Content-Disposition: form-data; name="${key}"\r\n\r\n`),
+      );
       buffers.push(Buffer.from(toFormFieldValue(value)));
       buffers.push(Buffer.from("\r\n"));
     }
@@ -185,13 +255,17 @@ export class ApiClient {
     data?: Record<string, unknown>,
     options?: RequestOptions,
   ): Promise<ApiResponse> {
-    const payload = data === undefined
-      ? undefined
-      : Buffer.from(
-          new URLSearchParams(
-            Object.entries(data).map(([key, value]) => [key, toFormFieldValue(value)]),
-          ).toString(),
-        );
+    const payload =
+      data === undefined
+        ? undefined
+        : Buffer.from(
+            new URLSearchParams(
+              Object.entries(data).map(([key, value]) => [
+                key,
+                toFormFieldValue(value),
+              ]),
+            ).toString(),
+          );
     const response = await this.requestBuffer(
       url,
       method,
@@ -274,6 +348,11 @@ export class ApiClient {
   }
 }
 
-export const createApiClient = (baseUrl: string, email: string, apiKey: string, hostHeader?: string): ApiClient => {
+export const createApiClient = (
+  baseUrl: string,
+  email: string,
+  apiKey: string,
+  hostHeader?: string,
+): ApiClient => {
   return new ApiClient(baseUrl, email, apiKey, hostHeader);
 };

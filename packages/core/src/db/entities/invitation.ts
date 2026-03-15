@@ -4,9 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Invitation {
-  Id!: string;
-  TenantId!: string;
-  InviterId!: string;
+  Id!: long;
+  TenantId!: long;
+  InviterId!: long;
   Email?: string;
   IsMultiuse!: int;
   LinkToken!: string;
@@ -17,7 +17,9 @@ export class Invitation {
   ExpiresAt?: long;
 }
 
-A.on(Invitation).prop((x) => x.Id).add(KeyAttribute);
+A.on(Invitation)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Invitation).type.add(IndexAttribute, ["LinkToken"]);
 A.on(Invitation).type.add(IndexAttribute, ["TenantId", "Status"]);
 A.on(Invitation).type.add(IndexAttribute, ["TenantId", "InviterId"]);

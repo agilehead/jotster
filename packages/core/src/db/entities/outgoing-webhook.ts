@@ -5,8 +5,8 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class OutgoingWebhook {
   Id!: string;
-  TenantId!: string;
-  BotUserId!: string;
+  TenantId!: long;
+  BotUserId!: long;
   Url!: string;
   Token!: string;
   TriggerType!: string;
@@ -16,6 +16,8 @@ export class OutgoingWebhook {
   UpdatedAt!: long;
 }
 
-A.on(OutgoingWebhook).prop((x) => x.Id).add(KeyAttribute);
+A.on(OutgoingWebhook)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(OutgoingWebhook).type.add(IndexAttribute, ["BotUserId"]);
 A.on(OutgoingWebhook).type.add(IndexAttribute, ["TenantId"]);

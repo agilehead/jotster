@@ -5,10 +5,12 @@ import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js"
 
 export class ClientDevice {
   Id!: string;
-  TenantId!: string;
-  UserId!: string;
+  TenantId!: long;
+  UserId!: long;
   CreatedAt!: long;
 }
 
-A.on(ClientDevice).prop((x) => x.Id).add(KeyAttribute);
+A.on(ClientDevice)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(ClientDevice).type.add(IndexAttribute, ["TenantId", "UserId"]);

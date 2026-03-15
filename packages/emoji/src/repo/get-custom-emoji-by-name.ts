@@ -1,11 +1,11 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, CustomEmoji } from "@jotster/core/Jotster.Core.js";
 
 export async function getCustomEmojiByName(
   options: DbContextOptions,
-  tenantId: string,
-  name: string
+  tenantId: long,
+  name: string,
 ): Promise<CustomEmoji | undefined> {
   const db = new JotsterDbContext(options);
   try {
@@ -13,11 +13,12 @@ export async function getCustomEmojiByName(
     const tenantId0 = tenantId;
     const name0 = name;
     const activeStatus = 1 as int;
-    const result = await db0.CustomEmojis
-      .Where(
-        (e) => e.TenantId === tenantId0 && e.Name === name0 && e.IsActive === activeStatus
-      )
-      .FirstOrDefaultAsync();
+    const result = await db0.CustomEmojis.Where(
+      (e) =>
+        e.TenantId === tenantId0 &&
+        e.Name === name0 &&
+        e.IsActive === activeStatus,
+    ).FirstOrDefaultAsync();
     return result ?? undefined;
   } finally {
     db.Dispose();

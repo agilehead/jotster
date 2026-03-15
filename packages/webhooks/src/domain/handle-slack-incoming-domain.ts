@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -29,16 +29,16 @@ const convertSlackToZulipMarkdown = (text: string): string => {
 export const handleSlackIncomingDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  input: SlackIncomingInput
-): Promise<Result<{ id: string }, string>> => {
+  input: SlackIncomingInput,
+): Promise<Result<{ id: long }, string>> => {
   // Verify the user is a bot of type 2 (incoming webhook bot)
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
     const userId0 = user.userId;
     const tenantId0 = user.tenantId;
-    const botUser = await db0.Users
-      .Where((u) => u.TenantId === tenantId0).Where((u) => u.Id === userId0)
+    const botUser = await db0.Users.Where((u) => u.TenantId === tenantId0)
+      .Where((u) => u.Id === userId0)
       .FirstOrDefaultAsync();
 
     if (botUser === undefined || botUser === null) {

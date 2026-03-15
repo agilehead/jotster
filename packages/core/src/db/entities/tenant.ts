@@ -4,7 +4,7 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Tenant {
-  Id!: string;
+  Id!: long;
   Subdomain!: string;
   Name!: string;
   Description!: string;
@@ -17,5 +17,7 @@ export class Tenant {
   UpdatedAt!: long;
 }
 
-A.on(Tenant).prop((x) => x.Id).add(KeyAttribute);
+A.on(Tenant)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Tenant).type.add(IndexAttribute, ["Subdomain"]);

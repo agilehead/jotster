@@ -4,8 +4,8 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class UserStatus {
-  UserId!: string;
-  TenantId!: string;
+  UserId!: long;
+  TenantId!: long;
   StatusText!: string;
   EmojiName?: string;
   EmojiCode?: string;
@@ -13,5 +13,7 @@ export class UserStatus {
   UpdatedAt!: long;
 }
 
-A.on(UserStatus).prop((x) => x.UserId).add(KeyAttribute);
+A.on(UserStatus)
+  .prop((x) => x.UserId)
+  .add(KeyAttribute);
 A.on(UserStatus).type.add(IndexAttribute, ["TenantId"]);

@@ -8,20 +8,29 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleUpdateProfileData = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
   const body = getBodyObject(req);
-  const profileData = body["profile_data"] as Record<string, { value: string }> | undefined;
+  const profileData = body["profile_data"] as
+    | Record<string, { value: string }>
+    | undefined;
 
   if (!profileData) {
-    res.status(400).json({ result: "error", msg: "Missing required field: profile_data" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: profile_data" });
     return;
   }
 
@@ -31,7 +40,12 @@ export const handleUpdateProfileData = async (
     profileDataKeys.Add(pdKeys[i]);
   }
 
-  const result = await updateProfileDataDomain(app.options, user, profileData, profileDataKeys);
+  const result = await updateProfileDataDomain(
+    app.options,
+    user,
+    profileData,
+    profileDataKeys,
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

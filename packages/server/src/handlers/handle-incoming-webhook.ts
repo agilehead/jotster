@@ -9,7 +9,7 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleIncomingWebhook = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
   const body = getBodyObject(req);
   const query = req.query as Record<string, unknown>;
@@ -21,25 +21,37 @@ export const handleIncomingWebhook = async (
     // Construct a Basic auth header from api_key
     // The api_key param contains email:key format or just the key
     // For Zulip compatibility, api_key is used with the bot's email
-    const email = getOptionalStringField(body, "email") ?? getOptionalStringField(query, "email") ?? "";
+    const email =
+      getOptionalStringField(body, "email") ??
+      getOptionalStringField(query, "email") ??
+      "";
     if (email.length > 0) {
       const credentials = email + ":" + apiKey;
-      const encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
+      const encoded = Convert.ToBase64String(
+        Encoding.UTF8.GetBytes(credentials),
+      );
       authHeader = "Basic " + encoded;
     }
   }
 
   const authResult = await authenticateRequest(app.options, authHeader);
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
   const user = authResult.data;
-  const integrationName = req.params["integration_name"] as string ?? "generic";
+  const integrationName =
+    (req.params["integration_name"] as string) ?? "generic";
 
-  const stream = getOptionalStringField(body, "stream") ?? getOptionalStringField(query, "stream");
-  const topic = getOptionalStringField(body, "topic") ?? getOptionalStringField(query, "topic");
+  const stream =
+    getOptionalStringField(body, "stream") ??
+    getOptionalStringField(query, "stream");
+  const topic =
+    getOptionalStringField(body, "topic") ??
+    getOptionalStringField(query, "topic");
   const content = getOptionalStringField(body, "content");
 
   const result = await handleIncomingWebhookDomain(app.options, user, {

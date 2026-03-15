@@ -6,7 +6,7 @@ import { listTenants } from "../repo/list-tenants.ts";
 export const listTenantsAdmin = async (
   options: DbContextOptions,
   config: ServerConfig,
-  rootToken: string
+  rootToken: string,
 ): Promise<Result<Tenant[], string>> => {
   if (config.rootToken.length === 0 || rootToken !== config.rootToken) {
     return err("Unauthorized");

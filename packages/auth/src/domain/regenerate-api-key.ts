@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,9 +10,11 @@ import { createApiKey } from "../repo/create-api-key.ts";
 
 export const regenerateApiKey = async (
   options: DbContextOptions,
-  tenantId: string,
-  userId: string
-): Promise<Result<{ api_key: string; email: string; user_id: string }, string>> => {
+  tenantId: long,
+  userId: long,
+): Promise<
+  Result<{ api_key: string; email: string; user_id: long }, string>
+> => {
   const user = await getUserById(options, userId);
   if (user === undefined) {
     return err("User not found");

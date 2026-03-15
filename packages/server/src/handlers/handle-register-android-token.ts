@@ -7,11 +7,16 @@ import type { AppContext } from "../helpers/app-context.ts";
 export const handleRegisterAndroidToken = async (
   req: Request,
   res: Response,
-  app: AppContext
+  app: AppContext,
 ): Promise<void> => {
-  const authResult = await authenticateRequest(app.options, req.get("authorization") ?? "");
+  const authResult = await authenticateRequest(
+    app.options,
+    req.get("authorization") ?? "",
+  );
   if (!authResult.success) {
-    res.status(401).json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
+    res
+      .status(401)
+      .json({ result: "error", msg: authResult.error, code: "UNAUTHORIZED" });
     return;
   }
 
@@ -20,11 +25,19 @@ export const handleRegisterAndroidToken = async (
 
   const token = body["token"] as string;
   if (!token) {
-    res.status(400).json({ result: "error", msg: "Missing required field: token" });
+    res
+      .status(400)
+      .json({ result: "error", msg: "Missing required field: token" });
     return;
   }
 
-  const result = await registerDeviceDomain(app.options, user, "android_gcm", token, undefined);
+  const result = await registerDeviceDomain(
+    app.options,
+    user,
+    "android_gcm",
+    token,
+    undefined,
+  );
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });
     return;

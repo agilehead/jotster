@@ -4,9 +4,9 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class DataExport {
-  Id!: string;
-  TenantId!: string;
-  RequesterId!: string;
+  Id!: long;
+  TenantId!: long;
+  RequesterId!: long;
   ExportType!: string;
   Status!: string;
   Url?: string;
@@ -16,5 +16,7 @@ export class DataExport {
   FailedAt?: long;
 }
 
-A.on(DataExport).prop((x) => x.Id).add(KeyAttribute);
+A.on(DataExport)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(DataExport).type.add(IndexAttribute, ["TenantId", "CreatedAt"]);

@@ -1,6 +1,12 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import { seedChannel, seedMessage, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
+import {
+  seedChannel,
+  seedMessage,
+  seedSubscription,
+  seedTenant,
+  seedUser,
+} from "../../utils/test-helpers.js";
 
 describe("User compatibility endpoints", () => {
   it("GET /api/v1/users/{email} and PATCH /api/v1/users/{email} should get and update a user by email path", async () => {
@@ -12,7 +18,9 @@ describe("User compatibility endpoints", () => {
 
     const getRes = await admin.client.get(`/users/${encodedEmail}`);
     expect(getRes.status).to.equal(200);
-    expect((getRes.body.user as Record<string, unknown>).email).to.equal(member.email);
+    expect((getRes.body.user as Record<string, unknown>).email).to.equal(
+      member.email,
+    );
 
     const patchRes = await admin.client.patch(`/users/${encodedEmail}`, {
       full_name: "Updated Name",
@@ -20,19 +28,27 @@ describe("User compatibility endpoints", () => {
     expect(patchRes.status).to.equal(200);
 
     const getUpdatedRes = await admin.client.get(`/users/${encodedEmail}`);
-    expect((getUpdatedRes.body.user as Record<string, unknown>).full_name).to.equal("Updated Name");
+    expect(
+      (getUpdatedRes.body.user as Record<string, unknown>).full_name,
+    ).to.equal("Updated Name");
   });
 
   it("GET /api/v1/users/{email} and PATCH /api/v1/users/{email} should resolve Zulip dummy email addresses to the target user", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db, { subdomain: "compat-users" });
     const admin = await seedUser(db, tenantId, { role: 200 });
-    const member = await seedUser(db, tenantId, { fullName: "Dummy Email User" });
-    const dummyEmail = encodeURIComponent(`user${member.userId}@compat-users.test.local`);
+    const member = await seedUser(db, tenantId, {
+      fullName: "Dummy Email User",
+    });
+    const dummyEmail = encodeURIComponent(
+      `user${member.userId}@compat-users.test.local`,
+    );
 
     const getRes = await admin.client.get(`/users/${dummyEmail}`);
     expect(getRes.status).to.equal(200);
-    expect((getRes.body.user as Record<string, unknown>).user_id).to.equal(member.userId);
+    expect((getRes.body.user as Record<string, unknown>).user_id).to.equal(
+      member.userId,
+    );
 
     const patchRes = await admin.client.patch(`/users/${dummyEmail}`, {
       full_name: "Dummy Email Updated",
@@ -40,7 +56,9 @@ describe("User compatibility endpoints", () => {
     expect(patchRes.status).to.equal(200);
 
     const getUpdatedRes = await admin.client.get(`/users/${member.userId}`);
-    expect((getUpdatedRes.body.user as Record<string, unknown>).full_name).to.equal("Dummy Email Updated");
+    expect(
+      (getUpdatedRes.body.user as Record<string, unknown>).full_name,
+    ).to.equal("Dummy Email Updated");
   });
 
   it("POST /api/v1/users/{user_id}/status and GET /api/v1/users/{user_id}/status should update another user's status by user id", async () => {
@@ -59,7 +77,9 @@ describe("User compatibility endpoints", () => {
 
     const getRes = await admin.client.get(`/users/${member.userId}/status`);
     expect(getRes.status).to.equal(200);
-    expect((getRes.body.status as Record<string, unknown>).status_text).to.equal("reviewing");
+    expect(
+      (getRes.body.status as Record<string, unknown>).status_text,
+    ).to.equal("reviewing");
   });
 
   it("POST /api/v1/users/{user_id}/status should reject non-admin requesters and unknown users", async () => {
@@ -68,14 +88,17 @@ describe("User compatibility endpoints", () => {
     const admin = await seedUser(db, tenantId, { role: 200 });
     const member = await seedUser(db, tenantId);
 
-    const memberRes = await member.client.post(`/users/${admin.userId}/status`, {
-      status_text: "reviewing",
-    });
+    const memberRes = await member.client.post(
+      `/users/${admin.userId}/status`,
+      {
+        status_text: "reviewing",
+      },
+    );
     expect(memberRes.status).to.equal(403);
     expect(memberRes.body.msg).to.equal("Insufficient permission");
     expect(memberRes.body.code).to.equal("BAD_REQUEST");
 
-    const missingUserRes = await admin.client.post("/users/missing-user/status", {
+    const missingUserRes = await admin.client.post("/users/999999/status", {
       status_text: "reviewing",
     });
     expect(missingUserRes.status).to.equal(400);
@@ -99,7 +122,9 @@ describe("User compatibility endpoints", () => {
     const originalKey = getRes.body.api_key as string;
     expect(originalKey).to.be.a("string").and.not.equal("");
 
-    const regenerateRes = await admin.client.post(`/bots/${bot.userId}/api_key/regenerate`);
+    const regenerateRes = await admin.client.post(
+      `/bots/${bot.userId}/api_key/regenerate`,
+    );
     expect(regenerateRes.status).to.equal(200);
     const regeneratedKey = regenerateRes.body.api_key as string;
     expect(regeneratedKey).to.be.a("string").and.not.equal("");
@@ -124,7 +149,9 @@ describe("User compatibility endpoints", () => {
     expect(getRes.body.msg).to.equal("Insufficient permission");
     expect(getRes.body.code).to.equal("BAD_REQUEST");
 
-    const regenerateRes = await member.client.post(`/bots/${bot.userId}/api_key/regenerate`);
+    const regenerateRes = await member.client.post(
+      `/bots/${bot.userId}/api_key/regenerate`,
+    );
     expect(regenerateRes.status).to.equal(400);
     expect(regenerateRes.body.result).to.equal("error");
     expect(regenerateRes.body.msg).to.equal("Insufficient permission");
@@ -136,13 +163,15 @@ describe("User compatibility endpoints", () => {
     const tenantId = await seedTenant(db);
     const admin = await seedUser(db, tenantId, { role: 200 });
 
-    const getRes = await admin.client.get("/bots/missing-bot/api_key");
+    const getRes = await admin.client.get("/bots/999999/api_key");
     expect(getRes.status).to.equal(400);
     expect(getRes.body.result).to.equal("error");
     expect(getRes.body.msg).to.equal("No such bot");
     expect(getRes.body.code).to.equal("BAD_REQUEST");
 
-    const regenerateRes = await admin.client.post("/bots/missing-bot/api_key/regenerate");
+    const regenerateRes = await admin.client.post(
+      "/bots/999999/api_key/regenerate",
+    );
     expect(regenerateRes.status).to.equal(400);
     expect(regenerateRes.body.result).to.equal("error");
     expect(regenerateRes.body.msg).to.equal("No such bot");

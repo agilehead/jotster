@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,10 +9,14 @@ import { revokeInvitation } from "../repo/revoke-invitation.ts";
 export const revokeInvitationDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  invitationId: string
+  invitationId: long,
 ): Promise<Result<boolean, string>> => {
   // Look up invitation
-  const invitation = await getInvitationById(options, user.tenantId, invitationId);
+  const invitation = await getInvitationById(
+    options,
+    user.tenantId,
+    invitationId,
+  );
   if (invitation === undefined) {
     return err("Invitation not found");
   }

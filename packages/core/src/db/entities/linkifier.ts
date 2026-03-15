@@ -4,8 +4,8 @@ import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotatio
 import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Linkifier {
-  Id!: string;
-  TenantId!: string;
+  Id!: long;
+  TenantId!: long;
   Pattern!: string;
   UrlTemplate!: string;
   ExampleInput?: string;
@@ -16,5 +16,7 @@ export class Linkifier {
   UpdatedAt!: long;
 }
 
-A.on(Linkifier).prop((x) => x.Id).add(KeyAttribute);
+A.on(Linkifier)
+  .prop((x) => x.Id)
+  .add(KeyAttribute);
 A.on(Linkifier).type.add(IndexAttribute, ["TenantId"]);

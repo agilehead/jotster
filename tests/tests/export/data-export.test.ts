@@ -42,7 +42,9 @@ describe("Data Export", () => {
 
       const listRes = await client.get("/export/realm");
       expect(listRes.status).to.equal(200);
-      expect((listRes.body.exports as Array<Record<string, unknown>>)[0].export_type).to.equal("public");
+      expect(
+        (listRes.body.exports as Array<Record<string, unknown>>)[0].export_type,
+      ).to.equal("public");
     });
 
     it("should allow admins to request a full export with consent", async () => {
@@ -58,7 +60,9 @@ describe("Data Export", () => {
       expect(res.body.result).to.equal("success");
 
       const listRes = await client.get("/export/realm");
-      expect((listRes.body.exports as Array<Record<string, unknown>>)[0].export_type).to.equal("full_with_consent");
+      expect(
+        (listRes.body.exports as Array<Record<string, unknown>>)[0].export_type,
+      ).to.equal("full_with_consent");
     });
 
     it("should reject invalid export types", async () => {
@@ -85,9 +89,13 @@ describe("Data Export", () => {
         export_type: "full_without_consent",
       });
       expect(disabledRes.status).to.equal(400);
-      expect(disabledRes.body.msg).to.equal("Exports of all public and private data are not enabled for this organization.");
+      expect(disabledRes.body.msg).to.equal(
+        "Exports of all public and private data are not enabled for this organization.",
+      );
 
-      await db("tenant").where({ id: tenantId }).update({ owner_full_content_access: 1 });
+      await db("tenant")
+        .where({ id: tenantId })
+        .update({ owner_full_content_access: 1 });
 
       const adminRes = await admin.client.post("/export/realm", {
         export_type: "full_without_consent",
@@ -137,10 +145,18 @@ describe("Data Export", () => {
       expect(res.body.result).to.equal("success");
       expect(res.body.export_consents).to.be.an("array");
 
-      const consents = res.body.export_consents as Array<Record<string, unknown>>;
-      const consentedEntry = consents.find((entry) => entry.user_id === consented.userId);
-      const hiddenEntry = consents.find((entry) => entry.user_id === hidden.userId);
-      const adminEntry = consents.find((entry) => entry.user_id === admin.userId);
+      const consents = res.body.export_consents as Array<
+        Record<string, unknown>
+      >;
+      const consentedEntry = consents.find(
+        (entry) => entry.user_id === consented.userId,
+      );
+      const hiddenEntry = consents.find(
+        (entry) => entry.user_id === hidden.userId,
+      );
+      const adminEntry = consents.find(
+        (entry) => entry.user_id === admin.userId,
+      );
 
       expect(consentedEntry?.consented).to.equal(true);
       expect(consentedEntry?.email_address_visibility).to.equal(1);

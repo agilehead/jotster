@@ -1,3 +1,4 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,13 +10,17 @@ import { mapCustomProfileFieldToCompatRecord } from "./map-custom-profile-field-
 export const deleteCustomProfileFieldDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  fieldId: string
+  fieldId: long,
 ): Promise<Result<boolean, string>> => {
   if (actingUser.role > 200) {
     return err("Insufficient permission");
   }
 
-  const deleted = await deleteCustomProfileField(options, actingUser.tenantId, fieldId);
+  const deleted = await deleteCustomProfileField(
+    options,
+    actingUser.tenantId,
+    fieldId,
+  );
   if (!deleted) {
     return err("Field id " + fieldId + " not found.");
   }

@@ -103,9 +103,13 @@ describe("Invitations", () => {
 
       const invitation = await db("invitation")
         .select("id")
-        .where({ tenant_id: tenantId, email: "resend@test.com", status: "pending" })
+        .where({
+          tenant_id: tenantId,
+          email: "resend@test.com",
+          status: "pending",
+        })
         .first();
-      const inviteId = invitation?.id as string;
+      const inviteId = invitation?.id as number;
 
       const res = await client.post(`/invites/${inviteId}/resend`);
 
@@ -118,7 +122,7 @@ describe("Invitations", () => {
       const tenantId = await seedTenant(db);
       const { client } = await seedUser(db, tenantId, { role: 200 });
 
-      const res = await client.post("/invites/missing-invite/resend");
+      const res = await client.post("/invites/999999/resend");
 
       expect(res.status).to.equal(400);
       expect(res.body.msg).to.equal("Invitation not found");
@@ -139,7 +143,7 @@ describe("Invitations", () => {
         .where({ tenant_id: tenantId, is_multiuse: 1, status: "pending" })
         .orderBy("created_at", "desc")
         .first();
-      const inviteId = invitation?.id as string;
+      const inviteId = invitation?.id as number;
 
       const res = await client.delete(`/invites/multiuse/${inviteId}`);
 
@@ -177,7 +181,7 @@ describe("Invitations", () => {
       const tenantId = await seedTenant(db);
       const { client } = await seedUser(db, tenantId, { role: 200 });
 
-      const res = await client.delete("/invites/missing-invite");
+      const res = await client.delete("/invites/999999");
 
       expect(res.status).to.equal(400);
       expect(res.body.result).to.equal("error");

@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,7 +8,7 @@ import { reactivateUser } from "../repo/reactivate-user.ts";
 export const reactivateUserDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  targetUserId: string
+  targetUserId: long,
 ): Promise<Result<boolean, string>> => {
   if (actingUser.role > 200) {
     return err("Insufficient permission");
@@ -27,7 +27,11 @@ export const reactivateUserDomain = async (
     return err("User is already active");
   }
 
-  const result = await reactivateUser(options, actingUser.tenantId, targetUserId);
+  const result = await reactivateUser(
+    options,
+    actingUser.tenantId,
+    targetUserId,
+  );
   if (!result) {
     return err("Failed to reactivate user");
   }

@@ -6,7 +6,7 @@ import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
 export const getInvitations = async (
   options: DbContextOptions,
-  tenantId: string
+  tenantId: long,
 ): Promise<Invitation[]> => {
   const db = new JotsterDbContext(options);
   try {
@@ -15,8 +15,8 @@ export const getInvitations = async (
     const status0 = "pending";
     const now0 = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
 
-    const result = await db0.Invitations
-      .Where((x) => x.TenantId === tenantId0).Where((x) => x.Status === status0)
+    const result = await db0.Invitations.Where((x) => x.TenantId === tenantId0)
+      .Where((x) => x.Status === status0)
       .OrderByDescending((x) => x.CreatedAt)
       .ToListAsync();
 

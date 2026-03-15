@@ -1,6 +1,11 @@
 import { expect } from "chai";
 import { testDb } from "../../test-setup.js";
-import { seedChannel, seedSubscription, seedTenant, seedUser } from "../../utils/test-helpers.js";
+import {
+  seedChannel,
+  seedSubscription,
+  seedTenant,
+  seedUser,
+} from "../../utils/test-helpers.js";
 
 const registerQueue = async (
   client: Awaited<ReturnType<typeof seedUser>>["client"],
@@ -46,7 +51,9 @@ describe("User settings event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId);
-    const { queueId, lastEventId } = await registerQueue(user.client, ["user_settings"]);
+    const { queueId, lastEventId } = await registerQueue(user.client, [
+      "user_settings",
+    ]);
 
     const res = await user.client.patch("/settings", {
       enable_sounds: "false",
@@ -67,7 +74,9 @@ describe("User settings event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const user = await seedUser(db, tenantId);
-    const { queueId, lastEventId } = await registerQueue(user.client, ["user_settings"]);
+    const { queueId, lastEventId } = await registerQueue(user.client, [
+      "user_settings",
+    ]);
 
     const res = await user.client.patch("/settings", {
       default_language: "es",
@@ -89,7 +98,9 @@ describe("User settings event compatibility", function () {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
     const sender = await seedUser(db, tenantId);
-    const channelId = await seedChannel(db, tenantId, { name: "typing-setting" });
+    const channelId = await seedChannel(db, tenantId, {
+      name: "typing-setting",
+    });
     await seedSubscription(db, tenantId, sender.userId, channelId);
     const queue = await registerQueue(sender.client, ["typing"], {
       stream_typing_notifications: true,
@@ -108,7 +119,11 @@ describe("User settings event compatibility", function () {
     });
     expect(typingRes.status).to.equal(200);
 
-    const events = await getEvents(sender.client, queue.queueId, queue.lastEventId);
+    const events = await getEvents(
+      sender.client,
+      queue.queueId,
+      queue.lastEventId,
+    );
     expect(events).to.deep.equal([]);
   });
 });

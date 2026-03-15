@@ -25,6 +25,10 @@ export { getUserGroupSubgroupsDomain } from "./domain/get-user-group-subgroups-d
 
 // Permission Repo
 export { getSystemGroups } from "./repo/get-system-groups.ts";
+export {
+  resolveGroupSettingToId,
+  resolveGroupIdToSetting,
+} from "./repo/resolve-group-setting.ts";
 export { isUserInGroup } from "./repo/is-user-in-group.ts";
 export { getPermissionSetting } from "./repo/get-permission-setting.ts";
 export { getChannelForAccessCheck } from "./repo/get-channel-for-access-check.ts";

@@ -1,7 +1,12 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
-import { Channel, ok, err, MAX_CHANNEL_NAME_LENGTH } from "@jotster/core/Jotster.Core.js";
+import {
+  Channel,
+  ok,
+  err,
+  MAX_CHANNEL_NAME_LENGTH,
+} from "@jotster/core/Jotster.Core.js";
 import { getChannelById } from "../repo/get-channel-by-id.ts";
 import { getChannelByName } from "../repo/get-channel-by-name.ts";
 import { updateChannel } from "../repo/update-channel.ts";
@@ -18,8 +23,8 @@ interface UpdateChannelDomainInput {
 export const updateChannelDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  channelId: string,
-  updates: UpdateChannelDomainInput
+  channelId: long,
+  updates: UpdateChannelDomainInput,
 ): Promise<Result<Channel, string>> => {
   const channel = await getChannelById(options, channelId);
   if (channel === undefined) {

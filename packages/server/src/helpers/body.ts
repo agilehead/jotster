@@ -1,10 +1,15 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 import type { Request } from "@tsonic/express/index.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 
 export const getBodyObject = (req: Request): Record<string, unknown> => {
   const body = req.body;
-  if (body === undefined || body === null || typeof body !== "object" || Array.isArray(body)) {
+  if (
+    body === undefined ||
+    body === null ||
+    typeof body !== "object" ||
+    Array.isArray(body)
+  ) {
     return {};
   }
   return body as Record<string, unknown>;
@@ -18,7 +23,10 @@ export const copyRecord = (value: object): Record<string, unknown> => {
   return result;
 };
 
-export const getOptionalField = (source: Record<string, unknown>, key: string): unknown => {
+export const getOptionalField = (
+  source: Record<string, unknown>,
+  key: string,
+): unknown => {
   for (const [entryKey, entryValue] of Object.entries(source)) {
     if (entryKey === key) {
       return entryValue;
@@ -27,7 +35,10 @@ export const getOptionalField = (source: Record<string, unknown>, key: string): 
   return undefined;
 };
 
-export const hasField = (source: Record<string, unknown>, key: string): boolean => {
+export const hasField = (
+  source: Record<string, unknown>,
+  key: string,
+): boolean => {
   for (const [entryKey] of Object.entries(source)) {
     if (entryKey === key) {
       return true;
@@ -36,7 +47,10 @@ export const hasField = (source: Record<string, unknown>, key: string): boolean 
   return false;
 };
 
-export const getOptionalStringField = (source: Record<string, unknown>, key: string): string | undefined => {
+export const getOptionalStringField = (
+  source: Record<string, unknown>,
+  key: string,
+): string | undefined => {
   const value = getOptionalField(source, key);
   if (value === undefined) {
     return undefined;
@@ -44,7 +58,10 @@ export const getOptionalStringField = (source: Record<string, unknown>, key: str
   return typeof value === "string" ? (value as string) : undefined;
 };
 
-export const getOptionalBooleanField = (source: Record<string, unknown>, key: string): boolean | undefined => {
+export const getOptionalBooleanField = (
+  source: Record<string, unknown>,
+  key: string,
+): boolean | undefined => {
   const value = getOptionalField(source, key);
   if (value === undefined) {
     return undefined;
@@ -76,7 +93,9 @@ export const getOptionalBooleanField = (source: Record<string, unknown>, key: st
   return undefined;
 };
 
-export const toOptionalRecord = (value: unknown): Record<string, unknown> | undefined => {
+export const toOptionalRecord = (
+  value: unknown,
+): Record<string, unknown> | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
@@ -93,7 +112,11 @@ export const toOptionalRecord = (value: unknown): Record<string, unknown> | unde
   }
   try {
     const parsed = JSON.parse(text) as unknown;
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+    if (
+      parsed === null ||
+      typeof parsed !== "object" ||
+      Array.isArray(parsed)
+    ) {
       return undefined;
     }
     return copyRecord(parsed as object);
@@ -133,15 +156,21 @@ export const toOptionalStringArray = (value: unknown): string[] | undefined => {
   const result: string[] = [];
   for (let i = 0; i < values.length; i++) {
     const item = values[i];
-    if (typeof item !== "string") {
+    if (typeof item === "string") {
+      result.push(item as string);
+    } else if (typeof item === "number" && Number.isFinite(item as number)) {
+      result.push(`${item}`);
+    } else {
       return undefined;
     }
-    result.push(item as string);
   }
   return result;
 };
 
-export const getOptionalJsonArrayField = (source: Record<string, unknown>, key: string): unknown[] | undefined => {
+export const getOptionalJsonArrayField = (
+  source: Record<string, unknown>,
+  key: string,
+): unknown[] | undefined => {
   const value = getOptionalField(source, key);
   if (value === undefined) {
     return undefined;
@@ -164,11 +193,17 @@ export const getOptionalJsonArrayField = (source: Record<string, unknown>, key: 
   }
 };
 
-export const getOptionalJsonObjectField = (source: Record<string, unknown>, key: string): Record<string, unknown> | undefined => {
+export const getOptionalJsonObjectField = (
+  source: Record<string, unknown>,
+  key: string,
+): Record<string, unknown> | undefined => {
   return toOptionalRecord(getOptionalField(source, key));
 };
 
-export const getOptionalStringArrayField = (source: Record<string, unknown>, key: string): string[] | undefined => {
+export const getOptionalStringArrayField = (
+  source: Record<string, unknown>,
+  key: string,
+): string[] | undefined => {
   return toOptionalStringArray(getOptionalField(source, key));
 };
 
@@ -209,10 +244,71 @@ export const toOptionalFlagInt = (value: unknown): int | undefined => {
   return undefined;
 };
 
-export const getOptionalIntField = (body: Record<string, unknown>, key: string): int | undefined => {
+export const getOptionalIntField = (
+  body: Record<string, unknown>,
+  key: string,
+): int | undefined => {
   return toOptionalInt(getOptionalField(body, key));
 };
 
-export const getOptionalFlagIntField = (body: Record<string, unknown>, key: string): int | undefined => {
+export const getOptionalFlagIntField = (
+  body: Record<string, unknown>,
+  key: string,
+): int | undefined => {
   return toOptionalFlagInt(getOptionalField(body, key));
+};
+
+export const toOptionalLong = (value: unknown): long | undefined => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || value < 1) {
+      return undefined;
+    }
+    return Convert.ToInt64(value);
+  }
+  if (typeof value === "string") {
+    const trimmed = (value as string).trim();
+    if (trimmed.length === 0) {
+      return undefined;
+    }
+    const parsed = parseInt(trimmed, 10);
+    if (Number.isNaN(parsed) || parsed < 1) {
+      return undefined;
+    }
+    return Convert.ToInt64(parsed);
+  }
+  return undefined;
+};
+
+export const toLong = (value: long | undefined): long => {
+  if (value === undefined) {
+    return Convert.ToInt64(0);
+  }
+  return Convert.ToInt64(value);
+};
+
+export const getOptionalLongField = (
+  body: Record<string, unknown>,
+  key: string,
+): long | undefined => {
+  return toOptionalLong(getOptionalField(body, key));
+};
+
+export const toLongArray = (
+  values: string[] | undefined,
+): long[] | undefined => {
+  if (values === undefined) {
+    return undefined;
+  }
+  const result: long[] = [];
+  for (let i = 0; i < values.length; i++) {
+    const parsed = toOptionalLong(values[i]);
+    if (parsed === undefined) {
+      return undefined;
+    }
+    result.push(toLong(parsed));
+  }
+  return result;
 };

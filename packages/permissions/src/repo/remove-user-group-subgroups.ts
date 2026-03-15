@@ -1,10 +1,11 @@
+import type { long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 
 export const removeUserGroupSubgroups = async (
   options: DbContextOptions,
-  parentGroupId: string,
-  subgroupIds: string[]
+  parentGroupId: long,
+  subgroupIds: long[],
 ): Promise<void> => {
   const db = new JotsterDbContext(options);
   try {
@@ -13,8 +14,10 @@ export const removeUserGroupSubgroups = async (
 
     for (let i = 0; i < subgroupIds.length; i++) {
       const subgroupId0 = subgroupIds[i];
-      const subgroup = await db0.UserGroupSubgroups
-        .Where((s) => s.ParentGroupId === parentGroupId0).Where((s) => s.SubgroupId === subgroupId0)
+      const subgroup = await db0.UserGroupSubgroups.Where(
+        (s) => s.ParentGroupId === parentGroupId0,
+      )
+        .Where((s) => s.SubgroupId === subgroupId0)
         .FirstOrDefaultAsync();
 
       if (subgroup !== undefined && subgroup !== null) {

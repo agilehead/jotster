@@ -1,13 +1,17 @@
 import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import { JotsterDbContext, RealmDomain, generateId } from "@jotster/core/Jotster.Core.js";
+import {
+  JotsterDbContext,
+  RealmDomain,
+  generateId,
+} from "@jotster/core/Jotster.Core.js";
 
 export const addRealmDomain = async (
   options: DbContextOptions,
-  tenantId: string,
+  tenantId: long,
   domain: string,
-  allowSubdomains: int
+  allowSubdomains: int,
 ): Promise<RealmDomain | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -16,8 +20,10 @@ export const addRealmDomain = async (
     const domain0 = domain;
 
     // Check uniqueness
-    const existing = await db0.RealmDomains
-      .Where((x) => x.TenantId === tenantId0).Where((x) => x.Domain === domain0)
+    const existing = await db0.RealmDomains.Where(
+      (x) => x.TenantId === tenantId0,
+    )
+      .Where((x) => x.Domain === domain0)
       .FirstOrDefaultAsync();
 
     if (existing !== undefined) {
