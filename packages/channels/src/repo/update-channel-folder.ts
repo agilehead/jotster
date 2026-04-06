@@ -23,7 +23,7 @@ export const updateChannelFolder = async (
       (f) => f.Id === folderId0,
     ).FirstOrDefaultAsync();
 
-    if (folder === undefined) {
+    if (folder == null) {
       return undefined;
     }
 

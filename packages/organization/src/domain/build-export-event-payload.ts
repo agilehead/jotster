@@ -1,6 +1,7 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DataExport } from "@jotster/core/Jotster.Core.js";
 import type { DomainEvent } from "@jotster/event-queue/Jotster.EventQueue.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { Math as ClrMath, Convert } from "@tsonic/dotnet/System.js";
 
 interface ExportEventEntry {
@@ -15,10 +16,10 @@ interface ExportEventEntry {
 }
 
 export const buildExportEventPayload = (exports: DataExport[]): DomainEvent => {
-  const entries: ExportEventEntry[] = [];
+  const entries = new List<Record<string, JsValue>>();
   for (let i = 0; i < exports.length; i++) {
     const e = exports[i];
-    const entry: ExportEventEntry = {
+    const entry: Record<string, JsValue> = {
       id: e.Id,
       acting_user_id: e.RequesterId,
       export_time: ClrMath.Floor(Convert.ToDouble(e.CreatedAt) / 1000),
@@ -30,12 +31,12 @@ export const buildExportEventPayload = (exports: DataExport[]): DomainEvent => {
       pending: e.Status === "pending" || e.Status === "in_progress",
       export_type: e.ExportType,
     };
-    entries.push(entry);
+    entries.Add(entry);
   }
   return {
     type: "realm_export",
     data: {
-      exports: entries,
+      exports: entries.ToArray(),
     },
   };
 };

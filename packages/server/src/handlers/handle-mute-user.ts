@@ -22,7 +22,7 @@ export const handleMuteUser = async (
   }
 
   const user = authResult.data;
-  const mutedUserId = parseId(req.params["muted_user_id"] as string);
+  const mutedUserId = parseId(req.param("muted_user_id") ?? "");
   if (mutedUserId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid muted_user_id" });
     return;

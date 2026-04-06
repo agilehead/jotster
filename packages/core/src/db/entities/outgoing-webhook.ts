@@ -16,8 +16,8 @@ export class OutgoingWebhook {
   UpdatedAt!: long;
 }
 
-A.on(OutgoingWebhook)
+A<OutgoingWebhook>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(OutgoingWebhook).type.add(IndexAttribute, ["BotUserId"]);
-A.on(OutgoingWebhook).type.add(IndexAttribute, ["TenantId"]);
+A<OutgoingWebhook>().add(IndexAttribute, ["BotUserId"]);
+A<OutgoingWebhook>().add(IndexAttribute, ["TenantId"]);

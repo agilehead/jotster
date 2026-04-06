@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getChannelsDomain } from "@jotster/channels/Jotster.Channels.js";
@@ -24,16 +25,16 @@ export const handleGetStreams = async (
   const user = authResult.data;
   const includeArchived =
     (getOptionalStringField(
-      req.query as Record<string, unknown>,
+      req.query as Record<string, JsValue>,
       "include_archived",
     ) ?? "0") === "1";
 
   const channels = await getChannelsDomain(app.options, user, includeArchived);
 
-  const streams = new List<Record<string, unknown>>();
+  const streams = new List<Record<string, JsValue>>();
   for (let i = 0; i < channels.length; i++) {
     const ch = channels[i];
-    const s: Record<string, unknown> = {};
+    const s: Record<string, JsValue> = {};
     s["stream_id"] = ch.Id;
     s["name"] = ch.Name;
     s["description"] = ch.Description;
@@ -51,7 +52,7 @@ export const handleGetStreams = async (
     streams.Add(s);
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["streams"] = streams.ToArray();

@@ -1,4 +1,5 @@
 import type { long } from "@tsonic/core/types.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import {
@@ -27,10 +28,10 @@ export const addAlertWords = async (
       .Where((aw) => aw.UserId === userId0)
       .ToListAsync();
 
-    const existingWords: string[] = [];
+    const existingWords = new List<string>();
     for (let i = 0; i < existing.Count; i++) {
       const existingWord = existing[i];
-      existingWords.push(existingWord.Word);
+      existingWords.Add(existingWord.Word);
     }
 
     for (let i = 0; i < words.length; i++) {
@@ -40,7 +41,7 @@ export const addAlertWords = async (
       }
 
       let alreadyExists = false;
-      for (let j = 0; j < existingWords.length; j++) {
+      for (let j = 0; j < existingWords.Count; j++) {
         if (existingWords[j] === wordLower) {
           alreadyExists = true;
           break;
@@ -57,7 +58,7 @@ export const addAlertWords = async (
       alertWord.Word = wordLower;
       alertWord.CreatedAt = now;
       db.AlertWords.Add(alertWord);
-      existingWords.push(wordLower);
+      existingWords.Add(wordLower);
     }
 
     await db.SaveChangesAsync();

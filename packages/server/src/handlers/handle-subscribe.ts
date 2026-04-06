@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { JsValue, int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import {
   getBodyObject,
@@ -11,7 +11,10 @@ import { subscribeDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
-const getOptionalObjectField = (source: unknown, key: string): unknown => {
+const getOptionalObjectField = (
+  source: JsValue,
+  key: string,
+): JsValue | undefined => {
   if (
     source === undefined ||
     source === null ||
@@ -31,7 +34,7 @@ const getOptionalObjectField = (source: unknown, key: string): unknown => {
 };
 
 const toSubscriptionEntries = (
-  value: unknown[] | undefined,
+  value: JsValue[] | undefined,
 ): { name: string; description?: string }[] | undefined => {
   if (value === undefined) {
     return undefined;
@@ -64,7 +67,7 @@ const toSubscriptionEntries = (
   return result.ToArray();
 };
 
-const toStringArray = (value: unknown[] | undefined): string[] | undefined => {
+const toStringArray = (value: JsValue[] | undefined): string[] | undefined => {
   if (value === undefined) {
     return undefined;
   }
@@ -88,7 +91,7 @@ const appendChannels = (
   const merged = new List<string>();
   const existing = getOptionalObjectField(target, email);
   if (existing !== undefined && Array.isArray(existing)) {
-    const existingValues = existing as unknown[];
+    const existingValues = existing as JsValue[];
     for (let i = 0; i < existingValues.length; i++) {
       const entry = existingValues[i];
       if (typeof entry === "string") {

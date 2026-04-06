@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import {
   Tenant,
   ZULIP_VERSION,
@@ -21,7 +22,7 @@ export const getServerSettings = (
   tenant: Tenant,
   realmUrl: string,
   devAuthEnabled: boolean,
-): Record<string, unknown> => {
+): Record<string, JsValue> => {
   return {
     zulip_feature_level: ZULIP_FEATURE_LEVEL,
     zulip_version: ZULIP_VERSION,

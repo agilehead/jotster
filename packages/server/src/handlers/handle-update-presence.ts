@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import {
   getBodyObject,
@@ -13,7 +13,7 @@ import { updatePresenceDomain } from "@jotster/presence/Jotster.Presence.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 const parseOptionalLongField = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
   key: string,
 ): long | undefined => {
   const raw = getOptionalField(body, key);
@@ -86,7 +86,7 @@ export const handleUpdatePresence = async (
   }
 
   const data = result.data;
-  const payload: Record<string, unknown> = {
+  const payload: Record<string, JsValue> = {
     result: "success",
     msg: "",
     presence_last_update_id: data.presenceLastUpdateId,

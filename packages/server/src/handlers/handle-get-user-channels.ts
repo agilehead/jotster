@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserChannelsDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
@@ -22,14 +23,14 @@ export const handleGetUserChannels = async (
   }
 
   const user = authResult.data;
-  const targetUserId = parseId(req.params["user_id"] as string);
+  const targetUserId = parseId(req.param("user_id") ?? "");
   if (targetUserId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid user_id" });
     return;
   }
   const includeSubscribers =
     (getOptionalStringField(
-      req.query as Record<string, unknown>,
+      req.query as Record<string, JsValue>,
       "include_subscribers",
     ) ?? "0") === "1";
 
@@ -44,7 +45,7 @@ export const handleGetUserChannels = async (
     return;
   }
 
-  const subscribedChannelIds: unknown[] = [];
+  const subscribedChannelIds: JsValue[] = [];
   for (let i = 0; i < result.data.length; i++) {
     const entry = result.data[i];
     const streamId = entry["stream_id"];

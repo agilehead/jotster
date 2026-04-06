@@ -1,5 +1,5 @@
 import type { Request, Response } from "@tsonic/express/index.js";
-import { getBodyObject } from "../helpers/body.ts";
+import { getBodyObject, toOptionalStringArray } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { unsubscribeDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -31,7 +31,14 @@ export const handleUnsubscribe = async (
     return;
   }
 
-  const channelNames = JSON.parse(subscriptionsRaw) as string[];
+  const channelNames = toOptionalStringArray(subscriptionsRaw);
+  if (channelNames === undefined) {
+    res.status(400).json({
+      result: "error",
+      msg: "Invalid subscriptions payload",
+    });
+    return;
+  }
 
   const result = await unsubscribeDomain(app.options, user, channelNames);
   if (!result.success) {

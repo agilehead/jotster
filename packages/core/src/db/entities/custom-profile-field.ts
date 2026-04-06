@@ -18,7 +18,7 @@ export class CustomProfileField {
   CreatedAt!: long;
 }
 
-A.on(CustomProfileField)
+A<CustomProfileField>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(CustomProfileField).type.add(IndexAttribute, ["TenantId", "Ordering"]);
+A<CustomProfileField>().add(IndexAttribute, ["TenantId", "Ordering"]);

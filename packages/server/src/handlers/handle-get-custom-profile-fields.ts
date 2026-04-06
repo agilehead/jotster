@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getCustomProfileFieldsDomain } from "@jotster/users/Jotster.Users.js";
@@ -26,7 +27,7 @@ export const handleGetCustomProfileFields = async (
     return;
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["custom_fields"] = result.data;

@@ -41,10 +41,15 @@ const SUBSCRIPTION_COLORS = [
   "#a47462",
 ];
 
+export type BulkSubscriptionAddInput = {
+  name: string;
+  description?: string;
+};
+
 export const bulkUpdateSubscriptionsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  add?: { name: string; description?: string }[],
+  add?: BulkSubscriptionAddInput[],
   remove?: string[],
 ): Promise<
   Result<

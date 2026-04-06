@@ -40,3 +40,6 @@ export {
   mapChannelFolderToAddEventRecord,
   mapChannelFolderUpdateData,
 } from "./domain/map-channel-folder-event.ts";
+
+// Types
+export type { TopicMapEntry, TopicSummary } from "./types/topics.ts";

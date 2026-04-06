@@ -2,6 +2,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { getBodyObject } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createUserDomain } from "@jotster/users/Jotster.Users.js";
+import type { CreateUserDomainInput } from "@jotster/users/Jotster.Users.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleCreateUser = async (
@@ -36,7 +37,7 @@ export const handleCreateUser = async (
     return;
   }
 
-  const input = { email, password, fullName };
+  const input: CreateUserDomainInput = { email, password, fullName };
   const result = await createUserDomain(app.options, user, input);
   if (!result.success) {
     res.status(400).json({ result: "error", msg: result.error });

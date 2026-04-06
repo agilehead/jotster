@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type {
   ChannelFolder,
   Linkifier,
@@ -7,12 +8,13 @@ import type {
   ScheduledMessage,
 } from "@jotster/core/Jotster.Core.js";
 import { Convert, Math as ClrMath } from "@tsonic/dotnet/System.js";
+import { parseJsonValueText } from "./body.ts";
 
-const toUnixSeconds = (value: unknown): number => {
+const toUnixSeconds = (value: JsValue): number => {
   if (value === undefined || value === null) {
     return 0;
   }
-  const parsed = Number(`${value}`);
+  const parsed = Number(String(value));
   if (Number.isFinite(parsed)) {
     return ClrMath.Floor(parsed / 1000);
   }
@@ -24,14 +26,14 @@ const parseStringArray = (value: string | undefined): string[] => {
     return [];
   }
   try {
-    const parsed = JSON.parse(value) as unknown;
+    const parsed = parseJsonValueText(value);
     if (!Array.isArray(parsed)) {
       return [];
     }
-    const entries = parsed as unknown[];
+    const entries = parsed as JsValue[];
     const result: string[] = [];
     for (let i = 0; i < entries.length; i++) {
-      result.push(`${entries[i] ?? ""}`);
+      result.push(String(entries[i] ?? ""));
     }
     return result;
   } catch {
@@ -44,11 +46,11 @@ const parseIntArray = (value: string | undefined): number[] => {
     return [];
   }
   try {
-    const parsed = JSON.parse(value) as unknown;
+    const parsed = parseJsonValueText(value);
     if (!Array.isArray(parsed)) {
       return [];
     }
-    const entries = parsed as unknown[];
+    const entries = parsed as JsValue[];
     const result: number[] = [];
     for (let i = 0; i < entries.length; i++) {
       const num = Number(entries[i]);
@@ -82,7 +84,7 @@ const renderDescription = (value: string): string => {
 
 export const mapChannelFolderToCompatResponse = (
   folder: ChannelFolder,
-): Record<string, unknown> => ({
+): Record<string, JsValue> => ({
   id: folder.Id,
   name: folder.Name,
   order: folder.Ordering,
@@ -95,7 +97,7 @@ export const mapChannelFolderToCompatResponse = (
 
 export const mapNavigationViewToCompatResponse = (
   view: NavigationView,
-): Record<string, unknown> => ({
+): Record<string, JsValue> => ({
   fragment: view.Fragment,
   is_pinned: view.IsPinned === 1,
   name: view.Name ?? null,
@@ -103,7 +105,7 @@ export const mapNavigationViewToCompatResponse = (
 
 export const mapSavedSnippetToCompatResponse = (
   snippet: SavedSnippet,
-): Record<string, unknown> => ({
+): Record<string, JsValue> => ({
   id: snippet.Id,
   title: snippet.Title,
   content: snippet.Content,
@@ -113,7 +115,7 @@ export const mapSavedSnippetToCompatResponse = (
 export const mapReminderToCompatResponse = (
   reminder: Reminder,
   userId: number,
-): Record<string, unknown> => ({
+): Record<string, JsValue> => ({
   reminder_id: reminder.Id,
   type: "private",
   to: [userId],
@@ -128,8 +130,8 @@ export const mapReminderToCompatResponse = (
 
 export const mapScheduledMessageToCompatResponse = (
   scheduledMessage: ScheduledMessage,
-): Record<string, unknown> => {
-  const response: Record<string, unknown> = {
+): Record<string, JsValue> => {
+  const response: Record<string, JsValue> = {
     scheduled_message_id: scheduledMessage.Id,
     type:
       scheduledMessage.Type === "direct" ? "private" : scheduledMessage.Type,
@@ -154,7 +156,7 @@ export const mapScheduledMessageToCompatResponse = (
 
 export const mapLinkifierToCompatResponse = (
   linkifier: Linkifier,
-): Record<string, unknown> => ({
+): Record<string, JsValue> => ({
   pattern: linkifier.Pattern,
   url_template: linkifier.UrlTemplate,
   id: linkifier.Id,

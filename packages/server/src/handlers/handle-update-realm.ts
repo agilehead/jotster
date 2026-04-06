@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateOrgSettingsDomain } from "@jotster/organization/Jotster.Organization.js";
@@ -20,10 +21,10 @@ export const handleUpdateRealm = async (
   }
 
   const user = authResult.data;
-  const body = req.body as Record<string, unknown>;
+  const body = req.body as Record<string, JsValue>;
 
   // Build settings from body - pass through all provided fields
-  const settings: Record<string, unknown> = {};
+  const settings: Record<string, JsValue> = {};
   const keys = Object.keys(body);
   for (let i = 0; i < keys.length; i++) {
     settings[keys[i]] = body[keys[i]];

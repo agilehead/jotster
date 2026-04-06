@@ -37,7 +37,7 @@ export const getOutgoingWebhooksForChannel = async (
           const channelIds = JsonSerializer.Deserialize<string[]>(
             webhook.ChannelIdsJson,
           );
-          if (channelIds === undefined) {
+          if (channelIds == null) {
             continue;
           }
           for (let j = 0; j < channelIds.length; j++) {

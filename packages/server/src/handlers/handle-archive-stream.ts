@@ -22,7 +22,7 @@ export const handleArchiveStream = async (
   }
 
   const user = authResult.data;
-  const streamId = parseId(req.params["stream_id"] as string);
+  const streamId = parseId(req.param("stream_id") ?? "");
   if (streamId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid stream_id" });
     return;

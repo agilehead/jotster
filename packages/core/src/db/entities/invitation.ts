@@ -17,9 +17,9 @@ export class Invitation {
   ExpiresAt?: long;
 }
 
-A.on(Invitation)
+A<Invitation>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(Invitation).type.add(IndexAttribute, ["LinkToken"]);
-A.on(Invitation).type.add(IndexAttribute, ["TenantId", "Status"]);
-A.on(Invitation).type.add(IndexAttribute, ["TenantId", "InviterId"]);
+A<Invitation>().add(IndexAttribute, ["LinkToken"]);
+A<Invitation>().add(IndexAttribute, ["TenantId", "Status"]);
+A<Invitation>().add(IndexAttribute, ["TenantId", "InviterId"]);

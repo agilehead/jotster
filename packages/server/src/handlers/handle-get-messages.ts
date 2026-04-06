@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getMessagesDomain } from "@jotster/messages/Jotster.Messages.js";
@@ -21,7 +22,7 @@ export const handleGetMessages = async (
   }
 
   const user = authResult.data;
-  const query = req.query as Record<string, unknown>;
+  const query = req.query as Record<string, JsValue>;
   const narrow = getOptionalStringField(query, "narrow");
   const anchor = getOptionalStringField(query, "anchor");
   const numBefore = getOptionalStringField(query, "num_before");

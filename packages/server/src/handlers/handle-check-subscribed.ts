@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { checkSubscribedDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
@@ -22,12 +23,12 @@ export const handleCheckSubscribed = async (
   }
 
   const user = authResult.data;
-  const targetUserId = parseId(req.params["user_id"] as string);
+  const targetUserId = parseId(req.param("user_id") ?? "");
   if (targetUserId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid user_id" });
     return;
   }
-  const streamId = parseId(req.params["stream_id"] as string);
+  const streamId = parseId(req.param("stream_id") ?? "");
   if (streamId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid stream_id" });
     return;
@@ -46,7 +47,7 @@ export const handleCheckSubscribed = async (
     return;
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["is_subscribed"] = result.data;

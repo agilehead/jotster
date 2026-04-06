@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { JsValue, int } from "@tsonic/core/types.js";
 import type { ServerConfig } from "@jotster/core/Jotster.Core.js";
 
 export const INVALID_EMAIL_MSG = "Enter a valid email address.";
@@ -59,7 +59,7 @@ export const getJwtAuthErrorStatus = (message: string): int => {
   return 400 as int;
 };
 
-export const getJsonErrorBody = (message: string): Record<string, unknown> => {
+export const getJsonErrorBody = (message: string): Record<string, JsValue> => {
   return { result: "error", msg: message };
 };
 

@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import {
@@ -27,7 +27,7 @@ export const handleGetUserGroups = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
-  const query = req.query as Record<string, unknown>;
+  const query = req.query as Record<string, JsValue>;
   const includeDeactivatedGroups =
     getOptionalBooleanField(query, "include_deactivated_groups") ??
     getOptionalBooleanField(body, "include_deactivated_groups") ??
@@ -39,21 +39,23 @@ export const handleGetUserGroups = async (
     includeDeactivatedGroups,
   );
 
-  const resolveOutput = async (id: unknown): Promise<string | null> => {
+  const resolveOutput = async (
+    id: long | undefined | null,
+  ): Promise<string | null> => {
     if (id === undefined || id === null) {
       return null;
     }
     return await resolveGroupIdToSetting(
       app.options,
       user.tenantId,
-      id as long,
+      id,
     );
   };
 
-  const user_groups = new List<Record<string, unknown>>();
+  const user_groups = new List<Record<string, JsValue>>();
   for (let i = 0; i < groupsWithDetails.length; i++) {
     const item = groupsWithDetails[i];
-    const g: Record<string, unknown> = {};
+    const g: Record<string, JsValue> = {};
     g["id"] = item.group.Id;
     g["name"] = item.group.Name;
     g["description"] = item.group.Description;
@@ -76,7 +78,7 @@ export const handleGetUserGroups = async (
     user_groups.Add(g);
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["user_groups"] = user_groups.ToArray();

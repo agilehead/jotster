@@ -1,5 +1,6 @@
-import type { long } from "@tsonic/core/types.js";
-import { fs, path } from "@tsonic/nodejs/index.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
+import { existsSync, unlinkSync } from "@tsonic/nodejs/fs.js";
+import { join } from "@tsonic/nodejs/path.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -30,13 +31,13 @@ export const deleteAttachmentDomain = async (
   }
 
   // Delete file from disk
-  const filePath = path.join(
+  const filePath = join(
     uploadsDir,
     String(user.tenantId),
     attachment.PathId,
   );
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
+  if (existsSync(filePath)) {
+    unlinkSync(filePath);
   }
 
   // Delete DB record
@@ -45,12 +46,12 @@ export const deleteAttachmentDomain = async (
     return err("Failed to delete attachment");
   }
 
-  const attObj: Record<string, unknown> = {};
+  const attObj: Record<string, JsValue> = {};
   attObj["id"] = attachment.Id;
   attObj["name"] = attachment.FileName;
   attObj["path_id"] = attachment.PathId;
   attObj["size"] = attachment.Size;
-  const eventData: Record<string, unknown> = {};
+  const eventData: Record<string, JsValue> = {};
   eventData["attachment"] = attObj;
   dispatchEventToTenant(user.tenantId, {
     type: "attachment",

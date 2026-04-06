@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -29,7 +30,7 @@ export const deactivateCustomEmojiDomain = async (
   // Build full emoji map and dispatch realm_emoji event
   const emojiMap = await getCustomEmojisDomain(options, user.tenantId);
 
-  const eventData: Record<string, unknown> = {};
+  const eventData: Record<string, JsValue> = {};
   eventData["realm_emoji"] = emojiMap;
 
   dispatchEventToTenant(user.tenantId, {

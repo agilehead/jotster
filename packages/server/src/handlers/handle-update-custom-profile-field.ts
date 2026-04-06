@@ -40,7 +40,7 @@ export const handleUpdateCustomProfileField = async (
       });
     return;
   }
-  const fieldId = parseId(req.params["field_id"] as string);
+  const fieldId = parseId(req.param("field_id") ?? "");
   if (fieldId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid field_id" });
     return;

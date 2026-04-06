@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import {
@@ -61,7 +61,7 @@ export const handleSetTargetUserStatusCompat = async (
   }
 
   const body = getBodyObject(req);
-  const targetUserId = parseId(req.params["user_id"] as string);
+  const targetUserId = parseId(req.param("user_id") ?? "");
   if (targetUserId === undefined) {
     res
       .status(400)
@@ -98,7 +98,7 @@ export const handleGetBotApiKeyCompat = async (
     return;
   }
 
-  const getBotId = parseId(req.params["bot_id"] as string);
+  const getBotId = parseId(req.param("bot_id") ?? "");
   if (getBotId === undefined) {
     res
       .status(400)
@@ -130,7 +130,7 @@ export const handleRegenerateBotApiKeyCompat = async (
     return;
   }
 
-  const regenBotId = parseId(req.params["bot_id"] as string);
+  const regenBotId = parseId(req.param("bot_id") ?? "");
   if (regenBotId === undefined) {
     res
       .status(400)
@@ -164,11 +164,11 @@ export const handleGetUserGroupMembershipCompat = async (
 
   const directOnly =
     getOptionalBooleanField(
-      req.query as Record<string, unknown>,
+      req.query as Record<string, JsValue>,
       "direct_member_only",
     ) === true;
-  const membershipGroupId = parseId(req.params["group_id"] as string);
-  const membershipUserId = parseId(req.params["user_id"] as string);
+  const membershipGroupId = parseId(req.param("group_id") ?? "");
+  const membershipUserId = parseId(req.param("user_id") ?? "");
   if (membershipGroupId === undefined || membershipUserId === undefined) {
     res
       .status(400)
@@ -212,10 +212,10 @@ export const handleGetUserGroupMembersCompat = async (
 
   const directOnly =
     getOptionalBooleanField(
-      req.query as Record<string, unknown>,
+      req.query as Record<string, JsValue>,
       "direct_member_only",
     ) === true;
-  const membersGroupId = parseId(req.params["group_id"] as string);
+  const membersGroupId = parseId(req.param("group_id") ?? "");
   if (membersGroupId === undefined) {
     res
       .status(400)
@@ -258,10 +258,10 @@ export const handleGetUserGroupSubgroupsCompat = async (
 
   const directOnly =
     getOptionalBooleanField(
-      req.query as Record<string, unknown>,
+      req.query as Record<string, JsValue>,
       "direct_subgroup_only",
     ) === true;
-  const subgroupsGroupId = parseId(req.params["group_id"] as string);
+  const subgroupsGroupId = parseId(req.param("group_id") ?? "");
   if (subgroupsGroupId === undefined) {
     res
       .status(400)
@@ -329,7 +329,7 @@ export const handleMutateUserGroupMembersCompat = async (
     return;
   }
 
-  const mutateGroupId = parseId(req.params["group_id"] as string);
+  const mutateGroupId = parseId(req.param("group_id") ?? "");
   if (mutateGroupId === undefined) {
     res
       .status(400)
@@ -431,7 +431,7 @@ export const handleMutateUserGroupSubgroupsCompat = async (
     return;
   }
 
-  const subgroupMutateGroupId = parseId(req.params["group_id"] as string);
+  const subgroupMutateGroupId = parseId(req.param("group_id") ?? "");
   if (subgroupMutateGroupId === undefined) {
     res
       .status(400)

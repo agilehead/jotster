@@ -1,8 +1,10 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import type { Request } from "@tsonic/express/index.js";
+import { Dictionary } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { Convert } from "@tsonic/dotnet/System.js";
+import { JsonElement, JsonValueKind } from "@tsonic/dotnet/System.Text.Json.js";
 
-export const getBodyObject = (req: Request): Record<string, unknown> => {
+export const getBodyObject = (req: Request): Record<string, JsValue> => {
   const body = req.body;
   if (
     body === undefined ||
@@ -12,21 +14,70 @@ export const getBodyObject = (req: Request): Record<string, unknown> => {
   ) {
     return {};
   }
-  return body as Record<string, unknown>;
+  return body as Record<string, JsValue>;
 };
 
-export const copyRecord = (value: object): Record<string, unknown> => {
-  const result: Record<string, unknown> = {};
+export const copyRecord = (value: object): Record<string, JsValue> => {
+  const result: Record<string, JsValue> = {};
   for (const [entryKey, entryValue] of Object.entries(value)) {
     result[entryKey] = entryValue;
   }
   return result;
 };
 
+const convertJsonElementToJsValue = (element: JsonElement): JsValue => {
+  switch (element.ValueKind) {
+    case JsonValueKind.Object: {
+      const result = new Dictionary<string, JsValue>();
+      const properties = element.EnumerateObject();
+      while (properties.MoveNext()) {
+        const property = properties.Current;
+        result.Add(property.Name, convertJsonElementToJsValue(property.Value));
+      }
+      return result;
+    }
+    case JsonValueKind.Array: {
+      const result: JsValue[] = [];
+      const items = element.EnumerateArray();
+      while (items.MoveNext()) {
+        result.push(convertJsonElementToJsValue(items.Current));
+      }
+      return result;
+    }
+    case JsonValueKind.String:
+      return element.GetString() ?? "";
+    case JsonValueKind.Number:
+      return element.GetDouble();
+    case JsonValueKind.True:
+      return true;
+    case JsonValueKind.False:
+      return false;
+    case JsonValueKind.Null:
+    case JsonValueKind.Undefined:
+      return null;
+    default:
+      return null;
+  }
+};
+
+export const parseJsonValueText = (text: string): JsValue => {
+  return convertJsonElementToJsValue(JsonElement.Parse(text));
+};
+
+export const tryParseJsonValueText = (
+  text: string,
+): JsValue | undefined => {
+  try {
+    return parseJsonValueText(text);
+  } catch {
+    return undefined;
+  }
+};
+
 export const getOptionalField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
-): unknown => {
+): JsValue | undefined => {
   for (const [entryKey, entryValue] of Object.entries(source)) {
     if (entryKey === key) {
       return entryValue;
@@ -36,7 +87,7 @@ export const getOptionalField = (
 };
 
 export const hasField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
 ): boolean => {
   for (const [entryKey] of Object.entries(source)) {
@@ -48,7 +99,7 @@ export const hasField = (
 };
 
 export const getOptionalStringField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
 ): string | undefined => {
   const value = getOptionalField(source, key);
@@ -59,7 +110,7 @@ export const getOptionalStringField = (
 };
 
 export const getOptionalBooleanField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
 ): boolean | undefined => {
   const value = getOptionalField(source, key);
@@ -94,8 +145,8 @@ export const getOptionalBooleanField = (
 };
 
 export const toOptionalRecord = (
-  value: unknown,
-): Record<string, unknown> | undefined => {
+  value: JsValue | undefined,
+): Record<string, JsValue> | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
@@ -110,45 +161,42 @@ export const toOptionalRecord = (
   if (text.length === 0) {
     return undefined;
   }
-  try {
-    const parsed = JSON.parse(text) as unknown;
-    if (
-      parsed === null ||
-      typeof parsed !== "object" ||
-      Array.isArray(parsed)
-    ) {
-      return undefined;
-    }
-    return copyRecord(parsed as object);
-  } catch {
+  const parsed = tryParseJsonValueText(text);
+  if (
+    parsed === undefined ||
+    parsed === null ||
+    typeof parsed !== "object" ||
+    Array.isArray(parsed)
+  ) {
     return undefined;
   }
+  return copyRecord(parsed as object);
 };
 
-export const toOptionalStringArray = (value: unknown): string[] | undefined => {
+export const toOptionalStringArray = (
+  value: JsValue | undefined,
+): string[] | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
 
-  let values: unknown[];
+  let values: JsValue[];
   if (Array.isArray(value)) {
-    values = value as unknown[];
+    values = value as JsValue[];
   } else if (typeof value === "string") {
     const stringValue = value as string;
     const text = stringValue.trim();
     if (text.length === 0) {
       return undefined;
     }
-    let parsed: unknown = undefined;
-    try {
-      parsed = JSON.parse(text) as unknown;
-    } catch {
+    const parsed = tryParseJsonValueText(text);
+    if (parsed === undefined) {
       return undefined;
     }
     if (!Array.isArray(parsed)) {
       return undefined;
     }
-    values = parsed as unknown[];
+    values = parsed as JsValue[];
   } else {
     return undefined;
   }
@@ -168,15 +216,15 @@ export const toOptionalStringArray = (value: unknown): string[] | undefined => {
 };
 
 export const getOptionalJsonArrayField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
-): unknown[] | undefined => {
+): JsValue[] | undefined => {
   const value = getOptionalField(source, key);
   if (value === undefined) {
     return undefined;
   }
   if (Array.isArray(value)) {
-    return value as unknown[];
+    return value as JsValue[];
   }
   if (typeof value !== "string") {
     return undefined;
@@ -185,29 +233,28 @@ export const getOptionalJsonArrayField = (
   if (text.length === 0) {
     return undefined;
   }
-  try {
-    const parsed = JSON.parse(text) as unknown;
-    return Array.isArray(parsed) ? (parsed as unknown[]) : undefined;
-  } catch {
+  const parsed = tryParseJsonValueText(text);
+  if (!Array.isArray(parsed)) {
     return undefined;
   }
+  return parsed as JsValue[];
 };
 
 export const getOptionalJsonObjectField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
-): Record<string, unknown> | undefined => {
+): Record<string, JsValue> | undefined => {
   return toOptionalRecord(getOptionalField(source, key));
 };
 
 export const getOptionalStringArrayField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
 ): string[] | undefined => {
   return toOptionalStringArray(getOptionalField(source, key));
 };
 
-export const toOptionalInt = (value: unknown): int | undefined => {
+export const toOptionalInt = (value: JsValue | undefined): int | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
@@ -231,7 +278,9 @@ export const toOptionalInt = (value: unknown): int | undefined => {
   return undefined;
 };
 
-export const toOptionalFlagInt = (value: unknown): int | undefined => {
+export const toOptionalFlagInt = (
+  value: JsValue | undefined,
+): int | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
@@ -245,28 +294,31 @@ export const toOptionalFlagInt = (value: unknown): int | undefined => {
 };
 
 export const getOptionalIntField = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
   key: string,
 ): int | undefined => {
   return toOptionalInt(getOptionalField(body, key));
 };
 
 export const getOptionalFlagIntField = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
   key: string,
 ): int | undefined => {
   return toOptionalFlagInt(getOptionalField(body, key));
 };
 
-export const toOptionalLong = (value: unknown): long | undefined => {
+export const toOptionalLong = (
+  value: JsValue | undefined,
+): long | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
   if (typeof value === "number") {
-    if (!Number.isFinite(value) || value < 1) {
+    const numericValue = value as number;
+    if (!Number.isFinite(numericValue) || numericValue < 1) {
       return undefined;
     }
-    return Convert.ToInt64(value);
+    return Convert.ToInt64(numericValue);
   }
   if (typeof value === "string") {
     const trimmed = (value as string).trim();
@@ -290,7 +342,7 @@ export const toLong = (value: long | undefined): long => {
 };
 
 export const getOptionalLongField = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
   key: string,
 ): long | undefined => {
   return toOptionalLong(getOptionalField(body, key));

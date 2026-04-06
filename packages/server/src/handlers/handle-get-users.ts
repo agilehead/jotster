@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUsers } from "@jotster/users/Jotster.Users.js";
@@ -24,12 +25,12 @@ export const handleGetUsers = async (
   const user = authResult.data;
   const data = await getUsers(app.options, user.tenantId);
 
-  const members = new List<Record<string, unknown>>();
+  const members = new List<Record<string, JsValue>>();
   for (let i = 0; i < data.length; i++) {
     members.Add(await buildUserResponse(app.options, data[i]));
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["members"] = members.ToArray();

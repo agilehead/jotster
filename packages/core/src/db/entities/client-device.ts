@@ -10,7 +10,7 @@ export class ClientDevice {
   CreatedAt!: long;
 }
 
-A.on(ClientDevice)
+A<ClientDevice>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(ClientDevice).type.add(IndexAttribute, ["TenantId", "UserId"]);
+A<ClientDevice>().add(IndexAttribute, ["TenantId", "UserId"]);

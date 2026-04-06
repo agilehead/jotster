@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -11,7 +11,7 @@ export const getUserChannelsDomain = async (
   actingUser: AuthenticatedUser,
   targetUserId: long,
   includeSubscribers: boolean,
-): Promise<Result<Record<string, unknown>[], string>> => {
+): Promise<Result<Record<string, JsValue>[], string>> => {
   // Must be admin or self (role <= 200 or actingUser.userId === targetUserId)
   if (actingUser.role > 200 && actingUser.userId !== targetUserId) {
     return err("Insufficient permission");
@@ -38,7 +38,7 @@ export const getUserChannelsDomain = async (
       actingUser.tenantId,
       targetUserId,
     );
-    const result = new List<Record<string, unknown>>();
+    const result = new List<Record<string, JsValue>>();
 
     for (let i = 0; i < subscriptions.Count; i++) {
       const sub = subscriptions[i];
@@ -52,7 +52,7 @@ export const getUserChannelsDomain = async (
         continue;
       }
 
-      const entry: Record<string, unknown> = {
+      const entry: Record<string, JsValue> = {
         stream_id: channel.Id,
         name: channel.Name,
         description: channel.Description,

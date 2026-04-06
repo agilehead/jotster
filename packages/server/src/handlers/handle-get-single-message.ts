@@ -22,7 +22,7 @@ export const handleGetSingleMessage = async (
   }
 
   const user = authResult.data;
-  const messageId = parseId(req.params["message_id"] as string);
+  const messageId = parseId(req.param("message_id") ?? "");
   if (messageId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid message_id" });
     return;

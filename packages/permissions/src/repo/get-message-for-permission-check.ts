@@ -20,7 +20,7 @@ export const getMessageForPermissionCheck = async (
       .Where((m) => m.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (msg === undefined) {
+    if (msg == null) {
       return undefined;
     }
 

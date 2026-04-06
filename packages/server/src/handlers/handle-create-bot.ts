@@ -3,6 +3,7 @@ import type { Request, Response } from "@tsonic/express/index.js";
 import { getBodyObject, toOptionalInt } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { createBotDomain } from "@jotster/users/Jotster.Users.js";
+import type { CreateBotDomainInput } from "@jotster/users/Jotster.Users.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
 export const handleCreateBot = async (
@@ -37,7 +38,7 @@ export const handleCreateBot = async (
     return;
   }
 
-  const input: { fullName: string; shortName: string; botType?: int } = {
+  const input: CreateBotDomainInput = {
     fullName,
     shortName,
     botType,

@@ -25,7 +25,7 @@ export const handleSetTopicVisibility = async (
   const user = authResult.data;
   const body = getBodyObject(req);
 
-  const streamId = parseId(`${body["stream_id"] ?? ""}`);
+  const streamId = parseId(String(body["stream_id"] ?? ""));
   const topic = body["topic"] as string;
   const visibilityPolicy = toOptionalInt(body["visibility_policy"]);
   if (visibilityPolicy === undefined) {

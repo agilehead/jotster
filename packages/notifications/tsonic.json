@@ -9,10 +9,22 @@
     "type": "library"
   },
   "references": {
-    "libraries": [
-      "../core/dist/net10.0/Jotster.Core.dll",
-      "../users/dist/net10.0/Jotster.Users.dll",
-      "../event-queue/dist/net10.0/Jotster.EventQueue.dll"
+    "packages": [
+      {
+        "id": "@jotster/core",
+        "project": "../core",
+        "mode": "dll"
+      },
+      {
+        "id": "@jotster/users",
+        "project": "../users",
+        "mode": "dll"
+      },
+      {
+        "id": "@jotster/event-queue",
+        "project": "../event-queue",
+        "mode": "dll"
+      }
     ]
   },
   "buildOptions": {

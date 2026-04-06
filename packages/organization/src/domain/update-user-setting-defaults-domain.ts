@@ -1,5 +1,6 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
+import type { JsValue } from "@tsonic/core/types.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getUserSettingDefaults } from "../repo/get-user-setting-defaults.ts";
@@ -8,8 +9,8 @@ import { updateUserSettingDefaults } from "../repo/update-user-setting-defaults.
 export const updateUserSettingDefaultsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  updates: Record<string, unknown>,
-): Promise<Result<Record<string, unknown>, string>> => {
+  updates: Record<string, JsValue>,
+): Promise<Result<Record<string, JsValue>, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {
     return err("Insufficient permission");
@@ -25,7 +26,7 @@ export const updateUserSettingDefaultsDomain = async (
   const updateKeys = Object.keys(updates);
   for (let i = 0; i < updateKeys.length; i++) {
     const key = updateKeys[i];
-    let previousValue = undefined as unknown;
+    let previousValue = undefined as JsValue | undefined;
     let hadPreviousValue = false;
     const previousKeys = Object.keys(previous);
     for (

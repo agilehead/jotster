@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { updateUserSettingDefaultsDomain } from "@jotster/organization/Jotster.Organization.js";
@@ -57,7 +58,7 @@ export const handleUpdateUserSettingDefaults = async (
     return;
   }
 
-  const response: Record<string, unknown> = { result: "success", msg: "" };
+  const response: Record<string, JsValue> = { result: "success", msg: "" };
   if (normalized.ignoredParametersUnsupported.length > 0) {
     response["ignored_parameters_unsupported"] =
       normalized.ignoredParametersUnsupported;

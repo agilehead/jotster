@@ -20,7 +20,7 @@ export const deactivateCustomEmoji = async (
         e.IsActive === activeStatus,
     ).FirstOrDefaultAsync();
 
-    if (emoji === undefined) {
+    if (emoji == null) {
       return false;
     }
 

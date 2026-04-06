@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getChannelFoldersDomain } from "@jotster/channels/Jotster.Channels.js";
@@ -25,7 +26,7 @@ export const handleGetChannelFolders = async (
   const user = authResult.data;
   const includeArchived =
     getOptionalBooleanField(
-      req.query as Record<string, unknown>,
+      req.query as Record<string, JsValue>,
       "include_archived",
     ) === true;
   const foldersWithItems = await getChannelFoldersDomain(
@@ -34,7 +35,7 @@ export const handleGetChannelFolders = async (
     includeArchived,
   );
 
-  const channel_folders = new List<Record<string, unknown>>();
+  const channel_folders = new List<Record<string, JsValue>>();
   for (let i = 0; i < foldersWithItems.length; i++) {
     const entry = foldersWithItems[i];
     channel_folders.Add(mapChannelFolderToCompatResponse(entry.folder));

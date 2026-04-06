@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,22 +8,22 @@ export const getUserStatusDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   targetUserId: long,
-): Promise<Result<Record<string, unknown>, string>> => {
+): Promise<Result<Record<string, JsValue>, string>> => {
   const status = await getUserStatus(options, user.tenantId, targetUserId);
 
   if (status === undefined) {
     return ok({
       status_text: "",
-      emoji_name: undefined,
-      emoji_code: undefined,
-      reaction_type: undefined,
+      emoji_name: null,
+      emoji_code: null,
+      reaction_type: null,
     });
   }
 
   return ok({
     status_text: status.StatusText,
-    emoji_name: status.EmojiName,
-    emoji_code: status.EmojiCode,
-    reaction_type: status.ReactionType,
+    emoji_name: status.EmojiName ?? null,
+    emoji_code: status.EmojiCode ?? null,
+    reaction_type: status.ReactionType ?? null,
   });
 };

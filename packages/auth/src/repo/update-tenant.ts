@@ -15,7 +15,7 @@ export const updateTenant = async (
     const tenant = await db0.Tenants.Where(
       (t) => t.Id === tenantId0,
     ).FirstOrDefaultAsync();
-    if (tenant === undefined) return undefined;
+    if (tenant == null) return undefined;
     if (updates.name !== undefined) {
       tenant.Name = updates.name;
     }

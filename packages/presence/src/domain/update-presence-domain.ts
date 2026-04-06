@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { int, JsValue, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
@@ -24,7 +24,7 @@ interface UpdatePresenceParams {
 }
 
 interface PresenceResult {
-  presences?: Record<string, unknown>;
+  presences?: Record<string, JsValue>;
   serverTimestamp?: long;
   presenceLastUpdateId: long;
 }
@@ -103,7 +103,7 @@ export const updatePresenceDomain = async (
     const users = await db0.Users.Where(
       (u) => u.TenantId === tenantId0,
     ).ToListAsync();
-    const presences: Record<string, unknown> = {};
+    const presences: Record<string, JsValue> = {};
 
     for (let i = 0; i < users.Count; i++) {
       const currentUser = users[i];
@@ -127,7 +127,7 @@ export const updatePresenceDomain = async (
         continue;
       }
 
-      const legacyPresence: Record<string, unknown> = {
+      const legacyPresence: Record<string, JsValue> = {
         website: {
           client: "website",
           pushable: false,
@@ -141,7 +141,7 @@ export const updatePresenceDomain = async (
           timestamp: latestEntry.Timestamp,
         },
       };
-      presences[currentUser.Email] = legacyPresence as unknown;
+      presences[currentUser.Email] = legacyPresence;
     }
 
     return ok({

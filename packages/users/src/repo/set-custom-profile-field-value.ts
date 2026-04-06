@@ -28,7 +28,7 @@ export const setCustomProfileFieldValue = async (
       .Where((v) => v.FieldId === fieldId0)
       .FirstOrDefaultAsync();
 
-    if (existing !== undefined) {
+    if (existing != null) {
       existing.Value = value;
       existing.RenderedValue = renderedValue;
       await db0.SaveChangesAsync();

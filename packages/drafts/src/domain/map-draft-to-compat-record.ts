@@ -1,4 +1,6 @@
 import type { Draft } from "@jotster/core/Jotster.Core.js";
+import type { JsValue } from "@tsonic/core/types.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { Convert, Math as ClrMath } from "@tsonic/dotnet/System.js";
 
 const parseRecipientIds = (value: string | undefined): string[] => {
@@ -7,17 +9,17 @@ const parseRecipientIds = (value: string | undefined): string[] => {
   }
 
   try {
-    const parsed = JSON.parse(value) as unknown;
+    const parsed: JsValue = JSON.parse(value);
     if (!Array.isArray(parsed)) {
       return [];
     }
 
-    const items = parsed as unknown[];
-    const result: string[] = [];
+    const items = parsed as JsValue[];
+    const result = new List<string>();
     for (let i = 0; i < items.length; i++) {
-      result.push(`${items[i] ?? ""}`);
+      result.Add(String(items[i] ?? ""));
     }
-    return result;
+    return result.ToArray();
   } catch {
     return [];
   }
@@ -25,8 +27,8 @@ const parseRecipientIds = (value: string | undefined): string[] => {
 
 export const mapDraftToCompatRecord = (
   draft: Draft,
-): Record<string, unknown> => {
-  const record: Record<string, unknown> = {};
+): Record<string, JsValue> => {
+  const record: Record<string, JsValue> = {};
   record["id"] = draft.Id;
   record["type"] = draft.Type;
   record["to"] =

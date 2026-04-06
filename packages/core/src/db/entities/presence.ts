@@ -13,6 +13,6 @@ export class Presence {
   Timestamp!: long;
 }
 
-A.on(Presence).type.add(PrimaryKeyAttribute, "UserId", ["ClientName"]);
-A.on(Presence).type.add(IndexAttribute, ["TenantId", "Timestamp"]);
-A.on(Presence).type.add(IndexAttribute, ["TenantId", "UserId"]);
+A<Presence>().add(PrimaryKeyAttribute, "UserId", ["ClientName"]);
+A<Presence>().add(IndexAttribute, ["TenantId", "Timestamp"]);
+A<Presence>().add(IndexAttribute, ["TenantId", "UserId"]);

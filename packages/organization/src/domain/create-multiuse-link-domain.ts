@@ -5,10 +5,10 @@ import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { createMultiuseInvitation } from "../repo/create-multiuse-invitation.ts";
 
-interface CreateMultiuseLinkInput {
+type CreateMultiuseLinkInput = {
   channelIds: string[];
   inviteAsRole: int;
-}
+};
 
 export const createMultiuseLinkDomain = async (
   options: DbContextOptions,

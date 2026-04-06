@@ -13,12 +13,16 @@ import { generateApiKey, hashApiKey } from "@jotster/auth/Jotster.Auth.js";
 import { getUserByEmail } from "../repo/get-user-by-email.ts";
 import { createUser } from "../repo/create-user.ts";
 import { createUserSetting } from "../repo/create-user-setting.ts";
+import type {
+  CreateBotDomainInput,
+  CreateBotDomainResult,
+} from "../types/create-user.ts";
 
 export const createBotDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  input: { fullName: string; shortName: string; botType?: int },
-): Promise<Result<{ userId: long; apiKey: string }, string>> => {
+  input: CreateBotDomainInput,
+): Promise<Result<CreateBotDomainResult, string>> => {
   const botEmail = `${input.shortName}-bot@jotster.local`;
 
   const existing = await getUserByEmail(options, actingUser.tenantId, botEmail);

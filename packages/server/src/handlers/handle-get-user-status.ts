@@ -22,7 +22,7 @@ export const handleGetUserStatus = async (
   }
 
   const user = authResult.data;
-  const userId = parseId(req.params["user_id"] as string);
+  const userId = parseId(req.param("user_id") ?? "");
   if (userId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid user_id" });
     return;

@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -18,7 +18,7 @@ import {
 } from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
-const parseMessageIds = (value: unknown): long[] | undefined => {
+const parseMessageIds = (value: JsValue): long[] | undefined => {
   const strings = toOptionalStringArray(value);
   if (strings === undefined) {
     return undefined;
@@ -34,7 +34,10 @@ const parseMessageIds = (value: unknown): long[] | undefined => {
   return result;
 };
 
-const getObjectField = (value: unknown, key: string): unknown => {
+const getObjectField = (
+  value: JsValue,
+  key: string,
+): JsValue | undefined => {
   if (
     value === null ||
     value === undefined ||
@@ -186,7 +189,7 @@ export const handleMessagesMatchNarrowCompat = async (
     return;
   }
 
-  const query = req.query as Record<string, unknown>;
+  const query = req.query as Record<string, JsValue>;
   const messageIds = parseMessageIds(query["msg_ids"]);
   if (messageIds === undefined) {
     res
@@ -240,7 +243,7 @@ export const handleReportMessageCompat = async (
     return;
   }
 
-  const reportMessageId = parseId(req.params["message_id"] as string);
+  const reportMessageId = parseId(req.param("message_id") ?? "");
   if (reportMessageId === undefined) {
     res
       .status(400)

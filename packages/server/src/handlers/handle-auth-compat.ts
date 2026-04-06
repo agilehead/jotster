@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { fetchJwtApiKey, resolveTenant } from "@jotster/auth/Jotster.Auth.js";
 import type { AppContext } from "../helpers/app-context.ts";
@@ -55,7 +56,7 @@ export const handleJwtFetchApiKey = async (
     return;
   }
 
-  const payload: Record<string, unknown> = {
+  const payload: Record<string, JsValue> = {
     result: "success",
     msg: "",
     api_key: result.data.api_key,

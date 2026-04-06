@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getAttachmentsDomain } from "@jotster/uploads/Jotster.Uploads.js";
@@ -28,18 +29,18 @@ export const handleGetAttachments = async (
   }
 
   const data = result.data;
-  const attachments: Record<string, unknown>[] = [];
+  const attachments: Record<string, JsValue>[] = [];
   for (let i = 0; i < data.attachments.length; i++) {
     const item = data.attachments[i];
-    const attachment: Record<string, unknown> = {};
+    const attachment: Record<string, JsValue> = {};
     attachment["id"] = item.id;
     attachment["name"] = item.name;
     attachment["path_id"] = item.path_id;
     attachment["size"] = item.size;
     attachment["create_time"] = item.create_time;
-    const messages: Record<string, unknown>[] = [];
+    const messages: Record<string, JsValue>[] = [];
     for (let j = 0; j < item.messages.length; j++) {
-      const message: Record<string, unknown> = {};
+      const message: Record<string, JsValue> = {};
       message["id"] = item.messages[j].id;
       messages.push(message);
     }

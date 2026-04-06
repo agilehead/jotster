@@ -15,7 +15,7 @@ export const deleteChannelFolder = async (
       (f) => f.Id === folderId0,
     ).FirstOrDefaultAsync();
 
-    if (folder === undefined) {
+    if (folder == null) {
       return false;
     }
 

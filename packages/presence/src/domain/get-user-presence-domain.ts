@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
@@ -12,7 +12,7 @@ import { getUserPresence } from "../repo/get-user-presence.ts";
 import { buildLegacyUserPresenceMap } from "./presence-contract.ts";
 
 interface UserPresenceResult {
-  presence: Record<string, unknown>;
+  presence: Record<string, JsValue>;
 }
 
 export const getUserPresenceDomain = async (
@@ -30,7 +30,7 @@ export const getUserPresenceDomain = async (
 
     // Try by ID first (only if it looks numeric)
     const parsedNum = parseInt(target0, 10);
-    let targetUser: User | undefined = undefined;
+    let targetUser: User | null | undefined = undefined;
 
     if (!isNaN(parsedNum) && parsedNum > 0 && !target0.includes("@")) {
       const targetAsLong = Convert.ToInt64(parsedNum);

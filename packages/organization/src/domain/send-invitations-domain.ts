@@ -7,11 +7,11 @@ import { getUserByEmail } from "@jotster/users/Jotster.Users.js";
 import { createInvitation } from "../repo/create-invitation.ts";
 import { getInvitations } from "../repo/get-invitations.ts";
 
-interface SendInvitationsInput {
+type SendInvitationsInput = {
   inviteeEmails: string[];
   channelIds: string[];
   inviteAsRole: int;
-}
+};
 
 export const sendInvitationsDomain = async (
   options: DbContextOptions,

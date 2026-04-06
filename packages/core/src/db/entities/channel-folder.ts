@@ -15,8 +15,8 @@ export class ChannelFolder {
   UpdatedAt!: long;
 }
 
-A.on(ChannelFolder)
+A<ChannelFolder>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(ChannelFolder).type.add(IndexAttribute, ["TenantId", "UserId", "Name"]);
-A.on(ChannelFolder).type.add(IndexAttribute, ["TenantId", "UserId"]);
+A<ChannelFolder>().add(IndexAttribute, ["TenantId", "UserId", "Name"]);
+A<ChannelFolder>().add(IndexAttribute, ["TenantId", "UserId"]);

@@ -22,7 +22,7 @@ export const handleDeleteExport = async (
   }
 
   const user = authResult.data;
-  const exportId = parseId(req.params["export_id"] as string);
+  const exportId = parseId(req.param("export_id") ?? "");
   if (exportId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid export_id" });
     return;

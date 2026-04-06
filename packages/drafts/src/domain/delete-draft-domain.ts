@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -20,7 +20,7 @@ export const deleteDraftDomain = async (
     return err("Draft not found");
   }
 
-  const data: Record<string, unknown> = {};
+  const data: Record<string, JsValue> = {};
   data["draft_id"] = draftId;
 
   dispatchEventToUser(user.tenantId, user.userId, {

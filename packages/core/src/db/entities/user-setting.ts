@@ -56,6 +56,6 @@ export class UserSetting {
   WebChannelDefaultView!: int;
 }
 
-A.on(UserSetting)
+A<UserSetting>()
   .prop((x) => x.UserId)
   .add(KeyAttribute);

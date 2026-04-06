@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { int, JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import {
   JotsterDbContext,
@@ -26,7 +26,7 @@ interface TriggerOutgoingWebhooksInput {
 
 interface OutgoingWebhookDispatch {
   url: string;
-  payload: Record<string, unknown>;
+  payload: Record<string, JsValue>;
 }
 
 export const triggerOutgoingWebhooksDomain = async (

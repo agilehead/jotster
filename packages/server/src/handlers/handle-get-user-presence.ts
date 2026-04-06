@@ -20,7 +20,7 @@ export const handleGetUserPresence = async (
   }
 
   const user = authResult.data;
-  const userIdOrEmail = req.params["user_id_or_email"] as string;
+  const userIdOrEmail = req.param("user_id_or_email") ?? "";
 
   const result = await getUserPresenceDomain(app.options, user, userIdOrEmail);
   if (!result.success) {

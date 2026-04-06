@@ -32,7 +32,7 @@ export const handleUpdateUserGroup = async (
   }
 
   const user = authResult.data;
-  const groupId = parseId(req.params["group_id"] as string);
+  const groupId = parseId(req.param("group_id") ?? "");
   if (groupId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid group_id" });
     return;
@@ -51,32 +51,51 @@ export const handleUpdateUserGroup = async (
     deactivated?: boolean;
   } = {};
 
-  const resolveInput = async (key: string): Promise<long | undefined> => {
-    const value = getOptionalStringField(body, key);
-    if (value === undefined) {
-      return undefined;
-    }
-    return await resolveGroupSettingToId(app.options, user.tenantId, value);
-  };
-
   const name = getOptionalStringField(body, "name");
   if (name !== undefined) updates.name = name;
   const description = getOptionalStringField(body, "description");
   if (description !== undefined) updates.description = description;
-  if (hasField(body, "can_add_members_group"))
-    updates.canAddMembersGroupId = await resolveInput("can_add_members_group");
-  if (hasField(body, "can_join_group"))
-    updates.canJoinGroupId = await resolveInput("can_join_group");
-  if (hasField(body, "can_leave_group"))
-    updates.canLeaveGroupId = await resolveInput("can_leave_group");
-  if (hasField(body, "can_manage_group"))
-    updates.canManageGroupId = await resolveInput("can_manage_group");
-  if (hasField(body, "can_mention_group"))
-    updates.canMentionGroupId = await resolveInput("can_mention_group");
+  if (hasField(body, "can_add_members_group")) {
+    const value = getOptionalStringField(body, "can_add_members_group");
+    updates.canAddMembersGroupId =
+      value === undefined
+        ? undefined
+        : await resolveGroupSettingToId(app.options, user.tenantId, value);
+  }
+  if (hasField(body, "can_join_group")) {
+    const value = getOptionalStringField(body, "can_join_group");
+    updates.canJoinGroupId =
+      value === undefined
+        ? undefined
+        : await resolveGroupSettingToId(app.options, user.tenantId, value);
+  }
+  if (hasField(body, "can_leave_group")) {
+    const value = getOptionalStringField(body, "can_leave_group");
+    updates.canLeaveGroupId =
+      value === undefined
+        ? undefined
+        : await resolveGroupSettingToId(app.options, user.tenantId, value);
+  }
+  if (hasField(body, "can_manage_group")) {
+    const value = getOptionalStringField(body, "can_manage_group");
+    updates.canManageGroupId =
+      value === undefined
+        ? undefined
+        : await resolveGroupSettingToId(app.options, user.tenantId, value);
+  }
+  if (hasField(body, "can_mention_group")) {
+    const value = getOptionalStringField(body, "can_mention_group");
+    updates.canMentionGroupId =
+      value === undefined
+        ? undefined
+        : await resolveGroupSettingToId(app.options, user.tenantId, value);
+  }
   if (hasField(body, "can_remove_members_group")) {
-    updates.canRemoveMembersGroupId = await resolveInput(
-      "can_remove_members_group",
-    );
+    const value = getOptionalStringField(body, "can_remove_members_group");
+    updates.canRemoveMembersGroupId =
+      value === undefined
+        ? undefined
+        : await resolveGroupSettingToId(app.options, user.tenantId, value);
   }
   if (hasField(body, "deactivated")) {
     updates.deactivated = getOptionalBooleanField(body, "deactivated");

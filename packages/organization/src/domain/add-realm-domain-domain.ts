@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, JsValue } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { RealmDomain, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -39,7 +39,7 @@ export const addRealmDomainDomain = async (
   }
 
   // Emit realm_domains event
-  const domainObj: Record<string, unknown> = {};
+  const domainObj: Record<string, JsValue> = {};
   domainObj["domain"] = realmDomain.Domain;
   domainObj["allow_subdomains"] = realmDomain.AllowSubdomains === (1 as int);
 

@@ -1,5 +1,6 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import type { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import type { Action } from "@tsonic/dotnet/System.js";
 
 export interface ClientCapabilities {
   notificationSettingsNull?: boolean;
@@ -28,14 +29,14 @@ export interface RegisterParams {
 export interface DomainEvent {
   type: string;
   op?: string;
-  data: Record<string, unknown>;
+  data: Record<string, JsValue>;
 }
 
 export interface QueueEvent {
   id: int;
   type: string;
   op?: string;
-  data?: Record<string, unknown>;
+  data?: Record<string, JsValue>;
 }
 
 export interface EventQueue {
@@ -54,5 +55,5 @@ export interface EventQueue {
   clientGravatar: boolean;
   slimPresence: boolean;
   clientCapabilities: ClientCapabilities;
-  waiterResolve: (() => void) | undefined;
+  waiterResolve: Action | undefined;
 }

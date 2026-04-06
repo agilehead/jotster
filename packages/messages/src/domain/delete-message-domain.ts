@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -42,12 +42,18 @@ export const deleteMessageDomain = async (
   }
 
   // Dispatch event
-  const eventData: Record<string, unknown> = {};
+  const eventData: Record<string, JsValue> = {};
   eventData["message_id"] = messageId;
   eventData["message_type"] = message.Type === "stream" ? "stream" : "direct";
-  eventData["stream_id"] = message.ChannelId;
-  eventData["topic"] = message.Topic;
-  eventData["dm_group_id"] = message.DmGroupId;
+  if (message.ChannelId !== undefined) {
+    eventData["stream_id"] = message.ChannelId;
+  }
+  if (message.Topic !== undefined) {
+    eventData["topic"] = message.Topic;
+  }
+  if (message.DmGroupId !== undefined) {
+    eventData["dm_group_id"] = message.DmGroupId;
+  }
   dispatchEventToTenant(user.tenantId, {
     type: "delete_message",
     data: eventData,

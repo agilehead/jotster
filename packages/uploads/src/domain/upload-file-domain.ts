@@ -1,5 +1,6 @@
-import type { long } from "@tsonic/core/types.js";
-import { fs, path } from "@tsonic/nodejs/index.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
+import { existsSync, mkdirSync } from "@tsonic/nodejs/fs.js";
+import { extname, join } from "@tsonic/nodejs/path.js";
 import type { UploadedFile } from "@tsonic/express/index.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -15,19 +16,19 @@ export const uploadFileDomain = async (
   file: UploadedFile,
 ): Promise<Result<{ filename: string; uri: string; url: string }, string>> => {
   const fileName = file.originalname;
-  const size = file.size as long;
+  const size = Convert.ToInt64(file.size);
   const contentType = file.mimetype;
 
-  const ext = path.extname(fileName);
+  const ext = extname(fileName);
   const pathId = generateId() + ext;
 
   const tenantIdStr = String(user.tenantId);
-  const dirPath = path.join(uploadsDir, tenantIdStr);
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+  const dirPath = join(uploadsDir, tenantIdStr);
+  if (!existsSync(dirPath)) {
+    mkdirSync(dirPath, true);
   }
 
-  const filePath = path.join(dirPath, pathId);
+  const filePath = join(dirPath, pathId);
   await file.save(filePath);
 
   const attachment = await createAttachment(options, {
@@ -48,15 +49,15 @@ export const uploadFileDomain = async (
     encodePathSegment(fileName);
   const uri = url;
 
-  const messagesArr: unknown[] = [];
-  const attObj: Record<string, unknown> = {};
+  const messagesArr: JsValue[] = [];
+  const attObj: Record<string, JsValue> = {};
   attObj["id"] = attachment.Id;
   attObj["name"] = attachment.FileName;
   attObj["path_id"] = attachment.PathId;
   attObj["size"] = attachment.Size;
   attObj["create_time"] = Convert.ToDouble(attachment.CreatedAt) / 1000;
   attObj["messages"] = messagesArr;
-  const eventData: Record<string, unknown> = {};
+  const eventData: Record<string, JsValue> = {};
   eventData["attachment"] = attObj;
   eventData["upload_space_used"] = attachment.Size;
   dispatchEventToTenant(user.tenantId, {

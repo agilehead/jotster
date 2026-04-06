@@ -34,7 +34,7 @@ export function main(): void {
   app.useError(async (err, _req, res, _next) => {
     res
       .status(500)
-      .json({ result: "error", msg: `Internal server error: ${err}` });
+      .json({ result: "error", msg: `Internal server error: ${String(err)}` });
   });
 
   // Parse port from listenUrl (e.g., "http://localhost:8080" -> 8080)

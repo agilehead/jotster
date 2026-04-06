@@ -1,5 +1,6 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
+import type { JsValue } from "@tsonic/core/types.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { registerPushToken } from "../repo/register-push-token.ts";
 import { getTokensByToken } from "../repo/get-tokens-by-token.ts";
@@ -11,7 +12,7 @@ export const registerDeviceDomain = async (
   kind: string,
   token: string,
   iosAppId: string | undefined,
-): Promise<Result<Record<string, unknown>, string>> => {
+): Promise<Result<Record<string, JsValue>, string>> => {
   // Validate token is non-empty
   if (!token || token.trim().length === 0) {
     return err("Token must not be empty");
@@ -40,7 +41,7 @@ export const registerDeviceDomain = async (
     iosAppId,
   );
 
-  const result: Record<string, unknown> = {};
+  const result: Record<string, JsValue> = {};
   result["msg"] = "";
   return ok(result);
 };

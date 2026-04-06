@@ -6,19 +6,7 @@ import {
   User,
   generateId,
 } from "@jotster/core/Jotster.Core.js";
-
-interface CreateUserInput {
-  tenantId: long;
-  email: string;
-  fullName: string;
-  passwordHash?: string;
-  role?: int;
-  isBot?: int;
-  botType?: int;
-  botOwnerId?: long;
-  timezone?: string;
-  deliveryEmail?: string;
-}
+import type { CreateUserInput } from "../types/create-user.ts";
 
 export const createUser = async (
   options: DbContextOptions,

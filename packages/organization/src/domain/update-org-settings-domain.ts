@@ -1,5 +1,6 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
+import type { JsValue } from "@tsonic/core/types.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
@@ -8,7 +9,7 @@ import { updateTenantSettings } from "../repo/update-tenant-settings.ts";
 export const updateOrgSettingsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  settings: Record<string, unknown>,
+  settings: Record<string, JsValue>,
 ): Promise<Result<boolean, string>> => {
   // Validate admin role (role <= 200)
   if (user.role > 200) {
@@ -21,10 +22,10 @@ export const updateOrgSettingsDomain = async (
   }
 
   // Emit realm event
-  const settingsKeys = settings.Keys;
+  const settingsKeys = Object.keys(settings);
   const keys = new List<string>();
   for (let i = 0; i < settingsKeys.length; i++) {
-    keys.Add(settingsKeys[i]);
+    keys.Add(settingsKeys[i]!);
   }
   if (keys.Count === 1) {
     const key = keys[0];
@@ -37,7 +38,7 @@ export const updateOrgSettingsDomain = async (
       },
     });
   } else if (keys.Count > 1) {
-    const data: Record<string, unknown> = {};
+    const data: Record<string, JsValue> = {};
     for (let i = 0; i < keys.Count; i++) {
       data[keys[i]] = settings[keys[i]];
     }

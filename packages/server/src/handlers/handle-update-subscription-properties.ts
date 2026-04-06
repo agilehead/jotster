@@ -1,8 +1,9 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import {
   getBodyObject,
   getOptionalStringField,
+  parseJsonValueText,
   toOptionalFlagInt,
   toLong,
 } from "../helpers/body.ts";
@@ -12,7 +13,10 @@ import { updateSubscriptionPropertiesDomain } from "@jotster/subscriptions/Jotst
 import type { AppContext } from "../helpers/app-context.ts";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 
-const getOptionalObjectField = (source: unknown, key: string): unknown => {
+const getOptionalObjectField = (
+  source: JsValue,
+  key: string,
+): JsValue | undefined => {
   if (
     source === undefined ||
     source === null ||
@@ -42,7 +46,7 @@ const FLAG_PROPERTIES = [
 
 const toSubscriptionPropertyValue = (
   property: string,
-  value: unknown,
+  value: JsValue | undefined,
 ): string | undefined => {
   if (property === "color") {
     return typeof value === "string" ? (value as string) : undefined;
@@ -97,7 +101,7 @@ export const handleUpdateSubscriptionProperties = async (
     return;
   }
 
-  const parsed = JSON.parse(subscriptionDataRaw) as unknown;
+  const parsed = parseJsonValueText(subscriptionDataRaw);
   if (!Array.isArray(parsed)) {
     res
       .status(400)
@@ -109,7 +113,7 @@ export const handleUpdateSubscriptionProperties = async (
     return;
   }
 
-  const parsedArray = parsed as unknown[];
+  const parsedArray = parsed as JsValue[];
   const updates = new List<{
     streamId: long;
     property: string;
@@ -123,7 +127,7 @@ export const handleUpdateSubscriptionProperties = async (
     const streamIdStr =
       streamIdValue === undefined || streamIdValue === null
         ? undefined
-        : `${streamIdValue}`;
+        : String(streamIdValue);
     const streamId = parseId(streamIdStr);
     const property =
       typeof propertyValue === "string" ? (propertyValue as string) : undefined;
@@ -168,7 +172,7 @@ export const handleUpdateSubscriptionProperties = async (
     return;
   }
 
-  const response: Record<string, unknown> = { result: "success", msg: "" };
+  const response: Record<string, JsValue> = { result: "success", msg: "" };
   if (ignoredParametersUnsupported.length > 0) {
     response["ignored_parameters_unsupported"] = ignoredParametersUnsupported;
   }

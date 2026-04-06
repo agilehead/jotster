@@ -27,7 +27,7 @@ export const handleDeactivateCustomEmoji = async (
     return;
   }
 
-  const emojiName = req.params["emoji_name"] as string;
+  const emojiName = req.param("emoji_name") ?? "";
   if (!emojiName) {
     res.status(400).json({ result: "error", msg: "Missing emoji name" });
     return;

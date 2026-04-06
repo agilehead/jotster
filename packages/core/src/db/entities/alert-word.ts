@@ -11,9 +11,9 @@ export class AlertWord {
   CreatedAt!: long;
 }
 
-A.on(AlertWord)
+A<AlertWord>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(AlertWord).type.add(IndexAttribute, ["TenantId", "UserId", "Word"]);
-A.on(AlertWord).type.add(IndexAttribute, ["TenantId", "UserId"]);
-A.on(AlertWord).type.add(IndexAttribute, ["TenantId"]);
+A<AlertWord>().add(IndexAttribute, ["TenantId", "UserId", "Word"]);
+A<AlertWord>().add(IndexAttribute, ["TenantId", "UserId"]);
+A<AlertWord>().add(IndexAttribute, ["TenantId"]);

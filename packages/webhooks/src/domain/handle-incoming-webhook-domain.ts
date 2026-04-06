@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { int, JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -9,11 +9,11 @@ interface IncomingWebhookInput {
   topic?: string;
   content?: string;
   stream?: string;
-  body: Record<string, unknown>;
+  body: Record<string, JsValue>;
 }
 
 const getBodyString = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
   key: string,
 ): string | undefined => {
   for (const [entryKey, entryValue] of Object.entries(body)) {

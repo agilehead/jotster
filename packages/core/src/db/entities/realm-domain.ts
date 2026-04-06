@@ -11,7 +11,7 @@ export class RealmDomain {
   CreatedAt!: long;
 }
 
-A.on(RealmDomain)
+A<RealmDomain>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(RealmDomain).type.add(IndexAttribute, ["TenantId", "Domain"]);
+A<RealmDomain>().add(IndexAttribute, ["TenantId", "Domain"]);

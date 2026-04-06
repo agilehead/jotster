@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, ok } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -17,7 +17,7 @@ export const getSubscriptionsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   includeSubscribers: boolean,
-): Promise<Result<Record<string, unknown>[], string>> => {
+): Promise<Result<Record<string, JsValue>[], string>> => {
   const db = new JotsterDbContext(options);
   try {
     const db0 = db;
@@ -28,7 +28,7 @@ export const getSubscriptionsDomain = async (
       user.tenantId,
       user.userId,
     );
-    const result = new List<Record<string, unknown>>();
+    const result = new List<Record<string, JsValue>>();
 
     for (let i = 0; i < subscriptions.Count; i++) {
       const sub = subscriptions[i];
@@ -42,7 +42,7 @@ export const getSubscriptionsDomain = async (
         continue;
       }
 
-      const entry: Record<string, unknown> = {
+      const entry: Record<string, JsValue> = {
         stream_id: channel.Id,
         name: channel.Name,
         description: channel.Description,

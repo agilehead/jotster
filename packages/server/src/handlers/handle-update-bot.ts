@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
@@ -23,18 +23,18 @@ export const handleUpdateBot = async (
   }
 
   const user = authResult.data;
-  const botId = parseId(req.params["bot_id"] as string);
+  const botId = parseId(req.param("bot_id") ?? "");
   if (botId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid bot_id" });
     return;
   }
 
-  const body = req.body as Record<string, unknown>;
+  const body = req.body as Record<string, JsValue>;
   const updates: { fullName?: string; botOwnerId?: long } = {};
   if (body["full_name"] !== undefined)
     updates.fullName = body["full_name"] as string;
   if (body["bot_owner_id"] !== undefined)
-    updates.botOwnerId = parseId(`${body["bot_owner_id"]}`);
+    updates.botOwnerId = parseId(String(body["bot_owner_id"]));
 
   const result = await updateBotDomain(
     app.options,

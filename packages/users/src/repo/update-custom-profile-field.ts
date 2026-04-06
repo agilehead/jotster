@@ -5,21 +5,23 @@ import {
   CustomProfileField,
 } from "@jotster/core/Jotster.Core.js";
 
+export interface CustomProfileFieldUpdates {
+  name?: string;
+  hint?: string;
+  fieldType?: int;
+  fieldDataJson?: string;
+  displayInProfileSummary?: int;
+  required?: int;
+  editableByUser?: int;
+  useForUserMatching?: int;
+  ordering?: int;
+}
+
 export const updateCustomProfileField = async (
   options: DbContextOptions,
   tenantId: long,
   fieldId: long,
-  updates: {
-    name?: string;
-    hint?: string;
-    fieldType?: int;
-    fieldDataJson?: string;
-    displayInProfileSummary?: int;
-    required?: int;
-    editableByUser?: int;
-    useForUserMatching?: int;
-    ordering?: int;
-  },
+  updates: CustomProfileFieldUpdates,
 ): Promise<CustomProfileField | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -30,7 +32,7 @@ export const updateCustomProfileField = async (
       .Where((f) => f.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (field === undefined) {
+    if (field == null) {
       return undefined;
     }
 

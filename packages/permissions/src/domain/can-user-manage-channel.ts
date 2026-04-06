@@ -27,7 +27,7 @@ export const canUserManageChannel = async (
       .Where((c) => c.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (channel === undefined) {
+    if (channel == null) {
       return ok(false);
     }
 

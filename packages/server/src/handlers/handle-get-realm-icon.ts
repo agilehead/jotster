@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
@@ -28,12 +29,12 @@ export const handleGetRealmIcon = async (
       (x) => x.Id === tenantId0,
     ).FirstOrDefaultAsync();
 
-    if (tenant === undefined) {
+    if (tenant == null) {
       res.status(404).json({ result: "error", msg: "Organization not found" });
       return;
     }
 
-    const result: Record<string, unknown> = {};
+    const result: Record<string, JsValue> = {};
     result["result"] = "success";
     result["msg"] = "";
     result["icon_url"] = tenant.IconUrl ?? "";

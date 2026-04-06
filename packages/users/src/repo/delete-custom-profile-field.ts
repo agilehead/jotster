@@ -17,7 +17,7 @@ export const deleteCustomProfileField = async (
       .Where((f) => f.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (field === undefined) {
+    if (field == null) {
       return false;
     }
 

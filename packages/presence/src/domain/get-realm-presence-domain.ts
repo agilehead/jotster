@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { int, JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Presence } from "@jotster/core/Jotster.Core.js";
@@ -12,7 +12,7 @@ import {
 } from "./presence-contract.ts";
 
 interface RealmPresenceResult {
-  presences: Record<string, unknown>;
+  presences: Record<string, JsValue>;
   serverTimestamp: long;
 }
 
@@ -44,7 +44,7 @@ export const getRealmPresenceDomain = async (
     const users = await db0.Users.Where(
       (u) => u.TenantId === tenantId0,
     ).ToListAsync();
-    const presences: Record<string, unknown> = {};
+    const presences: Record<string, JsValue> = {};
 
     for (let i = 0; i < users.Count; i++) {
       const currentUser = users[i];
@@ -68,7 +68,7 @@ export const getRealmPresenceDomain = async (
         continue;
       }
 
-      const legacyPresence: Record<string, unknown> = {
+      const legacyPresence: Record<string, JsValue> = {
         website: {
           client: "website",
           pushable: false,
@@ -82,7 +82,7 @@ export const getRealmPresenceDomain = async (
           timestamp: latestEntry.Timestamp,
         },
       };
-      presences[currentUser.Email] = legacyPresence as unknown;
+      presences[currentUser.Email] = legacyPresence;
     }
 
     return ok({ presences, serverTimestamp });

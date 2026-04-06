@@ -1,4 +1,7 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import { existsSync, mkdirSync } from "@tsonic/nodejs/fs.js";
+import { extname, join } from "@tsonic/nodejs/path.js";
 import type {
   Result,
   AuthenticatedUser,
@@ -9,7 +12,6 @@ import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.j
 import { getCustomEmojiByName } from "../repo/get-custom-emoji-by-name.ts";
 import { createCustomEmoji } from "../repo/create-custom-emoji.ts";
 import { getCustomEmojisDomain } from "./get-custom-emojis-domain.ts";
-import { fs, path } from "@tsonic/nodejs/index.js";
 import type { UploadedFile } from "@tsonic/express/index.js";
 
 export const createCustomEmojiDomain = async (
@@ -43,21 +45,21 @@ export const createCustomEmojiDomain = async (
     authorId: user.userId,
   });
 
-  const emojiDir = path.join(
+  const emojiDir = join(
     uploadsDir,
     String(user.tenantId),
     "emoji",
     String(emoji.Id),
   );
-  if (!fs.existsSync(emojiDir)) {
-    fs.mkdirSync(emojiDir, { recursive: true });
+  if (!existsSync(emojiDir)) {
+    mkdirSync(emojiDir, true);
   }
-  await file.save(path.join(emojiDir, fileName));
+  await file.save(join(emojiDir, fileName));
 
   // Build full emoji map and dispatch realm_emoji event
   const emojiMap = await getCustomEmojisDomain(options, user.tenantId);
 
-  const eventData: Record<string, unknown> = {};
+  const eventData: Record<string, JsValue> = {};
   eventData["realm_emoji"] = emojiMap;
 
   dispatchEventToTenant(user.tenantId, {
@@ -73,7 +75,7 @@ const resolveStoredFileName = (
   emojiName: string,
   originalName: string,
 ): string => {
-  const ext = path.extname(originalName);
+  const ext = extname(originalName);
   if (ext === "") {
     return emojiName + ".png";
   }

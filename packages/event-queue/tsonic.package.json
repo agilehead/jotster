@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "tsonic-source-package",
+  "surfaces": [
+    "@tsonic/js"
+  ],
+  "source": {
+    "namespace": "Jotster.EventQueue",
+    "exports": {
+      ".": "./src/index.ts",
+      "./index.js": "./src/index.ts",
+      "./Jotster.EventQueue.js": "./src/index.ts"
+    }
+  }
+}

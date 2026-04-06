@@ -5,11 +5,11 @@ import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { getSubscription } from "../repo/get-subscription.ts";
 import { updateSubscriptionProperty } from "../repo/update-subscription-property.ts";
 
-interface SubscriptionPropertyUpdate {
+type SubscriptionPropertyUpdate = {
   streamId: long;
   property: string;
   propValue: string;
-}
+};
 
 const VALID_PROPERTIES = [
   "color",

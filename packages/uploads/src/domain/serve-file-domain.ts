@@ -1,14 +1,15 @@
-import { fs, path } from "@tsonic/nodejs/index.js";
+import { existsSync } from "@tsonic/nodejs/fs.js";
+import { join } from "@tsonic/nodejs/path.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { getAttachmentByPath } from "../repo/get-attachment-by-path.ts";
 
-interface ServeFileResult {
+type ServeFileResult = {
   filePath: string;
   contentType: string;
   fileName: string;
-}
+};
 
 export const serveFileDomain = async (
   options: DbContextOptions,
@@ -32,8 +33,8 @@ export const serveFileDomain = async (
     return err("File not found");
   }
 
-  const filePath = path.join(uploadsDir, tenantId, normalizedPathId);
-  if (!fs.existsSync(filePath)) {
+  const filePath = join(uploadsDir, tenantId, normalizedPathId);
+  if (!existsSync(filePath)) {
     return err("File not found on disk");
   }
 

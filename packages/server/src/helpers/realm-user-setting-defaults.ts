@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import {
   copyRecord,
   getOptionalBooleanField,
@@ -7,7 +8,7 @@ import {
   hasField,
 } from "./body.ts";
 
-const REALM_USER_SETTING_DEFAULTS_BASE: Record<string, unknown> = {
+const REALM_USER_SETTING_DEFAULTS_BASE: Record<string, JsValue> = {
   twenty_four_hour_time: false,
   color_scheme: 3,
   demote_inactive_streams: 1,
@@ -115,23 +116,24 @@ const AVAILABLE_NOTIFICATION_SOUNDS = [
 ];
 
 export const buildRealmUserSettingDefaultsState = (
-  stored: Record<string, unknown>,
-): Record<string, unknown> => {
+  stored: object,
+): Record<string, JsValue> => {
   const state = copyRecord(REALM_USER_SETTING_DEFAULTS_BASE);
-  const storedKeys = Object.keys(stored);
+  const storedRecord = copyRecord(stored);
+  const storedKeys = Object.keys(storedRecord);
   for (let i = 0; i < storedKeys.length; i++) {
-    state[storedKeys[i]] = stored[storedKeys[i]];
+    state[storedKeys[i]] = storedRecord[storedKeys[i]];
   }
-  const emojisetChoices: Record<string, unknown>[] = [];
-  const googleChoice: Record<string, unknown> = {};
+  const emojisetChoices: Record<string, JsValue>[] = [];
+  const googleChoice: Record<string, JsValue> = {};
   googleChoice["key"] = "google";
   googleChoice["text"] = "Google";
   emojisetChoices.push(googleChoice);
-  const twitterChoice: Record<string, unknown> = {};
+  const twitterChoice: Record<string, JsValue> = {};
   twitterChoice["key"] = "twitter";
   twitterChoice["text"] = "Twitter";
   emojisetChoices.push(twitterChoice);
-  const textChoice: Record<string, unknown> = {};
+  const textChoice: Record<string, JsValue> = {};
   textChoice["key"] = "text";
   textChoice["text"] = "Plain text";
   emojisetChoices.push(textChoice);
@@ -144,9 +146,9 @@ export const buildRealmUserSettingDefaultsState = (
 };
 
 export const normalizeRealmUserSettingDefaultsUpdates = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
 ): {
-  updates: Record<string, unknown>;
+  updates: Record<string, JsValue>;
   ignoredParametersUnsupported: string[];
   error?: string;
 } => {
@@ -159,7 +161,7 @@ export const normalizeRealmUserSettingDefaultsUpdates = (
     return false;
   };
 
-  const updates: Record<string, unknown> = {};
+  const updates: Record<string, JsValue> = {};
   const ignoredParametersUnsupported: string[] = [];
   const keys = Object.keys(body);
   for (let i = 0; i < keys.length; i++) {

@@ -2,6 +2,7 @@ import type { int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { getMessage } from "../repo/get-message.ts";
 import { getReadReceipts } from "../repo/get-read-receipts.ts";
 
@@ -19,7 +20,7 @@ export const getReadReceiptsDomain = async (
   const rawUserIds = await getReadReceipts(options, user.tenantId, messageId);
   const db = new JotsterDbContext(options);
   try {
-    const filteredUserIds: long[] = [];
+    const filteredUserIds = new List<long>();
     const tenantId0 = user.tenantId;
     const requesterId0 = user.userId;
     const senderId0 = message.SenderId;
@@ -66,10 +67,10 @@ export const getReadReceiptsDomain = async (
         }
       }
 
-      filteredUserIds.push(receiptUserId);
+      filteredUserIds.Add(receiptUserId);
     }
 
-    return ok({ userIds: filteredUserIds });
+    return ok({ userIds: filteredUserIds.ToArray() });
   } finally {
     db.Dispose();
   }

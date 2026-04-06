@@ -1,6 +1,7 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
+import { parseJsonValueText } from "./body.ts";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type {
   AuthenticatedUser,
@@ -18,7 +19,7 @@ import { toLong } from "./body.ts";
 
 type NarrowFilter = {
   op: string;
-  value: unknown;
+  value: JsValue | undefined;
   negated?: boolean;
 };
 
@@ -35,14 +36,14 @@ type UpdateFlagsForNarrowInput = {
   includeAnchor: boolean;
   numBefore: int;
   numAfter: int;
-  narrow: unknown;
+  narrow: JsValue;
   op: string;
   flag: string;
 };
 
 type UpdateFlagsForNarrowResult = {
   error?: string;
-  payload?: Record<string, unknown>;
+  payload?: Record<string, JsValue>;
 };
 
 type MessagesMatchingNarrowResult = {
@@ -59,7 +60,10 @@ const VALID_FLAGS = [
   "historical",
 ];
 
-const getObjectField = (value: unknown, key: string): unknown => {
+const getObjectField = (
+  value: JsValue,
+  key: string,
+): JsValue | undefined => {
   if (
     value === null ||
     value === undefined ||
@@ -76,15 +80,15 @@ const getObjectField = (value: unknown, key: string): unknown => {
   return undefined;
 };
 
-const parseNarrowFilters = (value: unknown): NarrowFilter[] | undefined => {
+const parseNarrowFilters = (value: JsValue): NarrowFilter[] | undefined => {
   if (value === undefined || value === null) {
     return [];
   }
 
-  let parsed: unknown = value;
+  let parsed: JsValue = value;
   if (typeof value === "string") {
     try {
-      parsed = JSON.parse(value);
+      parsed = parseJsonValueText(value);
     } catch {
       return undefined;
     }
@@ -93,13 +97,13 @@ const parseNarrowFilters = (value: unknown): NarrowFilter[] | undefined => {
   if (!Array.isArray(parsed)) {
     return undefined;
   }
-  const entries = parsed as unknown[];
+  const entries = parsed as JsValue[];
 
   const filters = new List<NarrowFilter>();
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
     if (Array.isArray(entry)) {
-      const tuple = entry as unknown[];
+      const tuple = entry as JsValue[];
       if (tuple.length < 2 || typeof tuple[0] !== "string") {
         return undefined;
       }
@@ -135,7 +139,7 @@ const parseNarrowFilters = (value: unknown): NarrowFilter[] | undefined => {
 const getFilterOperand = (
   filters: NarrowFilter[],
   operator: string,
-): unknown => {
+): JsValue | undefined => {
   for (let i = 0; i < filters.length; i++) {
     const filter = filters[i];
     if (filter.op === operator && filter.negated !== true) {
@@ -146,7 +150,7 @@ const getFilterOperand = (
   return undefined;
 };
 
-const toStringValue = (value: unknown): string | undefined => {
+const toStringValue = (value: JsValue | undefined): string | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
@@ -166,7 +170,7 @@ const toStringValue = (value: unknown): string | undefined => {
 const resolveSenderId = async (
   options: DbContextOptions,
   tenantId: long,
-  operand: unknown,
+  operand: JsValue | undefined,
 ): Promise<long | undefined> => {
   const candidate = toStringValue(operand);
   if (candidate === undefined) {
@@ -202,7 +206,7 @@ const getUserByEmailInTenant = async (
 const resolveNarrow = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  narrowValue: unknown,
+  narrowValue: JsValue,
 ): Promise<ResolvedNarrow | undefined> => {
   const filters = parseNarrowFilters(narrowValue);
   if (filters === undefined) {
@@ -328,7 +332,7 @@ const containsLongId = (values: long[], candidate: long): boolean => {
 export const getMatchingMessagesForNarrow = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  narrowValue: unknown,
+  narrowValue: JsValue,
 ): Promise<Message[] | undefined> => {
   const resolved = await resolveNarrow(options, user, narrowValue);
   if (resolved === undefined) {
@@ -516,7 +520,7 @@ export const updateFlagsForNarrow = async (
     await removeMessageFlags(options, user.userId, selectedIds, input.flag);
   }
 
-  const payload: Record<string, unknown> = {
+  const payload: Record<string, JsValue> = {
     processed_count: selectedIds.length,
     updated_count: changedIds.length,
     first_processed_id: selected.length > 0 ? selected[0].Id : null,
@@ -585,8 +589,8 @@ export const markStreamAsRead = async (
   streamId: long,
 ): Promise<void> => {
   const messages = await getMatchingMessagesForNarrow(options, user, [
-    { operator: "channel", operand: `${streamId}` },
-    { operator: "is", operand: "unread" },
+    ["channel", `${streamId}`],
+    ["is", "unread"],
   ]);
   if (messages === undefined) {
     return;
@@ -606,9 +610,9 @@ export const markTopicAsRead = async (
   topic: string,
 ): Promise<void> => {
   const messages = await getMatchingMessagesForNarrow(options, user, [
-    { operator: "channel", operand: `${streamId}` },
-    { operator: "topic", operand: topic },
-    { operator: "is", operand: "unread" },
+    ["channel", `${streamId}`],
+    ["topic", topic],
+    ["is", "unread"],
   ]);
   if (messages === undefined) {
     return;
@@ -625,7 +629,7 @@ export const getMessagesMatchingNarrow = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   messageIds: long[],
-  narrowValue: unknown,
+  narrowValue: JsValue,
 ): Promise<MessagesMatchingNarrowResult> => {
   const matchingMessages = await getMatchingMessagesForNarrow(
     options,

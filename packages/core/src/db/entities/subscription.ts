@@ -19,13 +19,13 @@ export class Subscription {
   CreatedAt!: long;
 }
 
-A.on(Subscription)
+A<Subscription>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(Subscription).type.add(IndexAttribute, [
+A<Subscription>().add(IndexAttribute, [
   "TenantId",
   "UserId",
   "ChannelId",
 ]);
-A.on(Subscription).type.add(IndexAttribute, ["TenantId", "ChannelId"]);
-A.on(Subscription).type.add(IndexAttribute, ["TenantId", "UserId"]);
+A<Subscription>().add(IndexAttribute, ["TenantId", "ChannelId"]);
+A<Subscription>().add(IndexAttribute, ["TenantId", "UserId"]);

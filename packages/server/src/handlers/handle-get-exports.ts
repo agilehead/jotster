@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getExports } from "@jotster/organization/Jotster.Organization.js";
@@ -28,10 +29,10 @@ export const handleGetExports = async (
 
   const exports = await getExports(app.options, user.tenantId);
 
-  const entries: Record<string, unknown>[] = [];
+  const entries: Record<string, JsValue>[] = [];
   for (let i = 0; i < exports.length; i++) {
     const e = exports[i];
-    const entry: Record<string, unknown> = {
+    const entry: Record<string, JsValue> = {
       id: e.Id,
       acting_user_id: e.RequesterId,
       export_time: ClrMath.Floor(Convert.ToDouble(e.CreatedAt) / 1000),

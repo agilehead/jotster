@@ -1,12 +1,11 @@
-import type { int, long } from "@tsonic/core/types.js";
-import type { Action } from "@tsonic/dotnet/System.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import {
   DateTimeOffset,
   Math as ClrMath,
   Convert,
 } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
-import { timers } from "@tsonic/nodejs/index.js";
+import { setInterval, setTimeout } from "@tsonic/nodejs/timers.js";
 import type {
   EventQueue,
   QueueEvent,
@@ -53,15 +52,6 @@ const getUserQueueIds = (key: string): string[] | undefined => {
     return undefined;
   }
   return userQueueIndex[key];
-};
-
-const hasObjectKey = (value: Record<string, unknown>, key: string): boolean => {
-  for (const [entryKey] of Object.entries(value)) {
-    if (entryKey === key) {
-      return true;
-    }
-  }
-  return false;
 };
 
 const removeFromKeyList = (list: List<string>, key: string): void => {
@@ -137,47 +127,40 @@ const gcQueues = (): void => {
   }
 };
 
-function waitForEventsImpl(
-  queue: EventQueue,
-  timeoutMs: int,
-  resolve: (value: boolean) => void,
-): void {
-  let settled = false;
+function waitForEvents(queue: EventQueue, timeoutMs: int): Promise<boolean> {
+  return new Promise<boolean>((resolve) => {
+    let settled = false;
 
-  const onTimeout = (): void => {
-    if (!settled) {
+    const finish = (result: boolean): void => {
+      if (settled) {
+        return;
+      }
+
       settled = true;
       if (queue.waiterResolve !== undefined) {
         queue.waiterResolve = undefined;
       }
-      resolve(false);
-    }
-  };
+      resolve(result);
+    };
 
-  timers.setTimeout(onTimeout as Action, timeoutMs);
+    setTimeout(() => {
+      finish(false);
+    }, timeoutMs);
 
-  queue.waiterResolve = (): void => {
-    if (!settled) {
-      settled = true;
-      resolve(true);
-    }
-  };
-}
-
-function waitForEvents(queue: EventQueue, timeoutMs: int): Promise<boolean> {
-  return new Promise<boolean>((resolve: (value: boolean) => void) => {
-    waitForEventsImpl(queue, timeoutMs, resolve);
+    queue.waiterResolve = (): void => {
+      finish(true);
+    };
   });
 }
 
 export function initRegistry(): void {
   if (!heartbeatStarted) {
     heartbeatStarted = true;
-    timers.setInterval(injectHeartbeat as Action, HEARTBEAT_INTERVAL_MS as int);
+    setInterval(injectHeartbeat, HEARTBEAT_INTERVAL_MS as int);
   }
   if (!gcStarted) {
     gcStarted = true;
-    timers.setInterval(gcQueues as Action, GC_INTERVAL_MS as int);
+    setInterval(gcQueues, GC_INTERVAL_MS as int);
   }
 }
 
@@ -392,7 +375,7 @@ export function dispatchEvent(
 
       if (
         event.type === "typing" &&
-        hasObjectKey(event.data, "stream_id") &&
+        event.data["stream_id"] !== undefined &&
         queue.clientCapabilities.streamTypingNotifications !== true
       ) {
         continue;
@@ -408,15 +391,9 @@ export function dispatchEvent(
         queueEvent.op = event.op;
       }
       queueEvent.data = event.data;
-      for (const [key, value] of Object.entries(event.data)) {
-        if (
-          key === "op" &&
-          queueEvent.op === undefined &&
-          typeof value === "string"
-        ) {
-          queueEvent.op = value as string;
-          break;
-        }
+      const opValue = event.data["op"];
+      if (queueEvent.op === undefined && typeof opValue === "string") {
+        queueEvent.op = opValue;
       }
       queue.events.Add(queueEvent);
 

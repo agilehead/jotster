@@ -1,7 +1,8 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
+import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { getCustomProfileFields } from "../repo/get-custom-profile-fields.ts";
 import { deleteCustomProfileField } from "../repo/delete-custom-profile-field.ts";
@@ -27,13 +28,13 @@ export const deleteCustomProfileFieldDomain = async (
 
   // Re-fetch remaining fields to broadcast current state
   const allFields = await getCustomProfileFields(options, actingUser.tenantId);
-  const fieldsData: Record<string, unknown>[] = [];
+  const fieldsData = new List<Record<string, JsValue>>();
   for (let i = 0; i < allFields.length; i++) {
-    fieldsData.push(mapCustomProfileFieldToCompatRecord(allFields[i]));
+    fieldsData.Add(mapCustomProfileFieldToCompatRecord(allFields[i]));
   }
 
-  const eventData: Record<string, unknown> = {};
-  eventData["fields"] = fieldsData;
+  const eventData: Record<string, JsValue> = {};
+  eventData["fields"] = fieldsData.ToArray();
   dispatchEventToTenant(actingUser.tenantId, {
     type: "custom_profile_fields",
     data: eventData,

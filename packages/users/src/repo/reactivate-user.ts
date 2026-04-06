@@ -17,7 +17,7 @@ export const reactivateUser = async (
       .Where((u) => u.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (user === undefined) {
+    if (user == null) {
       return false;
     }
 

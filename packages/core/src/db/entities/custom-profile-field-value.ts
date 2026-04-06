@@ -12,8 +12,8 @@ export class CustomProfileFieldValue {
   RenderedValue?: string;
 }
 
-A.on(CustomProfileFieldValue)
+A<CustomProfileFieldValue>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(CustomProfileFieldValue).type.add(IndexAttribute, ["TenantId", "UserId"]);
-A.on(CustomProfileFieldValue).type.add(IndexAttribute, ["FieldId"]);
+A<CustomProfileFieldValue>().add(IndexAttribute, ["TenantId", "UserId"]);
+A<CustomProfileFieldValue>().add(IndexAttribute, ["FieldId"]);

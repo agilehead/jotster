@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ChannelFolder, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -6,13 +6,10 @@ import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.j
 import { getChannelFolderById } from "../repo/get-channel-folder-by-id.ts";
 import { getChannelFolders } from "../repo/get-channel-folders.ts";
 import { updateChannelFolder } from "../repo/update-channel-folder.ts";
+import type { ChannelFolderEventUpdates } from "./map-channel-folder-event.ts";
 import { mapChannelFolderUpdateData } from "./map-channel-folder-event.ts";
 
-interface UpdateChannelFolderDomainInput {
-  name?: string;
-  description?: string;
-  isArchived?: int;
-}
+type UpdateChannelFolderDomainInput = ChannelFolderEventUpdates;
 
 export const updateChannelFolderDomain = async (
   options: DbContextOptions,
@@ -65,7 +62,7 @@ export const updateChannelFolderDomain = async (
   const folderWithItems = await getChannelFolderById(options, folderId);
 
   if (folderWithItems !== undefined) {
-    const eventData: Record<string, unknown> = {};
+    const eventData: Record<string, JsValue> = {};
     eventData["channel_folder_id"] = updated.Id;
     eventData["data"] = mapChannelFolderUpdateData(updated, updates);
     dispatchEventToTenant(user.tenantId, {

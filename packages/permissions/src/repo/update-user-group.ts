@@ -28,7 +28,7 @@ export const updateUserGroup = async (
       (g) => g.Id === groupId0,
     ).FirstOrDefaultAsync();
 
-    if (group === undefined) {
+    if (group == null) {
       return undefined;
     }
 

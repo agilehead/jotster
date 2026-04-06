@@ -23,7 +23,7 @@ export const handleRemoveDefaultStream = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
-  const streamId = parseId(`${body["stream_id"] ?? ""}`);
+  const streamId = parseId(String(body["stream_id"] ?? ""));
 
   if (streamId === undefined) {
     res

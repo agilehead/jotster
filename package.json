@@ -8,13 +8,14 @@
   "scripts": {
     "restore": "${TSONIC_BIN:-tsonic} restore",
     "build": "${TSONIC_BIN:-tsonic} restore && npm run -w @jotster/core build && npm run -w @jotster/auth build && npm run -w @jotster/event-queue build && npm run -w @jotster/channels build && npm run -w @jotster/emoji build && npm run -w @jotster/messages build && npm run -w @jotster/uploads build && npm run -w @jotster/users build && npm run -w @jotster/drafts build && npm run -w @jotster/notifications build && npm run -w @jotster/organization build && npm run -w @jotster/permissions build && npm run -w @jotster/presence build && npm run -w @jotster/subscriptions build && npm run -w @jotster/webhooks build && npm run -w @jotster/server build",
-    "typecheck": "npm -ws --if-present run typecheck",
+    "typecheck": "npm --workspaces --if-present run typecheck",
     "pretest": "npm run build",
     "migrate": "npx knex --knexfile knexfile.jotster.js migrate:latest",
     "migrate:rollback": "npx knex --knexfile knexfile.jotster.js migrate:rollback",
     "migrate:make": "npx knex --knexfile knexfile.jotster.js migrate:make",
     "migrate:status": "npx knex --knexfile knexfile.jotster.js migrate:status",
     "report:api-compat": "node scripts/generate-api-compat-report.mjs",
+    "verify-all": "bash ./scripts/verify-all.sh",
     "test": "NODE_OPTIONS='--import tsx' mocha tests/index.ts --timeout 60000"
   },
   "devDependencies": {
