@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "noLib": true,
     "moduleResolution": "nodenext",
     "module": "nodenext",
     "target": "ES2022",
@@ -35,6 +34,6 @@
       "@tsonic/nodejs": ["./node_modules/@tsonic/nodejs"],
       "@tsonic/nodejs/*": ["./node_modules/@tsonic/nodejs/*"]
     },
-    "types": []
+    "types": ["node"]
   }
 }

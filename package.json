@@ -29,6 +29,7 @@
     "@tsonic/microsoft-extensions": "10.0.40",
     "@tsonic/nodejs": "10.0.48",
     "@tsonic/tsbindgen": "0.7.51",
+    "@types/node": "^24.12.2",
     "better-sqlite3": "^11.0.0",
     "chai": "^5.0.0",
     "knex": "^3.1.0",

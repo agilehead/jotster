@@ -12,8 +12,7 @@
     "packages": [
       {
         "id": "@jotster/core",
-        "project": "../core",
-        "mode": "dll"
+        "project": "../core"
       }
     ]
   },

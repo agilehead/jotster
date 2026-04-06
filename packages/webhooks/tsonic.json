@@ -16,23 +16,19 @@
     "packages": [
       {
         "id": "@jotster/core",
-        "project": "../core",
-        "mode": "dll"
+        "project": "../core"
       },
       {
         "id": "@jotster/messages",
-        "project": "../messages",
-        "mode": "dll"
+        "project": "../messages"
       },
       {
         "id": "@jotster/event-queue",
-        "project": "../event-queue",
-        "mode": "dll"
+        "project": "../event-queue"
       },
       {
         "id": "@jotster/auth",
-        "project": "../auth",
-        "mode": "dll"
+        "project": "../auth"
       }
     ]
   }

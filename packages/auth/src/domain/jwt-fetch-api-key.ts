@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
 import { HMACSHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
@@ -52,7 +52,7 @@ const decodeJsonObject = <T extends object>(segment: string): T | undefined => {
       return undefined;
     }
     const json = Encoding.UTF8.GetString(Convert.FromBase64String(normalized));
-    const parsed = JSON.parse<T>(json);
+    const parsed = JSON.parse(json) as JsValue;
     if (
       parsed === null ||
       typeof parsed !== "object" ||
@@ -60,7 +60,7 @@ const decodeJsonObject = <T extends object>(segment: string): T | undefined => {
     ) {
       return undefined;
     }
-    return parsed;
+    return parsed as T;
   } catch {
     return undefined;
   }

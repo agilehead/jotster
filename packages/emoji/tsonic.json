@@ -12,13 +12,11 @@
     "packages": [
       {
         "id": "@jotster/core",
-        "project": "../core",
-        "mode": "dll"
+        "project": "../core"
       },
       {
         "id": "@jotster/event-queue",
-        "project": "../event-queue",
-        "mode": "dll"
+        "project": "../event-queue"
       }
     ]
   },

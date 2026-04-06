@@ -16,13 +16,11 @@
     "packages": [
       {
         "id": "@jotster/core",
-        "project": "../core",
-        "mode": "dll"
+        "project": "../core"
       },
       {
         "id": "@jotster/channels",
-        "project": "../channels",
-        "mode": "dll"
+        "project": "../channels"
       }
     ]
   }
