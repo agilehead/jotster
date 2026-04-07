@@ -16,15 +16,6 @@ export type JwtPayload = {
   exp?: number;
 };
 
-type JwtHeader = {
-  alg?: string;
-};
-
-type DecodedJwtPayload = {
-  email?: string;
-  exp?: number;
-};
-
 type JwtVerificationError =
   | "segments"
   | "header"
@@ -45,7 +36,9 @@ const normalizeBase64Url = (segment: string): string => {
   return normalized;
 };
 
-const decodeJsonObject = <T extends object>(segment: string): T | undefined => {
+const decodeJsonObject = (
+  segment: string,
+): Record<string, JsValue> | undefined => {
   try {
     const normalized = normalizeBase64Url(segment);
     if (normalized.length === 0) {
@@ -60,7 +53,11 @@ const decodeJsonObject = <T extends object>(segment: string): T | undefined => {
     ) {
       return undefined;
     }
-    return parsed as T;
+    const result: Record<string, JsValue> = {};
+    for (const [entryKey, entryValue] of Object.entries(parsed as object)) {
+      result[entryKey] = entryValue;
+    }
+    return result;
   } catch {
     return undefined;
   }
@@ -76,12 +73,12 @@ const verifyJwt = (
   }
 
   const [headerSegment, payloadSegment, signatureSegment] = segments;
-  const header = decodeJsonObject<JwtHeader>(headerSegment);
-  if (header?.alg !== "HS256") {
+  const header = decodeJsonObject(headerSegment);
+  if (typeof header?.alg !== "string" || header.alg !== "HS256") {
     return err("header");
   }
 
-  const payloadObject = decodeJsonObject<DecodedJwtPayload>(payloadSegment);
+  const payloadObject = decodeJsonObject(payloadSegment);
   if (payloadObject === undefined) {
     return err("payload");
   }
@@ -111,7 +108,7 @@ const verifyJwt = (
 
   let exp: number | undefined = undefined;
   if (typeof payloadObject.exp === "number") {
-    exp = payloadObject.exp;
+    exp = payloadObject.exp as number;
   }
   if (exp !== undefined) {
     const nowSeconds = Number(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
@@ -122,7 +119,7 @@ const verifyJwt = (
 
   const payload: JwtPayload = {};
   if (typeof payloadObject.email === "string") {
-    payload.email = payloadObject.email;
+    payload.email = payloadObject.email as string;
   }
   if (exp !== undefined) {
     payload.exp = exp as number;
