@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { JsValue, int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import {
   getBodyObject,
@@ -11,7 +11,10 @@ import { createChannelDomain } from "@jotster/channels/Jotster.Channels.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
-const getOptionalObjectField = (source: unknown, key: string): unknown => {
+const getOptionalObjectField = (
+  source: JsValue,
+  key: string,
+): JsValue | undefined => {
   if (
     source === undefined ||
     source === null ||
@@ -31,7 +34,7 @@ const getOptionalObjectField = (source: unknown, key: string): unknown => {
 };
 
 const toSubscriptionEntries = (
-  value: unknown[] | undefined,
+  value: JsValue[] | undefined,
 ): { name: string; description?: string }[] | undefined => {
   if (value === undefined) {
     return undefined;

@@ -1,5 +1,6 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
+import type { JsValue } from "@tsonic/core/types.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { updateTenantSettings } from "../repo/update-tenant-settings.ts";
@@ -19,8 +20,8 @@ export const deleteRealmImageDomain = async (
   }
 
   const settingKey = imageType === "icon" ? "icon_url" : "logo_url";
-  const settings: Record<string, unknown> = {};
-  settings[settingKey] = undefined;
+  const settings: Record<string, JsValue> = {};
+  settings[settingKey] = null;
 
   await updateTenantSettings(options, user.tenantId, settings);
 
@@ -30,7 +31,7 @@ export const deleteRealmImageDomain = async (
     op: "update",
     data: {
       property: settingKey,
-      value: undefined,
+      value: null,
     },
   });
 

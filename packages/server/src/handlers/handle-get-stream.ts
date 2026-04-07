@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getChannelByIdDomain } from "@jotster/channels/Jotster.Channels.js";
@@ -22,7 +23,7 @@ export const handleGetStream = async (
   }
 
   const user = authResult.data;
-  const streamId = parseId(req.params["stream_id"] as string);
+  const streamId = parseId(req.param("stream_id") ?? "");
   if (streamId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid stream_id" });
     return;
@@ -41,7 +42,7 @@ export const handleGetStream = async (
   }
 
   const ch = result.data;
-  const stream: Record<string, unknown> = {};
+  const stream: Record<string, JsValue> = {};
   stream["stream_id"] = ch.Id;
   stream["name"] = ch.Name;
   stream["description"] = ch.Description;
@@ -57,7 +58,7 @@ export const handleGetStream = async (
   stream["stream_post_policy"] = 1;
   stream["is_announcement_only"] = false;
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["stream"] = stream;

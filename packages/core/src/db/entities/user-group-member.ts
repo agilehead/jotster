@@ -10,5 +10,5 @@ export class UserGroupMember {
   UserId!: long;
 }
 
-A.on(UserGroupMember).type.add(PrimaryKeyAttribute, "UserGroupId", ["UserId"]);
-A.on(UserGroupMember).type.add(IndexAttribute, ["UserId"]);
+A<UserGroupMember>().add(PrimaryKeyAttribute, "UserGroupId", ["UserId"]);
+A<UserGroupMember>().add(IndexAttribute, ["UserId"]);

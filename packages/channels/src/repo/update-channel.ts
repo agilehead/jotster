@@ -26,7 +26,7 @@ export const updateChannel = async (
       (c) => c.Id === channelId0,
     ).FirstOrDefaultAsync();
 
-    if (channel === undefined) {
+    if (channel == null) {
       return undefined;
     }
 

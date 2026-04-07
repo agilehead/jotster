@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -8,11 +8,12 @@ import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.j
 import { getCustomProfileFieldById } from "../repo/get-custom-profile-field-by-id.ts";
 import { setCustomProfileFieldValue } from "../repo/set-custom-profile-field-value.ts";
 import { getCustomProfileFieldValues } from "../repo/get-custom-profile-field-values.ts";
+import type { ProfileDataUpdate } from "../types/profile-data.ts";
 
 export const updateProfileDataDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  profileData: Record<string, { value: string }>,
+  profileData: ProfileDataUpdate,
   profileDataKeys: List<string>,
 ): Promise<Result<boolean, string>> => {
   if (profileDataKeys.Count === 0) {
@@ -48,20 +49,22 @@ export const updateProfileDataDomain = async (
     actingUser.tenantId,
     actingUser.userId,
   );
-  const profileDataResponse: Record<string, unknown> = {};
+  const profileDataResponse: Record<string, JsValue> = {};
   for (let i = 0; i < allValues.length; i++) {
     const v = allValues[i];
-    const valObj: Record<string, unknown> = {};
+    const valObj: Record<string, JsValue> = {};
     valObj["value"] = v.Value;
-    valObj["rendered_value"] = v.RenderedValue;
+    if (v.RenderedValue !== undefined) {
+      valObj["rendered_value"] = v.RenderedValue;
+    }
     profileDataResponse["" + v.FieldId] = valObj;
   }
 
-  const personData: Record<string, unknown> = {};
+  const personData: Record<string, JsValue> = {};
   personData["user_id"] = actingUser.userId;
   personData["custom_profile_field"] = profileDataResponse;
 
-  const eventData: Record<string, unknown> = {};
+  const eventData: Record<string, JsValue> = {};
   eventData["person"] = personData;
 
   dispatchEventToTenant(actingUser.tenantId, {

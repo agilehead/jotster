@@ -9,12 +9,12 @@ const getUploadedFile = (req: Request): UploadedFile | undefined => {
     return req.file;
   }
 
-  const filenameFiles = req.files["filename"];
+  const filenameFiles = req.files.get("filename");
   if (filenameFiles !== undefined && filenameFiles.length > 0) {
     return filenameFiles[0];
   }
 
-  const fileFiles = req.files["file"];
+  const fileFiles = req.files.get("file");
   if (fileFiles !== undefined && fileFiles.length > 0) {
     return fileFiles[0];
   }

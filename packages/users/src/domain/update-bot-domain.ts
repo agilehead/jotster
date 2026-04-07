@@ -45,7 +45,7 @@ export const updateBotDomain = async (
       .Where((u) => u.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (botEntity === undefined) {
+    if (botEntity == null) {
       return err("Bot not found");
     }
 

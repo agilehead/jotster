@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { JsValue, int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getRealmDomains } from "@jotster/organization/Jotster.Organization.js";
@@ -24,10 +24,10 @@ export const handleGetRealmDomains = async (
   const user = authResult.data;
   const domains = await getRealmDomains(app.options, user.tenantId);
 
-  const result = new List<Record<string, unknown>>();
+  const result = new List<Record<string, JsValue>>();
   for (let i = 0; i < domains.length; i++) {
     const d = domains[i];
-    const obj: Record<string, unknown> = {};
+    const obj: Record<string, JsValue> = {};
     obj["domain"] = d.Domain;
     obj["allow_subdomains"] = d.AllowSubdomains === (1 as int);
     result.Add(obj);

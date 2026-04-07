@@ -29,7 +29,7 @@ export const handleUpdateDraft = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
-  const draftId = parseId(req.params["draft_id"] as string);
+  const draftId = parseId(req.param("draft_id") ?? "");
   if (draftId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid draft_id" });
     return;

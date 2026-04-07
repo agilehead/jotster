@@ -4,10 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    "./*.js": {
-      "types": "./dist/tsonic/bindings/*.d.ts",
-      "default": "./dist/tsonic/bindings/*.js"
-    }
+    ".": "./src/index.ts",
+    "./index.js": "./src/index.ts",
+    "./Jotster.Subscriptions.js": "./src/index.ts"
   },
   "scripts": {
     "typecheck": "cd ../.. && ${TSONIC_BIN:-tsonic} restore --project subscriptions && cd packages/subscriptions && tsc -p tsconfig.json",

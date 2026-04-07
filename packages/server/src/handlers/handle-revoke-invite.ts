@@ -22,7 +22,7 @@ export const handleRevokeInvite = async (
   }
 
   const user = authResult.data;
-  const inviteId = parseId(req.params["invite_id"] as string);
+  const inviteId = parseId(req.param("invite_id") ?? "");
   if (inviteId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid invite_id" });
     return;

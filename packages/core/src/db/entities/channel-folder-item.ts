@@ -10,7 +10,7 @@ export class ChannelFolderItem {
   ChannelId!: long;
 }
 
-A.on(ChannelFolderItem).type.add(PrimaryKeyAttribute, "ChannelFolderId", [
+A<ChannelFolderItem>().add(PrimaryKeyAttribute, "ChannelFolderId", [
   "ChannelId",
 ]);
-A.on(ChannelFolderItem).type.add(IndexAttribute, ["ChannelId"]);
+A<ChannelFolderItem>().add(IndexAttribute, ["ChannelId"]);

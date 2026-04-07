@@ -15,7 +15,7 @@ export const handleUpdateTenant = async (
     ? authHeader.substring(7).trim()
     : "";
 
-  const tenantId = parseId(req.params["tenant_id"] ?? "");
+  const tenantId = parseId(req.param("tenant_id") ?? "");
   if (tenantId === undefined) {
     res.status(400).json({ result: "error", msg: "Missing tenant_id" });
     return;

@@ -9,8 +9,11 @@
     "type": "library"
   },
   "references": {
-    "libraries": [
-      "../core/dist/net10.0/Jotster.Core.dll"
+    "packages": [
+      {
+        "id": "@jotster/core",
+        "project": "../core"
+      }
     ]
   },
   "buildOptions": {

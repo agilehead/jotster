@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getTopicsDomain } from "@jotster/channels/Jotster.Channels.js";
@@ -23,7 +24,7 @@ export const handleGetTopics = async (
   }
 
   const user = authResult.data;
-  const streamId = parseId(req.params["stream_id"] as string);
+  const streamId = parseId(req.param("stream_id") ?? "");
   if (streamId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid stream_id" });
     return;
@@ -35,10 +36,10 @@ export const handleGetTopics = async (
     return;
   }
 
-  const topics = new List<Record<string, unknown>>();
+  const topics = new List<Record<string, JsValue>>();
   for (let i = 0; i < result.data.length; i++) {
     const t = result.data[i];
-    const topic: Record<string, unknown> = {};
+    const topic: Record<string, JsValue> = {};
     topic["name"] = t.name;
     topic["max_id"] = t.maxId;
     topics.Add(topic);

@@ -18,7 +18,7 @@ export const removeDefaultChannel = async (
       .Where((d) => d.ChannelId === channelId0)
       .FirstOrDefaultAsync();
 
-    if (defaultChannel === undefined) {
+    if (defaultChannel == null) {
       return false;
     }
 

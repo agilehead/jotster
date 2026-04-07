@@ -1,5 +1,6 @@
-import { crypto, Buffer } from "@tsonic/nodejs/index.js";
+import { Buffer } from "@tsonic/nodejs/buffer.js";
+import { randomBytes } from "@tsonic/nodejs/crypto.js";
 
 export function generateId(): string {
-  return Buffer.from(crypto.randomBytes(16)).toString("hex");
+  return Buffer.from(randomBytes(16)).toString("hex");
 }

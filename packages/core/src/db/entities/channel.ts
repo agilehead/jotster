@@ -20,8 +20,8 @@ export class Channel {
   UpdatedAt!: long;
 }
 
-A.on(Channel)
+A<Channel>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(Channel).type.add(IndexAttribute, ["TenantId", "Name"]);
-A.on(Channel).type.add(IndexAttribute, ["TenantId", "IsArchived"]);
+A<Channel>().add(IndexAttribute, ["TenantId", "Name"]);
+A<Channel>().add(IndexAttribute, ["TenantId", "IsArchived"]);

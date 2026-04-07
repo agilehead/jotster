@@ -34,9 +34,9 @@ export const setUserStatusDomain = async (
     data: {
       user_id: user.userId,
       status_text: userStatus.StatusText,
-      emoji_name: userStatus.EmojiName,
-      emoji_code: userStatus.EmojiCode,
-      reaction_type: userStatus.ReactionType,
+      emoji_name: userStatus.EmojiName ?? null,
+      emoji_code: userStatus.EmojiCode ?? null,
+      reaction_type: userStatus.ReactionType ?? null,
     },
   });
 

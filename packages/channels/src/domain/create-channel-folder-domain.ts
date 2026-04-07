@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ChannelFolder, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -47,7 +47,7 @@ export const createChannelFolderDomain = async (
   const folderWithItems = await getChannelFolderById(options, folder.Id);
 
   if (folderWithItems !== undefined) {
-    const eventData: Record<string, unknown> = {};
+    const eventData: Record<string, JsValue> = {};
     eventData["channel_folder"] = mapChannelFolderToAddEventRecord(folder);
     dispatchEventToTenant(user.tenantId, {
       type: "channel_folder",

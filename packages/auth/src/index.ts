@@ -15,3 +15,8 @@ export { resolveTenant } from "./domain/resolve-tenant.ts";
 export { createTenantAdmin } from "./domain/create-tenant.ts";
 export { listTenantsAdmin } from "./domain/list-tenants.ts";
 export { updateTenantAdmin } from "./domain/update-tenant.ts";
+
+export type {
+  CreateTenantAdminInput,
+  CreateTenantInput,
+} from "./types/tenant-admin.ts";

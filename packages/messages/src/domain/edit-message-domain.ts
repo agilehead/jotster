@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import {
@@ -119,23 +119,31 @@ export const editMessageDomain = async (
   }
 
   // Dispatch event
-  const eventData: Record<string, unknown> = {};
+  const eventData: Record<string, JsValue> = {};
   eventData["message_id"] = messageId;
   eventData["user_id"] = user.userId;
   if (params.content !== undefined) {
     eventData["content"] = params.content.trim();
-    eventData["rendered_content"] = renderedContent;
+    if (renderedContent !== undefined) {
+      eventData["rendered_content"] = renderedContent;
+    }
     eventData["prev_content"] = message.Content;
-    eventData["prev_rendered_content"] = message.RenderedContent;
+    if (message.RenderedContent !== undefined) {
+      eventData["prev_rendered_content"] = message.RenderedContent;
+    }
   }
   if (params.topic !== undefined) {
     eventData["subject"] = params.topic.trim();
-    eventData["prev_subject"] = message.Topic;
+    if (message.Topic !== undefined) {
+      eventData["prev_subject"] = message.Topic;
+    }
     eventData["propagate_mode"] = params.propagateMode ?? "change_one";
   }
   if (params.channelId !== undefined) {
     eventData["stream_id"] = params.channelId;
-    eventData["prev_stream_id"] = message.ChannelId;
+    if (message.ChannelId !== undefined) {
+      eventData["prev_stream_id"] = message.ChannelId;
+    }
   }
 
   dispatchEventToTenant(user.tenantId, {

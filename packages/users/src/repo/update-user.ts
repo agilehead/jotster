@@ -18,7 +18,7 @@ export const updateUser = async (
       .Where((u) => u.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (user === undefined) {
+    if (user == null) {
       return undefined;
     }
 

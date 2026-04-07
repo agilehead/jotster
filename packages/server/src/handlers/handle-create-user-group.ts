@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
@@ -59,24 +59,74 @@ export const handleCreateUserGroup = async (
 
   const members = parseIdArray(getOptionalStringArrayField(body, "members"));
 
-  const resolveInput = async (key: string): Promise<long | undefined> => {
-    const value = getOptionalStringField(body, key);
-    if (value === undefined) {
-      return undefined;
-    }
-    return await resolveGroupSettingToId(app.options, user.tenantId, value);
-  };
+  const canAddMembersGroupValue = getOptionalStringField(
+    body,
+    "can_add_members_group",
+  );
+  const canJoinGroupValue = getOptionalStringField(body, "can_join_group");
+  const canLeaveGroupValue = getOptionalStringField(body, "can_leave_group");
+  const canManageGroupValue = getOptionalStringField(body, "can_manage_group");
+  const canMentionGroupValue = getOptionalStringField(
+    body,
+    "can_mention_group",
+  );
+  const canRemoveMembersGroupValue = getOptionalStringField(
+    body,
+    "can_remove_members_group",
+  );
 
   const result = await createUserGroupDomain(app.options, user, {
     name,
     description: getOptionalStringField(body, "description"),
     members,
-    canAddMembersGroupId: await resolveInput("can_add_members_group"),
-    canJoinGroupId: await resolveInput("can_join_group"),
-    canLeaveGroupId: await resolveInput("can_leave_group"),
-    canManageGroupId: await resolveInput("can_manage_group"),
-    canMentionGroupId: await resolveInput("can_mention_group"),
-    canRemoveMembersGroupId: await resolveInput("can_remove_members_group"),
+    canAddMembersGroupId:
+      canAddMembersGroupValue === undefined
+        ? undefined
+        : await resolveGroupSettingToId(
+            app.options,
+            user.tenantId,
+            canAddMembersGroupValue,
+          ),
+    canJoinGroupId:
+      canJoinGroupValue === undefined
+        ? undefined
+        : await resolveGroupSettingToId(
+            app.options,
+            user.tenantId,
+            canJoinGroupValue,
+          ),
+    canLeaveGroupId:
+      canLeaveGroupValue === undefined
+        ? undefined
+        : await resolveGroupSettingToId(
+            app.options,
+            user.tenantId,
+            canLeaveGroupValue,
+          ),
+    canManageGroupId:
+      canManageGroupValue === undefined
+        ? undefined
+        : await resolveGroupSettingToId(
+            app.options,
+            user.tenantId,
+            canManageGroupValue,
+          ),
+    canMentionGroupId:
+      canMentionGroupValue === undefined
+        ? undefined
+        : await resolveGroupSettingToId(
+            app.options,
+            user.tenantId,
+            canMentionGroupValue,
+          ),
+    canRemoveMembersGroupId:
+      canRemoveMembersGroupValue === undefined
+        ? undefined
+        : await resolveGroupSettingToId(
+            app.options,
+            user.tenantId,
+            canRemoveMembersGroupValue,
+          ),
   });
 
   if (!result.success) {
@@ -85,13 +135,13 @@ export const handleCreateUserGroup = async (
   }
 
   const group = result.data;
-  const resolveOutput = async (
+  const resolveOutput = (
     id: long | undefined | null,
   ): Promise<string | null> => {
-    return await resolveGroupIdToSetting(app.options, user.tenantId, id);
+    return resolveGroupIdToSetting(app.options, user.tenantId, id);
   };
 
-  const g: Record<string, unknown> = {};
+  const g: Record<string, JsValue> = {};
   g["id"] = group.Id;
   g["name"] = group.Name;
   g["description"] = group.Description;

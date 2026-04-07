@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
 import type { Request, Response } from "@tsonic/express/index.js";
@@ -12,7 +13,7 @@ export const handleIncomingWebhook = async (
   app: AppContext,
 ): Promise<void> => {
   const body = getBodyObject(req);
-  const query = req.query as Record<string, unknown>;
+  const query = req.query as Record<string, JsValue>;
 
   // Authenticate via api_key query param OR authorization header
   const apiKey = getOptionalStringField(query, "api_key");
@@ -44,7 +45,7 @@ export const handleIncomingWebhook = async (
 
   const user = authResult.data;
   const integrationName =
-    (req.params["integration_name"] as string) ?? "generic";
+    (req.param("integration_name") ?? "generic");
 
   const stream =
     getOptionalStringField(body, "stream") ??

@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import {
   getBodyObject,
@@ -11,7 +11,7 @@ import { parseId } from "@jotster/core/Jotster.Core.js";
 import { updateFlagsDomain } from "@jotster/messages/Jotster.Messages.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
-const toLongArray = (value: unknown[] | undefined): long[] | undefined => {
+const toLongArray = (value: JsValue[] | undefined): long[] | undefined => {
   if (value === undefined) {
     return undefined;
   }
@@ -19,7 +19,7 @@ const toLongArray = (value: unknown[] | undefined): long[] | undefined => {
   const result: long[] = [];
   for (let i = 0; i < value.length; i++) {
     const entry = value[i];
-    const parsed = parseId(`${entry}`);
+    const parsed = parseId(String(entry));
     if (parsed === undefined) {
       return undefined;
     }

@@ -22,7 +22,7 @@ export const handleDeactivateUser = async (
   }
 
   const user = authResult.data;
-  const targetId = parseId(req.params["user_id"] as string);
+  const targetId = parseId(req.param("user_id") ?? "");
   if (targetId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid user_id" });
     return;

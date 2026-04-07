@@ -1,5 +1,7 @@
-import { fs, path } from "@tsonic/nodejs/index.js";
+import { existsSync, mkdirSync } from "@tsonic/nodejs/fs.js";
+import { extname, join } from "@tsonic/nodejs/path.js";
 import type { UploadedFile } from "@tsonic/express/index.js";
+import type { JsValue } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -24,22 +26,22 @@ export const uploadRealmImageDomain = async (
   }
 
   const fileName = file.originalname;
-  const ext = path.extname(fileName);
+  const ext = extname(fileName);
   const pathId = generateId() + ext;
 
   const tenantIdStr = Convert.ToString(user.tenantId);
-  const dirPath = path.join(uploadsDir, tenantIdStr);
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+  const dirPath = join(uploadsDir, tenantIdStr);
+  if (!existsSync(dirPath)) {
+    mkdirSync(dirPath, true);
   }
 
-  const filePath = path.join(dirPath, pathId);
+  const filePath = join(dirPath, pathId);
   await file.save(filePath);
 
   const url = "/user_uploads/" + tenantIdStr + "/" + pathId;
 
   const settingKey = imageType === "icon" ? "icon_url" : "logo_url";
-  const settings: Record<string, unknown> = {};
+  const settings: Record<string, JsValue> = {};
   settings[settingKey] = url;
 
   await updateTenantSettings(options, user.tenantId, settings);

@@ -13,7 +13,7 @@ export class SavedSnippet {
   UpdatedAt!: long;
 }
 
-A.on(SavedSnippet)
+A<SavedSnippet>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(SavedSnippet).type.add(IndexAttribute, ["TenantId", "UserId"]);
+A<SavedSnippet>().add(IndexAttribute, ["TenantId", "UserId"]);

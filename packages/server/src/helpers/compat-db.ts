@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import { Convert, DateTimeOffset } from "@tsonic/dotnet/System.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
@@ -28,7 +28,7 @@ import { regenerateApiKey } from "@jotster/auth/Jotster.Auth.js";
 import { setUserStatus } from "@jotster/presence/Jotster.Presence.js";
 import { dispatchEventToTenant } from "@jotster/event-queue/Jotster.EventQueue.js";
 import { mapCustomProfileFieldToCompatRecord } from "@jotster/users/Jotster.Users.js";
-import { toLong } from "./body.ts";
+import { copyRecord, parseJsonValueText, toLong } from "./body.ts";
 
 const nowMilliseconds = (): long =>
   DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() as long;
@@ -71,15 +71,15 @@ const parseScheduledRecipientIds = (
   }
 
   try {
-    const parsed = JSON.parse(trimmed) as unknown;
+    const parsed = parseJsonValueText(trimmed);
     if (!Array.isArray(parsed)) {
       return [];
     }
 
-    const values = parsed as unknown[];
+    const values = parsed as JsValue[];
     const result: string[] = [];
     for (let i = 0; i < values.length; i++) {
-      result.push(`${values[i] ?? ""}`);
+      result.push(String(values[i] ?? ""));
     }
     return result;
   } catch {
@@ -156,8 +156,8 @@ export const listDevelopmentUsers = async (
   options: DbContextOptions,
   realmUrl: string,
 ): Promise<{
-  direct_admins: Record<string, unknown>[];
-  direct_users: Record<string, unknown>[];
+  direct_admins: Record<string, JsValue>[];
+  direct_users: Record<string, JsValue>[];
 }> => {
   const db = new JotsterDbContext(options);
   try {
@@ -182,8 +182,8 @@ export const listDevelopmentUsers = async (
       hostParts.length > 2 ? hostParts.slice(1).join(".") : hostname;
     const hostWithPort = port === "" ? rootHost : `${rootHost}:${port}`;
 
-    const directAdmins = new List<Record<string, unknown>>();
-    const directUsers = new List<Record<string, unknown>>();
+    const directAdmins = new List<Record<string, JsValue>>();
+    const directUsers = new List<Record<string, JsValue>>();
     for (let i = 0; i < users.Count; i++) {
       const user = users[i];
       if (user.IsBot === (1 as int)) {
@@ -202,7 +202,7 @@ export const listDevelopmentUsers = async (
         continue;
       }
 
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, JsValue> = {
         email: user.Email,
         realm_url: `http://${tenant.Subdomain}.${hostWithPort}`,
       };
@@ -596,12 +596,14 @@ export const reorderCustomProfileFields = async (
     }
 
     await db.SaveChangesAsync();
-    const payloadFields: Record<string, unknown>[] = [];
+    const payloadFields: Record<string, JsValue>[] = [];
     for (let i = 0; i < orderedIds.length; i++) {
       const orderedId = orderedIds[i];
       for (let j = 0; j < fields.Count; j++) {
         if (fields[j].Id === orderedId) {
-          payloadFields.push(mapCustomProfileFieldToCompatRecord(fields[j]));
+          payloadFields.push(
+            copyRecord(mapCustomProfileFieldToCompatRecord(fields[j]!)),
+          );
           break;
         }
       }
@@ -913,7 +915,7 @@ export const reportMessageForModeration = async (
     try {
       const settings = JSON.parse(tenant.SettingsJson) as Record<
         string,
-        unknown
+        JsValue
       >;
       const modChannelSetting = settings["moderation_request_channel_id"];
       if (typeof modChannelSetting === "string") {
@@ -948,9 +950,11 @@ export const reportMessageForModeration = async (
   const renderedReport = renderMarkdownDomain(
     `Reported message ${messageId} for \`${reportType}\`\n\n${description ?? ""}\n\n> ${message.Content}`,
   );
-  const reportText = renderedReport.success
-    ? `Reported message ${messageId} for ${reportType}\n\n${description ?? ""}\n\n> ${message.Content}`
-    : `Reported message ${messageId} for ${reportType}`;
+  const reportText = `Reported message ${messageId} for ${reportType}\n\n${description ?? ""}\n\n> ${message.Content}`;
+  let renderedReportContent = `<p>${reportText}</p>`;
+  if (renderedReport.success) {
+    renderedReportContent = renderedReport.data.rendered;
+  }
 
   await sendMessage(options, {
     tenantId: user.tenantId,
@@ -959,9 +963,7 @@ export const reportMessageForModeration = async (
     channelId: await getModerationChannelId(options, user.tenantId),
     topic: "message reports",
     content: reportText,
-    renderedContent: renderedReport.success
-      ? renderedReport.data.rendered
-      : `<p>${reportText}</p>`,
+    renderedContent: renderedReportContent,
   });
 
   return { success: true };
@@ -981,7 +983,7 @@ const getModerationChannelId = async (
       try {
         const settings = JSON.parse(tenant.SettingsJson) as Record<
           string,
-          unknown
+          JsValue
         >;
         const modChannelSetting = settings["moderation_request_channel_id"];
         if (typeof modChannelSetting === "string") {
@@ -1014,6 +1016,7 @@ export const sendWelcomeBotTestMessage = async (
   if (!rendered.success) {
     return undefined;
   }
+  const renderedContent = rendered.data.rendered;
 
   const dmGroup = await findOrCreateDmGroup(options, user.tenantId, [
     user.userId,
@@ -1024,7 +1027,7 @@ export const sendWelcomeBotTestMessage = async (
     type: "direct",
     dmGroupId: dmGroup.Id,
     content: text,
-    renderedContent: rendered.data.rendered,
+    renderedContent,
   });
   return message.Id;
 };
@@ -1034,11 +1037,11 @@ const parseAlternativeUrlTemplates = (value: string | undefined): string[] => {
     return [];
   }
   try {
-    const parsed = JSON.parse(value) as unknown;
+    const parsed = parseJsonValueText(value);
     if (!Array.isArray(parsed)) {
       return [];
     }
-    const entries = parsed as unknown[];
+    const entries = parsed as JsValue[];
     const result: string[] = [];
     for (let i = 0; i < entries.length; i++) {
       if (typeof entries[i] === "string") {
@@ -1395,6 +1398,7 @@ export const createScheduledMessage = async (
   if (!rendered.success) {
     return { ok: false, errorCode: "invalid_request" };
   }
+  const renderedContent = rendered.data.rendered;
   const timestamp = Number(scheduledDeliveryTimestampSeconds);
   if (!Number.isFinite(timestamp)) {
     return { ok: false, errorCode: "invalid_request" };
@@ -1467,7 +1471,7 @@ export const createScheduledMessage = async (
     }
   }
   scheduled.Content = content;
-  scheduled.RenderedContent = rendered.data.rendered;
+  scheduled.RenderedContent = renderedContent;
   scheduled.ScheduledDeliveryTimestamp = Convert.ToInt64(timestamp * 1000);
   scheduled.Failed = 0 as int;
   scheduled.CreatedAt = now;
@@ -1600,8 +1604,9 @@ export const updateScheduledMessage = async (
       if (!rendered.success) {
         return { ok: false, errorCode: "invalid_request" };
       }
+      const renderedContent = rendered.data.rendered;
       scheduled.Content = content;
-      scheduled.RenderedContent = rendered.data.rendered;
+      scheduled.RenderedContent = renderedContent;
     }
     if (topic !== undefined) {
       scheduled.Topic = topic;

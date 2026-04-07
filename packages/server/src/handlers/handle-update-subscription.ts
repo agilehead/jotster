@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import {
   getBodyObject,
@@ -9,7 +10,7 @@ import { updateSingleSubscriptionDomain } from "@jotster/subscriptions/Jotster.S
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import type { AppContext } from "../helpers/app-context.ts";
 
-const hasOwnField = (source: Record<string, unknown>, key: string): boolean => {
+const hasOwnField = (source: Record<string, JsValue>, key: string): boolean => {
   const keys = Object.keys(source);
   for (let i = 0; i < keys.length; i++) {
     if (keys[i] === key) {
@@ -20,9 +21,9 @@ const hasOwnField = (source: Record<string, unknown>, key: string): boolean => {
 };
 
 const getObjectField = (
-  source: Record<string, unknown>,
+  source: Record<string, JsValue>,
   key: string,
-): unknown => {
+): JsValue | undefined => {
   const entries = Object.entries(source);
   for (let i = 0; i < entries.length; i++) {
     const [entryKey, entryValue] = entries[i];
@@ -51,7 +52,7 @@ export const handleUpdateSubscription = async (
 
   const user = authResult.data;
   const body = getBodyObject(req);
-  const streamId = parseId(req.params["stream_id"] as string);
+  const streamId = parseId(req.param("stream_id") ?? "");
   if (streamId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid stream_id" });
     return;
@@ -72,6 +73,16 @@ export const handleUpdateSubscription = async (
   }
 
   if (!hasOwnField(body, "value")) {
+    res
+      .status(400)
+      .json({
+        result: "error",
+        msg: "Missing required field: value",
+        code: "BAD_REQUEST",
+      });
+    return;
+  }
+  if (value === undefined) {
     res
       .status(400)
       .json({

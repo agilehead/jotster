@@ -1,7 +1,7 @@
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
-import type { int } from "@tsonic/core/types.js";
+import type { JsValue, int } from "@tsonic/core/types.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { dispatchEventToUser } from "@jotster/event-queue/Jotster.EventQueue.js";
@@ -79,7 +79,7 @@ const containsKey = (keys: readonly string[], key: string): boolean => {
   return false;
 };
 
-const toFlagInt = (value: unknown): int | undefined => {
+const toFlagInt = (value: JsValue): int | undefined => {
   if (value === true || value === "true" || value === 1 || value === "1") {
     return 1 as int;
   }
@@ -89,7 +89,7 @@ const toFlagInt = (value: unknown): int | undefined => {
   return undefined;
 };
 
-const toIntValue = (value: unknown): int | undefined => {
+const toIntValue = (value: JsValue): int | undefined => {
   if (typeof value === "number") {
     if (!Number.isFinite(value)) {
       return undefined;
@@ -114,12 +114,16 @@ const toIntValue = (value: unknown): int | undefined => {
 export const updateSettingsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-  updates: Record<string, unknown>,
+  updates: Record<string, JsValue>,
   updateKeys: List<string>,
-): Promise<Result<Record<string, unknown>[], string>> => {
-  const validUpdates: Record<string, unknown> = {};
-  const validUpdateKeys = new List<string>();
-  const ignoredParams = new List<Record<string, unknown>>();
+) : Promise<Result<Record<string, JsValue>[], string>> => {
+  const numericUpdates: Record<string, int> = {};
+  const numericUpdateKeys = new List<string>();
+  const stringUpdates: Record<string, string> = {};
+  const stringUpdateKeys = new List<string>();
+  const eventUpdates: Record<string, JsValue> = {};
+  const eventUpdateKeys = new List<string>();
+  const ignoredParams = new List<Record<string, JsValue>>();
 
   for (let i = 0; i < updateKeys.Count; i++) {
     const key = updateKeys[i];
@@ -128,8 +132,10 @@ export const updateSettingsDomain = async (
       if (typeof value !== "string") {
         return err("Invalid value for setting: " + key);
       }
-      validUpdates[key] = value;
-      validUpdateKeys.Add(key);
+      stringUpdates[key] = value;
+      stringUpdateKeys.Add(key);
+      eventUpdates[key] = value;
+      eventUpdateKeys.Add(key);
       continue;
     }
     if (containsKey(INT_SETTING_KEYS, key)) {
@@ -137,8 +143,10 @@ export const updateSettingsDomain = async (
       if (parsed === undefined) {
         return err("Invalid value for setting: " + key);
       }
-      validUpdates[key] = parsed;
-      validUpdateKeys.Add(key);
+      numericUpdates[key] = parsed;
+      numericUpdateKeys.Add(key);
+      eventUpdates[key] = parsed;
+      eventUpdateKeys.Add(key);
       continue;
     }
     if (containsKey(FLAG_SETTING_KEYS, key)) {
@@ -146,12 +154,14 @@ export const updateSettingsDomain = async (
       if (parsed === undefined) {
         return err("Invalid value for setting: " + key);
       }
-      validUpdates[key] = parsed;
-      validUpdateKeys.Add(key);
+      numericUpdates[key] = parsed;
+      numericUpdateKeys.Add(key);
+      eventUpdates[key] = parsed;
+      eventUpdateKeys.Add(key);
       continue;
     }
 
-    const ignoredEntry: Record<string, unknown> = {};
+    const ignoredEntry: Record<string, JsValue> = {};
     ignoredEntry[key] = value;
     ignoredParams.Add(ignoredEntry);
   }
@@ -160,27 +170,29 @@ export const updateSettingsDomain = async (
     options,
     user.userId,
     user.tenantId,
-    validUpdates,
-    validUpdateKeys,
+    numericUpdates,
+    numericUpdateKeys,
+    stringUpdates,
+    stringUpdateKeys,
   );
   if (setting === undefined) {
     return err("User settings not found");
   }
 
-  for (let i = 0; i < validUpdateKeys.Count; i++) {
-    const key = validUpdateKeys[i];
-    const eventData: Record<string, unknown> = {
+  for (let i = 0; i < eventUpdateKeys.Count; i++) {
+    const key = eventUpdateKeys[i];
+    const eventData: Record<string, JsValue> = {
       property: key,
     };
 
     if (containsKey(FLAG_SETTING_KEYS, key)) {
-      eventData["value"] = validUpdates[key] === (1 as int);
+      eventData["value"] = eventUpdates[key] === (1 as int);
     } else {
-      eventData["value"] = validUpdates[key];
+      eventData["value"] = eventUpdates[key];
     }
 
     if (key === "default_language") {
-      const languageCode = validUpdates[key] as string;
+      const languageCode = stringUpdates[key];
       eventData["language_name"] = LANGUAGE_NAMES[languageCode] ?? languageCode;
     }
 

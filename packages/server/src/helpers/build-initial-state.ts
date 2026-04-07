@@ -1,9 +1,10 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import {
   AuthenticatedUser,
   JotsterDbContext,
+  User,
   ZULIP_VERSION,
   ZULIP_FEATURE_LEVEL,
   SERVER_GENERATION,
@@ -39,20 +40,8 @@ import {
 } from "./compat-mappers.ts";
 import { buildRealmUserSettingDefaultsState } from "./realm-user-setting-defaults.ts";
 
-const mapUserToZulip = (u: {
-  Id: number;
-  Email: string;
-  FullName: string;
-  AvatarUrl?: string;
-  Role: number;
-  IsBot: number;
-  IsActive: number;
-  DateJoined: number;
-  Timezone: string;
-  BotType?: number;
-  BotOwnerId?: number;
-}): Record<string, unknown> => {
-  const obj: Record<string, unknown> = {};
+const mapUserToZulip = (u: User): Record<string, JsValue> => {
+  const obj: Record<string, JsValue> = {};
   obj.user_id = u.Id;
   obj.email = u.Email;
   obj.full_name = u.FullName;
@@ -78,7 +67,7 @@ export const buildInitialState = async (
   fetchEventTypes: string[] | undefined,
   params: RegisterParams,
   includeDeactivatedGroups: boolean,
-): Promise<Record<string, unknown>> => {
+): Promise<Record<string, JsValue>> => {
   const shouldInclude = (type: string): boolean => {
     if (fetchEventTypes === undefined) {
       return true;
@@ -91,7 +80,7 @@ export const buildInitialState = async (
     return false;
   };
 
-  const state: Record<string, unknown> = {};
+  const state: Record<string, JsValue> = {};
   const compatRequester = new AuthenticatedUser();
   compatRequester.tenantId = tenantId;
   compatRequester.userId = userId;
@@ -124,13 +113,13 @@ export const buildInitialState = async (
   state.zulip_merge_base = ZULIP_VERSION;
 
   // --- realm_users + realm_non_active_users ---
-  let realmUserObjects: Record<string, unknown>[] = [];
+  let realmUserObjects: Record<string, JsValue>[] = [];
 
   if (shouldInclude("realm_user")) {
     const allUsers = await getAllUsers(options, tenantId);
 
-    const activeUsers = new List<Record<string, unknown>>();
-    const inactiveUsers = new List<Record<string, unknown>>();
+    const activeUsers = new List<Record<string, JsValue>>();
+    const inactiveUsers = new List<Record<string, JsValue>>();
 
     for (let i = 0; i < allUsers.length; i++) {
       const u = allUsers[i];
@@ -151,23 +140,23 @@ export const buildInitialState = async (
   if (shouldInclude("realm_bot")) {
     // If we already have realm_users from above, filter from that.
     // Otherwise we need to query.
-    let botSource: Record<string, unknown>[];
+    let botSource: Record<string, JsValue>[];
     if (shouldInclude("realm_user")) {
       botSource = realmUserObjects;
     } else {
       const allUsers = await getAllUsers(options, tenantId);
-      const mapped = new List<Record<string, unknown>>();
+      const mapped = new List<Record<string, JsValue>>();
       for (let i = 0; i < allUsers.length; i++) {
         mapped.Add(mapUserToZulip(allUsers[i]));
       }
       botSource = mapped.ToArray();
     }
 
-    const bots = new List<Record<string, unknown>>();
+    const bots = new List<Record<string, JsValue>>();
     for (let i = 0; i < botSource.length; i++) {
       const u = botSource[i];
       if (u.is_bot === true) {
-        const bot: Record<string, unknown> = {};
+        const bot: Record<string, JsValue> = {};
         bot.user_id = u.user_id;
         bot.email = u.email;
         bot.full_name = u.full_name;
@@ -196,7 +185,7 @@ export const buildInitialState = async (
       params.clientCapabilities?.archivedChannels === true,
     );
 
-    const subscriptions = new List<Record<string, unknown>>();
+    const subscriptions = new List<Record<string, JsValue>>();
     const subscribedChannelIds: long[] = [];
 
     for (let i = 0; i < userSubs.Count; i++) {
@@ -222,7 +211,7 @@ export const buildInitialState = async (
         tenantId,
         sub.ChannelId,
       );
-      const entry: Record<string, unknown> = {};
+      const entry: Record<string, JsValue> = {};
       entry.stream_id = ch.Id;
       entry.name = ch.Name;
       entry.description = ch.Description;
@@ -268,7 +257,7 @@ export const buildInitialState = async (
 
     state.subscriptions = subscriptions.ToArray();
     state.unsubscribed = [];
-    const neverSubscribed = new List<Record<string, unknown>>();
+    const neverSubscribed = new List<Record<string, JsValue>>();
     for (let i = 0; i < allChannels.length; i++) {
       const ch = allChannels[i];
       let isSubscribed = false;
@@ -288,7 +277,7 @@ export const buildInitialState = async (
       if (compatRequester.role > 200 && ch.IsPrivate === 1) {
         continue;
       }
-      const entry: Record<string, unknown> = {};
+      const entry: Record<string, JsValue> = {};
       entry.stream_id = ch.Id;
       entry.name = ch.Name;
       entry.description = ch.Description;
@@ -313,7 +302,7 @@ export const buildInitialState = async (
     const s = await getUserSetting(options, userId);
 
     if (s !== undefined) {
-      const settings: Record<string, unknown> = {};
+      const settings: Record<string, JsValue> = {};
       settings.twenty_four_hour_time = s.TwentyFourHourTime === 1;
       settings.dense_mode = s.DenseMode === 1;
       settings.high_contrast_mode = s.HighContrastMode === 1;
@@ -433,10 +422,10 @@ export const buildInitialState = async (
       compatRequester,
       includeDeactivatedGroups,
     );
-    const realmUserGroups: Record<string, unknown>[] = [];
+    const realmUserGroups: Record<string, JsValue>[] = [];
     for (let i = 0; i < groupsWithDetails.length; i++) {
       const item = groupsWithDetails[i];
-      const group: Record<string, unknown> = {};
+      const group: Record<string, JsValue> = {};
       group["id"] = item.group.Id;
       group["name"] = item.group.Name;
       group["description"] = item.group.Description;
@@ -462,7 +451,7 @@ export const buildInitialState = async (
 
   if (shouldInclude("navigation_views")) {
     const views = await listNavigationViews(options, compatRequester);
-    const navigationViews: Record<string, unknown>[] = [];
+    const navigationViews: Record<string, JsValue>[] = [];
     for (let i = 0; i < views.length; i++) {
       navigationViews.push(mapNavigationViewToCompatResponse(views[i]));
     }
@@ -471,7 +460,7 @@ export const buildInitialState = async (
 
   if (shouldInclude("saved_snippets")) {
     const snippets = await listSavedSnippets(options, compatRequester);
-    const savedSnippets: Record<string, unknown>[] = [];
+    const savedSnippets: Record<string, JsValue>[] = [];
     for (let i = 0; i < snippets.length; i++) {
       savedSnippets.push(mapSavedSnippetToCompatResponse(snippets[i]));
     }
@@ -480,7 +469,7 @@ export const buildInitialState = async (
 
   if (shouldInclude("reminders")) {
     const reminders = await listReminders(options, compatRequester);
-    const reminderPayloads: Record<string, unknown>[] = [];
+    const reminderPayloads: Record<string, JsValue>[] = [];
     for (let i = 0; i < reminders.length; i++) {
       reminderPayloads.push(mapReminderToCompatResponse(reminders[i], userId));
     }
@@ -492,7 +481,7 @@ export const buildInitialState = async (
       options,
       compatRequester,
     );
-    const scheduledMessagePayloads: Record<string, unknown>[] = [];
+    const scheduledMessagePayloads: Record<string, JsValue>[] = [];
     for (let i = 0; i < scheduledMessages.length; i++) {
       scheduledMessagePayloads.push(
         mapScheduledMessageToCompatResponse(scheduledMessages[i]),
@@ -502,7 +491,7 @@ export const buildInitialState = async (
   }
 
   if (shouldInclude("realm_linkifiers")) {
-    const realmLinkifiers: Record<string, unknown>[] = [];
+    const realmLinkifiers: Record<string, JsValue>[] = [];
     if (params.clientCapabilities?.linkifierUrlTemplate === true) {
       const linkifiers = await listLinkifiers(options, tenantId);
       for (let i = 0; i < linkifiers.length; i++) {
@@ -528,7 +517,11 @@ export const buildInitialState = async (
       options,
       compatRequester,
     );
-    state.custom_profile_fields = fieldsResult.success ? fieldsResult.data : [];
+    if (fieldsResult.success) {
+      state.custom_profile_fields = fieldsResult.data;
+    } else {
+      state.custom_profile_fields = [];
+    }
   }
 
   if (shouldInclude("drafts")) {
@@ -563,7 +556,7 @@ export const buildInitialState = async (
   if (shouldInclude("message")) {
     state.max_message_id = 0;
 
-    const unreadMsgs: Record<string, unknown> = {};
+    const unreadMsgs: Record<string, JsValue> = {};
     unreadMsgs.pms = [];
     unreadMsgs.streams = [];
     unreadMsgs.huddles = [];

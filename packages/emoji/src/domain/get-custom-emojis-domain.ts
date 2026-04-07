@@ -1,17 +1,17 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { getCustomEmojis } from "../repo/get-custom-emojis.ts";
 
 export const getCustomEmojisDomain = async (
   options: DbContextOptions,
   tenantId: long,
-): Promise<Record<string, unknown>> => {
+): Promise<Record<string, JsValue>> => {
   const emojis = await getCustomEmojis(options, tenantId);
 
-  const emojiMap: Record<string, unknown> = {};
+  const emojiMap: Record<string, JsValue> = {};
   for (let i = 0; i < emojis.length; i++) {
     const e = emojis[i];
-    const entry: Record<string, unknown> = {};
+    const entry: Record<string, JsValue> = {};
     entry["id"] = e.Id;
     entry["name"] = e.Name;
     entry["source_url"] =

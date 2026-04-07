@@ -22,7 +22,7 @@ export const handleDeleteAttachment = async (
   }
 
   const user = authResult.data;
-  const attachmentId = parseId(req.params["attachment_id"] as string);
+  const attachmentId = parseId(req.param("attachment_id") ?? "");
   if (attachmentId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid attachment_id" });
     return;

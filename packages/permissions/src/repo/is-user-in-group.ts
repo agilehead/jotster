@@ -21,7 +21,7 @@ export const isUserInGroup = async (
       (g) => g.Id === groupId0,
     ).FirstOrDefaultAsync();
 
-    if (group === undefined) {
+    if (group == null) {
       return err("Group not found");
     }
 
@@ -36,7 +36,7 @@ export const isUserInGroup = async (
         .Where((u) => u.TenantId === tenantId0)
         .FirstOrDefaultAsync();
 
-      if (user === undefined) {
+      if (user == null) {
         return ok(false);
       }
 
@@ -66,14 +66,14 @@ export const isUserInGroup = async (
           (t) => t.Id === tenantId1,
         ).FirstOrDefaultAsync();
 
-        if (tenant === undefined) {
+        if (tenant == null) {
           return ok(false);
         }
 
         const settingsOrNull = JsonSerializer.Deserialize<
           Record<string, string>
         >(tenant.SettingsJson);
-        if (settingsOrNull === undefined) {
+        if (settingsOrNull == null) {
           return ok(true);
         }
         const settings = settingsOrNull;
@@ -125,7 +125,7 @@ export const isUserInGroup = async (
       .Where((m) => m.UserId === userId1)
       .FirstOrDefaultAsync();
 
-    return ok(member !== undefined);
+    return ok(member != null);
   } finally {
     db.Dispose();
   }

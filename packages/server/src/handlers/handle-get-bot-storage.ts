@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getBotStorage } from "@jotster/webhooks/Jotster.Webhooks.js";
@@ -29,7 +30,7 @@ export const handleGetBotStorage = async (
 
   const entries = await getBotStorage(app.options, user.userId);
 
-  const storage: Record<string, unknown> = {};
+  const storage: Record<string, JsValue> = {};
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
     storage[entry.Key] = entry.Value;

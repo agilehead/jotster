@@ -1,46 +1,38 @@
-import type { int } from "@tsonic/core/types.js";
+import type { JsValue, int } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getEventsFromQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
+import type { QueueEvent } from "@jotster/event-queue/Jotster.EventQueue.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import {
-  copyRecord,
   getOptionalStringField,
   toOptionalInt,
 } from "../helpers/body.ts";
 
-const serializeQueueEvent = (value: object): Record<string, unknown> => {
-  const sourceEvent = copyRecord(value);
-  const serialized: Record<string, unknown> = {};
-  for (const [key, payloadValue] of Object.entries(sourceEvent)) {
-    if (key === "data") {
-      continue;
-    }
-    if (key === "op" && (payloadValue === undefined || payloadValue === null)) {
+const serializeQueueEvent = (value: QueueEvent): Record<string, JsValue> => {
+  const serialized: Record<string, JsValue> = {};
+
+  serialized["id"] = value.id;
+  serialized["type"] = value.type;
+  if (value.op !== undefined && value.op !== null) {
+    serialized["op"] = value.op;
+  }
+
+  const payload = value.data;
+  if (!payload) {
+    return serialized;
+  }
+
+  for (const [key, payloadValue] of Object.entries(payload)) {
+    if (
+      key === "op" &&
+      serialized["op"] === undefined &&
+      typeof payloadValue === "string"
+    ) {
+      serialized["op"] = payloadValue;
       continue;
     }
     serialized[key] = payloadValue;
-  }
-
-  const payload = sourceEvent["data"];
-  if (
-    payload !== undefined &&
-    payload !== null &&
-    typeof payload === "object" &&
-    !Array.isArray(payload)
-  ) {
-    const payloadRecord = copyRecord(payload as object);
-    for (const [key, payloadValue] of Object.entries(payloadRecord)) {
-      if (
-        key === "op" &&
-        serialized["op"] === undefined &&
-        typeof payloadValue === "string"
-      ) {
-        serialized["op"] = payloadValue;
-        continue;
-      }
-      serialized[key] = payloadValue;
-    }
   }
 
   return serialized;
@@ -63,7 +55,7 @@ export const handleGetEvents = async (
   }
 
   const user = authResult.data;
-  const query = req.query as Record<string, unknown>;
+  const query = req.query as Record<string, JsValue>;
 
   const queueId = getOptionalStringField(query, "queue_id");
   if (!queueId) {
@@ -112,7 +104,7 @@ export const handleGetEvents = async (
 
   if ("error" in result) {
     const status = result["code"] === "BAD_EVENT_QUEUE_ID" ? 400 : 400;
-    const resp: Record<string, unknown> = {};
+    const resp: Record<string, JsValue> = {};
     resp["result"] = "error";
     resp["msg"] = result["error"];
     if (result["code"] !== undefined) {
@@ -124,9 +116,9 @@ export const handleGetEvents = async (
   }
 
   const events = result["events"];
-  const serializedEvents: Record<string, unknown>[] = [];
+  const serializedEvents: Record<string, JsValue>[] = [];
   for (let i = 0; i < events.length; i++) {
-    serializedEvents.push(serializeQueueEvent(events[i] as unknown as object));
+    serializedEvents.push(serializeQueueEvent(events[i]!));
   }
 
   res.json({ result: "success", msg: "", events: serializedEvents });

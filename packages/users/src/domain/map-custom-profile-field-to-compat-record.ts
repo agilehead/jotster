@@ -1,10 +1,10 @@
-import type { int } from "@tsonic/core/types.js";
+import type { JsValue, int } from "@tsonic/core/types.js";
 import type { CustomProfileField } from "@jotster/core/Jotster.Core.js";
 
 export const mapCustomProfileFieldToCompatRecord = (
   field: CustomProfileField,
-): Record<string, unknown> => {
-  const record: Record<string, unknown> = {};
+): Record<string, JsValue> => {
+  const record: Record<string, JsValue> = {};
   record["id"] = field.Id;
   record["name"] = field.Name;
   record["hint"] = field.Hint;

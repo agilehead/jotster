@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -11,7 +11,7 @@ export const getEditHistoryDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
   messageId: long,
-): Promise<Result<Record<string, unknown>[], string>> => {
+): Promise<Result<Record<string, JsValue>[], string>> => {
   // Verify message exists in the tenant
   const message = await getMessage(options, user.tenantId, messageId);
   if (message === undefined) {
@@ -20,10 +20,10 @@ export const getEditHistoryDomain = async (
 
   const history = await getEditHistory(options, user.tenantId, messageId);
 
-  const formatted = new List<Record<string, unknown>>();
+  const formatted = new List<Record<string, JsValue>>();
   for (let i = 0; i < history.length; i++) {
     const entry = history[i];
-    const obj: Record<string, unknown> = {};
+    const obj: Record<string, JsValue> = {};
     obj["user_id"] = entry.UserId;
     obj["timestamp"] = Convert.ToDouble(entry.Timestamp) / 1000;
 

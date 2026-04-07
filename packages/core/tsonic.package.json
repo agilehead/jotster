@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "tsonic-source-package",
+  "surfaces": [
+    "@tsonic/js"
+  ],
+  "source": {
+    "namespace": "Jotster.Core",
+    "exports": {
+      ".": "./src/index.ts",
+      "./index.js": "./src/index.ts",
+      "./Jotster.Core.js": "./src/index.ts"
+    }
+  }
+}

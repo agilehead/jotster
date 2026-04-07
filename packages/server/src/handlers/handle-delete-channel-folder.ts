@@ -22,7 +22,7 @@ export const handleDeleteChannelFolder = async (
   }
 
   const user = authResult.data;
-  const folderId = parseId(req.params["folder_id"] as string);
+  const folderId = parseId(req.param("folder_id") ?? "");
   if (folderId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid folder_id" });
     return;

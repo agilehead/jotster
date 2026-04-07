@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext } from "@jotster/core/Jotster.Core.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
@@ -104,17 +104,21 @@ export const sendTypingDomain = async (
     }
 
     // Dispatch typing event to tenant
+    const eventData: Record<string, JsValue> = {
+      sender: {
+        user_id: user.userId,
+        email: user.email,
+      },
+      stream_id: params.streamId,
+    };
+    if (params.topic !== undefined) {
+      eventData["topic"] = params.topic;
+    }
+
     dispatchEventToTenant(user.tenantId, {
       type: "typing",
       op: params.op,
-      data: {
-        sender: {
-          user_id: user.userId,
-          email: user.email,
-        },
-        stream_id: params.streamId,
-        topic: params.topic,
-      },
+      data: eventData,
     });
 
     return ok(undefined);

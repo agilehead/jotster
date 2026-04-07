@@ -13,10 +13,19 @@
     "invariantGlobalization": true
   },
   "references": {
-    "libraries": [
-      "../core/dist/net10.0/Jotster.Core.dll",
-      "../auth/dist/net10.0/Jotster.Auth.dll",
-      "../event-queue/dist/net10.0/Jotster.EventQueue.dll"
+    "packages": [
+      {
+        "id": "@jotster/core",
+        "project": "../core"
+      },
+      {
+        "id": "@jotster/auth",
+        "project": "../auth"
+      },
+      {
+        "id": "@jotster/event-queue",
+        "project": "../event-queue"
+      }
     ]
   }
 }

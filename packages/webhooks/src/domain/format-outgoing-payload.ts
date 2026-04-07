@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { int, JsValue, long } from "@tsonic/core/types.js";
 
 interface MessageData {
   messageId: long;
@@ -18,8 +18,8 @@ interface MessageData {
 export const formatOutgoingPayload = (
   data: MessageData,
   interfaceType: int,
-): Record<string, unknown> => {
-  const payload: Record<string, unknown> = {};
+): Record<string, JsValue> => {
+  const payload: Record<string, JsValue> = {};
 
   if (interfaceType === (1 as int)) {
     // Zulip format
@@ -29,7 +29,7 @@ export const formatOutgoingPayload = (
     payload["token"] = data.token;
     payload["trigger"] = data.type === "stream" ? "stream" : "direct_message";
 
-    const message: Record<string, unknown> = {};
+    const message: Record<string, JsValue> = {};
     message["id"] = data.messageId;
     message["sender_id"] = data.senderId;
     message["sender_email"] = data.senderEmail;
@@ -39,9 +39,15 @@ export const formatOutgoingPayload = (
     message["timestamp"] = data.timestamp;
 
     if (data.type === "stream") {
-      message["stream_id"] = data.channelId;
-      message["display_recipient"] = data.channelName;
-      message["subject"] = data.topic;
+      if (data.channelId !== undefined) {
+        message["stream_id"] = data.channelId;
+      }
+      if (data.channelName !== undefined) {
+        message["display_recipient"] = data.channelName;
+      }
+      if (data.topic !== undefined) {
+        message["subject"] = data.topic;
+      }
     }
 
     payload["message"] = message;

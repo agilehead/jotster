@@ -19,7 +19,7 @@ export const getChannelForAccessCheck = async (
       .Where((c) => c.TenantId === tenantId0)
       .FirstOrDefaultAsync();
 
-    if (ch === undefined) {
+    if (ch == null) {
       return undefined;
     }
 

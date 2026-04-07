@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getBotsDomain } from "@jotster/users/Jotster.Users.js";
@@ -23,10 +24,10 @@ export const handleGetBots = async (
   const user = authResult.data;
   const data = await getBotsDomain(app.options, user);
 
-  const bots = new List<Record<string, unknown>>();
+  const bots = new List<Record<string, JsValue>>();
   for (let i = 0; i < data.length; i++) {
     const b = data[i];
-    const bot: Record<string, unknown> = {};
+    const bot: Record<string, JsValue> = {};
     bot["user_id"] = b.Id;
     bot["email"] = b.Email;
     bot["full_name"] = b.FullName;

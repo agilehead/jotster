@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { int, JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type {
   Result,
@@ -76,7 +76,7 @@ export const updateUserGroupDomain = async (
     return await resolveGroupIdToSetting(options, user.tenantId, id);
   };
 
-  const data: Record<string, unknown> = {};
+  const data: Record<string, JsValue> = {};
   if (group.IsActive === zero && updated.IsActive !== zero) {
     data["op"] = "add";
     data["group"] = {
@@ -99,7 +99,7 @@ export const updateUserGroupDomain = async (
   } else {
     data["op"] = "update";
     data["group_id"] = groupId;
-    const changedData: Record<string, unknown> = {};
+    const changedData: Record<string, JsValue> = {};
     if (updates.name !== undefined) {
       changedData["name"] = updated.Name;
     }

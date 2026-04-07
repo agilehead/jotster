@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { createChannelFolderDomain } from "@jotster/channels/Jotster.Channels.js";
@@ -17,14 +17,14 @@ import {
 } from "../helpers/body.ts";
 import { requireAuth } from "../helpers/require-auth.ts";
 
-const parseOrder = (value: unknown): long[] | undefined => {
+const parseOrder = (value: JsValue): long[] | undefined => {
   const strings = toOptionalStringArray(value);
   if (strings === undefined) {
     if (Array.isArray(value)) {
-      const values = value as unknown[];
+      const values = value as JsValue[];
       const result: long[] = [];
       for (let i = 0; i < values.length; i++) {
-        const parsed = parseInt(`${values[i] ?? ""}`);
+        const parsed = parseInt(String(values[i] ?? ""));
         if (isNaN(parsed) || parsed < 1) {
           return undefined;
         }
@@ -165,7 +165,7 @@ export const handleGetStreamEmailAddressCompat = async (
     return;
   }
 
-  const streamId = parseId(req.params["stream_id"] as string);
+  const streamId = parseId(req.param("stream_id") ?? "");
   if (streamId === undefined) {
     res
       .status(400)
@@ -212,7 +212,7 @@ export const handleDeleteTopicCompat = async (
     return;
   }
 
-  const deleteStreamId = parseId(req.params["stream_id"] as string);
+  const deleteStreamId = parseId(req.param("stream_id") ?? "");
   if (deleteStreamId === undefined) {
     res
       .status(400)

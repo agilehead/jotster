@@ -25,8 +25,7 @@ export const handleUpdateUser = async (
 
   const user = authResult.data;
   const identifier =
-    (req.params["user_id_or_email"] as string) ??
-    (req.params["user_id"] as string);
+    (req.param("user_id_or_email") ?? req.param("user_id") ?? "");
   const resolvedUser = await resolveUserByEmailPath(
     app.options,
     user.tenantId,

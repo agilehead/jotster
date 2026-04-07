@@ -20,7 +20,7 @@ export const handleRemoveRealmDomain = async (
   }
 
   const user = authResult.data;
-  const domain = req.params["domain"] as string;
+  const domain = req.param("domain") ?? "";
 
   const result = await removeRealmDomainDomain(app.options, user, domain);
   if (!result.success) {

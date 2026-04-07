@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { listTenantsAdmin } from "@jotster/auth/Jotster.Auth.js";
 import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
@@ -21,7 +22,7 @@ export const handleListTenants = async (
   }
 
   const data = result.data;
-  const tenants = new List<Record<string, unknown>>();
+  const tenants = new List<Record<string, JsValue>>();
   for (let i = 0; i < data.length; i++) {
     const t = data[i];
     tenants.Add({

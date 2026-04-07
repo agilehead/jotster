@@ -20,7 +20,7 @@ export const updateExportStatus = async (
       (x) => x.Id === exportId0,
     ).FirstOrDefaultAsync();
 
-    if (dataExport === undefined) {
+    if (dataExport == null) {
       return err("Export not found");
     }
 

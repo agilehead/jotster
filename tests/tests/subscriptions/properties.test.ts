@@ -13,7 +13,7 @@ describe("POST /api/v1/users/me/subscriptions/properties", function () {
   it("should update subscription color", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
-    const { userId, client } = await seedUser(db, tenantId);
+    const { userId, email, client } = await seedUser(db, tenantId);
     const channelId = await seedChannel(db, tenantId, {
       name: "color-channel",
     });
@@ -241,7 +241,7 @@ describe("PATCH /api/v1/users/me/subscriptions", function () {
   it("should bulk subscribe and unsubscribe channels", async () => {
     const db = testDb.getDb();
     const tenantId = await seedTenant(db);
-    const { userId, client } = await seedUser(db, tenantId);
+    const { userId, email, client } = await seedUser(db, tenantId);
     const existingChannelId = await seedChannel(db, tenantId, {
       name: "bulk-existing-channel",
     });
@@ -255,8 +255,13 @@ describe("PATCH /api/v1/users/me/subscriptions", function () {
     expect(res.status).to.equal(200);
     expect(res.body.result).to.equal("success");
     expect(res.body.msg).to.equal("");
-    expect(res.body.subscribed).to.be.an("array");
+    expect(res.body.subscribed).to.deep.equal({
+      [email]: ["bulk-new-channel"],
+    });
+    expect(res.body.already_subscribed).to.deep.equal({});
     expect(res.body.removed).to.be.an("array");
+    expect(res.body.removed).to.deep.equal(["bulk-existing-channel"]);
+    expect(res.body.not_removed).to.deep.equal([]);
 
     const removedRows = await db("subscription").where({
       tenant_id: tenantId,

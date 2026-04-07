@@ -6,11 +6,12 @@ import { hashPassword } from "@jotster/auth/Jotster.Auth.js";
 import { getUserByEmail } from "../repo/get-user-by-email.ts";
 import { createUser } from "../repo/create-user.ts";
 import { createUserSetting } from "../repo/create-user-setting.ts";
+import type { CreateUserDomainInput } from "../types/create-user.ts";
 
 export const createUserDomain = async (
   options: DbContextOptions,
   actingUser: AuthenticatedUser,
-  input: { email: string; password: string; fullName: string },
+  input: CreateUserDomainInput,
 ): Promise<Result<User, string>> => {
   if (actingUser.role > 200) {
     return err("Insufficient permission");

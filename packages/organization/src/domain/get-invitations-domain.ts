@@ -1,4 +1,4 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, JsValue } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { ok, err } from "@jotster/core/Jotster.Core.js";
@@ -10,18 +10,18 @@ import { getInvitations } from "../repo/get-invitations.ts";
 export const getInvitationsDomain = async (
   options: DbContextOptions,
   user: AuthenticatedUser,
-): Promise<Result<Record<string, unknown>[], string>> => {
+): Promise<Result<Record<string, JsValue>[], string>> => {
   if (user.role > 200) {
     return err("Admin required");
   }
 
   const allInvitations = await getInvitations(options, user.tenantId);
 
-  const result = new List<Record<string, unknown>>();
+  const result = new List<Record<string, JsValue>>();
   for (let i = 0; i < allInvitations.length; i++) {
     const inv = allInvitations[i];
 
-    const obj: Record<string, unknown> = {};
+    const obj: Record<string, JsValue> = {};
     obj["id"] = inv.Id;
     obj["invited_by_user_id"] = inv.InviterId;
     obj["email"] = inv.Email ?? "";

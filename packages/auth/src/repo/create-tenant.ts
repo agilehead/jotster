@@ -2,10 +2,11 @@ import type { int, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Tenant } from "@jotster/core/Jotster.Core.js";
+import type { CreateTenantInput } from "../types/tenant-admin.ts";
 
 export const createTenant = async (
   options: DbContextOptions,
-  input: { subdomain: string; name: string; description?: string },
+  input: CreateTenantInput,
 ): Promise<Tenant> => {
   const db = new JotsterDbContext(options);
   try {

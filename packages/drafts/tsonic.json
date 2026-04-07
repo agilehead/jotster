@@ -9,10 +9,19 @@
     "type": "library"
   },
   "references": {
-    "libraries": [
-      "../core/dist/net10.0/Jotster.Core.dll",
-      "../messages/dist/net10.0/Jotster.Messages.dll",
-      "../event-queue/dist/net10.0/Jotster.EventQueue.dll"
+    "packages": [
+      {
+        "id": "@jotster/core",
+        "project": "../core"
+      },
+      {
+        "id": "@jotster/messages",
+        "project": "../messages"
+      },
+      {
+        "id": "@jotster/event-queue",
+        "project": "../event-queue"
+      }
     ]
   },
   "buildOptions": {

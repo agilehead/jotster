@@ -16,22 +16,67 @@
     "invariantGlobalization": true
   },
   "references": {
-    "libraries": [
-      "../core/dist/net10.0/Jotster.Core.dll",
-      "../auth/dist/net10.0/Jotster.Auth.dll",
-      "../channels/dist/net10.0/Jotster.Channels.dll",
-      "../drafts/dist/net10.0/Jotster.Drafts.dll",
-      "../emoji/dist/net10.0/Jotster.Emoji.dll",
-      "../event-queue/dist/net10.0/Jotster.EventQueue.dll",
-      "../messages/dist/net10.0/Jotster.Messages.dll",
-      "../notifications/dist/net10.0/Jotster.Notifications.dll",
-      "../organization/dist/net10.0/Jotster.Organization.dll",
-      "../permissions/dist/net10.0/Jotster.Permissions.dll",
-      "../presence/dist/net10.0/Jotster.Presence.dll",
-      "../subscriptions/dist/net10.0/Jotster.Subscriptions.dll",
-      "../uploads/dist/net10.0/Jotster.Uploads.dll",
-      "../users/dist/net10.0/Jotster.Users.dll",
-      "../webhooks/dist/net10.0/Jotster.Webhooks.dll"
+    "packages": [
+      {
+        "id": "@jotster/core",
+        "project": "../core"
+      },
+      {
+        "id": "@jotster/auth",
+        "project": "../auth"
+      },
+      {
+        "id": "@jotster/channels",
+        "project": "../channels"
+      },
+      {
+        "id": "@jotster/drafts",
+        "project": "../drafts"
+      },
+      {
+        "id": "@jotster/emoji",
+        "project": "../emoji"
+      },
+      {
+        "id": "@jotster/event-queue",
+        "project": "../event-queue"
+      },
+      {
+        "id": "@jotster/messages",
+        "project": "../messages"
+      },
+      {
+        "id": "@jotster/notifications",
+        "project": "../notifications"
+      },
+      {
+        "id": "@jotster/organization",
+        "project": "../organization"
+      },
+      {
+        "id": "@jotster/permissions",
+        "project": "../permissions"
+      },
+      {
+        "id": "@jotster/presence",
+        "project": "../presence"
+      },
+      {
+        "id": "@jotster/subscriptions",
+        "project": "../subscriptions"
+      },
+      {
+        "id": "@jotster/uploads",
+        "project": "../uploads"
+      },
+      {
+        "id": "@jotster/users",
+        "project": "../users"
+      },
+      {
+        "id": "@jotster/webhooks",
+        "project": "../webhooks"
+      }
     ]
   }
 }

@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
@@ -29,7 +30,7 @@ export const handleDeleteBotStorage = async (
   }
 
   const body = getBodyObject(req);
-  const query = req.query as Record<string, unknown>;
+  const query = req.query as Record<string, JsValue>;
 
   const key =
     getOptionalStringField(body, "key") ?? getOptionalStringField(query, "key");

@@ -14,14 +14,14 @@ export class Reaction {
   CreatedAt!: long;
 }
 
-A.on(Reaction)
+A<Reaction>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(Reaction).type.add(IndexAttribute, [
+A<Reaction>().add(IndexAttribute, [
   "MessageId",
   "UserId",
   "EmojiCode",
   "ReactionType",
 ]);
-A.on(Reaction).type.add(IndexAttribute, ["TenantId", "MessageId"]);
-A.on(Reaction).type.add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);
+A<Reaction>().add(IndexAttribute, ["TenantId", "MessageId"]);
+A<Reaction>().add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);

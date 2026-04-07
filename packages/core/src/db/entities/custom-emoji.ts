@@ -13,7 +13,7 @@ export class CustomEmoji {
   CreatedAt!: long;
 }
 
-A.on(CustomEmoji)
+A<CustomEmoji>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(CustomEmoji).type.add(IndexAttribute, ["TenantId", "IsActive"]);
+A<CustomEmoji>().add(IndexAttribute, ["TenantId", "IsActive"]);

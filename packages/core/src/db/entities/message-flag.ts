@@ -11,9 +11,9 @@ export class MessageFlag {
   Flag!: string;
 }
 
-A.on(MessageFlag).type.add(PrimaryKeyAttribute, "UserId", [
+A<MessageFlag>().add(PrimaryKeyAttribute, "UserId", [
   "MessageId",
   "Flag",
 ]);
-A.on(MessageFlag).type.add(IndexAttribute, ["MessageId", "Flag"]);
-A.on(MessageFlag).type.add(IndexAttribute, ["UserId", "Flag", "MessageId"]);
+A<MessageFlag>().add(IndexAttribute, ["MessageId", "Flag"]);
+A<MessageFlag>().add(IndexAttribute, ["UserId", "Flag", "MessageId"]);

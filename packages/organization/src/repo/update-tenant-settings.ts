@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import { DateTimeOffset } from "@tsonic/dotnet/System.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Tenant } from "@jotster/core/Jotster.Core.js";
@@ -7,7 +7,7 @@ import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 export const updateTenantSettings = async (
   options: DbContextOptions,
   tenantId: long,
-  settings: Record<string, unknown>,
+  settings: Record<string, JsValue>,
 ): Promise<Tenant | undefined> => {
   const db = new JotsterDbContext(options);
   try {
@@ -18,25 +18,25 @@ export const updateTenantSettings = async (
       (x) => x.Id === tenantId0,
     ).FirstOrDefaultAsync();
 
-    if (tenant === undefined) {
+    if (tenant == null) {
       return undefined;
     }
 
     // Parse existing settings
-    let existingSettings: Record<string, unknown> = {};
+    let existingSettings: Record<string, JsValue> = {};
     if (tenant.SettingsJson.length > 0) {
-      const parsed = JsonSerializer.Deserialize<Record<string, unknown>>(
+      const parsed = JsonSerializer.Deserialize<Record<string, JsValue>>(
         tenant.SettingsJson,
       );
-      if (parsed !== undefined) {
+      if (parsed != null) {
         existingSettings = parsed;
       }
     }
 
     // Merge new settings into existing
-    const settingsKeys = settings.Keys;
+    const settingsKeys = Object.keys(settings);
     for (let i = 0; i < settingsKeys.length; i++) {
-      const key = settingsKeys[i];
+      const key = settingsKeys[i]!;
       existingSettings[key] = settings[key];
 
       // Update direct columns for specific properties
@@ -47,10 +47,12 @@ export const updateTenantSettings = async (
         tenant.Description = settings[key] as string;
       }
       if (key === "icon_url") {
-        tenant.IconUrl = settings[key] as string | undefined;
+        tenant.IconUrl =
+          typeof settings[key] === "string" ? (settings[key] as string) : undefined;
       }
       if (key === "logo_url") {
-        tenant.LogoUrl = settings[key] as string | undefined;
+        tenant.LogoUrl =
+          typeof settings[key] === "string" ? (settings[key] as string) : undefined;
       }
     }
 

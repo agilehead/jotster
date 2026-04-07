@@ -1,11 +1,11 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { int, JsValue, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
 import { sendMessageDomain } from "@jotster/messages/Jotster.Messages.js";
 
 interface SlackIncomingInput {
-  body: Record<string, unknown>;
+  body: Record<string, JsValue>;
   stream?: string;
   topic?: string;
 }

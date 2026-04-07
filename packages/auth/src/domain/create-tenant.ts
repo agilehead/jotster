@@ -12,18 +12,13 @@ import {
 import { createTenant } from "../repo/create-tenant.ts";
 import { getTenantBySubdomain } from "../repo/get-tenant-by-subdomain.ts";
 import { hashPassword } from "../crypto/hash-password.ts";
+import type { CreateTenantAdminInput } from "../types/tenant-admin.ts";
 
 export const createTenantAdmin = async (
   options: DbContextOptions,
   config: ServerConfig,
   rootToken: string,
-  input: {
-    subdomain: string;
-    name: string;
-    description?: string;
-    adminEmail?: string;
-    adminPassword?: string;
-  },
+  input: CreateTenantAdminInput,
 ): Promise<Result<Tenant, string>> => {
   if (config.rootToken.length === 0 || rootToken !== config.rootToken) {
     return err("Unauthorized");

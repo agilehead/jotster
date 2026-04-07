@@ -10,7 +10,7 @@ export class UserGroupSubgroup {
   SubgroupId!: long;
 }
 
-A.on(UserGroupSubgroup).type.add(PrimaryKeyAttribute, "ParentGroupId", [
+A<UserGroupSubgroup>().add(PrimaryKeyAttribute, "ParentGroupId", [
   "SubgroupId",
 ]);
-A.on(UserGroupSubgroup).type.add(IndexAttribute, ["SubgroupId"]);
+A<UserGroupSubgroup>().add(IndexAttribute, ["SubgroupId"]);

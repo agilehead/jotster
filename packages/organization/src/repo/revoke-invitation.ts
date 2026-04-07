@@ -21,7 +21,7 @@ export const revokeInvitation = async (
       .Where((x) => x.Status === status0)
       .FirstOrDefaultAsync();
 
-    if (invitation === undefined) {
+    if (invitation == null) {
       return false;
     }
 

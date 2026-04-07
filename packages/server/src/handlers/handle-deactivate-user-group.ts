@@ -22,7 +22,7 @@ export const handleDeactivateUserGroup = async (
   }
 
   const user = authResult.data;
-  const groupId = parseId(req.params["group_id"] as string);
+  const groupId = parseId(req.param("group_id") ?? "");
   if (groupId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid group_id" });
     return;

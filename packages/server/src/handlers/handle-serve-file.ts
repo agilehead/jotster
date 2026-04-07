@@ -1,10 +1,11 @@
 import type { long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
+import { existsSync, readFileSync } from "@tsonic/nodejs/fs.js";
+import { join } from "@tsonic/nodejs/path.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
 import { getCustomEmojiById } from "@jotster/emoji/Jotster.Emoji.js";
 import { serveFileDomain } from "@jotster/uploads/Jotster.Uploads.js";
-import { fs, path } from "@tsonic/nodejs/index.js";
 import { toLong } from "../helpers/body.ts";
 import type { AppContext } from "../helpers/app-context.ts";
 
@@ -25,14 +26,13 @@ export const handleServeFile = async (
   }
 
   const user = authResult.data;
-  const tenantId = req.params["tenant_id"] as string;
-  const emojiId = req.params["emoji_id"] as string | undefined;
-  const fileName = req.params["filename"] as string | undefined;
+  const tenantId = req.param("tenant_id") ?? "";
+  const emojiId = req.param("emoji_id");
+  const fileName = req.param("filename");
   const pathId =
     emojiId !== undefined
       ? "emoji/" + emojiId + "/" + (fileName ?? "")
-      : ((req.params["0"] as string | undefined) ??
-        (req.params["path_id"] as string));
+      : (req.param("0") ?? req.param("path_id") ?? "");
 
   const uploadsDir = app.config.uploadsDir || "./uploads";
 
@@ -47,7 +47,7 @@ export const handleServeFile = async (
       "Content-Disposition",
       'inline; filename="' + emojiFile.fileName + '"',
     );
-    res.sendFile(emojiFile.filePath);
+    res.send(readFileSync(emojiFile.filePath).buffer);
     return;
   }
 
@@ -66,7 +66,7 @@ export const handleServeFile = async (
   const data = result.data;
   res.set("Content-Type", data.contentType);
   res.set("Content-Disposition", 'inline; filename="' + data.fileName + '"');
-  res.sendFile(data.filePath);
+  res.send(readFileSync(data.filePath).buffer);
 };
 
 const tryServeCustomEmoji = async (
@@ -96,14 +96,14 @@ const tryServeCustomEmoji = async (
   }
 
   const uploadsDir = app.config.uploadsDir || "./uploads";
-  const filePath = path.join(
+  const filePath = join(
     uploadsDir,
     `${tenantId}`,
     "emoji",
     `${emoji.Id}`,
     emoji.FileName,
   );
-  if (!fs.existsSync(filePath)) {
+  if (!existsSync(filePath)) {
     return undefined;
   }
 

@@ -23,7 +23,7 @@ export const deactivateOrgDomain = async (
       (x) => x.Id === tenantId0,
     ).FirstOrDefaultAsync();
 
-    if (tenant === undefined) {
+    if (tenant == null) {
       return err("Organization not found");
     }
 

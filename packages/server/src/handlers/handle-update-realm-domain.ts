@@ -21,7 +21,7 @@ export const handleUpdateRealmDomain = async (
   }
 
   const user = authResult.data;
-  const domain = req.params["domain"] as string;
+  const domain = req.param("domain") ?? "";
   const body = getBodyObject(req);
 
   const allowSubdomains =

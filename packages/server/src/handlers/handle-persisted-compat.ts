@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import type {
   NavigationView,
@@ -29,6 +29,7 @@ import {
 import {
   getBodyObject,
   getOptionalBooleanField,
+  parseJsonValueText,
   getOptionalStringArrayField,
   getOptionalStringField,
   hasField,
@@ -43,10 +44,10 @@ import {
 import { requireAuth } from "../helpers/require-auth.ts";
 
 const getWildcardFragment = (req: Request): string => {
-  const wildcard = req.params["0"] as string | undefined;
-  const head = req.params["fragment_head"] as string | undefined;
-  const tail = req.params["fragment_tail"] as string | undefined;
-  const rest = req.params["fragment_rest"] as string | undefined;
+  const wildcard = req.param("0");
+  const head = req.param("fragment_head");
+  const tail = req.param("fragment_tail");
+  const rest = req.param("fragment_rest");
   if (
     head !== undefined &&
     tail !== undefined &&
@@ -66,13 +67,13 @@ const getWildcardFragment = (req: Request): string => {
       : `${head}/${tail}`;
   }
 
-  return (req.params["fragment"] as string | undefined) ?? "";
+  return req.param("fragment") ?? "";
 };
 
 const mapNavigationViews = (
   views: NavigationView[],
-): Record<string, unknown>[] => {
-  const result: Record<string, unknown>[] = [];
+): Record<string, JsValue>[] => {
+  const result: Record<string, JsValue>[] = [];
   for (let i = 0; i < views.length; i++) {
     result.push(mapNavigationViewToCompatResponse(views[i]));
   }
@@ -81,8 +82,8 @@ const mapNavigationViews = (
 
 const mapSavedSnippets = (
   snippets: SavedSnippet[],
-): Record<string, unknown>[] => {
-  const result: Record<string, unknown>[] = [];
+): Record<string, JsValue>[] => {
+  const result: Record<string, JsValue>[] = [];
   for (let i = 0; i < snippets.length; i++) {
     result.push(mapSavedSnippetToCompatResponse(snippets[i]));
   }
@@ -92,8 +93,8 @@ const mapSavedSnippets = (
 const mapReminders = (
   reminders: Reminder[],
   userId: long,
-): Record<string, unknown>[] => {
-  const result: Record<string, unknown>[] = [];
+): Record<string, JsValue>[] => {
+  const result: Record<string, JsValue>[] = [];
   for (let i = 0; i < reminders.length; i++) {
     result.push(mapReminderToCompatResponse(reminders[i], userId));
   }
@@ -102,8 +103,8 @@ const mapReminders = (
 
 const mapScheduledMessages = (
   messages: ScheduledMessage[],
-): Record<string, unknown>[] => {
-  const result: Record<string, unknown>[] = [];
+): Record<string, JsValue>[] => {
+  const result: Record<string, JsValue>[] = [];
   for (let i = 0; i < messages.length; i++) {
     result.push(mapScheduledMessageToCompatResponse(messages[i]));
   }
@@ -111,13 +112,13 @@ const mapScheduledMessages = (
 };
 
 const getScheduledMessageRecipientText = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
 ): string | undefined => {
   return getOptionalStringField(body, "to");
 };
 
 const getScheduledMessageRecipientArray = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
 ): string[] | undefined => {
   return getOptionalStringArrayField(body, "to");
 };
@@ -179,11 +180,11 @@ const hasEmailLikeRecipient = (
   }
 
   try {
-    const parsed = JSON.parse(toValueText) as unknown;
+    const parsed = parseJsonValueText(toValueText);
     if (!Array.isArray(parsed)) {
       return false;
     }
-    const entries = parsed as unknown[];
+    const entries = parsed as JsValue[];
     for (let i = 0; i < entries.length; i++) {
       if (
         typeof entries[i] === "string" &&
@@ -378,7 +379,7 @@ export const handleUpdateNavigationViewCompat = async (
   const updatedViews = await listNavigationViews(app.options, requester);
   for (let i = 0; i < updatedViews.length; i++) {
     if (updatedViews[i].Fragment === fragment) {
-      const data: Record<string, unknown> = {};
+      const data: Record<string, JsValue> = {};
       if (hasField(body, "is_pinned")) {
         data.is_pinned = updatedViews[i].IsPinned === 1;
       }
@@ -540,7 +541,7 @@ export const handleUpdateSavedSnippetCompat = async (
     });
     return;
   }
-  const snippetId = parseId(req.params["saved_snippet_id"] as string);
+  const snippetId = parseId(req.param("saved_snippet_id") ?? "");
   if (snippetId === undefined) {
     res
       .status(404)
@@ -596,7 +597,7 @@ export const handleDeleteSavedSnippetCompat = async (
     return;
   }
 
-  const deleteSnippetId = parseId(req.params["saved_snippet_id"] as string);
+  const deleteSnippetId = parseId(req.param("saved_snippet_id") ?? "");
   if (deleteSnippetId === undefined) {
     res
       .status(404)
@@ -740,7 +741,7 @@ export const handleDeleteReminderCompat = async (
     return;
   }
 
-  const reminderId = parseId(req.params["reminder_id"] as string);
+  const reminderId = parseId(req.param("reminder_id") ?? "");
   if (reminderId === undefined) {
     res
       .status(404)
@@ -1010,9 +1011,7 @@ export const handleUpdateScheduledMessageCompat = async (
     return;
   }
 
-  const scheduledMessageId = parseId(
-    req.params["scheduled_message_id"] as string,
-  );
+  const scheduledMessageId = parseId(req.param("scheduled_message_id") ?? "");
   if (scheduledMessageId === undefined) {
     res
       .status(404)
@@ -1101,9 +1100,7 @@ export const handleDeleteScheduledMessageCompat = async (
     return;
   }
 
-  const deleteScheduledMsgId = parseId(
-    req.params["scheduled_message_id"] as string,
-  );
+  const deleteScheduledMsgId = parseId(req.param("scheduled_message_id") ?? "");
   if (deleteScheduledMsgId === undefined) {
     res
       .status(404)

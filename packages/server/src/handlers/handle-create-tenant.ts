@@ -1,5 +1,6 @@
 import type { Request, Response } from "@tsonic/express/index.js";
 import { createTenantAdmin } from "@jotster/auth/Jotster.Auth.js";
+import type { CreateTenantAdminInput } from "@jotster/auth/Jotster.Auth.js";
 import type { AppContext } from "../helpers/app-context.ts";
 import { getBodyObject, getOptionalStringField } from "../helpers/body.ts";
 
@@ -30,13 +31,14 @@ export const handleCreateTenant = async (
     return;
   }
 
-  const result = await createTenantAdmin(app.options, app.config, rootToken, {
+  const input: CreateTenantAdminInput = {
     subdomain,
     name,
     description,
     adminEmail,
     adminPassword,
-  });
+  };
+  const result = await createTenantAdmin(app.options, app.config, rootToken, input);
 
   if (!result.success) {
     const status = result.error === "Unauthorized" ? 401 : 400;

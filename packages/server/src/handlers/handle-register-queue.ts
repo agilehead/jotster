@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import {
   getBodyObject,
@@ -5,6 +6,8 @@ import {
   getOptionalFlagIntField,
   getOptionalJsonObjectField,
   getOptionalStringField,
+  parseJsonValueText,
+  toOptionalStringArray,
 } from "../helpers/body.ts";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { registerQueue } from "@jotster/event-queue/Jotster.EventQueue.js";
@@ -13,7 +16,7 @@ import type { RegisterParams } from "@jotster/event-queue/Jotster.EventQueue.js"
 import type { AppContext } from "../helpers/app-context.ts";
 
 const normalizeClientCapabilities = (
-  value: Record<string, unknown> | undefined,
+  value: Record<string, JsValue> | undefined,
 ): RegisterParams["clientCapabilities"] | undefined => {
   if (value === undefined) {
     return undefined;
@@ -57,6 +60,44 @@ const normalizeClientCapabilities = (
   return normalized;
 };
 
+const normalizeRegisterNarrow = (
+  value: JsValue | undefined,
+): RegisterParams["narrow"] | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const entries = value as JsValue[];
+  const result: NonNullable<RegisterParams["narrow"]> = [];
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+      return undefined;
+    }
+
+    const record = entry as Record<string, JsValue>;
+    const operator = getOptionalStringField(record, "operator");
+    const operand = getOptionalStringField(record, "operand");
+    const negated = getOptionalBooleanField(record, "negated");
+
+    if (operator === undefined || operand === undefined) {
+      return undefined;
+    }
+
+    result.push(
+      negated === undefined
+        ? { operator, operand }
+        : { operator, operand, negated },
+    );
+  }
+
+  return result;
+};
+
 export const handleRegisterQueue = async (
   req: Request,
   res: Response,
@@ -79,17 +120,9 @@ export const handleRegisterQueue = async (
   const eventTypesRaw = getOptionalStringField(body, "event_types");
   const fetchEventTypesRaw = getOptionalStringField(body, "fetch_event_types");
 
-  const eventTypes = eventTypesRaw
-    ? (JSON.parse(eventTypesRaw) as string[])
-    : undefined;
-  const fetchEventTypes = fetchEventTypesRaw
-    ? (JSON.parse(fetchEventTypesRaw) as string[])
-    : undefined;
+  const eventTypes = toOptionalStringArray(eventTypesRaw);
+  const fetchEventTypes = toOptionalStringArray(fetchEventTypesRaw);
 
-  const clientCapabilitiesRaw = getOptionalStringField(
-    body,
-    "client_capabilities",
-  );
   const clientCapabilitiesObject = getOptionalJsonObjectField(
     body,
     "client_capabilities",
@@ -97,11 +130,7 @@ export const handleRegisterQueue = async (
   const clientCapabilities =
     clientCapabilitiesObject !== undefined
       ? normalizeClientCapabilities(clientCapabilitiesObject)
-      : clientCapabilitiesRaw
-        ? (JSON.parse(
-            clientCapabilitiesRaw,
-          ) as RegisterParams["clientCapabilities"])
-        : undefined;
+      : undefined;
   const includeDeactivatedGroups =
     getOptionalBooleanField(
       clientCapabilitiesObject ?? {},
@@ -109,9 +138,9 @@ export const handleRegisterQueue = async (
     ) === true;
 
   const narrowRaw = getOptionalStringField(body, "narrow");
-  const narrow = narrowRaw
-    ? (JSON.parse(narrowRaw) as RegisterParams["narrow"])
-    : undefined;
+  const narrow = normalizeRegisterNarrow(
+    narrowRaw ? parseJsonValueText(narrowRaw) : undefined,
+  );
   const applyMarkdown = getOptionalFlagIntField(body, "apply_markdown");
   const clientGravatar = getOptionalFlagIntField(body, "client_gravatar");
   const slimPresence = getOptionalFlagIntField(body, "slim_presence");
@@ -139,13 +168,13 @@ export const handleRegisterQueue = async (
     includeDeactivatedGroups,
   );
 
-  const response: Record<string, unknown> = {};
+  const response: Record<string, JsValue> = {};
   response["result"] = "success";
   response["msg"] = "";
   response["queue_id"] = queueId;
   response["last_event_id"] = -1;
 
-  const state = initialState as Record<string, unknown>;
+  const state = initialState as Record<string, JsValue>;
   for (const key in state) {
     response[key] = state[key];
   }

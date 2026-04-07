@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import { JotsterDbContext, ok, err } from "@jotster/core/Jotster.Core.js";
@@ -23,7 +23,7 @@ interface GetMessagesDomainInput {
 }
 
 interface GetMessagesDomainResult {
-  messages: Record<string, unknown>[];
+  messages: Record<string, JsValue>[];
   foundAnchor: boolean;
   foundNewest: boolean;
   foundOldest: boolean;
@@ -34,7 +34,7 @@ const parseNarrow = (narrowStr: string | undefined): NarrowFilter[] => {
     return [];
   }
   const parsed = JsonSerializer.Deserialize<NarrowFilter[]>(narrowStr);
-  if (parsed === undefined) {
+  if (parsed == null) {
     return [];
   }
   return parsed;
@@ -182,7 +182,7 @@ export const getMessagesDomain = async (
   }
 
   // Build formatted message objects
-  const formattedMessages = new List<Record<string, unknown>>();
+  const formattedMessages = new List<Record<string, JsValue>>();
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
 
@@ -192,10 +192,10 @@ export const getMessagesDomain = async (
       user.tenantId,
       msg.Id,
     );
-    const reactionList = new List<Record<string, unknown>>();
+    const reactionList = new List<Record<string, JsValue>>();
     for (let j = 0; j < reactions.length; j++) {
       const r = reactions[j];
-      const reactionObj: Record<string, unknown> = {};
+      const reactionObj: Record<string, JsValue> = {};
       reactionObj["emoji_name"] = r.EmojiName;
       reactionObj["emoji_code"] = r.EmojiCode;
       reactionObj["reaction_type"] = r.ReactionType;
@@ -215,21 +215,25 @@ export const getMessagesDomain = async (
     const emptyFlags: string[] = [];
     const msgFlags = hasFlags ? userFlagMap[msgIdKey].ToArray() : emptyFlags;
 
-    const formatted: Record<string, unknown> = {};
+    const formatted: Record<string, JsValue> = {};
     formatted["id"] = msg.Id;
     formatted["sender_id"] = msg.SenderId;
     formatted["type"] = msg.Type === "stream" ? "stream" : "direct";
     formatted["content"] = applyMarkdown ? msg.RenderedContent : msg.Content;
     formatted["subject"] = msg.Topic ?? "";
     formatted["timestamp"] = Convert.ToDouble(msg.CreatedAt) / 1000;
-    formatted["stream_id"] = msg.ChannelId;
-    formatted["dm_group_id"] = msg.DmGroupId;
+    if (msg.ChannelId !== undefined) {
+      formatted["stream_id"] = msg.ChannelId;
+    }
+    if (msg.DmGroupId !== undefined) {
+      formatted["dm_group_id"] = msg.DmGroupId;
+    }
     formatted["reactions"] = reactionList.ToArray();
     formatted["flags"] = msgFlags;
 
-    if (msg.Type === "stream") {
+    if (msg.Type === "stream" && msg.ChannelId !== undefined) {
       formatted["display_recipient"] = msg.ChannelId;
-    } else {
+    } else if (msg.DmGroupId !== undefined) {
       formatted["display_recipient"] = msg.DmGroupId;
     }
 

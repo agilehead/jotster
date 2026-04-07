@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getChannelIdByName } from "@jotster/channels/Jotster.Channels.js";
@@ -22,7 +23,7 @@ export const handleGetStreamId = async (
 
   const user = authResult.data;
   const streamName = getOptionalStringField(
-    req.query as Record<string, unknown>,
+    req.query as Record<string, JsValue>,
     "stream",
   );
 
@@ -49,7 +50,7 @@ export const handleGetStreamId = async (
     return;
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["stream_id"] = result.data;

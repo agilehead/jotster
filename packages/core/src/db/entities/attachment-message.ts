@@ -10,7 +10,7 @@ export class AttachmentMessage {
   MessageId!: long;
 }
 
-A.on(AttachmentMessage).type.add(PrimaryKeyAttribute, "AttachmentId", [
+A<AttachmentMessage>().add(PrimaryKeyAttribute, "AttachmentId", [
   "MessageId",
 ]);
-A.on(AttachmentMessage).type.add(IndexAttribute, ["MessageId"]);
+A<AttachmentMessage>().add(IndexAttribute, ["MessageId"]);

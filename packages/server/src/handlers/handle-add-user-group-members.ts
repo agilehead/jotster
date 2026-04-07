@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { addUserGroupMembersDomain } from "@jotster/permissions/Jotster.Permissions.js";
@@ -22,13 +23,13 @@ export const handleAddUserGroupMembers = async (
   }
 
   const user = authResult.data;
-  const groupId = parseId(req.params["group_id"] as string);
+  const groupId = parseId(req.param("group_id") ?? "");
   if (groupId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid group_id" });
     return;
   }
 
-  const body = req.body as Record<string, unknown>;
+  const body = req.body as Record<string, JsValue>;
   const addIds = toLongArray(body["add"] as string[] | undefined);
 
   if (addIds === undefined || addIds.length === 0) {

@@ -8,4 +8,4 @@ export class BotStorage {
   Value!: string;
 }
 
-A.on(BotStorage).type.add(PrimaryKeyAttribute, "BotUserId", ["Key"]);
+A<BotStorage>().add(PrimaryKeyAttribute, "BotUserId", ["Key"]);

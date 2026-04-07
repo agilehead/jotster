@@ -15,4 +15,5 @@ export { updateSubscriptionPropertiesDomain } from "./domain/update-subscription
 export { checkSubscribedDomain } from "./domain/check-subscribed-domain.ts";
 export { getUserChannelsDomain } from "./domain/get-user-channels-domain.ts";
 export { bulkUpdateSubscriptionsDomain } from "./domain/bulk-update-subscriptions-domain.ts";
+export type { BulkSubscriptionAddInput } from "./domain/bulk-update-subscriptions-domain.ts";
 export { updateSingleSubscriptionDomain } from "./domain/update-single-subscription-domain.ts";

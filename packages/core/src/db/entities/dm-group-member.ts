@@ -10,5 +10,5 @@ export class DmGroupMember {
   UserId!: long;
 }
 
-A.on(DmGroupMember).type.add(PrimaryKeyAttribute, "DmGroupId", ["UserId"]);
-A.on(DmGroupMember).type.add(IndexAttribute, ["UserId", "DmGroupId"]);
+A<DmGroupMember>().add(PrimaryKeyAttribute, "DmGroupId", ["UserId"]);
+A<DmGroupMember>().add(IndexAttribute, ["UserId", "DmGroupId"]);

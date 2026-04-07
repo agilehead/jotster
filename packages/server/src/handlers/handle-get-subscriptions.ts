@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getSubscriptionsDomain } from "@jotster/subscriptions/Jotster.Subscriptions.js";
@@ -23,7 +24,7 @@ export const handleGetSubscriptions = async (
   const user = authResult.data;
   const includeSubscribers =
     (getOptionalStringField(
-      req.query as Record<string, unknown>,
+      req.query as Record<string, JsValue>,
       "include_subscribers",
     ) ?? "1") === "1";
 
@@ -37,7 +38,7 @@ export const handleGetSubscriptions = async (
     return;
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["subscriptions"] = result.data;

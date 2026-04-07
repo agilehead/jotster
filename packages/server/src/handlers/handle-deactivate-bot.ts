@@ -22,7 +22,7 @@ export const handleDeactivateBot = async (
   }
 
   const user = authResult.data;
-  const botId = parseId(req.params["bot_id"] as string);
+  const botId = parseId(req.param("bot_id") ?? "");
   if (botId === undefined) {
     res.status(400).json({ result: "error", msg: "Invalid bot_id" });
     return;

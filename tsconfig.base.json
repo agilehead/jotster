@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "noLib": true,
+    "baseUrl": ".",
     "moduleResolution": "nodenext",
     "module": "nodenext",
     "target": "ES2022",
@@ -14,6 +14,26 @@
     "resolveJsonModule": false,
     "verbatimModuleSyntax": false,
     "allowImportingTsExtensions": true,
-    "types": []
+    "paths": {
+      "@tsonic/aspnetcore": ["./node_modules/@tsonic/aspnetcore"],
+      "@tsonic/aspnetcore/*": ["./node_modules/@tsonic/aspnetcore/*"],
+      "@tsonic/core": ["./node_modules/@tsonic/core"],
+      "@tsonic/core/*": ["./node_modules/@tsonic/core/*"],
+      "@tsonic/dotnet": ["./node_modules/@tsonic/dotnet"],
+      "@tsonic/dotnet/*": ["./node_modules/@tsonic/dotnet/*"],
+      "@tsonic/efcore": ["./node_modules/@tsonic/efcore"],
+      "@tsonic/efcore/*": ["./node_modules/@tsonic/efcore/*"],
+      "@tsonic/efcore-sqlite": ["./node_modules/@tsonic/efcore-sqlite"],
+      "@tsonic/efcore-sqlite/*": ["./node_modules/@tsonic/efcore-sqlite/*"],
+      "@tsonic/express": ["./node_modules/@tsonic/express"],
+      "@tsonic/express/*": ["./node_modules/@tsonic/express/*"],
+      "@tsonic/js": ["./node_modules/@tsonic/js"],
+      "@tsonic/js/*": ["./node_modules/@tsonic/js/*"],
+      "@tsonic/microsoft-extensions": ["./node_modules/@tsonic/microsoft-extensions"],
+      "@tsonic/microsoft-extensions/*": ["./node_modules/@tsonic/microsoft-extensions/*"],
+      "@tsonic/nodejs": ["./node_modules/@tsonic/nodejs"],
+      "@tsonic/nodejs/*": ["./node_modules/@tsonic/nodejs/*"]
+    },
+    "types": ["node"]
   }
 }

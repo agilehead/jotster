@@ -38,14 +38,14 @@ export const getPermissionSetting = async (
       (t) => t.Id === tenantId0,
     ).FirstOrDefaultAsync();
 
-    if (tenant === undefined) {
+    if (tenant == null) {
       return err("Tenant not found");
     }
 
     const settingsOrNull = JsonSerializer.Deserialize<Record<string, string>>(
       tenant.SettingsJson,
     );
-    if (settingsOrNull === undefined) {
+    if (settingsOrNull == null) {
       const defaultGroupName = PERMISSION_DEFAULTS[settingName];
       if (defaultGroupName === undefined) {
         return err("Unknown permission setting: " + settingName);
@@ -58,7 +58,7 @@ export const getPermissionSetting = async (
           g.IsSystemGroup === one2 &&
           g.Name === defaultGroupName,
       ).FirstOrDefaultAsync();
-      if (sg2 === undefined) {
+      if (sg2 == null) {
         return err("System group not found: " + defaultGroupName);
       }
       return ok(sg2.Id);
@@ -92,7 +92,7 @@ export const getPermissionSetting = async (
         g.Name === defaultGroupName,
     ).FirstOrDefaultAsync();
 
-    if (systemGroup === undefined) {
+    if (systemGroup == null) {
       return err("System group not found: " + defaultGroupName);
     }
 

@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getRealmPresenceDomain } from "@jotster/presence/Jotster.Presence.js";
@@ -21,7 +22,7 @@ export const handleGetRealmPresence = async (
   }
 
   const user = authResult.data;
-  const query = req.query as Record<string, unknown>;
+  const query = req.query as Record<string, JsValue>;
   const slimPresence = getOptionalBooleanField(query, "slim_presence") ?? false;
 
   const result = await getRealmPresenceDomain(app.options, user, slimPresence);

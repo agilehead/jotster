@@ -19,7 +19,7 @@ export const removeRealmDomain = async (
       .Where((x) => x.Domain === domain0)
       .FirstOrDefaultAsync();
 
-    if (realmDomain === undefined) {
+    if (realmDomain == null) {
       return false;
     }
 

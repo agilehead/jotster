@@ -1,9 +1,10 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { User } from "@jotster/core/Jotster.Core.js";
 import { getCustomProfileFieldValues } from "@jotster/users/Jotster.Users.js";
 
-export const mapUserToResponse = (u: User): Record<string, unknown> => {
-  const resp: Record<string, unknown> = {};
+export const mapUserToResponse = (u: User): Record<string, JsValue> => {
+  const resp: Record<string, JsValue> = {};
   resp["user_id"] = u.Id;
   resp["delivery_email"] = u.DeliveryEmail;
   resp["email"] = u.Email;
@@ -29,14 +30,14 @@ export const mapUserToResponse = (u: User): Record<string, unknown> => {
 export const buildUserResponse = async (
   options: DbContextOptions,
   u: User,
-): Promise<Record<string, unknown>> => {
+): Promise<Record<string, JsValue>> => {
   const resp = mapUserToResponse(u);
   const values = await getCustomProfileFieldValues(options, u.TenantId, u.Id);
-  const profileData: Record<string, unknown> = {};
+  const profileData: Record<string, JsValue> = {};
 
   for (let i = 0; i < values.length; i++) {
     const value = values[i];
-    const valuePayload: Record<string, unknown> = {
+    const valuePayload: Record<string, JsValue> = {
       value: value.Value,
     };
     if (value.RenderedValue !== undefined && value.RenderedValue !== null) {

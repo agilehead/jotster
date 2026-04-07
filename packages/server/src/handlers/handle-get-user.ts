@@ -1,3 +1,4 @@
+import type { JsValue } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import { authenticateRequest } from "@jotster/auth/Jotster.Auth.js";
 import { getUserByIdDomain } from "@jotster/users/Jotster.Users.js";
@@ -25,8 +26,7 @@ export const handleGetUser = async (
 
   const user = authResult.data;
   const identifier =
-    (req.params["user_id_or_email"] as string) ??
-    (req.params["user_id"] as string);
+    (req.param("user_id_or_email") ?? req.param("user_id") ?? "");
 
   const resolvedByEmail = await resolveUserByEmailPath(
     app.options,
@@ -62,7 +62,7 @@ export const handleGetUser = async (
     return;
   }
 
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, JsValue> = {};
   payload["result"] = "success";
   payload["msg"] = "";
   payload["user"] = await buildUserResponse(app.options, result.data);

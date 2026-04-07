@@ -13,14 +13,14 @@ export class UserTopic {
   UpdatedAt!: long;
 }
 
-A.on(UserTopic)
+A<UserTopic>()
   .prop((x) => x.Id)
   .add(KeyAttribute);
-A.on(UserTopic).type.add(IndexAttribute, [
+A<UserTopic>().add(IndexAttribute, [
   "TenantId",
   "UserId",
   "ChannelId",
   "Topic",
 ]);
-A.on(UserTopic).type.add(IndexAttribute, ["TenantId", "UserId"]);
-A.on(UserTopic).type.add(IndexAttribute, ["TenantId", "ChannelId", "Topic"]);
+A<UserTopic>().add(IndexAttribute, ["TenantId", "UserId"]);
+A<UserTopic>().add(IndexAttribute, ["TenantId", "ChannelId", "Topic"]);

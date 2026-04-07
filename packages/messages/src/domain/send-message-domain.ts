@@ -1,4 +1,4 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { JsValue, int, long } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { Result, AuthenticatedUser } from "@jotster/core/Jotster.Core.js";
 import {
@@ -131,7 +131,7 @@ export const sendMessageDomain = async (
       });
 
       // Dispatch event
-      const eventData: Record<string, unknown> = {};
+      const eventData: Record<string, JsValue> = {};
       eventData["id"] = message.Id;
       eventData["sender_id"] = user.userId;
       eventData["type"] = "stream";
@@ -152,20 +152,19 @@ export const sendMessageDomain = async (
 
   if (params.type === "direct" || params.type === "private") {
     // Parse `to` as JSON array of user IDs/emails
-    let userIdStrs: string[];
+    const userIdStrs = new List<string>();
     try {
-      const parsed = JSON.parse(params.to) as unknown;
+      const parsed: JsValue = JSON.parse(params.to);
       if (!Array.isArray(parsed)) {
         return err("Invalid 'to' parameter: expected JSON array of user IDs");
       }
-      const arr = parsed as unknown[];
-      userIdStrs = [];
+      const arr = parsed as JsValue[];
       for (let i = 0; i < arr.length; i++) {
         const item = arr[i];
         if (typeof item === "number") {
-          userIdStrs.push(`${item}`);
+          userIdStrs.Add(`${item}`);
         } else if (typeof item === "string") {
-          userIdStrs.push(item as string);
+          userIdStrs.Add(item);
         } else {
           return err("Invalid 'to' parameter: expected JSON array of user IDs");
         }
@@ -174,7 +173,7 @@ export const sendMessageDomain = async (
       return err("Invalid 'to' parameter: expected JSON array of user IDs");
     }
 
-    if (userIdStrs.length === 0) {
+    if (userIdStrs.Count === 0) {
       return err("Recipient list must not be empty");
     }
 
@@ -185,7 +184,7 @@ export const sendMessageDomain = async (
       const db0 = db;
       const tenantId0 = user.tenantId;
 
-      for (let i = 0; i < userIdStrs.length; i++) {
+      for (let i = 0; i < userIdStrs.Count; i++) {
         const candidate = userIdStrs[i];
         // If it contains @ it's an email, resolve to userId
         if (candidate.includes("@")) {
@@ -235,7 +234,7 @@ export const sendMessageDomain = async (
     });
 
     // Dispatch event
-    const dmEventData: Record<string, unknown> = {};
+      const dmEventData: Record<string, JsValue> = {};
     dmEventData["id"] = message.Id;
     dmEventData["sender_id"] = user.userId;
     dmEventData["type"] = "direct";

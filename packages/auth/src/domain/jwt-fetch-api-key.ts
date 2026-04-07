@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import { DateTimeOffset, Convert } from "@tsonic/dotnet/System.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
 import { HMACSHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
@@ -16,15 +16,15 @@ export type JwtPayload = {
   exp?: number;
 };
 
-type JwtVerificationResult =
-  | { success: true; payload: JwtPayload }
-  | {
-      success: false;
-      error: "segments" | "header" | "payload" | "signature" | "expired";
-    };
+type JwtVerificationError =
+  | "segments"
+  | "header"
+  | "payload"
+  | "signature"
+  | "expired";
 
 const normalizeBase64Url = (segment: string): string => {
-  let normalized = segment.split("-").join("+").split("_").join("/");
+  let normalized = segment.replaceAll("-", "+").replaceAll("_", "/");
   const remainder = normalized.length % 4;
   if (remainder === 2) {
     normalized += "==";
@@ -36,31 +36,16 @@ const normalizeBase64Url = (segment: string): string => {
   return normalized;
 };
 
-const getObjectField = (value: unknown, key: string): unknown => {
-  if (
-    value === null ||
-    value === undefined ||
-    typeof value !== "object" ||
-    Array.isArray(value)
-  ) {
-    return undefined;
-  }
-  for (const [entryKey, entryValue] of Object.entries(value)) {
-    if (entryKey === key) {
-      return entryValue;
-    }
-  }
-  return undefined;
-};
-
-const decodeJsonSegment = (segment: string): unknown => {
+const decodeJsonObject = (
+  segment: string,
+): Record<string, JsValue> | undefined => {
   try {
     const normalized = normalizeBase64Url(segment);
     if (normalized.length === 0) {
       return undefined;
     }
     const json = Encoding.UTF8.GetString(Convert.FromBase64String(normalized));
-    const parsed = JSON.parse(json) as unknown;
+    const parsed = JSON.parse(json) as JsValue;
     if (
       parsed === null ||
       typeof parsed !== "object" ||
@@ -68,27 +53,34 @@ const decodeJsonSegment = (segment: string): unknown => {
     ) {
       return undefined;
     }
-    return parsed;
+    const result: Record<string, JsValue> = {};
+    for (const [entryKey, entryValue] of Object.entries(parsed as object)) {
+      result[entryKey] = entryValue;
+    }
+    return result;
   } catch {
     return undefined;
   }
 };
 
-const verifyJwt = (token: string, secret: string): JwtVerificationResult => {
+const verifyJwt = (
+  token: string,
+  secret: string,
+): Result<JwtPayload, JwtVerificationError> => {
   const segments = token.split(".");
   if (segments.length !== 3) {
-    return { success: false, error: "segments" };
+    return err("segments");
   }
 
   const [headerSegment, payloadSegment, signatureSegment] = segments;
-  const header = decodeJsonSegment(headerSegment);
-  if (header === undefined || getObjectField(header, "alg") !== "HS256") {
-    return { success: false, error: "header" };
+  const header = decodeJsonObject(headerSegment);
+  if (typeof header?.alg !== "string" || header.alg !== "HS256") {
+    return err("header");
   }
 
-  const payloadObject = decodeJsonSegment(payloadSegment);
+  const payloadObject = decodeJsonObject(payloadSegment);
   if (payloadObject === undefined) {
-    return { success: false, error: "payload" };
+    return err("payload");
   }
 
   try {
@@ -102,39 +94,37 @@ const verifyJwt = (token: string, secret: string): JwtVerificationResult => {
     );
     const normalizedSignature = normalizeBase64Url(signatureSegment);
     if (normalizedSignature.length === 0) {
-      return { success: false, error: "signature" };
+      return err("signature");
     }
     const actualSignatureHex = Convert.ToHexStringLower(
       Convert.FromBase64String(normalizedSignature),
     );
     if (expectedSignatureHex !== actualSignatureHex) {
-      return { success: false, error: "signature" };
+      return err("signature");
     }
   } catch {
-    return { success: false, error: "signature" };
+    return err("signature");
   }
 
-  const expValue = getObjectField(payloadObject, "exp");
   let exp: number | undefined = undefined;
-  if (typeof expValue === "number") {
-    exp = expValue as number;
+  if (typeof payloadObject.exp === "number") {
+    exp = payloadObject.exp as number;
   }
   if (exp !== undefined) {
     const nowSeconds = Number(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
     if (exp < nowSeconds) {
-      return { success: false, error: "expired" };
+      return err("expired");
     }
   }
 
   const payload: JwtPayload = {};
-  const emailValue = getObjectField(payloadObject, "email");
-  if (typeof emailValue === "string") {
-    payload.email = emailValue;
+  if (typeof payloadObject.email === "string") {
+    payload.email = payloadObject.email as string;
   }
   if (exp !== undefined) {
     payload.exp = exp as number;
   }
-  return { success: true, payload };
+  return ok(payload);
 };
 
 export const fetchJwtApiKey = async (
@@ -156,7 +146,7 @@ export const fetchJwtApiKey = async (
     return err("Bad JSON web token");
   }
 
-  const { payload } = verification;
+  const payload = verification.data;
   if (payload.email === undefined) {
     return err("No email specified in JSON web token claims");
   }

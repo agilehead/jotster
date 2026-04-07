@@ -7,6 +7,6 @@ export class TenantUserSettingDefault {
   SettingsJson!: string;
 }
 
-A.on(TenantUserSettingDefault)
+A<TenantUserSettingDefault>()
   .prop((x) => x.TenantId)
   .add(KeyAttribute);

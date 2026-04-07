@@ -1,4 +1,4 @@
-import type { long } from "@tsonic/core/types.js";
+import type { JsValue, long } from "@tsonic/core/types.js";
 import type { Request, Response } from "@tsonic/express/index.js";
 import type { Linkifier } from "@jotster/core/Jotster.Core.js";
 import { parseId } from "@jotster/core/Jotster.Core.js";
@@ -40,7 +40,7 @@ const parseIdArray = (values: string[] | undefined): long[] | undefined => {
   return result;
 };
 const getAlternativeUrlTemplatesJson = (
-  body: Record<string, unknown>,
+  body: Record<string, JsValue>,
 ): string => {
   const explicit = getOptionalStringField(body, "alternative_url_templates");
   if (explicit !== undefined) {
@@ -50,8 +50,8 @@ const getAlternativeUrlTemplatesJson = (
   return JSON.stringify(values ?? ([] as string[]));
 };
 
-const mapLinkifiers = (entries: Linkifier[]): Record<string, unknown>[] => {
-  const result: Record<string, unknown>[] = [];
+const mapLinkifiers = (entries: Linkifier[]): Record<string, JsValue>[] => {
+  const result: Record<string, JsValue>[] = [];
   for (let i = 0; i < entries.length; i++) {
     result.push(mapLinkifierToCompatResponse(entries[i]));
   }
@@ -253,7 +253,7 @@ export const handleUpdateLinkifierCompat = async (
   }
 
   const body = getBodyObject(req);
-  const updateFilterId = normalizeFilterId(req.params["filter_id"] as string);
+  const updateFilterId = normalizeFilterId(req.param("filter_id") ?? "");
   if (updateFilterId === undefined) {
     res
       .status(404)
@@ -306,7 +306,7 @@ export const handleDeleteLinkifierCompat = async (
     return;
   }
 
-  const deleteFilterId = normalizeFilterId(req.params["filter_id"] as string);
+  const deleteFilterId = normalizeFilterId(req.param("filter_id") ?? "");
   if (deleteFilterId === undefined) {
     res
       .status(404)

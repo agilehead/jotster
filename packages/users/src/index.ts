@@ -41,3 +41,16 @@ export { updateCustomProfileFieldDomain } from "./domain/update-custom-profile-f
 export { deleteCustomProfileFieldDomain } from "./domain/delete-custom-profile-field-domain.ts";
 export { updateProfileDataDomain } from "./domain/update-profile-data-domain.ts";
 export { mapCustomProfileFieldToCompatRecord } from "./domain/map-custom-profile-field-to-compat-record.ts";
+
+// Custom Profile Fields - Types
+export type {
+  CreateBotDomainInput,
+  CreateBotDomainResult,
+  CreateUserDomainInput,
+  CreateUserInput,
+} from "./types/create-user.ts";
+
+export type {
+  ProfileDataValueInput,
+  ProfileDataUpdate,
+} from "./types/profile-data.ts";

@@ -1,8 +1,8 @@
-import type { int } from "@tsonic/core/types.js";
+import type { int, JsValue } from "@tsonic/core/types.js";
 import type { DbContextOptions } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import { JotsterDbContext, Subscription } from "@jotster/core/Jotster.Core.js";
 
-const toOptionalFlagInt = (value: unknown): int | undefined => {
+const toOptionalFlagInt = (value: JsValue): int | undefined => {
   if (value === undefined || value === null) {
     return undefined;
   }
@@ -19,7 +19,7 @@ export const updateSubscriptionProperty = async (
   options: DbContextOptions,
   subscriptionId: string,
   property: string,
-  value: unknown,
+  value: JsValue,
 ): Promise<Subscription | undefined> => {
   const db = new JotsterDbContext(options);
   try {
