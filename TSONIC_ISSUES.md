@@ -211,7 +211,7 @@ Fixed by tsonic@0.0.58 — the binding augmentation now generates type aliases f
 ### Issue 1: Generic arrow functions → converted to named functions
 ### Issue 2: `never` as generic param → modeled as explicit `Ok<T>` / `Err<E>` types
 ### Issue 3: `any` types → replaced with proper `@tsonic/express` and `@tsonic/nodejs` types
-### Issue 4: Missing `@tsonic/nodejs` → added to dependencies + `Tsonic.Nodejs` NuGet reference
+### Issue 4: Missing `@tsonic/nodejs` → added to dependencies and source-package wiring
 ### Issue 5: JS collections (Map, .push(), .sort()) → replaced with CLR `Dictionary<K,V>` and `List<T>`
 
 Additionally fixed:
