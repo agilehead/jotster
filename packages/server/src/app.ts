@@ -1,51 +1,57 @@
 import type { int } from "@tsonic/core/types.js";
 import { express } from "@tsonic/express/index.js";
-import { loadConfig, createDbOptions } from "@jotster/core/Jotster.Core.js";
-import { initRegistry } from "@jotster/event-queue/Jotster.EventQueue.js";
-import type { AppContext } from "./helpers/app-context.ts";
-import { toOptionalInt } from "./helpers/body.ts";
-import { registerRoutes } from "./routes/register-routes.ts";
+import { createAgentServerInfo, getAgentApiSurface } from "@jotster/api-agent";
+import { createNativeServerInfo, getNativeApiSurface } from "@jotster/api-native";
+import { createZulipServerSettings, getZulipApiSurface } from "@jotster/api-zulip";
+import { loadConfig } from "@jotster/core";
+import { initNotificationRegistry } from "@jotster/notifications";
+import {
+  createPublicErrorResponse,
+  getPublicErrorStatusCode,
+  getSecurityPipelineDescription,
+} from "./security-pipeline.ts";
 
 export function main(): void {
   const config = loadConfig();
-  const options = createDbOptions(config.database);
-
   const app = express.create();
 
-  // Initialize event queue system
-  initRegistry();
+  initNotificationRegistry();
+  app.use(express.json({ limit: config.maxJsonBodyBytes }));
 
-  // Body parsing middleware
-  app.use(express.json());
-  app.use(express.urlencoded());
-
-  // Health check
   app.get("/health", async (_req, res, _next) => {
-    res.json({ ok: true });
+    res.json({ ok: true, service: "jotster" });
   });
 
-  // App context with DB options and config
-  const ctx: AppContext = { options, config };
+  app.get("/api", async (_req, res, _next) => {
+    res.json({
+      product: "jotster",
+      mode: config.mode,
+      security: getSecurityPipelineDescription(),
+      apis: [getNativeApiSurface(), getAgentApiSurface(), getZulipApiSurface()],
+    });
+  });
 
-  // Register all routes
-  registerRoutes(app, ctx);
+  app.get("/api/native/v1/server", async (_req, res, _next) => {
+    res.json(createNativeServerInfo(config.mode));
+  });
 
-  // Error handler
+  app.get("/api/agent/v1/server", async (_req, res, _next) => {
+    res.json(createAgentServerInfo());
+  });
+
+  app.get("/api/zulip/v1/server_settings", async (_req, res, _next) => {
+    res.json(createZulipServerSettings());
+  });
+
   app.useError(async (err, _req, res, _next) => {
-    res
-      .status(500)
-      .json({ result: "error", msg: `Internal server error: ${String(err)}` });
+    const response = createPublicErrorResponse(err, config.production);
+    const statusCode = getPublicErrorStatusCode(err);
+    res.status(statusCode as int).json(response);
   });
 
-  // Parse port from listenUrl (e.g., "http://localhost:8080" -> 8080)
   const urlParts = config.listenUrl.split(":");
-  const parsedPort =
-    urlParts.length >= 3
-      ? toOptionalInt(urlParts[urlParts.length - 1])
-      : undefined;
-  if (urlParts.length >= 3 && parsedPort === undefined) {
-    throw new Error("Invalid listenUrl port");
-  }
-  const port = parsedPort ?? (8080 as int);
+  const lastPart = urlParts[urlParts.length - 1];
+  const parsedPort = Number.parseInt(lastPart, 10);
+  const port = Number.isNaN(parsedPort) ? (8080 as int) : (parsedPort as int);
   app.listen(port);
 }

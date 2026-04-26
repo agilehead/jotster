@@ -1,65 +1,73 @@
 import { asinterface } from "@tsonic/core/lang.js";
+import { Enumerable } from "@tsonic/dotnet/System.Linq.js";
 import type { ExtensionMethods as Linq } from "@tsonic/dotnet/System.Linq.js";
 import type { ExtensionMethods as Ef } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import {
   DbContext,
   DbContextOptions,
+  EntityState,
   ModelBuilder,
 } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import type { CancellationToken } from "@tsonic/dotnet/System.Threading.js";
 import type { DbSet } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type {
   EntityTypeBuilder,
   PropertyBuilder,
 } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.Metadata.Builders.js";
+import type {
+  AdminContext,
+  BootstrapContext,
+  RequestContext,
+} from "../types/request-context.ts";
+import { requireWorkspaceMatch, requireWorkspaceOwnedEntity } from "./workspace-owned.ts";
+import type { WorkspaceOwnedEntity } from "./workspace-owned.ts";
 
-import type { Tenant } from "./entities/tenant.ts";
-import type { User } from "./entities/user.ts";
-import type { UserSetting } from "./entities/user-setting.ts";
-import type { ApiKey } from "./entities/api-key.ts";
+import type { Workspace } from "./entities/workspace.ts";
+import type { WorkspaceDomain } from "./entities/workspace-domain.ts";
+import type { Identity } from "./entities/identity.ts";
+import type { HumanProfile } from "./entities/human-profile.ts";
+import type { AgentProfile } from "./entities/agent-profile.ts";
+import type { AuthProvider } from "./entities/auth-provider.ts";
+import type { ExternalIdentity } from "./entities/external-identity.ts";
+import type { AuthSession } from "./entities/auth-session.ts";
+import type { ApiCredential } from "./entities/api-credential.ts";
+import type { WorkspaceMember } from "./entities/workspace-member.ts";
+import type { Participant } from "./entities/participant.ts";
+import type { ParticipantPreference } from "./entities/participant-preference.ts";
+import type { Role } from "./entities/role.ts";
+import type { ParticipantRole } from "./entities/participant-role.ts";
+import type { Group } from "./entities/group.ts";
+import type { GroupMember } from "./entities/group-member.ts";
+import type { GroupChild } from "./entities/group-child.ts";
+import type { PermissionGrant } from "./entities/permission-grant.ts";
 import type { Channel } from "./entities/channel.ts";
-import type { DefaultChannel } from "./entities/default-channel.ts";
-import type { DefaultChannelGroup } from "./entities/default-channel-group.ts";
-import type { DefaultChannelGroupItem } from "./entities/default-channel-group-item.ts";
-import type { Subscription } from "./entities/subscription.ts";
+import type { ChannelMember } from "./entities/channel-member.ts";
+import type { Thread } from "./entities/thread.ts";
+import type { DirectChat } from "./entities/direct-chat.ts";
+import type { DirectChatMember } from "./entities/direct-chat-member.ts";
 import type { Message } from "./entities/message.ts";
-import type { MessageEditHistory } from "./entities/message-edit-history.ts";
-import type { MessageFlag } from "./entities/message-flag.ts";
-import type { DmGroup } from "./entities/dm-group.ts";
-import type { DmGroupMember } from "./entities/dm-group-member.ts";
+import type { MessageVersion } from "./entities/message-version.ts";
+import type { MessageMarker } from "./entities/message-marker.ts";
 import type { Reaction } from "./entities/reaction.ts";
-import type { Presence } from "./entities/presence.ts";
-import type { UserStatus } from "./entities/user-status.ts";
-import type { UserGroup } from "./entities/user-group.ts";
-import type { UserGroupMember } from "./entities/user-group-member.ts";
-import type { UserGroupSubgroup } from "./entities/user-group-subgroup.ts";
-import type { MutedUser } from "./entities/muted-user.ts";
-import type { UserTopic } from "./entities/user-topic.ts";
-import type { ChannelFolder } from "./entities/channel-folder.ts";
-import type { ChannelFolderItem } from "./entities/channel-folder-item.ts";
 import type { Attachment } from "./entities/attachment.ts";
-import type { AttachmentMessage } from "./entities/attachment-message.ts";
-import type { CustomEmoji } from "./entities/custom-emoji.ts";
-import type { CustomProfileField } from "./entities/custom-profile-field.ts";
-import type { CustomProfileFieldValue } from "./entities/custom-profile-field-value.ts";
-import type { Draft } from "./entities/draft.ts";
-import type { SavedSnippet } from "./entities/saved-snippet.ts";
-import type { Reminder } from "./entities/reminder.ts";
-import type { ScheduledMessage } from "./entities/scheduled-message.ts";
-import type { NavigationView } from "./entities/navigation-view.ts";
-import type { Linkifier } from "./entities/linkifier.ts";
-import type { AlertWord } from "./entities/alert-word.ts";
-import type { RealmDomain } from "./entities/realm-domain.ts";
-import type { TenantUserSettingDefault } from "./entities/tenant-user-setting-default.ts";
-import type { Invitation } from "./entities/invitation.ts";
-import type { OutgoingWebhook } from "./entities/outgoing-webhook.ts";
-import type { BotStorage } from "./entities/bot-storage.ts";
-import type { DataExport } from "./entities/data-export.ts";
-import type { PushDeviceToken } from "./entities/push-device-token.ts";
-import type { ClientDevice } from "./entities/client-device.ts";
+import type { Emoji } from "./entities/emoji.ts";
+import type { ProfileField } from "./entities/profile-field.ts";
+import type { ParticipantProfileFieldValue } from "./entities/participant-profile-field-value.ts";
+import type { WorkspaceMemberDefault } from "./entities/workspace-member-default.ts";
+import type { Webhook } from "./entities/webhook.ts";
+import type { DeviceToken } from "./entities/device-token.ts";
+import type { AuditEvent } from "./entities/audit-event.ts";
+import type { Notification } from "./entities/notification.ts";
+import type { NotificationEndpoint } from "./entities/notification-endpoint.ts";
+import type { NotificationDelivery } from "./entities/notification-delivery.ts";
 
 type DbSetQuery<T> = Ef<Linq<DbSet<T>>>;
 type RelationalEntityTypeBuilder = Ef<EntityTypeBuilder>;
 type RelationalPropertyBuilder = Ef<PropertyBuilder>;
+
+interface QueryFilteredEntityTypeBuilder<T> {
+  HasQueryFilter(predicate: (entity: T) => boolean): EntityTypeBuilder;
+}
 
 function toSnakeCase(name: string): string {
   let result = "";
@@ -98,265 +106,358 @@ function configureRelationalNames(builder: EntityTypeBuilder): void {
   }
 }
 
-export class JotsterDbContext extends DbContext {
-  get Tenants(): DbSetQuery<Tenant> {
-    return asinterface<DbSetQuery<Tenant>>(this.Set<Tenant>());
+function configureWorkspaceFilter<T extends WorkspaceOwnedEntity>(
+  modelBuilder: ModelBuilder,
+  workspaceId: string,
+): void {
+  const builder = asinterface<QueryFilteredEntityTypeBuilder<T>>(
+    modelBuilder.Entity<T>(),
+  );
+  builder.HasQueryFilter((entity) => entity.WorkspaceId === workspaceId);
+}
+
+function configureWorkspaceFilters(
+  modelBuilder: ModelBuilder,
+  workspaceId: string,
+): void {
+  configureWorkspaceFilter<AuthProvider>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<ExternalIdentity>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<AuthSession>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<ApiCredential>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<WorkspaceMember>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Participant>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<ParticipantPreference>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Role>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<ParticipantRole>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Group>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<GroupMember>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<GroupChild>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<PermissionGrant>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Channel>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<ChannelMember>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Thread>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<DirectChat>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<DirectChatMember>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Message>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<MessageVersion>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<MessageMarker>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Reaction>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Attachment>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Emoji>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<ProfileField>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<ParticipantProfileFieldValue>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<WorkspaceMemberDefault>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Webhook>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<DeviceToken>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<AuditEvent>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<Notification>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<NotificationEndpoint>(modelBuilder, workspaceId);
+  configureWorkspaceFilter<NotificationDelivery>(modelBuilder, workspaceId);
+}
+
+export abstract class JotsterDbContext extends DbContext {
+  get Workspaces(): DbSetQuery<Workspace> {
+    return asinterface<DbSetQuery<Workspace>>(this.Set<Workspace>());
   }
 
-  get Users(): DbSetQuery<User> {
-    return asinterface<DbSetQuery<User>>(this.Set<User>());
+  get WorkspaceDomains(): DbSetQuery<WorkspaceDomain> {
+    return asinterface<DbSetQuery<WorkspaceDomain>>(this.Set<WorkspaceDomain>());
   }
 
-  get UserSettings(): DbSetQuery<UserSetting> {
-    return asinterface<DbSetQuery<UserSetting>>(this.Set<UserSetting>());
+  get Identities(): DbSetQuery<Identity> {
+    return asinterface<DbSetQuery<Identity>>(this.Set<Identity>());
   }
 
-  get ApiKeys(): DbSetQuery<ApiKey> {
-    return asinterface<DbSetQuery<ApiKey>>(this.Set<ApiKey>());
+  get HumanProfiles(): DbSetQuery<HumanProfile> {
+    return asinterface<DbSetQuery<HumanProfile>>(this.Set<HumanProfile>());
+  }
+
+  get AgentProfiles(): DbSetQuery<AgentProfile> {
+    return asinterface<DbSetQuery<AgentProfile>>(this.Set<AgentProfile>());
+  }
+
+  get AuthProviders(): DbSetQuery<AuthProvider> {
+    return asinterface<DbSetQuery<AuthProvider>>(this.Set<AuthProvider>());
+  }
+
+  get ExternalIdentities(): DbSetQuery<ExternalIdentity> {
+    return asinterface<DbSetQuery<ExternalIdentity>>(this.Set<ExternalIdentity>());
+  }
+
+  get AuthSessions(): DbSetQuery<AuthSession> {
+    return asinterface<DbSetQuery<AuthSession>>(this.Set<AuthSession>());
+  }
+
+  get ApiCredentials(): DbSetQuery<ApiCredential> {
+    return asinterface<DbSetQuery<ApiCredential>>(this.Set<ApiCredential>());
+  }
+
+  get WorkspaceMembers(): DbSetQuery<WorkspaceMember> {
+    return asinterface<DbSetQuery<WorkspaceMember>>(this.Set<WorkspaceMember>());
+  }
+
+  get Participants(): DbSetQuery<Participant> {
+    return asinterface<DbSetQuery<Participant>>(this.Set<Participant>());
+  }
+
+  get ParticipantPreferences(): DbSetQuery<ParticipantPreference> {
+    return asinterface<DbSetQuery<ParticipantPreference>>(this.Set<ParticipantPreference>());
+  }
+
+  get Roles(): DbSetQuery<Role> {
+    return asinterface<DbSetQuery<Role>>(this.Set<Role>());
+  }
+
+  get ParticipantRoles(): DbSetQuery<ParticipantRole> {
+    return asinterface<DbSetQuery<ParticipantRole>>(this.Set<ParticipantRole>());
+  }
+
+  get Groups(): DbSetQuery<Group> {
+    return asinterface<DbSetQuery<Group>>(this.Set<Group>());
+  }
+
+  get GroupMembers(): DbSetQuery<GroupMember> {
+    return asinterface<DbSetQuery<GroupMember>>(this.Set<GroupMember>());
+  }
+
+  get GroupChildren(): DbSetQuery<GroupChild> {
+    return asinterface<DbSetQuery<GroupChild>>(this.Set<GroupChild>());
+  }
+
+  get PermissionGrants(): DbSetQuery<PermissionGrant> {
+    return asinterface<DbSetQuery<PermissionGrant>>(this.Set<PermissionGrant>());
   }
 
   get Channels(): DbSetQuery<Channel> {
     return asinterface<DbSetQuery<Channel>>(this.Set<Channel>());
   }
 
-  get DefaultChannels(): DbSetQuery<DefaultChannel> {
-    return asinterface<DbSetQuery<DefaultChannel>>(this.Set<DefaultChannel>());
+  get ChannelMembers(): DbSetQuery<ChannelMember> {
+    return asinterface<DbSetQuery<ChannelMember>>(this.Set<ChannelMember>());
   }
 
-  get DefaultChannelGroups(): DbSetQuery<DefaultChannelGroup> {
-    return asinterface<DbSetQuery<DefaultChannelGroup>>(
-      this.Set<DefaultChannelGroup>(),
-    );
+  get Threads(): DbSetQuery<Thread> {
+    return asinterface<DbSetQuery<Thread>>(this.Set<Thread>());
   }
 
-  get DefaultChannelGroupItems(): DbSetQuery<DefaultChannelGroupItem> {
-    return asinterface<DbSetQuery<DefaultChannelGroupItem>>(
-      this.Set<DefaultChannelGroupItem>(),
-    );
+  get DirectChats(): DbSetQuery<DirectChat> {
+    return asinterface<DbSetQuery<DirectChat>>(this.Set<DirectChat>());
   }
 
-  get Subscriptions(): DbSetQuery<Subscription> {
-    return asinterface<DbSetQuery<Subscription>>(this.Set<Subscription>());
+  get DirectChatMembers(): DbSetQuery<DirectChatMember> {
+    return asinterface<DbSetQuery<DirectChatMember>>(this.Set<DirectChatMember>());
   }
 
   get Messages(): DbSetQuery<Message> {
     return asinterface<DbSetQuery<Message>>(this.Set<Message>());
   }
 
-  get MessageEditHistories(): DbSetQuery<MessageEditHistory> {
-    return asinterface<DbSetQuery<MessageEditHistory>>(
-      this.Set<MessageEditHistory>(),
-    );
+  get MessageVersions(): DbSetQuery<MessageVersion> {
+    return asinterface<DbSetQuery<MessageVersion>>(this.Set<MessageVersion>());
   }
 
-  get MessageFlags(): DbSetQuery<MessageFlag> {
-    return asinterface<DbSetQuery<MessageFlag>>(this.Set<MessageFlag>());
-  }
-
-  get DmGroups(): DbSetQuery<DmGroup> {
-    return asinterface<DbSetQuery<DmGroup>>(this.Set<DmGroup>());
-  }
-
-  get DmGroupMembers(): DbSetQuery<DmGroupMember> {
-    return asinterface<DbSetQuery<DmGroupMember>>(this.Set<DmGroupMember>());
+  get MessageMarkers(): DbSetQuery<MessageMarker> {
+    return asinterface<DbSetQuery<MessageMarker>>(this.Set<MessageMarker>());
   }
 
   get Reactions(): DbSetQuery<Reaction> {
     return asinterface<DbSetQuery<Reaction>>(this.Set<Reaction>());
   }
 
-  get Presences(): DbSetQuery<Presence> {
-    return asinterface<DbSetQuery<Presence>>(this.Set<Presence>());
-  }
-
-  get UserStatuses(): DbSetQuery<UserStatus> {
-    return asinterface<DbSetQuery<UserStatus>>(this.Set<UserStatus>());
-  }
-
-  get UserGroups(): DbSetQuery<UserGroup> {
-    return asinterface<DbSetQuery<UserGroup>>(this.Set<UserGroup>());
-  }
-
-  get UserGroupMembers(): DbSetQuery<UserGroupMember> {
-    return asinterface<DbSetQuery<UserGroupMember>>(
-      this.Set<UserGroupMember>(),
-    );
-  }
-
-  get UserGroupSubgroups(): DbSetQuery<UserGroupSubgroup> {
-    return asinterface<DbSetQuery<UserGroupSubgroup>>(
-      this.Set<UserGroupSubgroup>(),
-    );
-  }
-
-  get MutedUsers(): DbSetQuery<MutedUser> {
-    return asinterface<DbSetQuery<MutedUser>>(this.Set<MutedUser>());
-  }
-
-  get UserTopics(): DbSetQuery<UserTopic> {
-    return asinterface<DbSetQuery<UserTopic>>(this.Set<UserTopic>());
-  }
-
-  get ChannelFolders(): DbSetQuery<ChannelFolder> {
-    return asinterface<DbSetQuery<ChannelFolder>>(this.Set<ChannelFolder>());
-  }
-
-  get ChannelFolderItems(): DbSetQuery<ChannelFolderItem> {
-    return asinterface<DbSetQuery<ChannelFolderItem>>(
-      this.Set<ChannelFolderItem>(),
-    );
-  }
-
   get Attachments(): DbSetQuery<Attachment> {
     return asinterface<DbSetQuery<Attachment>>(this.Set<Attachment>());
   }
 
-  get AttachmentMessages(): DbSetQuery<AttachmentMessage> {
-    return asinterface<DbSetQuery<AttachmentMessage>>(
-      this.Set<AttachmentMessage>(),
-    );
+  get Emojis(): DbSetQuery<Emoji> {
+    return asinterface<DbSetQuery<Emoji>>(this.Set<Emoji>());
   }
 
-  get CustomEmojis(): DbSetQuery<CustomEmoji> {
-    return asinterface<DbSetQuery<CustomEmoji>>(this.Set<CustomEmoji>());
+  get ProfileFields(): DbSetQuery<ProfileField> {
+    return asinterface<DbSetQuery<ProfileField>>(this.Set<ProfileField>());
   }
 
-  get CustomProfileFields(): DbSetQuery<CustomProfileField> {
-    return asinterface<DbSetQuery<CustomProfileField>>(
-      this.Set<CustomProfileField>(),
-    );
+  get ParticipantProfileFieldValues(): DbSetQuery<ParticipantProfileFieldValue> {
+    return asinterface<DbSetQuery<ParticipantProfileFieldValue>>(this.Set<ParticipantProfileFieldValue>());
   }
 
-  get CustomProfileFieldValues(): DbSetQuery<CustomProfileFieldValue> {
-    return asinterface<DbSetQuery<CustomProfileFieldValue>>(
-      this.Set<CustomProfileFieldValue>(),
-    );
+  get WorkspaceMemberDefaults(): DbSetQuery<WorkspaceMemberDefault> {
+    return asinterface<DbSetQuery<WorkspaceMemberDefault>>(this.Set<WorkspaceMemberDefault>());
   }
 
-  get Drafts(): DbSetQuery<Draft> {
-    return asinterface<DbSetQuery<Draft>>(this.Set<Draft>());
+  get Webhooks(): DbSetQuery<Webhook> {
+    return asinterface<DbSetQuery<Webhook>>(this.Set<Webhook>());
   }
 
-  get SavedSnippets(): DbSetQuery<SavedSnippet> {
-    return asinterface<DbSetQuery<SavedSnippet>>(this.Set<SavedSnippet>());
+  get DeviceTokens(): DbSetQuery<DeviceToken> {
+    return asinterface<DbSetQuery<DeviceToken>>(this.Set<DeviceToken>());
   }
 
-  get Reminders(): DbSetQuery<Reminder> {
-    return asinterface<DbSetQuery<Reminder>>(this.Set<Reminder>());
+  get AuditEvents(): DbSetQuery<AuditEvent> {
+    return asinterface<DbSetQuery<AuditEvent>>(this.Set<AuditEvent>());
   }
 
-  get ScheduledMessages(): DbSetQuery<ScheduledMessage> {
-    return asinterface<DbSetQuery<ScheduledMessage>>(
-      this.Set<ScheduledMessage>(),
-    );
+  get Notifications(): DbSetQuery<Notification> {
+    return asinterface<DbSetQuery<Notification>>(this.Set<Notification>());
   }
 
-  get NavigationViews(): DbSetQuery<NavigationView> {
-    return asinterface<DbSetQuery<NavigationView>>(this.Set<NavigationView>());
+  get NotificationEndpoints(): DbSetQuery<NotificationEndpoint> {
+    return asinterface<DbSetQuery<NotificationEndpoint>>(this.Set<NotificationEndpoint>());
   }
 
-  get Linkifiers(): DbSetQuery<Linkifier> {
-    return asinterface<DbSetQuery<Linkifier>>(this.Set<Linkifier>());
+  get NotificationDeliveries(): DbSetQuery<NotificationDelivery> {
+    return asinterface<DbSetQuery<NotificationDelivery>>(this.Set<NotificationDelivery>());
   }
 
-  get AlertWords(): DbSetQuery<AlertWord> {
-    return asinterface<DbSetQuery<AlertWord>>(this.Set<AlertWord>());
-  }
-
-  get RealmDomains(): DbSetQuery<RealmDomain> {
-    return asinterface<DbSetQuery<RealmDomain>>(this.Set<RealmDomain>());
-  }
-
-  get TenantUserSettingDefaults(): DbSetQuery<TenantUserSettingDefault> {
-    return asinterface<DbSetQuery<TenantUserSettingDefault>>(
-      this.Set<TenantUserSettingDefault>(),
-    );
-  }
-
-  get Invitations(): DbSetQuery<Invitation> {
-    return asinterface<DbSetQuery<Invitation>>(this.Set<Invitation>());
-  }
-
-  get OutgoingWebhooks(): DbSetQuery<OutgoingWebhook> {
-    return asinterface<DbSetQuery<OutgoingWebhook>>(
-      this.Set<OutgoingWebhook>(),
-    );
-  }
-
-  get BotStorages(): DbSetQuery<BotStorage> {
-    return asinterface<DbSetQuery<BotStorage>>(this.Set<BotStorage>());
-  }
-
-  get DataExports(): DbSetQuery<DataExport> {
-    return asinterface<DbSetQuery<DataExport>>(this.Set<DataExport>());
-  }
-
-  get PushDeviceTokens(): DbSetQuery<PushDeviceToken> {
-    return asinterface<DbSetQuery<PushDeviceToken>>(
-      this.Set<PushDeviceToken>(),
-    );
-  }
-
-  get ClientDevices(): DbSetQuery<ClientDevice> {
-    return asinterface<DbSetQuery<ClientDevice>>(this.Set<ClientDevice>());
-  }
-
-  constructor(options: DbContextOptions) {
+  protected constructor(options: DbContextOptions) {
     super(options);
   }
 
   override OnModelCreating(modelBuilder: ModelBuilder): void {
     super.OnModelCreating(modelBuilder);
 
-    configureRelationalNames(modelBuilder.Entity<Tenant>());
-    configureRelationalNames(modelBuilder.Entity<User>());
-    configureRelationalNames(modelBuilder.Entity<UserSetting>());
-    configureRelationalNames(modelBuilder.Entity<ApiKey>());
+    configureRelationalNames(modelBuilder.Entity<Workspace>());
+    configureRelationalNames(modelBuilder.Entity<WorkspaceDomain>());
+    configureRelationalNames(modelBuilder.Entity<Identity>());
+    configureRelationalNames(modelBuilder.Entity<HumanProfile>());
+    configureRelationalNames(modelBuilder.Entity<AgentProfile>());
+    configureRelationalNames(modelBuilder.Entity<AuthProvider>());
+    configureRelationalNames(modelBuilder.Entity<ExternalIdentity>());
+    configureRelationalNames(modelBuilder.Entity<AuthSession>());
+    configureRelationalNames(modelBuilder.Entity<ApiCredential>());
+    configureRelationalNames(modelBuilder.Entity<WorkspaceMember>());
+    configureRelationalNames(modelBuilder.Entity<Participant>());
+    configureRelationalNames(modelBuilder.Entity<ParticipantPreference>());
+    configureRelationalNames(modelBuilder.Entity<Role>());
+    configureRelationalNames(modelBuilder.Entity<ParticipantRole>());
+    configureRelationalNames(modelBuilder.Entity<Group>());
+    configureRelationalNames(modelBuilder.Entity<GroupMember>());
+    configureRelationalNames(modelBuilder.Entity<GroupChild>());
+    configureRelationalNames(modelBuilder.Entity<PermissionGrant>());
     configureRelationalNames(modelBuilder.Entity<Channel>());
-    configureRelationalNames(modelBuilder.Entity<DefaultChannel>());
-    configureRelationalNames(modelBuilder.Entity<DefaultChannelGroup>());
-    configureRelationalNames(modelBuilder.Entity<DefaultChannelGroupItem>());
-    configureRelationalNames(modelBuilder.Entity<Subscription>());
+    configureRelationalNames(modelBuilder.Entity<ChannelMember>());
+    configureRelationalNames(modelBuilder.Entity<Thread>());
+    configureRelationalNames(modelBuilder.Entity<DirectChat>());
+    configureRelationalNames(modelBuilder.Entity<DirectChatMember>());
     configureRelationalNames(modelBuilder.Entity<Message>());
-    configureRelationalNames(modelBuilder.Entity<MessageEditHistory>());
-    configureRelationalNames(modelBuilder.Entity<MessageFlag>());
-    configureRelationalNames(modelBuilder.Entity<DmGroup>());
-    configureRelationalNames(modelBuilder.Entity<DmGroupMember>());
+    configureRelationalNames(modelBuilder.Entity<MessageVersion>());
+    configureRelationalNames(modelBuilder.Entity<MessageMarker>());
     configureRelationalNames(modelBuilder.Entity<Reaction>());
-    configureRelationalNames(modelBuilder.Entity<Presence>());
-    configureRelationalNames(modelBuilder.Entity<UserStatus>());
-    configureRelationalNames(modelBuilder.Entity<UserGroup>());
-    configureRelationalNames(modelBuilder.Entity<UserGroupMember>());
-    configureRelationalNames(modelBuilder.Entity<UserGroupSubgroup>());
-    configureRelationalNames(modelBuilder.Entity<MutedUser>());
-    configureRelationalNames(modelBuilder.Entity<UserTopic>());
-    configureRelationalNames(modelBuilder.Entity<ChannelFolder>());
-    configureRelationalNames(modelBuilder.Entity<ChannelFolderItem>());
     configureRelationalNames(modelBuilder.Entity<Attachment>());
-    configureRelationalNames(modelBuilder.Entity<AttachmentMessage>());
-    configureRelationalNames(modelBuilder.Entity<CustomEmoji>());
-    configureRelationalNames(modelBuilder.Entity<CustomProfileField>());
-    configureRelationalNames(modelBuilder.Entity<CustomProfileFieldValue>());
-    configureRelationalNames(modelBuilder.Entity<Draft>());
-    configureRelationalNames(modelBuilder.Entity<SavedSnippet>());
-    configureRelationalNames(modelBuilder.Entity<Reminder>());
-    configureRelationalNames(modelBuilder.Entity<ScheduledMessage>());
-    configureRelationalNames(modelBuilder.Entity<NavigationView>());
-    configureRelationalNames(modelBuilder.Entity<Linkifier>());
-    configureRelationalNames(modelBuilder.Entity<AlertWord>());
-    configureRelationalNames(modelBuilder.Entity<RealmDomain>());
-    configureRelationalNames(modelBuilder.Entity<TenantUserSettingDefault>());
-    configureRelationalNames(modelBuilder.Entity<Invitation>());
-    configureRelationalNames(modelBuilder.Entity<OutgoingWebhook>());
-    configureRelationalNames(modelBuilder.Entity<BotStorage>());
-    configureRelationalNames(modelBuilder.Entity<DataExport>());
-    configureRelationalNames(modelBuilder.Entity<PushDeviceToken>());
-    configureRelationalNames(modelBuilder.Entity<ClientDevice>());
+    configureRelationalNames(modelBuilder.Entity<Emoji>());
+    configureRelationalNames(modelBuilder.Entity<ProfileField>());
+    configureRelationalNames(modelBuilder.Entity<ParticipantProfileFieldValue>());
+    configureRelationalNames(modelBuilder.Entity<WorkspaceMemberDefault>());
+    configureRelationalNames(modelBuilder.Entity<Webhook>());
+    configureRelationalNames(modelBuilder.Entity<DeviceToken>());
+    configureRelationalNames(modelBuilder.Entity<AuditEvent>());
+    configureRelationalNames(modelBuilder.Entity<Notification>());
+    configureRelationalNames(modelBuilder.Entity<NotificationEndpoint>());
+    configureRelationalNames(modelBuilder.Entity<NotificationDelivery>());
   }
 }
 
-export function createJotsterDbContext(
+export class JotsterWorkspaceDbContext extends JotsterDbContext {
+  CurrentWorkspaceId!: string;
+
+  constructor(options: DbContextOptions, workspaceId: string) {
+    super(options);
+    this.CurrentWorkspaceId = workspaceId;
+  }
+
+  override OnModelCreating(modelBuilder: ModelBuilder): void {
+    super.OnModelCreating(modelBuilder);
+    configureWorkspaceFilters(modelBuilder, this.CurrentWorkspaceId);
+  }
+
+  RequireWorkspace(workspaceId: string): void {
+    requireWorkspaceMatch(this.CurrentWorkspaceId, workspaceId);
+  }
+
+  ValidateWorkspaceOwnedEntity(entity: WorkspaceOwnedEntity): void {
+    requireWorkspaceMatch(this.CurrentWorkspaceId, entity.WorkspaceId);
+  }
+
+  ValidateWorkspaceWrites(): void {
+    const entries = Enumerable.ToArray(this.ChangeTracker.Entries());
+    for (let index = 0; index < entries.length; index++) {
+      const entry = entries[index];
+      if (
+        entry.State === EntityState.Added ||
+        entry.State === EntityState.Modified ||
+        entry.State === EntityState.Deleted
+      ) {
+        requireWorkspaceOwnedEntity(this.CurrentWorkspaceId, entry.Entity);
+      }
+    }
+  }
+
+  override SaveChanges(acceptAllChangesOnSuccess?: boolean): number {
+    this.ValidateWorkspaceWrites();
+    if (acceptAllChangesOnSuccess === undefined) {
+      return super.SaveChanges();
+    }
+    return super.SaveChanges(acceptAllChangesOnSuccess);
+  }
+
+  override SaveChangesAsync(
+    acceptAllChangesOnSuccessOrCancellationToken?: boolean | CancellationToken,
+    cancellationToken?: CancellationToken,
+  ) {
+    this.ValidateWorkspaceWrites();
+    if (acceptAllChangesOnSuccessOrCancellationToken === undefined) {
+      return super.SaveChangesAsync();
+    }
+    if (typeof acceptAllChangesOnSuccessOrCancellationToken === "boolean") {
+      if (cancellationToken === undefined) {
+        return super.SaveChangesAsync(acceptAllChangesOnSuccessOrCancellationToken);
+      }
+      return super.SaveChangesAsync(
+        acceptAllChangesOnSuccessOrCancellationToken,
+        cancellationToken,
+      );
+    }
+    return super.SaveChangesAsync(acceptAllChangesOnSuccessOrCancellationToken);
+  }
+}
+
+export class JotsterAdminDbContext extends JotsterDbContext {
+  Admin!: AdminContext;
+
+  constructor(options: DbContextOptions, adminContext: AdminContext) {
+    super(options);
+    this.Admin = adminContext;
+  }
+}
+
+export class JotsterBootstrapDbContext extends JotsterDbContext {
+  Bootstrap?: BootstrapContext;
+
+  constructor(options: DbContextOptions, bootstrapContext?: BootstrapContext) {
+    super(options);
+    this.Bootstrap = bootstrapContext;
+  }
+}
+
+export function createWorkspaceDbContext(
   options: DbContextOptions,
-): JotsterDbContext {
-  return new JotsterDbContext(options);
+  context: RequestContext,
+): JotsterWorkspaceDbContext {
+  return new JotsterWorkspaceDbContext(options, context.WorkspaceId);
+}
+
+export function createAdminDbContext(
+  options: DbContextOptions,
+  adminContext: AdminContext,
+): JotsterAdminDbContext {
+  if (adminContext.Reason.trim().length === 0) {
+    throw new Error("Admin context requires an audit reason");
+  }
+  return new JotsterAdminDbContext(options, adminContext);
+}
+
+export function createBootstrapDbContext(
+  options: DbContextOptions,
+  bootstrapContext?: BootstrapContext,
+): JotsterBootstrapDbContext {
+  return new JotsterBootstrapDbContext(options, bootstrapContext);
 }

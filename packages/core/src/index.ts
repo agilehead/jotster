@@ -1,80 +1,80 @@
 import "./db/design-time-dbcontext-factory.ts";
 
-// Types
 export { ok, err } from "./types/result.ts";
 export type { Result, Ok, Err } from "./types/result.ts";
-export { AuthenticatedUser } from "./types/authenticated-user.ts";
-export type {
-  ZulipSuccessResponse,
-  ZulipErrorResponse,
-  ZulipResponse,
-} from "./types/zulip-response.ts";
+export {
+  AdminContext,
+  BootstrapContext,
+  RequestContext,
+  WorkspaceContext,
+} from "./types/request-context.ts";
 
-// Config
 export { ServerConfig } from "./config/server-config.ts";
-export { loadConfig } from "./config/load-config.ts";
+export { loadConfig, validateConfig } from "./config/load-config.ts";
 
-// Utilities
 export { generateId } from "./generate-id.ts";
 export { parseId } from "./public-ids.ts";
 
-// Constants
 export {
-  ZULIP_VERSION,
-  ZULIP_FEATURE_LEVEL,
   SERVER_GENERATION,
   MAX_MESSAGE_LENGTH,
-  MAX_TOPIC_LENGTH,
+  MAX_THREAD_TITLE_LENGTH,
   MAX_CHANNEL_NAME_LENGTH,
   MAX_CHANNEL_DESCRIPTION_LENGTH,
 } from "./constants.ts";
 
-// Database
 export { createDbOptions } from "./db/create-db-options.ts";
-export { JotsterDbContext } from "./db/jotster-db-context.ts";
+export {
+  JotsterAdminDbContext,
+  JotsterBootstrapDbContext,
+  JotsterWorkspaceDbContext,
+  createAdminDbContext,
+  createBootstrapDbContext,
+  createWorkspaceDbContext,
+} from "./db/jotster-db-context.ts";
+export {
+  WORKSPACE_OWNED_ENTITY_NAMES,
+  isWorkspaceOwnedEntity,
+  requireWorkspaceOwnedEntity,
+  requireWorkspaceMatch,
+} from "./db/workspace-owned.ts";
+export type { WorkspaceOwnedEntity } from "./db/workspace-owned.ts";
 
-// Entities
-export { Tenant } from "./db/entities/tenant.ts";
-export { User } from "./db/entities/user.ts";
-export { UserSetting } from "./db/entities/user-setting.ts";
-export { ApiKey } from "./db/entities/api-key.ts";
+export { Workspace } from "./db/entities/workspace.ts";
+export { WorkspaceDomain } from "./db/entities/workspace-domain.ts";
+export { Identity } from "./db/entities/identity.ts";
+export { HumanProfile } from "./db/entities/human-profile.ts";
+export { AgentProfile } from "./db/entities/agent-profile.ts";
+export { AuthProvider } from "./db/entities/auth-provider.ts";
+export { ExternalIdentity } from "./db/entities/external-identity.ts";
+export { AuthSession } from "./db/entities/auth-session.ts";
+export { ApiCredential } from "./db/entities/api-credential.ts";
+export { WorkspaceMember } from "./db/entities/workspace-member.ts";
+export { Participant } from "./db/entities/participant.ts";
+export { ParticipantPreference } from "./db/entities/participant-preference.ts";
+export { Role } from "./db/entities/role.ts";
+export { ParticipantRole } from "./db/entities/participant-role.ts";
+export { Group } from "./db/entities/group.ts";
+export { GroupMember } from "./db/entities/group-member.ts";
+export { GroupChild } from "./db/entities/group-child.ts";
+export { PermissionGrant } from "./db/entities/permission-grant.ts";
 export { Channel } from "./db/entities/channel.ts";
-export { DefaultChannel } from "./db/entities/default-channel.ts";
-export { DefaultChannelGroup } from "./db/entities/default-channel-group.ts";
-export { DefaultChannelGroupItem } from "./db/entities/default-channel-group-item.ts";
-export { Subscription } from "./db/entities/subscription.ts";
+export { ChannelMember } from "./db/entities/channel-member.ts";
+export { Thread } from "./db/entities/thread.ts";
+export { DirectChat } from "./db/entities/direct-chat.ts";
+export { DirectChatMember } from "./db/entities/direct-chat-member.ts";
 export { Message } from "./db/entities/message.ts";
-export { MessageEditHistory } from "./db/entities/message-edit-history.ts";
-export { MessageFlag } from "./db/entities/message-flag.ts";
-export { DmGroup } from "./db/entities/dm-group.ts";
-export { DmGroupMember } from "./db/entities/dm-group-member.ts";
+export { MessageVersion } from "./db/entities/message-version.ts";
+export { MessageMarker } from "./db/entities/message-marker.ts";
 export { Reaction } from "./db/entities/reaction.ts";
-export { Presence } from "./db/entities/presence.ts";
-export { UserStatus } from "./db/entities/user-status.ts";
-export { UserGroup } from "./db/entities/user-group.ts";
-export { UserGroupMember } from "./db/entities/user-group-member.ts";
-export { UserGroupSubgroup } from "./db/entities/user-group-subgroup.ts";
-export { MutedUser } from "./db/entities/muted-user.ts";
-export { UserTopic } from "./db/entities/user-topic.ts";
-export { ChannelFolder } from "./db/entities/channel-folder.ts";
-export { ChannelFolderItem } from "./db/entities/channel-folder-item.ts";
 export { Attachment } from "./db/entities/attachment.ts";
-export { AttachmentMessage } from "./db/entities/attachment-message.ts";
-export { CustomEmoji } from "./db/entities/custom-emoji.ts";
-export { CustomProfileField } from "./db/entities/custom-profile-field.ts";
-export { CustomProfileFieldValue } from "./db/entities/custom-profile-field-value.ts";
-export { Draft } from "./db/entities/draft.ts";
-export { SavedSnippet } from "./db/entities/saved-snippet.ts";
-export { Reminder } from "./db/entities/reminder.ts";
-export { ScheduledMessage } from "./db/entities/scheduled-message.ts";
-export { NavigationView } from "./db/entities/navigation-view.ts";
-export { Linkifier } from "./db/entities/linkifier.ts";
-export { AlertWord } from "./db/entities/alert-word.ts";
-export { RealmDomain } from "./db/entities/realm-domain.ts";
-export { TenantUserSettingDefault } from "./db/entities/tenant-user-setting-default.ts";
-export { Invitation } from "./db/entities/invitation.ts";
-export { OutgoingWebhook } from "./db/entities/outgoing-webhook.ts";
-export { BotStorage } from "./db/entities/bot-storage.ts";
-export { DataExport } from "./db/entities/data-export.ts";
-export { PushDeviceToken } from "./db/entities/push-device-token.ts";
-export { ClientDevice } from "./db/entities/client-device.ts";
+export { Emoji } from "./db/entities/emoji.ts";
+export { ProfileField } from "./db/entities/profile-field.ts";
+export { ParticipantProfileFieldValue } from "./db/entities/participant-profile-field-value.ts";
+export { WorkspaceMemberDefault } from "./db/entities/workspace-member-default.ts";
+export { Webhook } from "./db/entities/webhook.ts";
+export { DeviceToken } from "./db/entities/device-token.ts";
+export { AuditEvent } from "./db/entities/audit-event.ts";
+export { Notification } from "./db/entities/notification.ts";
+export { NotificationEndpoint } from "./db/entities/notification-endpoint.ts";
+export { NotificationDelivery } from "./db/entities/notification-delivery.ts";

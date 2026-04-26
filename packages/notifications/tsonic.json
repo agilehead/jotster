@@ -9,20 +9,7 @@
     "type": "library"
   },
   "references": {
-    "packages": [
-      {
-        "id": "@jotster/core",
-        "project": "../core"
-      },
-      {
-        "id": "@jotster/users",
-        "project": "../users"
-      },
-      {
-        "id": "@jotster/event-queue",
-        "project": "../event-queue"
-      }
-    ]
+    "packages": [{"id":"@jotster/core","project":"../core"}]
   },
   "buildOptions": {
     "stripSymbols": true,

@@ -1,6 +1,5 @@
-import { Buffer } from "@tsonic/nodejs/buffer.js";
-import { randomBytes } from "@tsonic/nodejs/crypto.js";
+import { Guid } from "@tsonic/dotnet/System.js";
 
-export function generateId(): string {
-  return Buffer.from(randomBytes(16)).toString("hex");
+export function generateId(prefix: string = "id"): string {
+  return prefix + "_" + Guid.NewGuid().ToString("N");
 }

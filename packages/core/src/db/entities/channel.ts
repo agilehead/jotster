@@ -1,27 +1,20 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { long } from "@tsonic/core/types.js";
 import { attributes as A } from "@tsonic/core/lang.js";
-import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotations.js";
-import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import { IndexAttribute, PrimaryKeyAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Channel {
-  Id!: long;
-  TenantId!: long;
+  WorkspaceId!: string;
+  Id!: string;
   Name!: string;
   Description!: string;
-  RenderedDescription!: string;
-  IsPrivate!: int;
-  IsWebPublic!: int;
-  HistoryPublicToSubscribers!: int;
-  CreatorId?: long;
-  MessageRetentionDays?: int;
-  FirstMessageId?: long;
-  IsArchived!: int;
+  Visibility!: string;
+  State!: string;
+  CreatedByParticipantId?: string;
   CreatedAt!: long;
   UpdatedAt!: long;
 }
 
-A<Channel>()
-  .prop((x) => x.Id)
-  .add(KeyAttribute);
-A<Channel>().add(IndexAttribute, ["TenantId", "Name"]);
-A<Channel>().add(IndexAttribute, ["TenantId", "IsArchived"]);
+A<Channel>().add(PrimaryKeyAttribute, "WorkspaceId", ["Id"]);
+A<Channel>().add(IndexAttribute, ["WorkspaceId","Name"]);
+A<Channel>().add(IndexAttribute, ["WorkspaceId","State"]);
+A<Channel>().add(IndexAttribute, ["WorkspaceId","CreatedByParticipantId"]);

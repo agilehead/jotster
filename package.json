@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "restore": "${TSONIC_BIN:-tsonic} restore",
-    "build": "${TSONIC_BIN:-tsonic} restore && npm run -w @jotster/core build && npm run -w @jotster/auth build && npm run -w @jotster/event-queue build && npm run -w @jotster/channels build && npm run -w @jotster/emoji build && npm run -w @jotster/messages build && npm run -w @jotster/uploads build && npm run -w @jotster/users build && npm run -w @jotster/drafts build && npm run -w @jotster/notifications build && npm run -w @jotster/organization build && npm run -w @jotster/permissions build && npm run -w @jotster/presence build && npm run -w @jotster/subscriptions build && npm run -w @jotster/webhooks build && npm run -w @jotster/server build",
+    "build": "${TSONIC_BIN:-tsonic} restore && npm run -w @jotster/core build && npm run -w @jotster/identity build && npm run -w @jotster/authorization build && npm run -w @jotster/collaboration build && npm run -w @jotster/notifications build && npm run -w @jotster/api-native build && npm run -w @jotster/api-agent build && npm run -w @jotster/api-zulip build && npm run -w @jotster/server build",
     "typecheck": "npm --workspaces --if-present run typecheck",
     "pretest": "npm run build",
     "migrate": "npx knex --knexfile knexfile.jotster.js migrate:latest",
