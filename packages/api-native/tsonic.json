@@ -1,0 +1,18 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "rootNamespace": "Jotster.Api.Native",
+  "entryPoint": "src/index.ts",
+  "sourceRoot": "src",
+  "outputDirectory": "generated",
+  "outputName": "Jotster.Api.Native",
+  "output": {
+    "type": "library"
+  },
+  "references": {
+    "packages": [{"id":"@jotster/core","project":"../core"}]
+  },
+  "buildOptions": {
+    "stripSymbols": true,
+    "invariantGlobalization": true
+  }
+}

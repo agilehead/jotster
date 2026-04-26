@@ -146,3 +146,6 @@ generated/
 *.db
 *.db-shm
 *.db-wal
+
+# Tsonic source-package restore artifacts
+packages/*/tsonic/

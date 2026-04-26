@@ -22,60 +22,32 @@
         "project": "../core"
       },
       {
-        "id": "@jotster/auth",
-        "project": "../auth"
+        "id": "@jotster/identity",
+        "project": "../identity"
       },
       {
-        "id": "@jotster/channels",
-        "project": "../channels"
+        "id": "@jotster/authorization",
+        "project": "../authorization"
       },
       {
-        "id": "@jotster/drafts",
-        "project": "../drafts"
-      },
-      {
-        "id": "@jotster/emoji",
-        "project": "../emoji"
-      },
-      {
-        "id": "@jotster/event-queue",
-        "project": "../event-queue"
-      },
-      {
-        "id": "@jotster/messages",
-        "project": "../messages"
+        "id": "@jotster/collaboration",
+        "project": "../collaboration"
       },
       {
         "id": "@jotster/notifications",
         "project": "../notifications"
       },
       {
-        "id": "@jotster/organization",
-        "project": "../organization"
+        "id": "@jotster/api-native",
+        "project": "../api-native"
       },
       {
-        "id": "@jotster/permissions",
-        "project": "../permissions"
+        "id": "@jotster/api-agent",
+        "project": "../api-agent"
       },
       {
-        "id": "@jotster/presence",
-        "project": "../presence"
-      },
-      {
-        "id": "@jotster/subscriptions",
-        "project": "../subscriptions"
-      },
-      {
-        "id": "@jotster/uploads",
-        "project": "../uploads"
-      },
-      {
-        "id": "@jotster/users",
-        "project": "../users"
-      },
-      {
-        "id": "@jotster/webhooks",
-        "project": "../webhooks"
+        "id": "@jotster/api-zulip",
+        "project": "../api-zulip"
       }
     ]
   }

@@ -1,33 +1,23 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { long } from "@tsonic/core/types.js";
 import { attributes as A } from "@tsonic/core/lang.js";
-import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotations.js";
-import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import { IndexAttribute, PrimaryKeyAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Message {
-  Id!: long;
-  TenantId!: long;
-  SenderId!: long;
-  Type!: string;
-  ChannelId?: long;
-  Topic?: string;
-  DmGroupId?: string;
+  WorkspaceId!: string;
+  Id!: string;
+  SenderParticipantId!: string;
+  ContainerKind!: string;
+  ChannelId?: string;
+  ThreadId?: string;
+  DirectChatId?: string;
   Content!: string;
-  RenderedContent!: string;
-  HasAttachment!: int;
-  HasImage!: int;
-  HasLink!: int;
+  RenderedContent?: string;
+  State!: string;
   CreatedAt!: long;
   EditedAt?: long;
 }
 
-A<Message>()
-  .prop((x) => x.Id)
-  .add(KeyAttribute);
-A<Message>().add(IndexAttribute, [
-  "TenantId",
-  "ChannelId",
-  "Topic",
-  "Id",
-]);
-A<Message>().add(IndexAttribute, ["TenantId", "DmGroupId", "Id"]);
-A<Message>().add(IndexAttribute, ["TenantId", "SenderId", "Id"]);
+A<Message>().add(PrimaryKeyAttribute, "WorkspaceId", ["Id"]);
+A<Message>().add(IndexAttribute, ["WorkspaceId","ThreadId","CreatedAt"]);
+A<Message>().add(IndexAttribute, ["WorkspaceId","DirectChatId","CreatedAt"]);
+A<Message>().add(IndexAttribute, ["WorkspaceId","SenderParticipantId","CreatedAt"]);

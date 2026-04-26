@@ -1,27 +1,16 @@
 import type { long } from "@tsonic/core/types.js";
 import { attributes as A } from "@tsonic/core/lang.js";
-import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotations.js";
-import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import { IndexAttribute, PrimaryKeyAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Reaction {
+  WorkspaceId!: string;
   Id!: string;
-  TenantId!: long;
-  MessageId!: long;
-  UserId!: long;
-  EmojiName!: string;
-  EmojiCode!: string;
-  ReactionType!: string;
+  MessageId!: string;
+  ParticipantId!: string;
+  EmojiKey!: string;
   CreatedAt!: long;
 }
 
-A<Reaction>()
-  .prop((x) => x.Id)
-  .add(KeyAttribute);
-A<Reaction>().add(IndexAttribute, [
-  "MessageId",
-  "UserId",
-  "EmojiCode",
-  "ReactionType",
-]);
-A<Reaction>().add(IndexAttribute, ["TenantId", "MessageId"]);
-A<Reaction>().add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);
+A<Reaction>().add(PrimaryKeyAttribute, "WorkspaceId", ["Id"]);
+A<Reaction>().add(IndexAttribute, ["WorkspaceId","MessageId","ParticipantId","EmojiKey"]);
+A<Reaction>().add(IndexAttribute, ["WorkspaceId","ParticipantId","CreatedAt"]);

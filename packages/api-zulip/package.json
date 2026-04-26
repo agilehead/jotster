@@ -1,0 +1,18 @@
+{
+  "name": "@jotster/api-zulip",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./index.js": "./src/index.ts",
+    "./Jotster.Api.Zulip.js": "./src/index.ts"
+  },
+  "dependencies": {
+    "@jotster/core": "0.0.0"
+  },
+  "scripts": {
+    "typecheck": "cd ../.. && ${TSONIC_BIN:-tsonic} restore --project api-zulip && cd packages/api-zulip && tsc -p tsconfig.json",
+    "build": "cd ../.. && ${TSONIC_BIN:-tsonic} build --project api-zulip"
+  }
+}

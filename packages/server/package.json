@@ -3,6 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "dependencies": {
+    "@jotster/api-agent": "0.0.0",
+    "@jotster/api-native": "0.0.0",
+    "@jotster/api-zulip": "0.0.0",
+    "@jotster/authorization": "0.0.0",
+    "@jotster/collaboration": "0.0.0",
+    "@jotster/core": "0.0.0",
+    "@jotster/identity": "0.0.0",
+    "@jotster/notifications": "0.0.0"
+  },
   "scripts": {
     "typecheck": "cd ../.. && ${TSONIC_BIN:-tsonic} restore --project server && cd packages/server && tsc -p tsconfig.json",
     "build": "cd ../.. && rm -rf packages/server/generated/bin/Release/net10.0/linux-x64 packages/server/generated/obj/Release/net10.0/linux-x64 && ${TSONIC_BIN:-tsonic} restore --project server && ${TSONIC_BIN:-tsonic} generate --project server && dotnet publish packages/server/generated/tsonic.csproj -c Release -r linux-x64 -o packages/server/generated/bin/Release/net10.0/linux-x64",

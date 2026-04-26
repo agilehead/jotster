@@ -1,22 +1,19 @@
-import type { int, long } from "@tsonic/core/types.js";
+import type { long } from "@tsonic/core/types.js";
 import { attributes as A } from "@tsonic/core/lang.js";
-import { KeyAttribute } from "@tsonic/dotnet/System.ComponentModel.DataAnnotations.js";
-import { IndexAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import { IndexAttribute, PrimaryKeyAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Attachment {
-  Id!: long;
-  TenantId!: long;
-  UserId!: long;
+  WorkspaceId!: string;
+  Id!: string;
+  OwnerParticipantId!: string;
+  MessageId?: string;
+  StorageKey!: string;
   FileName!: string;
-  PathId!: string;
-  Size!: long;
   ContentType!: string;
-  IsWebPublic!: int;
+  ByteSize!: long;
   CreatedAt!: long;
 }
 
-A<Attachment>()
-  .prop((x) => x.Id)
-  .add(KeyAttribute);
-A<Attachment>().add(IndexAttribute, ["TenantId", "PathId"]);
-A<Attachment>().add(IndexAttribute, ["TenantId", "UserId", "CreatedAt"]);
+A<Attachment>().add(PrimaryKeyAttribute, "WorkspaceId", ["Id"]);
+A<Attachment>().add(IndexAttribute, ["WorkspaceId","StorageKey"]);
+A<Attachment>().add(IndexAttribute, ["WorkspaceId","OwnerParticipantId","CreatedAt"]);

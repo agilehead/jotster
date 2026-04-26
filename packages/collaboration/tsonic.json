@@ -1,0 +1,18 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "rootNamespace": "Jotster.Collaboration",
+  "entryPoint": "src/index.ts",
+  "sourceRoot": "src",
+  "outputDirectory": "generated",
+  "outputName": "Jotster.Collaboration",
+  "output": {
+    "type": "library"
+  },
+  "references": {
+    "packages": [{"id":"@jotster/core","project":"../core"}]
+  },
+  "buildOptions": {
+    "stripSymbols": true,
+    "invariantGlobalization": true
+  }
+}
