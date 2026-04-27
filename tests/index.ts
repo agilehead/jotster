@@ -1,6 +1,9 @@
 import { strict as assert } from "node:assert";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import knexFactory from "knex";
+import type { Knex } from "knex";
+import { up as migrateUp } from "../database/jotster/sqlite/migrations/20260217000000_initial_schema.js";
 
 const root = process.cwd();
 const migrationPath = join(root, "database/jotster/sqlite/migrations/20260217000000_initial_schema.js");
@@ -34,6 +37,92 @@ function walkFiles(dir: string): string[] {
 
 function toSnakeCase(name: string): string {
   return name.replace(/[A-Z]/g, (value, index) => (index === 0 ? "" : "_") + value.toLowerCase());
+}
+
+async function withMigratedDb(action: (db: Knex) => Promise<void>): Promise<void> {
+  const db = knexFactory({
+    client: "better-sqlite3",
+    connection: {
+      filename: ":memory:",
+    },
+    useNullAsDefault: true,
+  });
+  await db.raw("PRAGMA foreign_keys = ON");
+  await migrateUp(db);
+  try {
+    await action(db);
+  } finally {
+    await db.destroy();
+  }
+}
+
+async function assertRejectsDbWrite(action: () => Promise<void>, message: string): Promise<void> {
+  let rejected = false;
+  try {
+    await action();
+  } catch {
+    rejected = true;
+  }
+  assert.equal(rejected, true, message);
+}
+
+async function seedIsolationFixture(db: Knex): Promise<void> {
+  const now = 1;
+  await db("workspace").insert([
+    { id: "w_acme", slug: "acme", name: "Acme", description: "", state: "active", created_at: now, updated_at: now },
+    { id: "w_beta", slug: "beta", name: "Beta", description: "", state: "active", created_at: now, updated_at: now },
+  ]);
+  await db("identity").insert([
+    { id: "id_acme", kind: "human", display_name: "Acme User", state: "active", created_at: now, updated_at: now },
+    { id: "id_beta", kind: "human", display_name: "Beta User", state: "active", created_at: now, updated_at: now },
+  ]);
+  await db("workspace_member").insert([
+    { workspace_id: "w_acme", id: "wm_acme", identity_id: "id_acme", state: "active", joined_at: now, created_at: now, updated_at: now },
+    { workspace_id: "w_acme", id: "wm_acme_2", identity_id: "id_beta", state: "active", joined_at: now, created_at: now, updated_at: now },
+    { workspace_id: "w_beta", id: "wm_beta", identity_id: "id_beta", state: "active", joined_at: now, created_at: now, updated_at: now },
+  ]);
+  await db("participant").insert([
+    { workspace_id: "w_acme", id: "p_acme", workspace_member_id: "wm_acme", kind: "human", display_name: "Acme User", state: "active", created_at: now, updated_at: now },
+    { workspace_id: "w_acme", id: "p_acme_2", workspace_member_id: "wm_acme_2", kind: "human", display_name: "Acme User 2", state: "active", created_at: now, updated_at: now },
+    { workspace_id: "w_beta", id: "p_beta", workspace_member_id: "wm_beta", kind: "human", display_name: "Beta User", state: "active", created_at: now, updated_at: now },
+  ]);
+  await db("channel").insert([
+    { workspace_id: "w_acme", id: "c_acme", name: "general", description: "", visibility: "public", state: "active", created_by_participant_id: "p_acme", created_at: now, updated_at: now },
+    { workspace_id: "w_beta", id: "c_beta", name: "general", description: "", visibility: "public", state: "active", created_by_participant_id: "p_beta", created_at: now, updated_at: now },
+  ]);
+  await db("thread").insert([
+    { workspace_id: "w_acme", id: "t_acme", channel_id: "c_acme", title: "Acme Thread", state: "active", access_policy: "inherit", created_by_participant_id: "p_acme", created_at: now, updated_at: now },
+    { workspace_id: "w_beta", id: "t_beta", channel_id: "c_beta", title: "Beta Thread", state: "active", access_policy: "inherit", created_by_participant_id: "p_beta", created_at: now, updated_at: now },
+  ]);
+  await db("direct_chat").insert({
+    workspace_id: "w_acme",
+    id: "dc_acme",
+    kind: "one_to_one",
+    state: "active",
+    created_at: now,
+    updated_at: now,
+  });
+  await db("notification").insert({
+    workspace_id: "w_acme",
+    id: "n_acme",
+    participant_id: "p_acme",
+    activity_type: "message.created",
+    object_type: "message",
+    object_id: "m_acme",
+    reason: "mention",
+    payload_json: "{}",
+    created_at: now,
+  });
+  await db("notification_endpoint").insert({
+    workspace_id: "w_acme",
+    id: "ne_acme_2",
+    participant_id: "p_acme_2",
+    kind: "agent_poll_queue",
+    config_json: "{}",
+    enabled: 1,
+    created_at: now,
+    updated_at: now,
+  });
 }
 
 describe("greenfield schema", () => {
@@ -263,6 +352,96 @@ describe("greenfield schema", () => {
   });
 });
 
+describe("runtime database isolation gates", () => {
+  it("rejects cross-workspace message thread references", async () => {
+    await withMigratedDb(async (db) => {
+      await seedIsolationFixture(db);
+      await assertRejectsDbWrite(
+        async () => {
+          await db("message").insert({
+            workspace_id: "w_acme",
+            id: "m_cross_thread",
+            sender_participant_id: "p_acme",
+            container_kind: "channel_thread",
+            channel_id: "c_acme",
+            thread_id: "t_beta",
+            content: "wrong workspace",
+            state: "active",
+            created_at: 2,
+          });
+        },
+        "message must not reference a thread from another workspace",
+      );
+    });
+  });
+
+  it("rejects invalid message container shapes", async () => {
+    await withMigratedDb(async (db) => {
+      await seedIsolationFixture(db);
+      await assertRejectsDbWrite(
+        async () => {
+          await db("message").insert({
+            workspace_id: "w_acme",
+            id: "m_bad_shape",
+            sender_participant_id: "p_acme",
+            container_kind: "channel_thread",
+            channel_id: "c_acme",
+            thread_id: "t_acme",
+            direct_chat_id: "dc_acme",
+            content: "two containers",
+            state: "active",
+            created_at: 2,
+          });
+        },
+        "message must belong to exactly one supported container shape",
+      );
+    });
+  });
+
+  it("rejects cross-participant notification deliveries", async () => {
+    await withMigratedDb(async (db) => {
+      await seedIsolationFixture(db);
+      await assertRejectsDbWrite(
+        async () => {
+          await db("notification_delivery").insert({
+            workspace_id: "w_acme",
+            id: "nd_cross_participant",
+            participant_id: "p_acme",
+            notification_id: "n_acme",
+            endpoint_id: "ne_acme_2",
+            status: "pending",
+            attempts: 0,
+            created_at: 2,
+            updated_at: 2,
+          });
+        },
+        "delivery must bind notification and endpoint to the same participant",
+      );
+    });
+  });
+
+  it("rejects invalid permission grant effects", async () => {
+    await withMigratedDb(async (db) => {
+      await seedIsolationFixture(db);
+      await assertRejectsDbWrite(
+        async () => {
+          await db("permission_grant").insert({
+            workspace_id: "w_acme",
+            id: "grant_bad_effect",
+            subject_kind: "participant",
+            subject_id: "p_acme",
+            resource_path: "/workspaces/w_acme",
+            action: "workspace.read",
+            effect: "maybe",
+            created_at: 2,
+          });
+        },
+        "permission grant effect must be constrained by the database",
+      );
+    });
+  });
+});
+
 describe("package topology", () => {
   const expectedPackages = [
     "api-agent",
@@ -282,6 +461,18 @@ describe("package topology", () => {
       .sort();
 
     assert.deepEqual(packageDirs, expectedPackages);
+  });
+
+  it("generates the API report from current source surfaces", () => {
+    const packageText = readText("package.json");
+    const reportText = readText("scripts/generate-api-compat-report.mjs");
+
+    assert.ok(packageText.includes('"report:api-compat"'), "API report script must be wired");
+    assert.ok(reportText.includes("packages/api-native/src/index.ts"), "native source surface must be inventoried");
+    assert.ok(reportText.includes("packages/api-agent/src/index.ts"), "agent source surface must be inventoried");
+    assert.ok(reportText.includes("packages/api-zulip/src/index.ts"), "Zulip edge source surface must be inventoried");
+    assert.ok(!reportText.includes(".analysis/api-compat"), "report must not depend on deleted generated analysis inputs");
+    assert.ok(!reportText.includes("zulip-openapi-ops"), "report must not be driven by stale Zulip OpenAPI artifacts");
   });
 
   it("does not reference removed package names", () => {
@@ -354,15 +545,24 @@ describe("product vocabulary", () => {
   });
 });
 
-describe("attribute markers", () => {
-  it("uses the greenfield callable attributes API only", () => {
+describe("entity metadata", () => {
+  it("centralizes EF metadata in the DbContext", () => {
     const entityFiles = walkFiles("packages/core/src/db/entities").filter((file) => file.endsWith(".ts"));
 
     for (const file of entityFiles) {
       const text = readText(file);
-      assert.ok(!text.includes("A.on("), file + " must not use the removed A.on(...) marker API");
-      assert.ok(!text.includes(".type.add("), file + " must not use the removed .type.add(...) marker API");
+      assert.ok(!text.includes("attributes as A"), file + " must not import marker metadata APIs");
+      assert.ok(!text.includes("A<"), file + " must not emit marker metadata calls");
+      assert.ok(!text.includes("PrimaryKeyAttribute"), file + " must not declare EF keys through attributes");
+      assert.ok(!text.includes("IndexAttribute"), file + " must not declare EF indexes through attributes");
+      assert.ok(!text.includes("KeyAttribute"), file + " must not declare EF properties through attributes");
     }
+
+    const dbContextText = readText("packages/core/src/db/jotster-db-context.ts");
+    assert.ok(dbContextText.includes("configureJotsterBaseModel"), "base EF metadata must be shared by all contexts");
+    assert.ok(dbContextText.includes("configureEntityModel"), "EF metadata must be centralized");
+    assert.ok(dbContextText.includes("HasKey(...primaryKey)"), "central EF metadata must define primary keys");
+    assert.ok(dbContextText.includes("HasIndex(...indexes[index])"), "central EF metadata must define indexes");
   });
 });
 
@@ -430,7 +630,7 @@ describe("security architecture gates", () => {
         entityName + " must be listed as workspace-owned",
       );
       assert.ok(
-        dbContextText.includes("configureWorkspaceFilter<" + entityName + ">"),
+        dbContextText.includes("Entity<" + entityName + ">().HasQueryFilter"),
         entityName + " must have a scoped query filter",
       );
     }
@@ -459,7 +659,7 @@ describe("security architecture gates", () => {
 
     assert.ok(workspaceOwnedText.includes("isWorkspaceOwnedEntity"), "workspace-owned structural guard is required");
     assert.ok(dbContextText.includes("ValidateWorkspaceWrites"), "scoped context must validate writes");
-    assert.ok(dbContextText.includes("this.ChangeTracker.Entries()"), "write guard must inspect tracked entities");
+    assert.ok(dbContextText.includes(".Entries()"), "write guard must inspect tracked entities");
     assert.ok(dbContextText.includes("EntityState.Added"), "write guard must check added entities");
     assert.ok(dbContextText.includes("EntityState.Modified"), "write guard must check modified entities");
     assert.ok(dbContextText.includes("EntityState.Deleted"), "write guard must check deleted entities");
@@ -488,6 +688,17 @@ describe("security architecture gates", () => {
     assert.ok(serverPackage.includes("@jotster/identity"), "server must depend on identity pipeline package");
   });
 
+  it("hardens request authentication operations", () => {
+    const pipelineText = readText("packages/server/src/security-pipeline.ts");
+
+    assert.ok(pipelineText.includes("checkAuthRateLimit"), "auth failures must be rate-limit checked");
+    assert.ok(pipelineText.includes("recordAuthFailure"), "auth failures must be recorded");
+    assert.ok(pipelineText.includes("clearAuthRateLimit"), "successful auth must clear rate-limit state");
+    assert.ok(pipelineText.includes("remoteAddress"), "rate-limit key must include the remote address when available");
+    assert.ok(pipelineText.includes("redactOperationalMetadata"), "operational metadata must be redactable before logging");
+    assert.ok(pipelineText.includes("redactSecretValue"), "secret redaction helper is required");
+  });
+
   it("keeps user-controlled workspace ids out of request security", () => {
     const scannedFiles = walkFiles("packages").filter((file) => file.endsWith(".ts"));
     const bodyWorkspacePattern = /\bbody\b[\s\S]{0,80}\bworkspaceId\b|\bworkspaceId\b[\s\S]{0,80}\bbody\b/;
@@ -514,6 +725,18 @@ describe("security architecture gates", () => {
     assert.ok(!identityText.includes("credential.IdentityId"), "credential creation must not assign redundant identity");
   });
 
+  it("models SSO providers and external identity authentication generically", () => {
+    const identityText = readText("packages/identity/src/index.ts");
+
+    assert.ok(identityText.includes("createAuthProviderRecord"), "auth provider factory is required");
+    assert.ok(identityText.includes("createExternalIdentityRecord"), "external identity factory is required");
+    assert.ok(identityText.includes("authenticateExternalIdentity"), "SSO authentication boundary is required");
+    assert.ok(identityText.includes("AUTH_PROVIDER_KIND_OIDC"), "OIDC provider kind must be supported");
+    assert.ok(identityText.includes("AUTH_PROVIDER_KIND_SAML"), "SAML provider kind must be supported");
+    assert.ok(identityText.includes("input.db.RequireWorkspace(input.workspaceId)"), "SSO lookup must require scoped DB workspace");
+    assert.ok(identityText.includes('authKind: "sso"'), "SSO auth must produce an explicit request context kind");
+  });
+
   it("implements a generic authorization evaluator with deny precedence", () => {
     const authorizationText = readText("packages/authorization/src/index.ts");
 
@@ -527,6 +750,25 @@ describe("security architecture gates", () => {
     assert.ok(authorizationText.includes("evaluateThreadAccess"), "thread policy adapter must use evaluator");
   });
 
+  it("requires permission grant subjects to be loaded from the workspace", () => {
+    const authorizationText = readText("packages/authorization/src/index.ts");
+
+    assert.ok(authorizationText.includes("PermissionSubjectRegistry"), "permission subject registry is required");
+    assert.ok(authorizationText.includes("subjectExistsInRegistry"), "subject existence must be centralized");
+    assert.ok(authorizationText.includes("requireSubjectExistsInWorkspace"), "grant creation must fail for unknown subjects");
+    assert.ok(authorizationText.includes("createValidatedPermissionGrantRecord"), "validated grant factory is required");
+    assert.ok(authorizationText.includes("Permission subject is not present in workspace"), "unknown subject diagnostic is required");
+  });
+
+  it("records admin actions through an explicit audit helper", () => {
+    const collaborationText = readText("packages/collaboration/src/index.ts");
+
+    assert.ok(collaborationText.includes("createAdminAuditEventRecord"), "admin audit helper is required");
+    assert.ok(collaborationText.includes("Admin audit reason is required"), "admin actions must carry a reason");
+    assert.ok(collaborationText.includes("adminIdentityId"), "admin audit metadata must include actor identity");
+    assert.ok(collaborationText.includes("adminAuthKind"), "admin audit metadata must include auth kind");
+  });
+
   it("hardens notifications for agents and webhook delivery", () => {
     const notificationText = readText("packages/notifications/src/index.ts");
 
@@ -538,6 +780,9 @@ describe("security architecture gates", () => {
     assert.ok(notificationText.includes("HMACSHA256.HashData"), "webhook payloads must be signed");
     assert.ok(notificationText.includes("computeNextRetryAt"), "delivery retry policy is required");
     assert.ok(notificationText.includes("validateNotificationDeliveryOwnership"), "delivery ownership must be checked in service code");
+    assert.ok(notificationText.includes("Webhook endpoint URL userinfo is not allowed"), "webhook URLs must reject userinfo");
+    assert.ok(notificationText.includes("hasReservedLocalSuffix"), "webhook URLs must reject local DNS suffixes");
+    assert.ok(notificationText.includes("isMalformedNumericHost"), "webhook URLs must reject ambiguous numeric hosts");
   });
 
   it("moves API surfaces from planned stubs to secured contracts", () => {

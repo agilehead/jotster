@@ -57,6 +57,13 @@ export interface AuthorizationInput {
   nowMs: long;
 }
 
+export interface PermissionSubjectRegistry {
+  participantIds: string[];
+  roleIds: string[];
+  groupIds: string[];
+  systemSubjectIds: string[];
+}
+
 export interface ChannelReadInput {
   context: RequestContext;
   channelVisibility: string;
@@ -179,6 +186,35 @@ function validateEffect(effect: string): void {
   }
 }
 
+export function subjectExistsInRegistry(
+  subject: SubjectRef,
+  registry: PermissionSubjectRegistry,
+): boolean {
+  if (subject.Kind === SUBJECT_PARTICIPANT) {
+    return hasValue(registry.participantIds, subject.Id);
+  }
+  if (subject.Kind === SUBJECT_ROLE) {
+    return hasValue(registry.roleIds, subject.Id);
+  }
+  if (subject.Kind === SUBJECT_GROUP) {
+    return hasValue(registry.groupIds, subject.Id);
+  }
+  if (subject.Kind === SUBJECT_SYSTEM) {
+    return hasValue(registry.systemSubjectIds, subject.Id);
+  }
+  return false;
+}
+
+export function requireSubjectExistsInWorkspace(
+  subject: SubjectRef,
+  registry: PermissionSubjectRegistry,
+): void {
+  validateSubject(subject);
+  if (!subjectExistsInRegistry(subject, registry)) {
+    throw new Error("Permission subject is not present in workspace");
+  }
+}
+
 function inferResourceKind(path: string): string {
   if (path.indexOf("/channels/") >= 0 && path.indexOf("/threads/") >= 0) {
     return "thread";
@@ -295,10 +331,12 @@ export function createContextPermissionGrantRecord(
   resource: ResourcePath,
   action: string,
   effect: string,
+  subjectRegistry: PermissionSubjectRegistry,
   createdAt: long,
   expiresAt?: long,
 ): PermissionGrant {
   requireWorkspaceMatch(context.WorkspaceId, resource.WorkspaceId);
+  requireSubjectExistsInWorkspace(subject, subjectRegistry);
   return createPermissionGrantRecord(
     context.WorkspaceId,
     subject.Kind,
@@ -306,6 +344,28 @@ export function createContextPermissionGrantRecord(
     resource.Path,
     action,
     effect,
+    createdAt,
+    expiresAt,
+  );
+}
+
+export function createValidatedPermissionGrantRecord(
+  context: RequestContext,
+  subject: SubjectRef,
+  resource: ResourcePath,
+  action: string,
+  effect: string,
+  subjectRegistry: PermissionSubjectRegistry,
+  createdAt: long,
+  expiresAt?: long,
+): PermissionGrant {
+  return createContextPermissionGrantRecord(
+    context,
+    subject,
+    resource,
+    action,
+    effect,
+    subjectRegistry,
     createdAt,
     expiresAt,
   );

@@ -1,6 +1,4 @@
 import type { long } from "@tsonic/core/types.js";
-import { attributes as A } from "@tsonic/core/lang.js";
-import { IndexAttribute, PrimaryKeyAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class WorkspaceMember {
   WorkspaceId!: string;
@@ -12,7 +10,3 @@ export class WorkspaceMember {
   CreatedAt!: long;
   UpdatedAt!: long;
 }
-
-A<WorkspaceMember>().add(PrimaryKeyAttribute, "WorkspaceId", ["Id"]);
-A<WorkspaceMember>().add(IndexAttribute, ["WorkspaceId","IdentityId"]);
-A<WorkspaceMember>().add(IndexAttribute, ["WorkspaceId","State"]);

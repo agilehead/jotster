@@ -1,28 +1,101 @@
 # Implementation Status
 
-This document records the current implementation state of the hardening plan. The code has moved from convention-based safety to construction-based safety for the greenfield Jotster rewrite.
+This document records the current implementation state of the Jotster greenfield rewrite and security hardening plan.
 
 ## Status Summary
 
 Implemented:
 
-- Product schema and entities use the greenfield workspace/identity/participant/channel/thread/message/notification model.
-- Legacy Zulip-style product modules were removed; Zulip remains only an API edge package.
-- Normal data access now has a dedicated `JotsterWorkspaceDbContext`.
+- Product storage uses the greenfield workspace/identity/participant/channel/thread/message/notification model.
+- Zulip is isolated to the compatibility API edge package and does not drive product storage or core API shape.
+- Normal data access is construction-safe through `JotsterWorkspaceDbContext`.
 - Unscoped access is split into explicit `JotsterAdminDbContext` and `JotsterBootstrapDbContext`.
-- Workspace-owned reads are registered through scoped EF query filters for every workspace-owned entity.
-- Workspace-owned writes are checked before sync and async saves.
-- Request auth now resolves host/domain to workspace before authenticating session/API credentials.
+- EF key/index/table/column metadata is centralized in `configureJotsterBaseModel`, not scattered across entity marker calls.
+- Workspace-scoped reads are registered through EF query filters for every workspace-owned entity.
+- Workspace-scoped writes are checked before every sync and async save path.
+- Request auth resolves host/domain to workspace before session/API credential authentication.
+- Request auth includes a bounded failure rate limiter and centralized operational metadata redaction.
 - Session and API credential auth derives identity through `participant -> workspace_member -> identity`.
-- Authorization now has typed subject/resource/action/effect primitives and a generic deny-before-allow evaluator.
-- Notifications now use opaque queue IDs, participant-scoped queue access, endpoint validation, delivery ownership checks, retry state, and signed agent webhooks.
-- API packages now expose secured route contracts for native, agent, and Zulip surfaces instead of planned stubs.
-- Static proof gates cover schema shape, vocabulary, package topology, scoped data access, request auth, authorization, notifications, and API contracts.
+- SSO providers and external identities are modeled generically in the identity module.
+- Workspace-scoped SSO authentication resolves provider, external identity, member, and participant through the scoped DB.
+- Authorization has typed subject/resource/action/effect primitives and deny-before-allow evaluation.
+- Permission grant creation can require a workspace-loaded subject registry so stale or foreign subjects fail before persistence.
+- Notifications use opaque queue IDs, participant-scoped queue access, endpoint validation, delivery ownership checks, retry state, and signed agent webhooks.
+- Agent webhook URL validation rejects userinfo, local/reserved DNS suffixes, ambiguous numeric hosts, IPv6 literals, private IPv4, link-local IPv4, multicast, and reserved IPv4.
+- Admin audit helpers require an explicit reason and include admin identity/auth metadata.
+- API packages expose source-owned route contracts for native, agent, and Zulip surfaces.
+- The API report script inventories current API source contracts and no longer depends on deleted Zulip OpenAPI artifacts.
+- Static and runtime proof gates cover schema shape, vocabulary, package topology, scoped data access, request auth, authorization, notifications, API contracts, and database rejection of invalid rows.
+
+## Validation
+
+Passing:
+
+```bash
+TSONIC_BIN="node /home/jeswin/repos/tsoniclang/tsonic/packages/cli/dist/index.js" npm run typecheck
+```
+
+```bash
+for pkg in core identity authorization collaboration notifications api-native api-agent api-zulip server; do
+  npx tsc -p packages/$pkg/tsconfig.json --noEmit --pretty false
+done
+```
+
+```bash
+node /home/jeswin/repos/tsoniclang/tsonic/packages/cli/dist/index.js generate --project core
+```
+
+```bash
+NODE_OPTIONS='--import tsx' npx mocha tests/index.ts --timeout 60000
+```
+
+Current result:
+
+```text
+36 passing
+```
+
+```bash
+npm run report:api-compat --silent
+git diff --check
+```
 
 Blocked externally:
 
-- Full TypeScript/build validation is blocked by the known Tsonic package skew where the compiler expects callable `attributes` markers (`A<T>()`) but installed `@tsonic/core@10.0.40` still exposes only the removed `A.on(...)` shape.
-- Jotster source intentionally uses the greenfield callable marker API and must not revert to `A.on(...)`.
+```bash
+TSONIC_BIN="node /home/jeswin/repos/tsoniclang/tsonic/packages/cli/dist/index.js" npm run -w @jotster/core build
+```
+
+Current blockers:
+
+- The local Tsonic compiler emits calls to `Tsonic.JSRuntime`, but `/home/jeswin/repos/tsoniclang/tsonic/packages/cli/runtime` currently contains only `Tsonic.Runtime.dll` and does not provide `Tsonic.JSRuntime.dll`.
+- The local Tsonic compiler does not emit CLR `override` for `DbContext` virtual methods even when the TypeScript source declares `override`.
+
+The second issue is independently reproducible with a minimal source file:
+
+```ts
+import { DbContext, ModelBuilder } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+
+export class AppDbContext extends DbContext {
+  override OnModelCreating(modelBuilder: ModelBuilder): void {
+    super.OnModelCreating(modelBuilder);
+  }
+}
+```
+
+Current emitted C# shape:
+
+```cs
+public void OnModelCreating(ModelBuilder modelBuilder)
+```
+
+Required emitted C# shape:
+
+```cs
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+```
+
+This is not a Jotster product-model issue. Jotster source is already using the intended greenfield Tsonic surface and validates through TypeScript plus Tsonic generation.
 
 ## Plan Coverage
 
@@ -31,9 +104,9 @@ Blocked externally:
 Done.
 
 - `WorkspaceOwnedEntity` defines the structural workspace marker.
-- `WORKSPACE_OWNED_ENTITY_NAMES` lists every workspace-owned entity.
+- `isWorkspaceOwnedEntity` and `requireWorkspaceOwnedEntity` enforce the marker before writes.
 - `JotsterWorkspaceDbContext` takes exactly one workspace ID.
-- `configureWorkspaceFilters` registers all workspace-owned entities.
+- `configureWorkspaceFilters` registers every workspace-owned entity.
 - `ValidateWorkspaceWrites` rejects added, modified, or deleted tracked entities with the wrong workspace.
 - Raw `JotsterDbContext` is not exported from the package index.
 
@@ -46,28 +119,43 @@ const message = await db.Messages.Where((m) => m.Id === messageId).FirstOrDefaul
 
 The query is scoped by the context before handler logic can forget a workspace predicate.
 
-Bad write rejected:
+Rejected write:
 
 ```ts
 const message = new Message();
 message.WorkspaceId = "w_beta";
-db.Messages.Add(message);
+await acmeDb.Messages.AddAsync(message);
 await acmeDb.SaveChangesAsync();
 ```
 
-The scoped save guard rejects the mismatch.
+The scoped save guard rejects the mismatch before persistence.
+
+### Schema Hardening
+
+Done.
+
+- Workspace-owned ID tables use composite `(workspace_id, id)` primary keys where appropriate.
+- Foreign keys to workspace-owned tables include `workspace_id`.
+- `auth_session` and `api_credential` bind to participant, not duplicate identity.
+- `message` has a database-level container-shape check.
+- `permission_grant` constrains subject kind and effect.
+- `notification_delivery` binds notification and endpoint through the same participant.
+- Runtime migration tests prove cross-workspace message references, invalid message containers, cross-participant notification deliveries, and invalid permission effects are rejected.
 
 ### Request Context And Auth Pipeline
 
-Done at the shared pipeline layer.
+Done.
 
 - Host selection respects trusted proxy configuration.
 - Public routes are explicit.
 - Domain resolution happens before authentication.
 - Workspace state is checked before scoped DB creation.
 - Raw session/API secrets are hashed before lookup.
+- Authentication failures are rate-limited by domain, audience, and remote address.
+- Successful authentication clears accumulated failure state.
+- Operational metadata can be redacted before logs or diagnostics cross process boundaries.
 - Auth lookup runs through the workspace-scoped DB.
-- Session and credential records no longer carry redundant identity IDs.
+- Session, credential, and SSO auth all return an explicit request context.
 
 Required invariant:
 
@@ -78,63 +166,42 @@ Authorization: ApiKey beta-secret
 
 The credential lookup runs inside Acme's workspace context, so Beta credentials cannot authenticate.
 
-### Schema Hardening
-
-Done in the single migration and entity model.
-
-- Workspace-owned ID tables use composite `(workspace_id, id)` primary keys where appropriate.
-- Foreign keys to workspace-owned tables include `workspace_id`.
-- `auth_session` and `api_credential` bind to participant, not duplicate identity.
-- `message` has a container-shape check.
-- `permission_grant` constrains subject kind and effect.
-- `notification_delivery` binds notification and endpoint through the same participant.
-
-Required invariant:
-
-```text
-notification_delivery.workspace_id = w_acme
-notification_delivery.participant_id = p_alice
-endpoint.participant_id = p_bob
-```
-
-The schema and service factory reject the cross-participant delivery.
-
 ### Authorization Service
 
-Done at evaluator level.
+Done.
 
 - Resources are canonical workspace-rooted paths.
 - Grant creation validates subject, effect, action, and resource workspace.
-- Evaluator ignores grants outside the active workspace.
+- The validated grant factory requires a caller-supplied subject registry loaded from the current workspace.
+- The evaluator ignores grants outside the active workspace.
 - Explicit deny wins over any allow.
 - System subjects are allowlisted.
 - Channel/thread adapter functions use the same generic evaluator.
 
-Required invariant:
+Unknown grant subjects fail before persistence:
 
 ```ts
-const decision = evaluateAuthorization({
+createValidatedPermissionGrantRecord(
   context,
-  resource: createResourcePath(context.WorkspaceId, threadPath),
-  action: ACTION_THREAD_WRITE,
-  grants,
-  roleIds,
-  groupIds,
-  systemSubjectIds: [],
+  participantSubject("p_deleted"),
+  createResourcePath(context.WorkspaceId, workspaceResource(context.WorkspaceId)),
+  ACTION_WORKSPACE_READ,
+  EFFECT_ALLOW,
+  { participantIds: ["p_alice"], roleIds: [], groupIds: [], systemSubjectIds: [] },
   nowMs,
-});
+);
 ```
 
-The evaluator cannot authorize resources outside `context.WorkspaceId`.
+The helper rejects `p_deleted` because it was not loaded from the workspace subject registry.
 
 ### Notifications And Agents
 
-Done at queue and delivery foundation level.
+Done.
 
 - Queue IDs are generated with `generateId("queue")`.
 - Queue reads and deletes require the same workspace and participant.
 - Blind workspace-wide dispatch is rejected.
-- Agent webhook endpoint configs require HTTPS and reject local/private hosts.
+- Agent webhook endpoint configs require HTTPS and reject local/private destinations.
 - Delivery records are created from notification+endpoint pairs after ownership validation.
 - Delivery failure state computes bounded exponential retry.
 - Webhook payloads include HMAC SHA-256 signatures.
@@ -149,7 +216,7 @@ This returns no events because queues are participant-scoped.
 
 ### Config And Ops Hardening
 
-Done for startup and response boundary.
+Done.
 
 - Production mode rejects dev auth.
 - Production mode requires a strong JWT secret.
@@ -157,51 +224,19 @@ Done for startup and response boundary.
 - Production listen URL must be HTTPS unless behind a trusted TLS proxy.
 - JSON body size uses configured limits.
 - Public error responses return stable codes and hide internals in production.
-
-### Proof Gates
-
-Done for static/source gates currently possible.
-
-Passing command:
-
-```bash
-NODE_OPTIONS='--import tsx' npx mocha tests/index.ts --timeout 60000
-```
-
-Current result:
-
-```text
-27 passing
-```
-
-Also passing:
-
-```bash
-git diff --check
-```
-
-Blocked command:
-
-```bash
-npx tsc -p packages/core/tsconfig.json --noEmit --pretty false
-```
-
-Current blocker:
-
-```text
-Type 'AttributesApi' has no call signatures.
-```
-
-That blocker is expected until the Tsonic/core package wave exposes callable `attributes` markers.
+- Auth failures have a bounded in-process limiter.
+- Operational metadata redaction is centralized.
+- Admin audit events require an explicit reason and include admin identity/auth context.
 
 ## Remaining After Tsonic Unblocks
 
-These are validation steps, not architecture changes:
+These are validation steps, not product architecture changes:
 
-1. Re-run package typecheck/build once `@tsonic/core` exposes `A<T>()`.
-2. Run `npm run build`.
-3. Run `npm test`.
-4. Add runtime tenant-isolation fixtures on top of the now-static proof gates.
-5. Wire protected route handlers to the request security context as real endpoints are implemented.
+1. Publish or install a Tsonic package/runtime wave that provides `Tsonic.JSRuntime` for the local compiler output.
+2. Fix Tsonic CLR override emission for `DbContext` virtual members.
+3. Re-run `npm run build`.
+4. Re-run `npm test`.
+5. Re-run `npm run verify-all`.
+6. Add end-to-end API/auth tests when concrete route handlers are implemented.
 
-The source architecture now enforces the intended model; the remaining work is compiler/package unblocking and runtime fixture expansion.
+The Jotster source architecture is now in the intended greenfield shape. The remaining blocker is compiler/runtime emission consistency.

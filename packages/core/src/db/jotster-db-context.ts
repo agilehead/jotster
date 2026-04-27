@@ -1,5 +1,7 @@
-import { asinterface } from "@tsonic/core/lang.js";
+import { asinterface, overloads as O } from "@tsonic/core/lang.js";
+import type { int } from "@tsonic/core/types.js";
 import { Enumerable } from "@tsonic/dotnet/System.Linq.js";
+import type { Int32 } from "@tsonic/dotnet/System.js";
 import type { ExtensionMethods as Linq } from "@tsonic/dotnet/System.Linq.js";
 import type { ExtensionMethods as Ef } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import {
@@ -9,7 +11,12 @@ import {
   ModelBuilder,
 } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 import type { CancellationToken } from "@tsonic/dotnet/System.Threading.js";
+import type { Task } from "@tsonic/dotnet/System.Threading.Tasks.js";
 import type { DbSet } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
+import type {
+  ChangeTracker,
+  EntityEntry,
+} from "@tsonic/efcore/Microsoft.EntityFrameworkCore.ChangeTracking.js";
 import type {
   EntityTypeBuilder,
   PropertyBuilder,
@@ -65,10 +72,6 @@ type DbSetQuery<T> = Ef<Linq<DbSet<T>>>;
 type RelationalEntityTypeBuilder = Ef<EntityTypeBuilder>;
 type RelationalPropertyBuilder = Ef<PropertyBuilder>;
 
-interface QueryFilteredEntityTypeBuilder<T> {
-  HasQueryFilter(predicate: (entity: T) => boolean): EntityTypeBuilder;
-}
-
 function toSnakeCase(name: string): string {
   let result = "";
 
@@ -106,56 +109,106 @@ function configureRelationalNames(builder: EntityTypeBuilder): void {
   }
 }
 
-function configureWorkspaceFilter<T extends WorkspaceOwnedEntity>(
-  modelBuilder: ModelBuilder,
-  workspaceId: string,
+function configureEntityModel(
+  builder: EntityTypeBuilder,
+  primaryKey: string[],
+  indexes: string[][],
 ): void {
-  const builder = asinterface<QueryFilteredEntityTypeBuilder<T>>(
-    modelBuilder.Entity<T>(),
-  );
-  builder.HasQueryFilter((entity) => entity.WorkspaceId === workspaceId);
+  configureRelationalNames(builder);
+  builder.HasKey(...primaryKey);
+  for (let index = 0; index < indexes.length; index++) {
+    builder.HasIndex(...indexes[index]);
+  }
 }
 
 function configureWorkspaceFilters(
   modelBuilder: ModelBuilder,
   workspaceId: string,
 ): void {
-  configureWorkspaceFilter<AuthProvider>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<ExternalIdentity>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<AuthSession>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<ApiCredential>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<WorkspaceMember>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Participant>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<ParticipantPreference>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Role>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<ParticipantRole>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Group>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<GroupMember>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<GroupChild>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<PermissionGrant>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Channel>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<ChannelMember>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Thread>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<DirectChat>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<DirectChatMember>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Message>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<MessageVersion>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<MessageMarker>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Reaction>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Attachment>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Emoji>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<ProfileField>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<ParticipantProfileFieldValue>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<WorkspaceMemberDefault>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Webhook>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<DeviceToken>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<AuditEvent>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<Notification>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<NotificationEndpoint>(modelBuilder, workspaceId);
-  configureWorkspaceFilter<NotificationDelivery>(modelBuilder, workspaceId);
+  modelBuilder.Entity<AuthProvider>().HasQueryFilter((entity: AuthProvider): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<ExternalIdentity>().HasQueryFilter((entity: ExternalIdentity): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<AuthSession>().HasQueryFilter((entity: AuthSession): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<ApiCredential>().HasQueryFilter((entity: ApiCredential): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<WorkspaceMember>().HasQueryFilter((entity: WorkspaceMember): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Participant>().HasQueryFilter((entity: Participant): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<ParticipantPreference>().HasQueryFilter((entity: ParticipantPreference): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Role>().HasQueryFilter((entity: Role): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<ParticipantRole>().HasQueryFilter((entity: ParticipantRole): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Group>().HasQueryFilter((entity: Group): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<GroupMember>().HasQueryFilter((entity: GroupMember): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<GroupChild>().HasQueryFilter((entity: GroupChild): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<PermissionGrant>().HasQueryFilter((entity: PermissionGrant): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Channel>().HasQueryFilter((entity: Channel): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<ChannelMember>().HasQueryFilter((entity: ChannelMember): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Thread>().HasQueryFilter((entity: Thread): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<DirectChat>().HasQueryFilter((entity: DirectChat): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<DirectChatMember>().HasQueryFilter((entity: DirectChatMember): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Message>().HasQueryFilter((entity: Message): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<MessageVersion>().HasQueryFilter((entity: MessageVersion): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<MessageMarker>().HasQueryFilter((entity: MessageMarker): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Reaction>().HasQueryFilter((entity: Reaction): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Attachment>().HasQueryFilter((entity: Attachment): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Emoji>().HasQueryFilter((entity: Emoji): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<ProfileField>().HasQueryFilter((entity: ProfileField): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<ParticipantProfileFieldValue>().HasQueryFilter((entity: ParticipantProfileFieldValue): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<WorkspaceMemberDefault>().HasQueryFilter((entity: WorkspaceMemberDefault): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Webhook>().HasQueryFilter((entity: Webhook): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<DeviceToken>().HasQueryFilter((entity: DeviceToken): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<AuditEvent>().HasQueryFilter((entity: AuditEvent): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<Notification>().HasQueryFilter((entity: Notification): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<NotificationEndpoint>().HasQueryFilter((entity: NotificationEndpoint): boolean => entity.WorkspaceId === workspaceId);
+  modelBuilder.Entity<NotificationDelivery>().HasQueryFilter((entity: NotificationDelivery): boolean => entity.WorkspaceId === workspaceId);
 }
 
-export abstract class JotsterDbContext extends DbContext {
+function configureJotsterBaseModel(modelBuilder: ModelBuilder): void {
+  configureEntityModel(modelBuilder.Entity<Workspace>(), ["Id"], [["Slug"], ["State"]]);
+  configureEntityModel(modelBuilder.Entity<WorkspaceDomain>(), ["Domain"], [["WorkspaceId", "State"], ["WorkspaceId", "IsPrimary"]]);
+  configureEntityModel(modelBuilder.Entity<Identity>(), ["Id"], [["Kind", "State"], ["PrimaryEmail"]]);
+  configureEntityModel(modelBuilder.Entity<HumanProfile>(), ["IdentityId"], []);
+  configureEntityModel(modelBuilder.Entity<AgentProfile>(), ["IdentityId"], [["OwnerIdentityId"]]);
+  configureEntityModel(modelBuilder.Entity<AuthProvider>(), ["WorkspaceId", "Id"], [["WorkspaceId", "DisplayName"], ["WorkspaceId", "Kind"], ["WorkspaceId", "Enabled"]]);
+  configureEntityModel(modelBuilder.Entity<ExternalIdentity>(), ["WorkspaceId", "Id"], [["WorkspaceId", "AuthProviderId", "Subject"], ["IdentityId"], ["WorkspaceId", "AuthProviderId"]]);
+  configureEntityModel(modelBuilder.Entity<AuthSession>(), ["WorkspaceId", "Id"], [["WorkspaceId", "SessionHash"], ["WorkspaceId", "ParticipantId", "State"]]);
+  configureEntityModel(modelBuilder.Entity<ApiCredential>(), ["WorkspaceId", "Id"], [["WorkspaceId", "CredentialHash"], ["WorkspaceId", "ParticipantId"], ["WorkspaceId", "CreatedByParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<WorkspaceMember>(), ["WorkspaceId", "Id"], [["WorkspaceId", "IdentityId"], ["WorkspaceId", "State"]]);
+  configureEntityModel(modelBuilder.Entity<Participant>(), ["WorkspaceId", "Id"], [["WorkspaceId", "WorkspaceMemberId"], ["WorkspaceId", "Kind", "State"]]);
+  configureEntityModel(modelBuilder.Entity<ParticipantPreference>(), ["WorkspaceId", "ParticipantId", "Key"], []);
+  configureEntityModel(modelBuilder.Entity<Role>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Name"]]);
+  configureEntityModel(modelBuilder.Entity<ParticipantRole>(), ["WorkspaceId", "ParticipantId", "RoleId"], [["WorkspaceId", "RoleId"]]);
+  configureEntityModel(modelBuilder.Entity<Group>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Name"], ["WorkspaceId", "State"]]);
+  configureEntityModel(modelBuilder.Entity<GroupMember>(), ["WorkspaceId", "GroupId", "ParticipantId"], [["WorkspaceId", "ParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<GroupChild>(), ["WorkspaceId", "ParentGroupId", "ChildGroupId"], [["WorkspaceId", "ChildGroupId"]]);
+  configureEntityModel(modelBuilder.Entity<PermissionGrant>(), ["WorkspaceId", "Id"], [["WorkspaceId", "SubjectKind", "SubjectId"], ["WorkspaceId", "ResourcePath", "Action"]]);
+  configureEntityModel(modelBuilder.Entity<Channel>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Name"], ["WorkspaceId", "State"], ["WorkspaceId", "CreatedByParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<ChannelMember>(), ["WorkspaceId", "ChannelId", "ParticipantId"], [["WorkspaceId", "ParticipantId"], ["WorkspaceId", "ChannelId", "State"]]);
+  configureEntityModel(modelBuilder.Entity<Thread>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ChannelId", "Id"], ["WorkspaceId", "ChannelId", "Title"], ["WorkspaceId", "State"], ["WorkspaceId", "CreatedByParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<DirectChat>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Kind", "State"]]);
+  configureEntityModel(modelBuilder.Entity<DirectChatMember>(), ["WorkspaceId", "DirectChatId", "ParticipantId"], [["WorkspaceId", "ParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<Message>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ThreadId", "CreatedAt"], ["WorkspaceId", "DirectChatId", "CreatedAt"], ["WorkspaceId", "SenderParticipantId", "CreatedAt"]]);
+  configureEntityModel(modelBuilder.Entity<MessageVersion>(), ["WorkspaceId", "Id"], [["WorkspaceId", "MessageId", "CreatedAt"]]);
+  configureEntityModel(modelBuilder.Entity<MessageMarker>(), ["WorkspaceId", "MessageId", "ParticipantId", "Marker"], [["WorkspaceId", "ParticipantId", "Marker"]]);
+  configureEntityModel(modelBuilder.Entity<Reaction>(), ["WorkspaceId", "Id"], [["WorkspaceId", "MessageId", "ParticipantId", "EmojiKey"], ["WorkspaceId", "ParticipantId", "CreatedAt"]]);
+  configureEntityModel(modelBuilder.Entity<Attachment>(), ["WorkspaceId", "Id"], [["WorkspaceId", "StorageKey"], ["WorkspaceId", "OwnerParticipantId", "CreatedAt"]]);
+  configureEntityModel(modelBuilder.Entity<Emoji>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Key"], ["WorkspaceId", "CreatedByParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<ProfileField>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Key"]]);
+  configureEntityModel(modelBuilder.Entity<ParticipantProfileFieldValue>(), ["WorkspaceId", "ParticipantId", "ProfileFieldId"], []);
+  configureEntityModel(modelBuilder.Entity<WorkspaceMemberDefault>(), ["WorkspaceId", "Key"], []);
+  configureEntityModel(modelBuilder.Entity<Webhook>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Direction", "Enabled"], ["WorkspaceId", "OwnerParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<DeviceToken>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Provider", "TokenHash"], ["WorkspaceId", "ParticipantId"]]);
+  configureEntityModel(modelBuilder.Entity<AuditEvent>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ActorParticipantId", "CreatedAt"], ["WorkspaceId", "ObjectType", "ObjectId"]]);
+  configureEntityModel(modelBuilder.Entity<Notification>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ParticipantId", "Id"], ["WorkspaceId", "ParticipantId", "CreatedAt"], ["WorkspaceId", "ObjectType", "ObjectId"]]);
+  configureEntityModel(modelBuilder.Entity<NotificationEndpoint>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ParticipantId", "Id"], ["WorkspaceId", "ParticipantId", "Kind"], ["WorkspaceId", "Enabled"]]);
+  configureEntityModel(modelBuilder.Entity<NotificationDelivery>(), ["WorkspaceId", "Id"], [["WorkspaceId", "NotificationId"], ["WorkspaceId", "ParticipantId", "NotificationId"], ["WorkspaceId", "EndpointId", "Status"]]);
+}
+
+export class JotsterWorkspaceDbContext extends DbContext {
+  CurrentWorkspaceId!: string;
+
+  constructor(options: DbContextOptions, workspaceId: string) {
+    super(options);
+    this.CurrentWorkspaceId = workspaceId;
+  }
+
   get Workspaces(): DbSetQuery<Workspace> {
     return asinterface<DbSetQuery<Workspace>>(this.Set<Workspace>());
   }
@@ -308,64 +361,9 @@ export abstract class JotsterDbContext extends DbContext {
     return asinterface<DbSetQuery<NotificationDelivery>>(this.Set<NotificationDelivery>());
   }
 
-  protected constructor(options: DbContextOptions) {
-    super(options);
-  }
-
   override OnModelCreating(modelBuilder: ModelBuilder): void {
     super.OnModelCreating(modelBuilder);
-
-    configureRelationalNames(modelBuilder.Entity<Workspace>());
-    configureRelationalNames(modelBuilder.Entity<WorkspaceDomain>());
-    configureRelationalNames(modelBuilder.Entity<Identity>());
-    configureRelationalNames(modelBuilder.Entity<HumanProfile>());
-    configureRelationalNames(modelBuilder.Entity<AgentProfile>());
-    configureRelationalNames(modelBuilder.Entity<AuthProvider>());
-    configureRelationalNames(modelBuilder.Entity<ExternalIdentity>());
-    configureRelationalNames(modelBuilder.Entity<AuthSession>());
-    configureRelationalNames(modelBuilder.Entity<ApiCredential>());
-    configureRelationalNames(modelBuilder.Entity<WorkspaceMember>());
-    configureRelationalNames(modelBuilder.Entity<Participant>());
-    configureRelationalNames(modelBuilder.Entity<ParticipantPreference>());
-    configureRelationalNames(modelBuilder.Entity<Role>());
-    configureRelationalNames(modelBuilder.Entity<ParticipantRole>());
-    configureRelationalNames(modelBuilder.Entity<Group>());
-    configureRelationalNames(modelBuilder.Entity<GroupMember>());
-    configureRelationalNames(modelBuilder.Entity<GroupChild>());
-    configureRelationalNames(modelBuilder.Entity<PermissionGrant>());
-    configureRelationalNames(modelBuilder.Entity<Channel>());
-    configureRelationalNames(modelBuilder.Entity<ChannelMember>());
-    configureRelationalNames(modelBuilder.Entity<Thread>());
-    configureRelationalNames(modelBuilder.Entity<DirectChat>());
-    configureRelationalNames(modelBuilder.Entity<DirectChatMember>());
-    configureRelationalNames(modelBuilder.Entity<Message>());
-    configureRelationalNames(modelBuilder.Entity<MessageVersion>());
-    configureRelationalNames(modelBuilder.Entity<MessageMarker>());
-    configureRelationalNames(modelBuilder.Entity<Reaction>());
-    configureRelationalNames(modelBuilder.Entity<Attachment>());
-    configureRelationalNames(modelBuilder.Entity<Emoji>());
-    configureRelationalNames(modelBuilder.Entity<ProfileField>());
-    configureRelationalNames(modelBuilder.Entity<ParticipantProfileFieldValue>());
-    configureRelationalNames(modelBuilder.Entity<WorkspaceMemberDefault>());
-    configureRelationalNames(modelBuilder.Entity<Webhook>());
-    configureRelationalNames(modelBuilder.Entity<DeviceToken>());
-    configureRelationalNames(modelBuilder.Entity<AuditEvent>());
-    configureRelationalNames(modelBuilder.Entity<Notification>());
-    configureRelationalNames(modelBuilder.Entity<NotificationEndpoint>());
-    configureRelationalNames(modelBuilder.Entity<NotificationDelivery>());
-  }
-}
-
-export class JotsterWorkspaceDbContext extends JotsterDbContext {
-  CurrentWorkspaceId!: string;
-
-  constructor(options: DbContextOptions, workspaceId: string) {
-    super(options);
-    this.CurrentWorkspaceId = workspaceId;
-  }
-
-  override OnModelCreating(modelBuilder: ModelBuilder): void {
-    super.OnModelCreating(modelBuilder);
+    configureJotsterBaseModel(modelBuilder);
     configureWorkspaceFilters(modelBuilder, this.CurrentWorkspaceId);
   }
 
@@ -378,63 +376,130 @@ export class JotsterWorkspaceDbContext extends JotsterDbContext {
   }
 
   ValidateWorkspaceWrites(): void {
-    const entries = Enumerable.ToArray(this.ChangeTracker.Entries());
+    const changeTracker = this.ChangeTracker as ChangeTracker;
+    const entries = Enumerable.ToArray(changeTracker.Entries());
     for (let index = 0; index < entries.length; index++) {
-      const entry = entries[index];
+      const entry = entries[index] as EntityEntry;
       if (
         entry.State === EntityState.Added ||
         entry.State === EntityState.Modified ||
         entry.State === EntityState.Deleted
       ) {
-        requireWorkspaceOwnedEntity(this.CurrentWorkspaceId, entry.Entity);
+        requireWorkspaceOwnedEntity(this.CurrentWorkspaceId, entry.Entity as object);
       }
     }
   }
 
-  override SaveChanges(acceptAllChangesOnSuccess?: boolean): number {
-    this.ValidateWorkspaceWrites();
-    if (acceptAllChangesOnSuccess === undefined) {
-      return super.SaveChanges();
-    }
-    return super.SaveChanges(acceptAllChangesOnSuccess);
+  override SaveChanges(): int;
+  override SaveChanges(acceptAllChangesOnSuccess: boolean): int;
+  SaveChanges(_acceptAllChangesOnSuccess?: any): any {
+    throw new Error("SaveChanges overload stub must be erased");
   }
 
+  SaveChangesDefault(): int {
+    this.ValidateWorkspaceWrites();
+    return super.SaveChanges();
+  }
+
+  SaveChangesWithAcceptAll(acceptAllChangesOnSuccess: boolean): int {
+    this.ValidateWorkspaceWrites();
+    return super.SaveChanges(acceptAllChangesOnSuccess === true);
+  }
+
+  override SaveChangesAsync(): Task<Int32>;
+  override SaveChangesAsync(cancellationToken: CancellationToken): Task<Int32>;
+  override SaveChangesAsync(acceptAllChangesOnSuccess: boolean): Task<Int32>;
   override SaveChangesAsync(
-    acceptAllChangesOnSuccessOrCancellationToken?: boolean | CancellationToken,
-    cancellationToken?: CancellationToken,
-  ) {
+    acceptAllChangesOnSuccess: boolean,
+    cancellationToken: CancellationToken,
+  ): Task<Int32>;
+  SaveChangesAsync(_p0?: any, _p1?: any): any {
+    throw new Error("SaveChangesAsync overload stub must be erased");
+  }
+
+  SaveChangesAsyncDefault(): Task<Int32> {
     this.ValidateWorkspaceWrites();
-    if (acceptAllChangesOnSuccessOrCancellationToken === undefined) {
-      return super.SaveChangesAsync();
-    }
-    if (typeof acceptAllChangesOnSuccessOrCancellationToken === "boolean") {
-      if (cancellationToken === undefined) {
-        return super.SaveChangesAsync(acceptAllChangesOnSuccessOrCancellationToken);
-      }
-      return super.SaveChangesAsync(
-        acceptAllChangesOnSuccessOrCancellationToken,
-        cancellationToken,
-      );
-    }
-    return super.SaveChangesAsync(acceptAllChangesOnSuccessOrCancellationToken);
+    return super.SaveChangesAsync();
+  }
+
+  SaveChangesAsyncWithCancellation(
+    cancellationToken: CancellationToken,
+  ): Task<Int32> {
+    this.ValidateWorkspaceWrites();
+    return super.SaveChangesAsync(cancellationToken);
+  }
+
+  SaveChangesAsyncWithAcceptAll(
+    acceptAllChangesOnSuccess: boolean,
+  ): Task<Int32> {
+    this.ValidateWorkspaceWrites();
+    return super.SaveChangesAsync(acceptAllChangesOnSuccess === true);
+  }
+
+  SaveChangesAsyncWithAcceptAllAndCancellation(
+    acceptAllChangesOnSuccess: boolean,
+    cancellationToken: CancellationToken,
+  ): Task<Int32> {
+    this.ValidateWorkspaceWrites();
+    return super.SaveChangesAsync(
+      acceptAllChangesOnSuccess === true,
+      cancellationToken,
+    );
   }
 }
 
-export class JotsterAdminDbContext extends JotsterDbContext {
+O<JotsterWorkspaceDbContext>()
+  .method((context) => context.SaveChangesDefault)
+  .family((context) => context.SaveChanges);
+O<JotsterWorkspaceDbContext>()
+  .method((context) => context.SaveChangesWithAcceptAll)
+  .family((context) => context.SaveChanges);
+O<JotsterWorkspaceDbContext>()
+  .method((context) => context.SaveChangesAsyncDefault)
+  .family((context) => context.SaveChangesAsync);
+O<JotsterWorkspaceDbContext>()
+  .method((context) => context.SaveChangesAsyncWithCancellation)
+  .family((context) => context.SaveChangesAsync);
+O<JotsterWorkspaceDbContext>()
+  .method((context) => context.SaveChangesAsyncWithAcceptAll)
+  .family((context) => context.SaveChangesAsync);
+O<JotsterWorkspaceDbContext>()
+  .method((context) => context.SaveChangesAsyncWithAcceptAllAndCancellation)
+  .family((context) => context.SaveChangesAsync);
+
+export class JotsterAdminDbContext extends DbContext {
   Admin!: AdminContext;
 
   constructor(options: DbContextOptions, adminContext: AdminContext) {
     super(options);
     this.Admin = adminContext;
   }
+
+  override OnModelCreating(modelBuilder: ModelBuilder): void {
+    super.OnModelCreating(modelBuilder);
+    configureJotsterBaseModel(modelBuilder);
+  }
 }
 
-export class JotsterBootstrapDbContext extends JotsterDbContext {
+export class JotsterBootstrapDbContext extends DbContext {
   Bootstrap?: BootstrapContext;
 
   constructor(options: DbContextOptions, bootstrapContext?: BootstrapContext) {
     super(options);
     this.Bootstrap = bootstrapContext;
+  }
+
+  get Workspaces(): DbSetQuery<Workspace> {
+    return asinterface<DbSetQuery<Workspace>>(this.Set<Workspace>());
+  }
+
+  get WorkspaceDomains(): DbSetQuery<WorkspaceDomain> {
+    return asinterface<DbSetQuery<WorkspaceDomain>>(this.Set<WorkspaceDomain>());
+  }
+
+  override OnModelCreating(modelBuilder: ModelBuilder): void {
+    super.OnModelCreating(modelBuilder);
+    configureJotsterBaseModel(modelBuilder);
   }
 }
 

@@ -47,7 +47,7 @@ export function requireWorkspaceMatch(
   }
 }
 
-export function isWorkspaceOwnedEntity(value: unknown): value is WorkspaceOwnedEntity {
+export function isWorkspaceOwnedEntity(value: object | null): value is WorkspaceOwnedEntity {
   if (value === undefined || value === null || typeof value !== "object") {
     return false;
   }
@@ -57,10 +57,11 @@ export function isWorkspaceOwnedEntity(value: unknown): value is WorkspaceOwnedE
 
 export function requireWorkspaceOwnedEntity(
   expectedWorkspaceId: string,
-  value: unknown,
+  value: object | null,
 ): void {
   if (!isWorkspaceOwnedEntity(value)) {
     return;
   }
-  requireWorkspaceMatch(expectedWorkspaceId, value.WorkspaceId);
+  const entity = value as WorkspaceOwnedEntity;
+  requireWorkspaceMatch(expectedWorkspaceId, entity.WorkspaceId);
 }

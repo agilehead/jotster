@@ -1,7 +1,9 @@
 import {
   AgentProfile,
   ApiCredential,
+  AuthProvider,
   AuthSession,
+  ExternalIdentity,
   HumanProfile,
   Identity,
   Participant,
@@ -19,6 +21,10 @@ import type { long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { SHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
+
+export const AUTH_PROVIDER_KIND_OIDC = "oidc";
+export const AUTH_PROVIDER_KIND_SAML = "saml";
+export const AUTH_PROVIDER_KIND_PASSWORDLESS = "passwordless";
 
 export interface CreateRequestContextInput {
   workspaceId: string;
@@ -43,6 +49,28 @@ export interface CreateApiCredentialInput {
   expiresAt?: long;
 }
 
+export interface CreateAuthProviderInput {
+  workspaceId: string;
+  kind: string;
+  displayName: string;
+  issuer: string;
+  clientId: string;
+  configJson?: string;
+  enabled?: boolean;
+  createdAt: long;
+}
+
+export interface CreateExternalIdentityInput {
+  workspaceId: string;
+  identityId: string;
+  authProviderId: string;
+  subject: string;
+  emailAtLogin?: string;
+  claimsJson?: string;
+  lastLoginAt?: long;
+  createdAt: long;
+}
+
 export interface AuthenticatedCredentialInput {
   db: JotsterWorkspaceDbContext;
   workspaceId: string;
@@ -52,6 +80,16 @@ export interface AuthenticatedCredentialInput {
   authenticatorId: string;
   participantId: string;
   scopes: string[];
+}
+
+export interface ExternalIdentityAuthInput {
+  db: JotsterWorkspaceDbContext;
+  workspaceId: string;
+  domain: string;
+  audience: string;
+  authProviderId: string;
+  subject: string;
+  nowMs: long;
 }
 
 export function normalizeDomain(domain: string): string {
@@ -73,6 +111,43 @@ export function normalizeDomain(domain: string): string {
   }
   if (normalized.indexOf("..") >= 0) {
     throw new Error("Domain is invalid");
+  }
+  return normalized;
+}
+
+function validateAuthProviderKind(kind: string): string {
+  const normalized = kind.trim().toLowerCase();
+  if (
+    normalized !== AUTH_PROVIDER_KIND_OIDC &&
+    normalized !== AUTH_PROVIDER_KIND_SAML &&
+    normalized !== AUTH_PROVIDER_KIND_PASSWORDLESS
+  ) {
+    throw new Error("Unsupported auth provider kind");
+  }
+  return normalized;
+}
+
+function normalizeProviderSubject(subject: string): string {
+  const normalized = subject.trim();
+  if (normalized.length === 0) {
+    throw new Error("External identity subject is required");
+  }
+  return normalized;
+}
+
+function normalizeProviderText(value: string, fieldName: string): string {
+  const normalized = value.trim();
+  if (normalized.length === 0) {
+    throw new Error(fieldName + " is required");
+  }
+  return normalized;
+}
+
+function validateJsonObjectText(value: string, fieldName: string): string {
+  const normalized = value.trim().length === 0 ? "{}" : value.trim();
+  const parsed = JSON.parse(normalized) as any;
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(fieldName + " must be a JSON object");
   }
   return normalized;
 }
@@ -101,7 +176,7 @@ function parseScopesJson(scopesJson: string): string[] {
   if (scopesJson.trim().length === 0) {
     return [];
   }
-  const parsed = JSON.parse(scopesJson) as unknown;
+  const parsed = JSON.parse(scopesJson) as any;
   if (!Array.isArray(parsed)) {
     return [];
   }
@@ -220,6 +295,52 @@ export async function authenticateApiCredential(
   });
 }
 
+export async function authenticateExternalIdentity(
+  input: ExternalIdentityAuthInput,
+): Promise<RequestContext | undefined> {
+  input.db.RequireWorkspace(input.workspaceId);
+  const provider = await input.db.AuthProviders.Where(
+    (entry) => entry.Id === input.authProviderId && entry.Enabled === 1,
+  ).FirstOrDefaultAsync();
+  if (provider === undefined) {
+    return undefined;
+  }
+
+  const subject = normalizeProviderSubject(input.subject);
+  const externalIdentity = await input.db.ExternalIdentities.Where(
+    (entry) => entry.AuthProviderId === provider.Id && entry.Subject === subject,
+  ).FirstOrDefaultAsync();
+  if (externalIdentity === undefined) {
+    return undefined;
+  }
+
+  const workspaceMember = await input.db.WorkspaceMembers.Where(
+    (entry) => entry.IdentityId === externalIdentity.IdentityId && entry.State === "active",
+  ).FirstOrDefaultAsync();
+  if (workspaceMember === undefined) {
+    return undefined;
+  }
+
+  const participant = await input.db.Participants.Where(
+    (entry) => entry.WorkspaceMemberId === workspaceMember.Id && entry.State === "active",
+  ).FirstOrDefaultAsync();
+  if (participant === undefined) {
+    return undefined;
+  }
+
+  return createRequestContext({
+    workspaceId: input.workspaceId,
+    domain: input.domain,
+    identityId: workspaceMember.IdentityId,
+    workspaceMemberId: workspaceMember.Id,
+    participantId: participant.Id,
+    audience: input.audience,
+    authKind: "sso",
+    authenticatorId: externalIdentity.Id,
+    scopes: [],
+  });
+}
+
 export async function authenticateSessionHash(
   db: JotsterWorkspaceDbContext,
   context: RequestContext,
@@ -269,6 +390,36 @@ export function createWorkspaceDomainRecord(
   record.CreatedAt = createdAt;
   record.UpdatedAt = createdAt;
   return record;
+}
+
+export function createAuthProviderRecord(input: CreateAuthProviderInput): AuthProvider {
+  const provider = new AuthProvider();
+  provider.Id = generateId("authp");
+  provider.WorkspaceId = input.workspaceId;
+  provider.Kind = validateAuthProviderKind(input.kind);
+  provider.DisplayName = normalizeProviderText(input.displayName, "Auth provider display name");
+  provider.Issuer = normalizeProviderText(input.issuer, "Auth provider issuer");
+  provider.ClientId = normalizeProviderText(input.clientId, "Auth provider client id");
+  provider.ConfigJson = validateJsonObjectText(input.configJson ?? "{}", "Auth provider config_json");
+  provider.Enabled = input.enabled === false ? 0 : 1;
+  provider.CreatedAt = input.createdAt;
+  provider.UpdatedAt = input.createdAt;
+  return provider;
+}
+
+export function createExternalIdentityRecord(input: CreateExternalIdentityInput): ExternalIdentity {
+  const externalIdentity = new ExternalIdentity();
+  externalIdentity.Id = generateId("extid");
+  externalIdentity.WorkspaceId = input.workspaceId;
+  externalIdentity.IdentityId = normalizeProviderText(input.identityId, "External identity identity id");
+  externalIdentity.AuthProviderId = normalizeProviderText(input.authProviderId, "External identity auth provider id");
+  externalIdentity.Subject = normalizeProviderSubject(input.subject);
+  externalIdentity.EmailAtLogin = input.emailAtLogin;
+  externalIdentity.ClaimsJson = validateJsonObjectText(input.claimsJson ?? "{}", "External identity claims_json");
+  externalIdentity.LastLoginAt = input.lastLoginAt;
+  externalIdentity.CreatedAt = input.createdAt;
+  externalIdentity.UpdatedAt = input.createdAt;
+  return externalIdentity;
 }
 
 export function createIdentityRecord(

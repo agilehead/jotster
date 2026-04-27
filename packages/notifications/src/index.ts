@@ -63,19 +63,19 @@ const queues: Record<string, EventQueue> = {};
 
 export function initNotificationRegistry(): void {}
 
-function parseConfigJson(configJson: string): Record<string, unknown> {
+function parseConfigJson(configJson: string): Record<string, any> {
   if (configJson.trim().length === 0) {
     return {};
   }
-  const parsed = JSON.parse(configJson) as unknown;
+  const parsed = JSON.parse(configJson) as any;
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error("Notification endpoint config must be an object");
   }
-  return parsed as Record<string, unknown>;
+  return parsed as Record<string, any>;
 }
 
 function getRequiredStringConfig(
-  config: Record<string, unknown>,
+  config: Record<string, any>,
   key: string,
 ): string {
   const value = config[key];
@@ -97,7 +97,7 @@ function extractHttpsHost(url: string): string {
   }
   const atIndex = remainder.lastIndexOf("@");
   if (atIndex >= 0) {
-    remainder = remainder.substring(atIndex + 1);
+    throw new Error("Webhook endpoint URL userinfo is not allowed");
   }
   if (remainder.startsWith("[")) {
     const closeIndex = remainder.indexOf("]");
@@ -116,19 +116,106 @@ function extractHttpsHost(url: string): string {
   return remainder;
 }
 
-function isPrivateIpv4Host(host: string): boolean {
-  if (host === "0.0.0.0" || host.startsWith("127.")) {
-    return true;
-  }
-  if (host.startsWith("10.") || host.startsWith("192.168.") || host.startsWith("169.254.")) {
-    return true;
-  }
-  if (host.startsWith("172.")) {
-    const parts = host.split(".");
-    if (parts.length === 4) {
-      const second = Number.parseInt(parts[1], 10);
-      return second >= 16 && second <= 31;
+function isWebhookHostCharacterAllowed(host: string): boolean {
+  for (let index = 0; index < host.length; index++) {
+    const char = host[index];
+    const allowed =
+      (char >= "a" && char <= "z") ||
+      (char >= "0" && char <= "9") ||
+      char === "." ||
+      char === "-";
+    if (!allowed) {
+      return false;
     }
+  }
+  return true;
+}
+
+function hasReservedLocalSuffix(host: string): boolean {
+  return (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host.endsWith(".invalid") ||
+    host.endsWith(".test")
+  );
+}
+
+function isAllDigits(value: string): boolean {
+  if (value.length === 0) {
+    return false;
+  }
+  for (let index = 0; index < value.length; index++) {
+    if (value[index] < "0" || value[index] > "9") {
+      return false;
+    }
+  }
+  return true;
+}
+
+function parseIpv4Octet(value: string): number {
+  if (!isAllDigits(value)) {
+    return -1;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return parsed >= 0 && parsed <= 255 ? parsed : -1;
+}
+
+function parseIpv4Host(host: string): number[] {
+  const parts = host.split(".");
+  if (parts.length !== 4) {
+    return [];
+  }
+  const octets: number[] = [];
+  for (let index = 0; index < parts.length; index++) {
+    const octet = parseIpv4Octet(parts[index]);
+    if (octet < 0) {
+      return [];
+    }
+    octets.push(octet);
+  }
+  return octets;
+}
+
+function isMalformedNumericHost(host: string): boolean {
+  if (isAllDigits(host)) {
+    return true;
+  }
+  const parts = host.split(".");
+  if (parts.length > 1) {
+    let allNumeric = true;
+    for (let index = 0; index < parts.length; index++) {
+      if (!isAllDigits(parts[index])) {
+        allNumeric = false;
+      }
+    }
+    return allNumeric && parseIpv4Host(host).length === 0;
+  }
+  return false;
+}
+
+function isPrivateIpv4Host(host: string): boolean {
+  const octets = parseIpv4Host(host);
+  if (octets.length === 0) {
+    return false;
+  }
+  const first = octets[0];
+  const second = octets[1];
+  if (first === 0 || first === 10 || first === 127) {
+    return true;
+  }
+  if (first === 169 && second === 254) {
+    return true;
+  }
+  if (first === 172 && second >= 16 && second <= 31) {
+    return true;
+  }
+  if (first === 192 && second === 168) {
+    return true;
+  }
+  if (first >= 224) {
+    return true;
   }
   return false;
 }
@@ -136,10 +223,11 @@ function isPrivateIpv4Host(host: string): boolean {
 export function assertSafeWebhookUrl(url: string): void {
   const host = extractHttpsHost(url);
   if (
-    host === "localhost" ||
-    host.endsWith(".localhost") ||
+    !isWebhookHostCharacterAllowed(host) ||
+    hasReservedLocalSuffix(host) ||
     host === "::1" ||
     host.indexOf(":") >= 0 ||
+    isMalformedNumericHost(host) ||
     isPrivateIpv4Host(host)
   ) {
     throw new Error("Webhook endpoint URL host is not allowed");

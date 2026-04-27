@@ -1,6 +1,4 @@
 import type { long } from "@tsonic/core/types.js";
-import { attributes as A } from "@tsonic/core/lang.js";
-import { IndexAttribute, PrimaryKeyAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class Attachment {
   WorkspaceId!: string;
@@ -13,7 +11,3 @@ export class Attachment {
   ByteSize!: long;
   CreatedAt!: long;
 }
-
-A<Attachment>().add(PrimaryKeyAttribute, "WorkspaceId", ["Id"]);
-A<Attachment>().add(IndexAttribute, ["WorkspaceId","StorageKey"]);
-A<Attachment>().add(IndexAttribute, ["WorkspaceId","OwnerParticipantId","CreatedAt"]);

@@ -18,6 +18,7 @@ import {
   WorkspaceMemberDefault,
   generateId,
 } from "@jotster/core";
+import type { AdminContext } from "@jotster/core";
 import type { long } from "@tsonic/core/types.js";
 
 export interface CreateWorkspaceInput {
@@ -128,6 +129,42 @@ export function createAuditEventRecord(
   event.MetadataJson = metadataJson;
   event.CreatedAt = createdAt;
   return event;
+}
+
+function parseAuditMetadataJson(metadataJson: string): any {
+  if (metadataJson.trim().length === 0) {
+    return {};
+  }
+  return JSON.parse(metadataJson) as any;
+}
+
+export function createAdminAuditEventRecord(
+  adminContext: AdminContext,
+  workspaceId: string,
+  action: string,
+  objectType: string,
+  objectId: string | undefined,
+  metadataJson: string,
+  createdAt: long,
+): AuditEvent {
+  if (adminContext.Reason.trim().length === 0) {
+    throw new Error("Admin audit reason is required");
+  }
+  const metadata = {
+    adminIdentityId: adminContext.IdentityId,
+    adminAuthKind: adminContext.AuthKind,
+    reason: adminContext.Reason,
+    details: parseAuditMetadataJson(metadataJson),
+  };
+  return createAuditEventRecord(
+    workspaceId,
+    undefined,
+    action,
+    objectType,
+    objectId,
+    JSON.stringify(metadata),
+    createdAt,
+  );
 }
 
 export function createChannelRecord(input: CreateChannelInput): Channel {

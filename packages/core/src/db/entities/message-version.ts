@@ -1,6 +1,4 @@
 import type { long } from "@tsonic/core/types.js";
-import { attributes as A } from "@tsonic/core/lang.js";
-import { IndexAttribute, PrimaryKeyAttribute } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
 
 export class MessageVersion {
   WorkspaceId!: string;
@@ -13,6 +11,3 @@ export class MessageVersion {
   PreviousChannelId?: string;
   CreatedAt!: long;
 }
-
-A<MessageVersion>().add(PrimaryKeyAttribute, "WorkspaceId", ["Id"]);
-A<MessageVersion>().add(IndexAttribute, ["WorkspaceId","MessageId","CreatedAt"]);
