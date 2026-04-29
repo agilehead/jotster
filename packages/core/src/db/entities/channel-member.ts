@@ -7,7 +7,7 @@ export class ChannelMember {
   Role!: string;
   State!: string;
   Muted!: int;
-  NotificationLevel?: string;
+  NotificationLevel!: string | null;
   CreatedAt!: long;
   UpdatedAt!: long;
 }

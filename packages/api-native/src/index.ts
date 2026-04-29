@@ -9,21 +9,21 @@ export interface ApiSurfaceDescription {
 
 export function getNativeApiRoutes(): string[] {
   return [
-    "GET /api/native/v1/server",
-    "GET /api/native/v1/workspace",
-    "GET /api/native/v1/channels",
-    "POST /api/native/v1/channels",
-    "GET /api/native/v1/channels/{channelId}/threads",
-    "POST /api/native/v1/channels/{channelId}/threads",
-    "GET /api/native/v1/threads/{threadId}/messages",
-    "POST /api/native/v1/messages",
-    "GET /api/native/v1/direct-chats",
-    "POST /api/native/v1/direct-chats",
-    "GET /api/native/v1/participants",
-    "GET /api/native/v1/notifications",
-    "POST /api/native/v1/notifications/{notificationId}/read",
-    "GET /api/native/v1/credentials",
-    "POST /api/native/v1/credentials",
+    "GET /api/v1/server",
+    "GET /api/v1/workspace",
+    "GET /api/v1/channels",
+    "POST /api/v1/channels",
+    "GET /api/v1/channels/{channelId}/threads",
+    "POST /api/v1/channels/{channelId}/threads",
+    "GET /api/v1/threads/{threadId}/messages",
+    "POST /api/v1/messages",
+    "GET /api/v1/direct-chats",
+    "POST /api/v1/direct-chats",
+    "GET /api/v1/participants",
+    "GET /api/v1/notifications",
+    "POST /api/v1/notifications/{notificationId}/read",
+    "GET /api/v1/credentials",
+    "POST /api/v1/credentials",
   ];
 }
 
@@ -31,7 +31,7 @@ export function getNativeApiSurface(): ApiSurfaceDescription {
   return {
     id: "native",
     audience: "human_and_app_clients",
-    basePath: "/api/native/v1",
+    basePath: "/api/v1",
     vocabulary: "jotster",
     status: "contract_ready",
     routes: getNativeApiRoutes(),

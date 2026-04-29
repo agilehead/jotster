@@ -1,4 +1,4 @@
-import { asinterface, overloads as O } from "@tsonic/core/lang.js";
+import { asinterface } from "@tsonic/core/lang.js";
 import type { int } from "@tsonic/core/types.js";
 import { Enumerable } from "@tsonic/dotnet/System.Linq.js";
 import type { Int32 } from "@tsonic/dotnet/System.js";
@@ -13,10 +13,6 @@ import {
 import type { CancellationToken } from "@tsonic/dotnet/System.Threading.js";
 import type { Task } from "@tsonic/dotnet/System.Threading.Tasks.js";
 import type { DbSet } from "@tsonic/efcore/Microsoft.EntityFrameworkCore.js";
-import type {
-  ChangeTracker,
-  EntityEntry,
-} from "@tsonic/efcore/Microsoft.EntityFrameworkCore.ChangeTracking.js";
 import type {
   EntityTypeBuilder,
   PropertyBuilder,
@@ -109,16 +105,12 @@ function configureRelationalNames(builder: EntityTypeBuilder): void {
   }
 }
 
-function configureEntityModel(
-  builder: EntityTypeBuilder,
-  primaryKey: string[],
-  indexes: string[][],
+function configureEntityModel<TEntity extends object>(
+  builder: EntityTypeBuilder<TEntity>,
+  configure: (builder: EntityTypeBuilder<TEntity>) => void,
 ): void {
   configureRelationalNames(builder);
-  builder.HasKey(...primaryKey);
-  for (let index = 0; index < indexes.length; index++) {
-    builder.HasIndex(...indexes[index]);
-  }
+  configure(builder);
 }
 
 function configureWorkspaceFilters(
@@ -161,44 +153,188 @@ function configureWorkspaceFilters(
 }
 
 function configureJotsterBaseModel(modelBuilder: ModelBuilder): void {
-  configureEntityModel(modelBuilder.Entity<Workspace>(), ["Id"], [["Slug"], ["State"]]);
-  configureEntityModel(modelBuilder.Entity<WorkspaceDomain>(), ["Domain"], [["WorkspaceId", "State"], ["WorkspaceId", "IsPrimary"]]);
-  configureEntityModel(modelBuilder.Entity<Identity>(), ["Id"], [["Kind", "State"], ["PrimaryEmail"]]);
-  configureEntityModel(modelBuilder.Entity<HumanProfile>(), ["IdentityId"], []);
-  configureEntityModel(modelBuilder.Entity<AgentProfile>(), ["IdentityId"], [["OwnerIdentityId"]]);
-  configureEntityModel(modelBuilder.Entity<AuthProvider>(), ["WorkspaceId", "Id"], [["WorkspaceId", "DisplayName"], ["WorkspaceId", "Kind"], ["WorkspaceId", "Enabled"]]);
-  configureEntityModel(modelBuilder.Entity<ExternalIdentity>(), ["WorkspaceId", "Id"], [["WorkspaceId", "AuthProviderId", "Subject"], ["IdentityId"], ["WorkspaceId", "AuthProviderId"]]);
-  configureEntityModel(modelBuilder.Entity<AuthSession>(), ["WorkspaceId", "Id"], [["WorkspaceId", "SessionHash"], ["WorkspaceId", "ParticipantId", "State"]]);
-  configureEntityModel(modelBuilder.Entity<ApiCredential>(), ["WorkspaceId", "Id"], [["WorkspaceId", "CredentialHash"], ["WorkspaceId", "ParticipantId"], ["WorkspaceId", "CreatedByParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<WorkspaceMember>(), ["WorkspaceId", "Id"], [["WorkspaceId", "IdentityId"], ["WorkspaceId", "State"]]);
-  configureEntityModel(modelBuilder.Entity<Participant>(), ["WorkspaceId", "Id"], [["WorkspaceId", "WorkspaceMemberId"], ["WorkspaceId", "Kind", "State"]]);
-  configureEntityModel(modelBuilder.Entity<ParticipantPreference>(), ["WorkspaceId", "ParticipantId", "Key"], []);
-  configureEntityModel(modelBuilder.Entity<Role>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Name"]]);
-  configureEntityModel(modelBuilder.Entity<ParticipantRole>(), ["WorkspaceId", "ParticipantId", "RoleId"], [["WorkspaceId", "RoleId"]]);
-  configureEntityModel(modelBuilder.Entity<Group>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Name"], ["WorkspaceId", "State"]]);
-  configureEntityModel(modelBuilder.Entity<GroupMember>(), ["WorkspaceId", "GroupId", "ParticipantId"], [["WorkspaceId", "ParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<GroupChild>(), ["WorkspaceId", "ParentGroupId", "ChildGroupId"], [["WorkspaceId", "ChildGroupId"]]);
-  configureEntityModel(modelBuilder.Entity<PermissionGrant>(), ["WorkspaceId", "Id"], [["WorkspaceId", "SubjectKind", "SubjectId"], ["WorkspaceId", "ResourcePath", "Action"]]);
-  configureEntityModel(modelBuilder.Entity<Channel>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Name"], ["WorkspaceId", "State"], ["WorkspaceId", "CreatedByParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<ChannelMember>(), ["WorkspaceId", "ChannelId", "ParticipantId"], [["WorkspaceId", "ParticipantId"], ["WorkspaceId", "ChannelId", "State"]]);
-  configureEntityModel(modelBuilder.Entity<Thread>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ChannelId", "Id"], ["WorkspaceId", "ChannelId", "Title"], ["WorkspaceId", "State"], ["WorkspaceId", "CreatedByParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<DirectChat>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Kind", "State"]]);
-  configureEntityModel(modelBuilder.Entity<DirectChatMember>(), ["WorkspaceId", "DirectChatId", "ParticipantId"], [["WorkspaceId", "ParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<Message>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ThreadId", "CreatedAt"], ["WorkspaceId", "DirectChatId", "CreatedAt"], ["WorkspaceId", "SenderParticipantId", "CreatedAt"]]);
-  configureEntityModel(modelBuilder.Entity<MessageVersion>(), ["WorkspaceId", "Id"], [["WorkspaceId", "MessageId", "CreatedAt"]]);
-  configureEntityModel(modelBuilder.Entity<MessageMarker>(), ["WorkspaceId", "MessageId", "ParticipantId", "Marker"], [["WorkspaceId", "ParticipantId", "Marker"]]);
-  configureEntityModel(modelBuilder.Entity<Reaction>(), ["WorkspaceId", "Id"], [["WorkspaceId", "MessageId", "ParticipantId", "EmojiKey"], ["WorkspaceId", "ParticipantId", "CreatedAt"]]);
-  configureEntityModel(modelBuilder.Entity<Attachment>(), ["WorkspaceId", "Id"], [["WorkspaceId", "StorageKey"], ["WorkspaceId", "OwnerParticipantId", "CreatedAt"]]);
-  configureEntityModel(modelBuilder.Entity<Emoji>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Key"], ["WorkspaceId", "CreatedByParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<ProfileField>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Key"]]);
-  configureEntityModel(modelBuilder.Entity<ParticipantProfileFieldValue>(), ["WorkspaceId", "ParticipantId", "ProfileFieldId"], []);
-  configureEntityModel(modelBuilder.Entity<WorkspaceMemberDefault>(), ["WorkspaceId", "Key"], []);
-  configureEntityModel(modelBuilder.Entity<Webhook>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Direction", "Enabled"], ["WorkspaceId", "OwnerParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<DeviceToken>(), ["WorkspaceId", "Id"], [["WorkspaceId", "Provider", "TokenHash"], ["WorkspaceId", "ParticipantId"]]);
-  configureEntityModel(modelBuilder.Entity<AuditEvent>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ActorParticipantId", "CreatedAt"], ["WorkspaceId", "ObjectType", "ObjectId"]]);
-  configureEntityModel(modelBuilder.Entity<Notification>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ParticipantId", "Id"], ["WorkspaceId", "ParticipantId", "CreatedAt"], ["WorkspaceId", "ObjectType", "ObjectId"]]);
-  configureEntityModel(modelBuilder.Entity<NotificationEndpoint>(), ["WorkspaceId", "Id"], [["WorkspaceId", "ParticipantId", "Id"], ["WorkspaceId", "ParticipantId", "Kind"], ["WorkspaceId", "Enabled"]]);
-  configureEntityModel(modelBuilder.Entity<NotificationDelivery>(), ["WorkspaceId", "Id"], [["WorkspaceId", "NotificationId"], ["WorkspaceId", "ParticipantId", "NotificationId"], ["WorkspaceId", "EndpointId", "Status"]]);
+  configureEntityModel(modelBuilder.Entity<Workspace>(), (builder) => {
+    builder.HasKey((row: Workspace) => row.Id);
+    builder.HasIndex((row: Workspace) => row.Slug);
+    builder.HasIndex((row: Workspace) => row.State);
+  });
+  configureEntityModel(modelBuilder.Entity<WorkspaceDomain>(), (builder) => {
+    builder.HasKey((row: WorkspaceDomain) => row.Domain);
+    builder.HasIndex((row: WorkspaceDomain) => ({ WorkspaceId: row.WorkspaceId, State: row.State }));
+    builder.HasIndex((row: WorkspaceDomain) => ({ WorkspaceId: row.WorkspaceId, IsPrimary: row.IsPrimary }));
+  });
+  configureEntityModel(modelBuilder.Entity<Identity>(), (builder) => {
+    builder.HasKey((row: Identity) => row.Id);
+    builder.HasIndex((row: Identity) => ({ Kind: row.Kind, State: row.State }));
+    builder.HasIndex((row: Identity) => row.PrimaryEmail);
+  });
+  configureEntityModel(modelBuilder.Entity<HumanProfile>(), (builder) => {
+    builder.HasKey((row: HumanProfile) => row.IdentityId);
+  });
+  configureEntityModel(modelBuilder.Entity<AgentProfile>(), (builder) => {
+    builder.HasKey((row: AgentProfile) => row.IdentityId);
+    builder.HasIndex((row: AgentProfile) => row.OwnerIdentityId);
+  });
+  configureEntityModel(modelBuilder.Entity<AuthProvider>(), (builder) => {
+    builder.HasKey((row: AuthProvider) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: AuthProvider) => ({ WorkspaceId: row.WorkspaceId, DisplayName: row.DisplayName }));
+    builder.HasIndex((row: AuthProvider) => ({ WorkspaceId: row.WorkspaceId, Kind: row.Kind }));
+    builder.HasIndex((row: AuthProvider) => ({ WorkspaceId: row.WorkspaceId, Enabled: row.Enabled }));
+  });
+  configureEntityModel(modelBuilder.Entity<ExternalIdentity>(), (builder) => {
+    builder.HasKey((row: ExternalIdentity) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: ExternalIdentity) => ({ WorkspaceId: row.WorkspaceId, AuthProviderId: row.AuthProviderId, Subject: row.Subject }));
+    builder.HasIndex((row: ExternalIdentity) => row.IdentityId);
+    builder.HasIndex((row: ExternalIdentity) => ({ WorkspaceId: row.WorkspaceId, AuthProviderId: row.AuthProviderId }));
+  });
+  configureEntityModel(modelBuilder.Entity<AuthSession>(), (builder) => {
+    builder.HasKey((row: AuthSession) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: AuthSession) => ({ WorkspaceId: row.WorkspaceId, SessionHash: row.SessionHash }));
+    builder.HasIndex((row: AuthSession) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, State: row.State }));
+  });
+  configureEntityModel(modelBuilder.Entity<ApiCredential>(), (builder) => {
+    builder.HasKey((row: ApiCredential) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: ApiCredential) => ({ WorkspaceId: row.WorkspaceId, CredentialHash: row.CredentialHash }));
+    builder.HasIndex((row: ApiCredential) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId }));
+    builder.HasIndex((row: ApiCredential) => ({ WorkspaceId: row.WorkspaceId, CreatedByParticipantId: row.CreatedByParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<WorkspaceMember>(), (builder) => {
+    builder.HasKey((row: WorkspaceMember) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: WorkspaceMember) => ({ WorkspaceId: row.WorkspaceId, IdentityId: row.IdentityId }));
+    builder.HasIndex((row: WorkspaceMember) => ({ WorkspaceId: row.WorkspaceId, State: row.State }));
+  });
+  configureEntityModel(modelBuilder.Entity<Participant>(), (builder) => {
+    builder.HasKey((row: Participant) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Participant) => ({ WorkspaceId: row.WorkspaceId, WorkspaceMemberId: row.WorkspaceMemberId }));
+    builder.HasIndex((row: Participant) => ({ WorkspaceId: row.WorkspaceId, Kind: row.Kind, State: row.State }));
+  });
+  configureEntityModel(modelBuilder.Entity<ParticipantPreference>(), (builder) => {
+    builder.HasKey((row: ParticipantPreference) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, Key: row.Key }));
+  });
+  configureEntityModel(modelBuilder.Entity<Role>(), (builder) => {
+    builder.HasKey((row: Role) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Role) => ({ WorkspaceId: row.WorkspaceId, Name: row.Name }));
+  });
+  configureEntityModel(modelBuilder.Entity<ParticipantRole>(), (builder) => {
+    builder.HasKey((row: ParticipantRole) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, RoleId: row.RoleId }));
+    builder.HasIndex((row: ParticipantRole) => ({ WorkspaceId: row.WorkspaceId, RoleId: row.RoleId }));
+  });
+  configureEntityModel(modelBuilder.Entity<Group>(), (builder) => {
+    builder.HasKey((row: Group) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Group) => ({ WorkspaceId: row.WorkspaceId, Name: row.Name }));
+    builder.HasIndex((row: Group) => ({ WorkspaceId: row.WorkspaceId, State: row.State }));
+  });
+  configureEntityModel(modelBuilder.Entity<GroupMember>(), (builder) => {
+    builder.HasKey((row: GroupMember) => ({ WorkspaceId: row.WorkspaceId, GroupId: row.GroupId, ParticipantId: row.ParticipantId }));
+    builder.HasIndex((row: GroupMember) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<GroupChild>(), (builder) => {
+    builder.HasKey((row: GroupChild) => ({ WorkspaceId: row.WorkspaceId, ParentGroupId: row.ParentGroupId, ChildGroupId: row.ChildGroupId }));
+    builder.HasIndex((row: GroupChild) => ({ WorkspaceId: row.WorkspaceId, ChildGroupId: row.ChildGroupId }));
+  });
+  configureEntityModel(modelBuilder.Entity<PermissionGrant>(), (builder) => {
+    builder.HasKey((row: PermissionGrant) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: PermissionGrant) => ({ WorkspaceId: row.WorkspaceId, SubjectKind: row.SubjectKind, SubjectId: row.SubjectId }));
+    builder.HasIndex((row: PermissionGrant) => ({ WorkspaceId: row.WorkspaceId, ResourcePath: row.ResourcePath, Action: row.Action }));
+  });
+  configureEntityModel(modelBuilder.Entity<Channel>(), (builder) => {
+    builder.HasKey((row: Channel) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Channel) => ({ WorkspaceId: row.WorkspaceId, Name: row.Name }));
+    builder.HasIndex((row: Channel) => ({ WorkspaceId: row.WorkspaceId, State: row.State }));
+    builder.HasIndex((row: Channel) => ({ WorkspaceId: row.WorkspaceId, CreatedByParticipantId: row.CreatedByParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<ChannelMember>(), (builder) => {
+    builder.HasKey((row: ChannelMember) => ({ WorkspaceId: row.WorkspaceId, ChannelId: row.ChannelId, ParticipantId: row.ParticipantId }));
+    builder.HasIndex((row: ChannelMember) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId }));
+    builder.HasIndex((row: ChannelMember) => ({ WorkspaceId: row.WorkspaceId, ChannelId: row.ChannelId, State: row.State }));
+  });
+  configureEntityModel(modelBuilder.Entity<Thread>(), (builder) => {
+    builder.HasKey((row: Thread) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Thread) => ({ WorkspaceId: row.WorkspaceId, ChannelId: row.ChannelId, Id: row.Id }));
+    builder.HasIndex((row: Thread) => ({ WorkspaceId: row.WorkspaceId, ChannelId: row.ChannelId, Title: row.Title }));
+    builder.HasIndex((row: Thread) => ({ WorkspaceId: row.WorkspaceId, State: row.State }));
+    builder.HasIndex((row: Thread) => ({ WorkspaceId: row.WorkspaceId, CreatedByParticipantId: row.CreatedByParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<DirectChat>(), (builder) => {
+    builder.HasKey((row: DirectChat) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: DirectChat) => ({ WorkspaceId: row.WorkspaceId, Kind: row.Kind, State: row.State }));
+  });
+  configureEntityModel(modelBuilder.Entity<DirectChatMember>(), (builder) => {
+    builder.HasKey((row: DirectChatMember) => ({ WorkspaceId: row.WorkspaceId, DirectChatId: row.DirectChatId, ParticipantId: row.ParticipantId }));
+    builder.HasIndex((row: DirectChatMember) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<Message>(), (builder) => {
+    builder.HasKey((row: Message) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Message) => ({ WorkspaceId: row.WorkspaceId, ThreadId: row.ThreadId, CreatedAt: row.CreatedAt }));
+    builder.HasIndex((row: Message) => ({ WorkspaceId: row.WorkspaceId, DirectChatId: row.DirectChatId, CreatedAt: row.CreatedAt }));
+    builder.HasIndex((row: Message) => ({ WorkspaceId: row.WorkspaceId, SenderParticipantId: row.SenderParticipantId, CreatedAt: row.CreatedAt }));
+  });
+  configureEntityModel(modelBuilder.Entity<MessageVersion>(), (builder) => {
+    builder.HasKey((row: MessageVersion) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: MessageVersion) => ({ WorkspaceId: row.WorkspaceId, MessageId: row.MessageId, CreatedAt: row.CreatedAt }));
+  });
+  configureEntityModel(modelBuilder.Entity<MessageMarker>(), (builder) => {
+    builder.HasKey((row: MessageMarker) => ({ WorkspaceId: row.WorkspaceId, MessageId: row.MessageId, ParticipantId: row.ParticipantId, Marker: row.Marker }));
+    builder.HasIndex((row: MessageMarker) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, Marker: row.Marker }));
+  });
+  configureEntityModel(modelBuilder.Entity<Reaction>(), (builder) => {
+    builder.HasKey((row: Reaction) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Reaction) => ({ WorkspaceId: row.WorkspaceId, MessageId: row.MessageId, ParticipantId: row.ParticipantId, EmojiKey: row.EmojiKey }));
+    builder.HasIndex((row: Reaction) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, CreatedAt: row.CreatedAt }));
+  });
+  configureEntityModel(modelBuilder.Entity<Attachment>(), (builder) => {
+    builder.HasKey((row: Attachment) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Attachment) => ({ WorkspaceId: row.WorkspaceId, StorageKey: row.StorageKey }));
+    builder.HasIndex((row: Attachment) => ({ WorkspaceId: row.WorkspaceId, OwnerParticipantId: row.OwnerParticipantId, CreatedAt: row.CreatedAt }));
+  });
+  configureEntityModel(modelBuilder.Entity<Emoji>(), (builder) => {
+    builder.HasKey((row: Emoji) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Emoji) => ({ WorkspaceId: row.WorkspaceId, Key: row.Key }));
+    builder.HasIndex((row: Emoji) => ({ WorkspaceId: row.WorkspaceId, CreatedByParticipantId: row.CreatedByParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<ProfileField>(), (builder) => {
+    builder.HasKey((row: ProfileField) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: ProfileField) => ({ WorkspaceId: row.WorkspaceId, Key: row.Key }));
+  });
+  configureEntityModel(modelBuilder.Entity<ParticipantProfileFieldValue>(), (builder) => {
+    builder.HasKey((row: ParticipantProfileFieldValue) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, ProfileFieldId: row.ProfileFieldId }));
+  });
+  configureEntityModel(modelBuilder.Entity<WorkspaceMemberDefault>(), (builder) => {
+    builder.HasKey((row: WorkspaceMemberDefault) => ({ WorkspaceId: row.WorkspaceId, Key: row.Key }));
+  });
+  configureEntityModel(modelBuilder.Entity<Webhook>(), (builder) => {
+    builder.HasKey((row: Webhook) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Webhook) => ({ WorkspaceId: row.WorkspaceId, Direction: row.Direction, Enabled: row.Enabled }));
+    builder.HasIndex((row: Webhook) => ({ WorkspaceId: row.WorkspaceId, OwnerParticipantId: row.OwnerParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<DeviceToken>(), (builder) => {
+    builder.HasKey((row: DeviceToken) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: DeviceToken) => ({ WorkspaceId: row.WorkspaceId, Provider: row.Provider, TokenHash: row.TokenHash }));
+    builder.HasIndex((row: DeviceToken) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId }));
+  });
+  configureEntityModel(modelBuilder.Entity<AuditEvent>(), (builder) => {
+    builder.HasKey((row: AuditEvent) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: AuditEvent) => ({ WorkspaceId: row.WorkspaceId, ActorParticipantId: row.ActorParticipantId, CreatedAt: row.CreatedAt }));
+    builder.HasIndex((row: AuditEvent) => ({ WorkspaceId: row.WorkspaceId, ObjectType: row.ObjectType, ObjectId: row.ObjectId }));
+  });
+  configureEntityModel(modelBuilder.Entity<Notification>(), (builder) => {
+    builder.HasKey((row: Notification) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: Notification) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, Id: row.Id }));
+    builder.HasIndex((row: Notification) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, CreatedAt: row.CreatedAt }));
+    builder.HasIndex((row: Notification) => ({ WorkspaceId: row.WorkspaceId, ObjectType: row.ObjectType, ObjectId: row.ObjectId }));
+  });
+  configureEntityModel(modelBuilder.Entity<NotificationEndpoint>(), (builder) => {
+    builder.HasKey((row: NotificationEndpoint) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: NotificationEndpoint) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, Id: row.Id }));
+    builder.HasIndex((row: NotificationEndpoint) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, Kind: row.Kind }));
+    builder.HasIndex((row: NotificationEndpoint) => ({ WorkspaceId: row.WorkspaceId, Enabled: row.Enabled }));
+  });
+  configureEntityModel(modelBuilder.Entity<NotificationDelivery>(), (builder) => {
+    builder.HasKey((row: NotificationDelivery) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }));
+    builder.HasIndex((row: NotificationDelivery) => ({ WorkspaceId: row.WorkspaceId, NotificationId: row.NotificationId }));
+    builder.HasIndex((row: NotificationDelivery) => ({ WorkspaceId: row.WorkspaceId, ParticipantId: row.ParticipantId, NotificationId: row.NotificationId }));
+    builder.HasIndex((row: NotificationDelivery) => ({ WorkspaceId: row.WorkspaceId, EndpointId: row.EndpointId, Status: row.Status }));
+  });
 }
 
 export class JotsterWorkspaceDbContext extends DbContext {
@@ -376,34 +512,28 @@ export class JotsterWorkspaceDbContext extends DbContext {
   }
 
   ValidateWorkspaceWrites(): void {
-    const changeTracker = this.ChangeTracker as ChangeTracker;
+    const changeTracker = this.ChangeTracker;
     const entries = Enumerable.ToArray(changeTracker.Entries());
     for (let index = 0; index < entries.length; index++) {
-      const entry = entries[index] as EntityEntry;
+      const entry = entries[index];
       if (
         entry.State === EntityState.Added ||
         entry.State === EntityState.Modified ||
         entry.State === EntityState.Deleted
       ) {
-        requireWorkspaceOwnedEntity(this.CurrentWorkspaceId, entry.Entity as object);
+        requireWorkspaceOwnedEntity(this.CurrentWorkspaceId, entry.Entity);
       }
     }
   }
 
   override SaveChanges(): int;
   override SaveChanges(acceptAllChangesOnSuccess: boolean): int;
-  SaveChanges(_acceptAllChangesOnSuccess?: any): any {
-    throw new Error("SaveChanges overload stub must be erased");
-  }
-
-  SaveChangesDefault(): int {
+  override SaveChanges(acceptAllChangesOnSuccess?: boolean): int {
     this.ValidateWorkspaceWrites();
-    return super.SaveChanges();
-  }
-
-  SaveChangesWithAcceptAll(acceptAllChangesOnSuccess: boolean): int {
-    this.ValidateWorkspaceWrites();
-    return super.SaveChanges(acceptAllChangesOnSuccess === true);
+    if (acceptAllChangesOnSuccess === undefined) {
+      return super.SaveChanges();
+    }
+    return super.SaveChanges(acceptAllChangesOnSuccess);
   }
 
   override SaveChangesAsync(): Task<Int32>;
@@ -413,59 +543,23 @@ export class JotsterWorkspaceDbContext extends DbContext {
     acceptAllChangesOnSuccess: boolean,
     cancellationToken: CancellationToken,
   ): Task<Int32>;
-  SaveChangesAsync(_p0?: any, _p1?: any): any {
-    throw new Error("SaveChangesAsync overload stub must be erased");
-  }
-
-  SaveChangesAsyncDefault(): Task<Int32> {
-    this.ValidateWorkspaceWrites();
-    return super.SaveChangesAsync();
-  }
-
-  SaveChangesAsyncWithCancellation(
-    cancellationToken: CancellationToken,
+  override SaveChangesAsync(
+    first?: boolean | CancellationToken,
+    second?: CancellationToken,
   ): Task<Int32> {
     this.ValidateWorkspaceWrites();
-    return super.SaveChangesAsync(cancellationToken);
-  }
-
-  SaveChangesAsyncWithAcceptAll(
-    acceptAllChangesOnSuccess: boolean,
-  ): Task<Int32> {
-    this.ValidateWorkspaceWrites();
-    return super.SaveChangesAsync(acceptAllChangesOnSuccess === true);
-  }
-
-  SaveChangesAsyncWithAcceptAllAndCancellation(
-    acceptAllChangesOnSuccess: boolean,
-    cancellationToken: CancellationToken,
-  ): Task<Int32> {
-    this.ValidateWorkspaceWrites();
-    return super.SaveChangesAsync(
-      acceptAllChangesOnSuccess === true,
-      cancellationToken,
-    );
+    if (typeof first === "boolean") {
+      if (second === undefined) {
+        return super.SaveChangesAsync(first);
+      }
+      return super.SaveChangesAsync(first, second);
+    }
+    if (first === undefined) {
+      return super.SaveChangesAsync();
+    }
+    return super.SaveChangesAsync(first);
   }
 }
-
-O<JotsterWorkspaceDbContext>()
-  .method((context) => context.SaveChangesDefault)
-  .family((context) => context.SaveChanges);
-O<JotsterWorkspaceDbContext>()
-  .method((context) => context.SaveChangesWithAcceptAll)
-  .family((context) => context.SaveChanges);
-O<JotsterWorkspaceDbContext>()
-  .method((context) => context.SaveChangesAsyncDefault)
-  .family((context) => context.SaveChangesAsync);
-O<JotsterWorkspaceDbContext>()
-  .method((context) => context.SaveChangesAsyncWithCancellation)
-  .family((context) => context.SaveChangesAsync);
-O<JotsterWorkspaceDbContext>()
-  .method((context) => context.SaveChangesAsyncWithAcceptAll)
-  .family((context) => context.SaveChangesAsync);
-O<JotsterWorkspaceDbContext>()
-  .method((context) => context.SaveChangesAsyncWithAcceptAllAndCancellation)
-  .family((context) => context.SaveChangesAsync);
 
 export class JotsterAdminDbContext extends DbContext {
   Admin!: AdminContext;

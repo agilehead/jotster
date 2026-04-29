@@ -5,9 +5,9 @@ export class MessageVersion {
   Id!: string;
   MessageId!: string;
   EditorParticipantId!: string;
-  PreviousContent?: string;
-  PreviousRenderedContent?: string;
-  PreviousThreadId?: string;
-  PreviousChannelId?: string;
+  PreviousContent!: string | null;
+  PreviousRenderedContent!: string | null;
+  PreviousThreadId!: string | null;
+  PreviousChannelId!: string | null;
   CreatedAt!: long;
 }

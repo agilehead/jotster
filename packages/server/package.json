@@ -4,9 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "@jotster/api-agent": "0.0.0",
     "@jotster/api-native": "0.0.0",
-    "@jotster/api-zulip": "0.0.0",
     "@jotster/authorization": "0.0.0",
     "@jotster/collaboration": "0.0.0",
     "@jotster/core": "0.0.0",

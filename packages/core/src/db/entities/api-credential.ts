@@ -7,8 +7,8 @@ export class ApiCredential {
   Name!: string;
   CredentialHash!: string;
   ScopesJson!: string;
-  CreatedByParticipantId?: string;
+  CreatedByParticipantId!: string | null;
   CreatedAt!: long;
-  ExpiresAt?: long;
-  RevokedAt?: long;
+  ExpiresAt!: long | null;
+  RevokedAt!: long | null;
 }

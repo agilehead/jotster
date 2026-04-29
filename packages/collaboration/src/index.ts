@@ -72,8 +72,8 @@ export function createWorkspaceRecord(input: CreateWorkspaceInput): Workspace {
   workspace.Slug = normalizeWorkspaceSlug(input.slug);
   workspace.Name = input.name;
   workspace.Description = input.description ?? "";
-  workspace.IconUrl = input.iconUrl;
-  workspace.LogoUrl = input.logoUrl;
+  workspace.IconUrl = input.iconUrl ?? null;
+  workspace.LogoUrl = input.logoUrl ?? null;
   workspace.State = "active";
   workspace.CreatedAt = input.createdAt;
   workspace.UpdatedAt = input.createdAt;
@@ -122,20 +122,28 @@ export function createAuditEventRecord(
   const event = new AuditEvent();
   event.Id = generateId("audit");
   event.WorkspaceId = workspaceId;
-  event.ActorParticipantId = actorParticipantId;
+  event.ActorParticipantId = actorParticipantId ?? null;
   event.Action = action;
   event.ObjectType = objectType;
-  event.ObjectId = objectId;
+  event.ObjectId = objectId ?? null;
   event.MetadataJson = metadataJson;
   event.CreatedAt = createdAt;
   return event;
 }
 
-function parseAuditMetadataJson(metadataJson: string): any {
+function isJsonObjectRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseAuditMetadataJson(metadataJson: string): Record<string, unknown> {
   if (metadataJson.trim().length === 0) {
     return {};
   }
-  return JSON.parse(metadataJson) as any;
+  const parsed: unknown = JSON.parse(metadataJson);
+  if (!isJsonObjectRecord(parsed)) {
+    throw new Error("Admin audit metadata must be a JSON object");
+  }
+  return parsed;
 }
 
 export function createAdminAuditEventRecord(
@@ -175,7 +183,7 @@ export function createChannelRecord(input: CreateChannelInput): Channel {
   channel.Description = input.description ?? "";
   channel.Visibility = input.visibility;
   channel.State = "active";
-  channel.CreatedByParticipantId = input.createdByParticipantId;
+  channel.CreatedByParticipantId = input.createdByParticipantId ?? null;
   channel.CreatedAt = input.createdAt;
   channel.UpdatedAt = input.createdAt;
   return channel;
@@ -232,10 +240,12 @@ export function createChannelMessageRecord(input: CreateChannelMessageInput): Me
   message.ContainerKind = "channel_thread";
   message.ChannelId = input.channelId;
   message.ThreadId = input.threadId;
+  message.DirectChatId = null;
   message.Content = input.content;
-  message.RenderedContent = input.renderedContent;
+  message.RenderedContent = input.renderedContent ?? null;
   message.State = "active";
   message.CreatedAt = input.createdAt;
+  message.EditedAt = null;
   return message;
 }
 
@@ -338,7 +348,7 @@ export function createAttachmentRecord(
   attachment.Id = generateId("att");
   attachment.WorkspaceId = workspaceId;
   attachment.OwnerParticipantId = ownerParticipantId;
-  attachment.MessageId = messageId;
+  attachment.MessageId = messageId ?? null;
   attachment.StorageKey = storageKey;
   attachment.FileName = fileName;
   attachment.ContentType = contentType;
@@ -361,7 +371,7 @@ export function createEmojiRecord(
   emoji.Key = key;
   emoji.DisplayName = displayName;
   emoji.ImageStorageKey = imageStorageKey;
-  emoji.CreatedByParticipantId = createdByParticipantId;
+  emoji.CreatedByParticipantId = createdByParticipantId ?? null;
   emoji.CreatedAt = createdAt;
   return emoji;
 }
@@ -393,11 +403,11 @@ export function createWebhookRecord(
   const webhook = new Webhook();
   webhook.Id = generateId("wh");
   webhook.WorkspaceId = workspaceId;
-  webhook.OwnerParticipantId = ownerParticipantId;
+  webhook.OwnerParticipantId = ownerParticipantId ?? null;
   webhook.Direction = direction;
   webhook.EventFilterJson = eventFilterJson;
   webhook.TargetConfigJson = targetConfigJson;
-  webhook.SecretHash = secretHash;
+  webhook.SecretHash = secretHash ?? null;
   webhook.Enabled = 1;
   webhook.CreatedAt = createdAt;
   webhook.UpdatedAt = createdAt;

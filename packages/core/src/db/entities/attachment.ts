@@ -4,7 +4,7 @@ export class Attachment {
   WorkspaceId!: string;
   Id!: string;
   OwnerParticipantId!: string;
-  MessageId?: string;
+  MessageId!: string | null;
   StorageKey!: string;
   FileName!: string;
   ContentType!: string;

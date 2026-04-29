@@ -75,7 +75,7 @@ export const DEFAULT_AUTH_RATE_LIMIT_POLICY: AuthRateLimitPolicy = {
   lockoutMs: 900000 as long,
 };
 
-const authRateLimitBuckets: Record<string, AuthRateLimitBucket> = {};
+const authRateLimitBuckets = new Map<string, AuthRateLimitBucket>();
 
 const SECRET_METADATA_KEYS = [
   "authorization",
@@ -141,7 +141,7 @@ export function checkAuthRateLimit(
   policy?: AuthRateLimitPolicy,
 ): AuthRateLimitDecision {
   const activePolicy = getPolicy(policy);
-  const bucket = authRateLimitBuckets[key];
+  const bucket = authRateLimitBuckets.get(key);
   if (bucket === undefined) {
     return {
       limited: false,
@@ -168,13 +168,13 @@ export function recordAuthFailure(
   policy?: AuthRateLimitPolicy,
 ): AuthRateLimitBucket {
   const activePolicy = getPolicy(policy);
-  let bucket = authRateLimitBuckets[key];
+  let bucket = authRateLimitBuckets.get(key);
   if (bucket === undefined) {
     bucket = {
       failureCount: 0,
       firstFailureAt: nowMs,
     };
-    authRateLimitBuckets[key] = bucket;
+    authRateLimitBuckets.set(key, bucket);
   }
   resetExpiredBucket(bucket, nowMs, activePolicy);
   bucket.failureCount++;
@@ -185,14 +185,11 @@ export function recordAuthFailure(
 }
 
 export function clearAuthRateLimit(key: string): void {
-  delete authRateLimitBuckets[key];
+  authRateLimitBuckets.delete(key);
 }
 
 export function resetAuthRateLimitState(): void {
-  const keys = Object.keys(authRateLimitBuckets);
-  for (let index = 0; index < keys.length; index++) {
-    delete authRateLimitBuckets[keys[index]];
-  }
+  authRateLimitBuckets.clear();
 }
 
 function isSecretMetadataKey(key: string): boolean {
@@ -212,13 +209,11 @@ export function redactSecretValue(value: string | undefined): string {
   return "[redacted:" + value.length.toString() + "]";
 }
 
-export function redactOperationalMetadata(metadata: Record<string, string>): Record<string, string> {
-  const redacted: Record<string, string> = {};
-  const keys = Object.keys(metadata);
-  for (let index = 0; index < keys.length; index++) {
-    const key = keys[index];
-    redacted[key] = isSecretMetadataKey(key) ? redactSecretValue(metadata[key]) : metadata[key];
-  }
+export function redactOperationalMetadata(metadata: Map<string, string>): Map<string, string> {
+  const redacted = new Map<string, string>();
+  metadata.forEach((value, key) => {
+    redacted.set(key, isSecretMetadataKey(key) ? redactSecretValue(value) : value);
+  });
   return redacted;
 }
 
@@ -226,9 +221,7 @@ export function getPublicRouteDescriptions(): PublicRouteDescription[] {
   return [
     { method: "GET", path: "/health", reason: "health probe" },
     { method: "GET", path: "/api", reason: "API index" },
-    { method: "GET", path: "/api/native/v1/server", reason: "native API server info" },
-    { method: "GET", path: "/api/agent/v1/server", reason: "agent API server info" },
-    { method: "GET", path: "/api/zulip/v1/server_settings", reason: "Zulip edge server info" },
+    { method: "GET", path: "/api/v1/server", reason: "API server info" },
   ];
 }
 
@@ -387,7 +380,7 @@ export async function createRequestSecurityContext(
   const workspace = await bootstrapDb.Workspaces.Where(
     (entry) => entry.Id === workspaceId && entry.State === "active",
   ).FirstOrDefaultAsync();
-  if (workspace === undefined) {
+  if (workspace === null) {
     throw new PublicHttpError(404, "unknown_workspace", "Unknown workspace");
   }
 
@@ -450,7 +443,7 @@ export async function createRequestSecurityContext(
   };
 }
 
-export function createPublicErrorResponse(error: any, production: boolean): Record<string, string> {
+export function createPublicErrorResponse(error: unknown, production: boolean): Record<string, string> {
   if (error instanceof PublicHttpError) {
     return {
       result: "error",
@@ -472,7 +465,7 @@ export function createPublicErrorResponse(error: any, production: boolean): Reco
   };
 }
 
-export function getPublicErrorStatusCode(error: any): number {
+export function getPublicErrorStatusCode(error: unknown): number {
   if (error instanceof PublicHttpError) {
     return error.StatusCode;
   }

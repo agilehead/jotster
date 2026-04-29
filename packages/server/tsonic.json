@@ -40,14 +40,6 @@
       {
         "id": "@jotster/api-native",
         "project": "../api-native"
-      },
-      {
-        "id": "@jotster/api-agent",
-        "project": "../api-agent"
-      },
-      {
-        "id": "@jotster/api-zulip",
-        "project": "../api-zulip"
       }
     ]
   }

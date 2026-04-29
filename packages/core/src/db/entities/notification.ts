@@ -10,6 +10,6 @@ export class Notification {
   Reason!: string;
   PayloadJson!: string;
   CreatedAt!: long;
-  ReadAt?: long;
-  ConsumedAt?: long;
+  ReadAt!: long | null;
+  ConsumedAt!: long | null;
 }

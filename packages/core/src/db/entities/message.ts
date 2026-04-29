@@ -5,12 +5,12 @@ export class Message {
   Id!: string;
   SenderParticipantId!: string;
   ContainerKind!: string;
-  ChannelId?: string;
-  ThreadId?: string;
-  DirectChatId?: string;
+  ChannelId!: string | null;
+  ThreadId!: string | null;
+  DirectChatId!: string | null;
   Content!: string;
-  RenderedContent?: string;
+  RenderedContent!: string | null;
   State!: string;
   CreatedAt!: long;
-  EditedAt?: long;
+  EditedAt!: long | null;
 }

@@ -6,9 +6,9 @@ export class ExternalIdentity {
   IdentityId!: string;
   AuthProviderId!: string;
   Subject!: string;
-  EmailAtLogin?: string;
+  EmailAtLogin!: string | null;
   ClaimsJson!: string;
-  LastLoginAt?: long;
+  LastLoginAt!: long | null;
   CreatedAt!: long;
   UpdatedAt!: long;
 }

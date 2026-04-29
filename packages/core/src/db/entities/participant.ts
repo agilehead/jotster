@@ -6,7 +6,7 @@ export class Participant {
   WorkspaceMemberId!: string;
   Kind!: string;
   DisplayName!: string;
-  AvatarUrl?: string;
+  AvatarUrl!: string | null;
   State!: string;
   CreatedAt!: long;
   UpdatedAt!: long;

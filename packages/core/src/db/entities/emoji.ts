@@ -6,6 +6,6 @@ export class Emoji {
   Key!: string;
   DisplayName!: string;
   ImageStorageKey!: string;
-  CreatedByParticipantId?: string;
+  CreatedByParticipantId!: string | null;
   CreatedAt!: long;
 }

@@ -5,22 +5,10 @@ const repoRoot = process.cwd();
 
 const surfaces = [
   {
-    id: "native",
-    role: "primary product API",
+    id: "jotster",
+    role: "product API",
     file: "packages/api-native/src/index.ts",
     routeFunction: "getNativeApiRoutes",
-  },
-  {
-    id: "agent",
-    role: "external agent API",
-    file: "packages/api-agent/src/index.ts",
-    routeFunction: "getAgentApiRoutes",
-  },
-  {
-    id: "zulip",
-    role: "compatibility edge API",
-    file: "packages/api-zulip/src/index.ts",
-    routeFunction: "getZulipApiRoutes",
   },
 ];
 
@@ -84,7 +72,7 @@ function routeCounts(summaries) {
 function printMarkdown(summaries) {
   console.log("# Jotster API Surface Report");
   console.log("");
-  console.log("This report inventories Jotster-owned API contracts from source. Zulip is represented only as an edge compatibility surface; it no longer drives product storage or core API shape.");
+  console.log("This report inventories the single Jotster-owned API contract from source. Product storage, authorization, notifications, and agent participation all use the same API boundary.");
   console.log("");
   console.log("## Summary");
   console.log("");

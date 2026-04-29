@@ -149,3 +149,9 @@ generated/
 
 # Tsonic source-package restore artifacts
 packages/*/tsonic/
+
+# Local agent working directories
+.analysis/
+.todos/
+.tests/
+.tmp/

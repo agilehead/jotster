@@ -7,7 +7,7 @@ export class Channel {
   Description!: string;
   Visibility!: string;
   State!: string;
-  CreatedByParticipantId?: string;
+  CreatedByParticipantId!: string | null;
   CreatedAt!: long;
   UpdatedAt!: long;
 }

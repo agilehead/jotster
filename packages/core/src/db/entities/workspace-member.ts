@@ -6,7 +6,7 @@ export class WorkspaceMember {
   IdentityId!: string;
   State!: string;
   JoinedAt!: long;
-  SuspendedAt?: long;
+  SuspendedAt!: long | null;
   CreatedAt!: long;
   UpdatedAt!: long;
 }

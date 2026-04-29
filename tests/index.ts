@@ -546,7 +546,7 @@ describe("product vocabulary", () => {
 });
 
 describe("entity metadata", () => {
-  it("centralizes EF metadata in the DbContext", () => {
+  it("centralizes statically typed EF metadata in the DbContext", () => {
     const entityFiles = walkFiles("packages/core/src/db/entities").filter((file) => file.endsWith(".ts"));
 
     for (const file of entityFiles) {
@@ -561,8 +561,19 @@ describe("entity metadata", () => {
     const dbContextText = readText("packages/core/src/db/jotster-db-context.ts");
     assert.ok(dbContextText.includes("configureJotsterBaseModel"), "base EF metadata must be shared by all contexts");
     assert.ok(dbContextText.includes("configureEntityModel"), "EF metadata must be centralized");
-    assert.ok(dbContextText.includes("HasKey(...primaryKey)"), "central EF metadata must define primary keys");
-    assert.ok(dbContextText.includes("HasIndex(...indexes[index])"), "central EF metadata must define indexes");
+    assert.ok(dbContextText.includes("EntityTypeBuilder<TEntity>"), "central EF metadata must use typed entity builders");
+    assert.ok(dbContextText.includes("builder.HasKey((row: Workspace) => row.Id)"), "primary keys must use typed property lambdas");
+    assert.ok(dbContextText.includes("builder.HasIndex((row: Workspace) => row.Slug)"), "indexes must use typed property lambdas");
+    assert.ok(dbContextText.includes("builder.HasKey((row: AuthProvider) => ({ WorkspaceId: row.WorkspaceId, Id: row.Id }))"), "composite keys must use typed object-literal lambdas");
+    assert.ok(dbContextText.includes("builder.HasKey((row: MessageMarker) => ({ WorkspaceId: row.WorkspaceId, MessageId: row.MessageId, ParticipantId: row.ParticipantId, Marker: row.Marker }))"), "multi-column keys must remain statically checked");
+    assert.ok(dbContextText.includes("builder.HasIndex((row: NotificationDelivery) => ({ WorkspaceId: row.WorkspaceId, EndpointId: row.EndpointId, Status: row.Status }))"), "composite indexes must use typed object-literal lambdas");
+    assert.ok(!/primaryKey\s*:\s*string/.test(dbContextText), "primary keys must not be passed as string arrays");
+    assert.ok(!/indexes\s*:\s*string/.test(dbContextText), "indexes must not be passed as string arrays");
+    assert.ok(!/\.HasKey\(\s*\.\.\./.test(dbContextText), "primary keys must not use string spread overloads");
+    assert.ok(!/\.HasIndex\(\s*\.\.\./.test(dbContextText), "indexes must not use string spread overloads");
+    assert.ok(!/\.HasKey\(\s*["'[]/.test(dbContextText), "primary keys must not use string overloads");
+    assert.ok(!/\.HasIndex\(\s*["'[]/.test(dbContextText), "indexes must not use string overloads");
+    assert.ok(!dbContextText.includes("nameof(defaultof"), "EF metadata must not use compiler helper property names");
   });
 });
 
@@ -651,6 +662,54 @@ describe("security architecture gates", () => {
     for (const file of scannedFiles) {
       assert.ok(!jsonConcatPattern.test(readText(file)), file + " must not manually concatenate JSON");
     }
+  });
+
+  it("does not use unsafe any in product source", () => {
+    const scannedFiles = walkFiles("packages").filter((file) => file.endsWith(".ts"));
+    const unsafeAnyPattern = /\bas\s+any\b|:\s*any\b|<[^>\n]*\bany\b[^>\n]*>/;
+
+    for (const file of scannedFiles) {
+      assert.ok(!unsafeAnyPattern.test(readText(file)), file + " must use concrete DTOs or unknown plus runtime narrowing instead of any");
+    }
+  });
+
+  it("does not leak Tsonic compiler escape hatches into product source", () => {
+    const scannedFiles = walkFiles("packages").filter((file) => file.endsWith(".ts"));
+    const escapeHatchPattern = /\bJsValue\b|nameof\s*\(|defaultof\s*<|overloads\s+as\s+\w+|overload stub must be erased|\.family\(/;
+
+    for (const file of scannedFiles) {
+      assert.ok(
+        !escapeHatchPattern.test(readText(file)),
+        file + " must stay idiomatic TS and not carry Tsonic workaround escape hatches",
+      );
+    }
+  });
+
+  it("does not use broad structural assertions in product source", () => {
+    const scannedFiles = walkFiles("packages").filter((file) => file.endsWith(".ts"));
+    const broadAssertionPattern =
+      /\bas\s+(object|Record<|WorkspaceOwnedEntity\b|EntityEntry\b|NotificationEndpointConfigJson\b)|as\s+unknown\s+as|@ts-ignore|@ts-expect-error/;
+
+    for (const file of scannedFiles) {
+      assert.ok(
+        !broadAssertionPattern.test(readText(file)),
+        file + " must use typed APIs or runtime guards instead of broad structural assertions",
+      );
+    }
+  });
+
+  it("does not use plain objects as mutable keyed registries", () => {
+    const serverText = readText("packages/server/src/security-pipeline.ts");
+    const notificationText = readText("packages/notifications/src/index.ts");
+
+    assert.ok(serverText.includes("new Map<string, AuthRateLimitBucket>()"), "auth rate buckets must use Map");
+    assert.ok(notificationText.includes("new Map<string, EventQueue>()"), "notification queues must use Map");
+    assert.ok(serverText.includes("redactOperationalMetadata(metadata: Map<string, string>)"), "operational metadata redaction must use Map");
+    assert.ok(!serverText.includes("authRateLimitBuckets["), "auth rate buckets must not use object index access");
+    assert.ok(!serverText.includes("redacted["), "operational metadata redaction must not use object index access");
+    assert.ok(!serverText.includes("metadata["), "operational metadata redaction must not use object index access");
+    assert.ok(!notificationText.includes("queues["), "notification queues must not use object index access");
+    assert.ok(!notificationText.includes("config["), "notification endpoint config must use typed field access after validation");
   });
 
   it("guards workspace-owned writes before every save", () => {

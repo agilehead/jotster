@@ -1,8 +1,6 @@
 import type { int } from "@tsonic/core/types.js";
 import { express } from "@tsonic/express/index.js";
-import { createAgentServerInfo, getAgentApiSurface } from "@jotster/api-agent";
 import { createNativeServerInfo, getNativeApiSurface } from "@jotster/api-native";
-import { createZulipServerSettings, getZulipApiSurface } from "@jotster/api-zulip";
 import { loadConfig } from "@jotster/core";
 import { initNotificationRegistry } from "@jotster/notifications";
 import {
@@ -27,20 +25,12 @@ export function main(): void {
       product: "jotster",
       mode: config.mode,
       security: getSecurityPipelineDescription(),
-      apis: [getNativeApiSurface(), getAgentApiSurface(), getZulipApiSurface()],
+      api: getNativeApiSurface(),
     });
   });
 
-  app.get("/api/native/v1/server", async (_req, res, _next) => {
+  app.get("/api/v1/server", async (_req, res, _next) => {
     res.json(createNativeServerInfo(config.mode));
-  });
-
-  app.get("/api/agent/v1/server", async (_req, res, _next) => {
-    res.json(createAgentServerInfo());
-  });
-
-  app.get("/api/zulip/v1/server_settings", async (_req, res, _next) => {
-    res.json(createZulipServerSettings());
   });
 
   app.useError(async (err, _req, res, _next) => {

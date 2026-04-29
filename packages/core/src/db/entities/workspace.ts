@@ -5,8 +5,8 @@ export class Workspace {
   Slug!: string;
   Name!: string;
   Description!: string;
-  IconUrl?: string;
-  LogoUrl?: string;
+  IconUrl!: string | null;
+  LogoUrl!: string | null;
   State!: string;
   CreatedAt!: long;
   UpdatedAt!: long;

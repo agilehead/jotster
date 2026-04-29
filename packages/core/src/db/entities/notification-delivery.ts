@@ -8,8 +8,8 @@ export class NotificationDelivery {
   EndpointId!: string;
   Status!: string;
   Attempts!: int;
-  LastError?: string;
-  NextAttemptAt?: long;
+  LastError!: string | null;
+  NextAttemptAt!: long | null;
   CreatedAt!: long;
   UpdatedAt!: long;
 }

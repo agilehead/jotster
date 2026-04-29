@@ -8,5 +8,5 @@ export class AuthSession {
   State!: string;
   CreatedAt!: long;
   ExpiresAt!: long;
-  RevokedAt?: long;
+  RevokedAt!: long | null;
 }

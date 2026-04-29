@@ -9,5 +9,5 @@ export class PermissionGrant {
   Action!: string;
   Effect!: string;
   CreatedAt!: long;
-  ExpiresAt?: long;
+  ExpiresAt!: long | null;
 }

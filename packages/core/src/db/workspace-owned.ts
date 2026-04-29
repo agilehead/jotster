@@ -47,21 +47,22 @@ export function requireWorkspaceMatch(
   }
 }
 
-export function isWorkspaceOwnedEntity(value: object | null): value is WorkspaceOwnedEntity {
-  if (value === undefined || value === null || typeof value !== "object") {
+export function isWorkspaceOwnedEntity(value: unknown): value is WorkspaceOwnedEntity {
+  if (value === null || typeof value !== "object") {
     return false;
   }
-  const candidate = value as WorkspaceOwnedEntity;
-  return typeof candidate.WorkspaceId === "string";
+  if (!("WorkspaceId" in value)) {
+    return false;
+  }
+  return typeof value.WorkspaceId === "string";
 }
 
 export function requireWorkspaceOwnedEntity(
   expectedWorkspaceId: string,
-  value: object | null,
+  value: unknown,
 ): void {
   if (!isWorkspaceOwnedEntity(value)) {
     return;
   }
-  const entity = value as WorkspaceOwnedEntity;
-  requireWorkspaceMatch(expectedWorkspaceId, entity.WorkspaceId);
+  requireWorkspaceMatch(expectedWorkspaceId, value.WorkspaceId);
 }

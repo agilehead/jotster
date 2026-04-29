@@ -250,7 +250,7 @@ function hasValue(values: string[], expected: string): boolean {
 }
 
 function isGrantActive(grant: PermissionGrant, nowMs: long): boolean {
-  return grant.ExpiresAt === undefined || grant.ExpiresAt > nowMs;
+  return grant.ExpiresAt === null || grant.ExpiresAt > nowMs;
 }
 
 function actionMatches(grantAction: string, requestedAction: string): boolean {
@@ -321,7 +321,7 @@ export function createPermissionGrantRecord(
   grant.Action = action;
   grant.Effect = effect;
   grant.CreatedAt = createdAt;
-  grant.ExpiresAt = expiresAt;
+  grant.ExpiresAt = expiresAt ?? null;
   return grant;
 }
 

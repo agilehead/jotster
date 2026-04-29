@@ -145,7 +145,7 @@ function normalizeProviderText(value: string, fieldName: string): string {
 
 function validateJsonObjectText(value: string, fieldName: string): string {
   const normalized = value.trim().length === 0 ? "{}" : value.trim();
-  const parsed = JSON.parse(normalized) as any;
+  const parsed: unknown = JSON.parse(normalized);
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error(fieldName + " must be a JSON object");
   }
@@ -176,7 +176,7 @@ function parseScopesJson(scopesJson: string): string[] {
   if (scopesJson.trim().length === 0) {
     return [];
   }
-  const parsed = JSON.parse(scopesJson) as any;
+  const parsed: unknown = JSON.parse(scopesJson);
   if (!Array.isArray(parsed)) {
     return [];
   }
@@ -208,14 +208,14 @@ async function createAuthenticatedContext(
   const participant = await input.db.Participants.Where(
     (entry) => entry.Id === input.participantId && entry.State === "active",
   ).FirstOrDefaultAsync();
-  if (participant === undefined) {
+  if (participant === null) {
     return undefined;
   }
 
   const workspaceMember = await input.db.WorkspaceMembers.Where(
     (entry) => entry.Id === participant.WorkspaceMemberId && entry.State === "active",
   ).FirstOrDefaultAsync();
-  if (workspaceMember === undefined) {
+  if (workspaceMember === null) {
     return undefined;
   }
 
@@ -246,9 +246,9 @@ export async function authenticateSession(
       entry.SessionHash === sessionHash &&
       entry.State === "active" &&
       entry.ExpiresAt > nowMs &&
-      entry.RevokedAt === undefined,
+      entry.RevokedAt === null,
   ).FirstOrDefaultAsync();
-  if (session === undefined) {
+  if (session === null) {
     return undefined;
   }
 
@@ -276,10 +276,10 @@ export async function authenticateApiCredential(
   const credential = await db.ApiCredentials.Where(
     (entry) =>
       entry.CredentialHash === credentialHash &&
-      entry.RevokedAt === undefined &&
-      (entry.ExpiresAt === undefined || entry.ExpiresAt > nowMs),
+      entry.RevokedAt === null &&
+      (entry.ExpiresAt === null || entry.ExpiresAt > nowMs),
   ).FirstOrDefaultAsync();
-  if (credential === undefined) {
+  if (credential === null) {
     return undefined;
   }
 
@@ -302,7 +302,7 @@ export async function authenticateExternalIdentity(
   const provider = await input.db.AuthProviders.Where(
     (entry) => entry.Id === input.authProviderId && entry.Enabled === 1,
   ).FirstOrDefaultAsync();
-  if (provider === undefined) {
+  if (provider === null) {
     return undefined;
   }
 
@@ -310,21 +310,21 @@ export async function authenticateExternalIdentity(
   const externalIdentity = await input.db.ExternalIdentities.Where(
     (entry) => entry.AuthProviderId === provider.Id && entry.Subject === subject,
   ).FirstOrDefaultAsync();
-  if (externalIdentity === undefined) {
+  if (externalIdentity === null) {
     return undefined;
   }
 
   const workspaceMember = await input.db.WorkspaceMembers.Where(
     (entry) => entry.IdentityId === externalIdentity.IdentityId && entry.State === "active",
   ).FirstOrDefaultAsync();
-  if (workspaceMember === undefined) {
+  if (workspaceMember === null) {
     return undefined;
   }
 
   const participant = await input.db.Participants.Where(
     (entry) => entry.WorkspaceMemberId === workspaceMember.Id && entry.State === "active",
   ).FirstOrDefaultAsync();
-  if (participant === undefined) {
+  if (participant === null) {
     return undefined;
   }
 
@@ -354,9 +354,9 @@ export async function authenticateSessionHash(
       entry.ParticipantId === context.ParticipantId &&
       entry.State === "active" &&
       entry.ExpiresAt > nowMs &&
-      entry.RevokedAt === undefined,
+      entry.RevokedAt === null,
   ).FirstOrDefaultAsync();
-  return session !== undefined;
+  return session !== null;
 }
 
 export async function authenticateApiCredentialHash(
@@ -370,10 +370,10 @@ export async function authenticateApiCredentialHash(
     (entry) =>
       entry.CredentialHash === credentialHash &&
       entry.ParticipantId === context.ParticipantId &&
-      entry.RevokedAt === undefined &&
-      (entry.ExpiresAt === undefined || entry.ExpiresAt > nowMs),
+      entry.RevokedAt === null &&
+      (entry.ExpiresAt === null || entry.ExpiresAt > nowMs),
   ).FirstOrDefaultAsync();
-  return credential !== undefined;
+  return credential !== null;
 }
 
 export function createWorkspaceDomainRecord(
@@ -414,9 +414,9 @@ export function createExternalIdentityRecord(input: CreateExternalIdentityInput)
   externalIdentity.IdentityId = normalizeProviderText(input.identityId, "External identity identity id");
   externalIdentity.AuthProviderId = normalizeProviderText(input.authProviderId, "External identity auth provider id");
   externalIdentity.Subject = normalizeProviderSubject(input.subject);
-  externalIdentity.EmailAtLogin = input.emailAtLogin;
+  externalIdentity.EmailAtLogin = input.emailAtLogin ?? null;
   externalIdentity.ClaimsJson = validateJsonObjectText(input.claimsJson ?? "{}", "External identity claims_json");
-  externalIdentity.LastLoginAt = input.lastLoginAt;
+  externalIdentity.LastLoginAt = input.lastLoginAt ?? null;
   externalIdentity.CreatedAt = input.createdAt;
   externalIdentity.UpdatedAt = input.createdAt;
   return externalIdentity;
@@ -431,7 +431,7 @@ export function createIdentityRecord(
   const identity = new Identity();
   identity.Id = generateId(kind === "agent" ? "id_agent" : "id_human");
   identity.Kind = kind;
-  identity.PrimaryEmail = primaryEmail;
+  identity.PrimaryEmail = primaryEmail ?? null;
   identity.DisplayName = displayName;
   identity.State = "active";
   identity.CreatedAt = createdAt;
@@ -450,7 +450,7 @@ export function createHumanProfileRecord(
   const profile = new HumanProfile();
   profile.IdentityId = identityId;
   profile.FullName = fullName;
-  profile.AvatarUrl = avatarUrl;
+  profile.AvatarUrl = avatarUrl ?? null;
   profile.Timezone = timezone;
   profile.Locale = locale;
   profile.CreatedAt = createdAt;
@@ -468,7 +468,8 @@ export function createAgentProfileRecord(
 ): AgentProfile {
   const profile = new AgentProfile();
   profile.IdentityId = identityId;
-  profile.OwnerIdentityId = ownerIdentityId;
+  profile.OwnerIdentityId = ownerIdentityId ?? null;
+  profile.AvatarUrl = null;
   profile.AgentKind = agentKind;
   profile.DisplayName = displayName;
   profile.Description = description;
@@ -507,7 +508,7 @@ export function createParticipantRecord(
   participant.WorkspaceMemberId = workspaceMemberId;
   participant.Kind = kind;
   participant.DisplayName = displayName;
-  participant.AvatarUrl = avatarUrl;
+  participant.AvatarUrl = avatarUrl ?? null;
   participant.State = "active";
   participant.CreatedAt = createdAt;
   participant.UpdatedAt = createdAt;
@@ -538,9 +539,10 @@ export function createApiCredentialRecord(input: CreateApiCredentialInput): ApiC
   credential.Name = input.name;
   credential.CredentialHash = input.credentialHash;
   credential.ScopesJson = input.scopesJson;
-  credential.CreatedByParticipantId = input.createdByParticipantId;
+  credential.CreatedByParticipantId = input.createdByParticipantId ?? null;
   credential.CreatedAt = input.createdAt;
-  credential.ExpiresAt = input.expiresAt;
+  credential.ExpiresAt = input.expiresAt ?? null;
+  credential.RevokedAt = null;
   return credential;
 }
 
@@ -558,5 +560,6 @@ export function createAuthSessionRecord(
   session.State = "active";
   session.CreatedAt = createdAt;
   session.ExpiresAt = expiresAt;
+  session.RevokedAt = null;
   return session;
 }
