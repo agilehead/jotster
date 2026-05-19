@@ -141,6 +141,7 @@ vite.config.ts.timestamp-*
 # Tsonic build output
 .tsonic/
 generated/
+.analysis/
 
 # SQLite databases
 *.db

@@ -12,14 +12,30 @@ source "${ROOT}/scripts/local-first-party.sh"
 
 overlay_local_first_party_packages "${ROOT}"
 
-echo "=== build ==="
-(cd "${ROOT}" && npm run build)
+cd "${ROOT}"
 
-echo "=== typecheck ==="
-(cd "${ROOT}" && npm run typecheck)
+echo "=== restore ==="
+npm run restore
+
+echo "=== build + typecheck ==="
+JOTSTER_SKIP_RESTORE=1 npm run build &
+build_pid=$!
+JOTSTER_SKIP_RESTORE=1 npm run typecheck &
+typecheck_pid=$!
+
+status=0
+if ! wait "${build_pid}"; then
+  status=1
+fi
+if ! wait "${typecheck_pid}"; then
+  status=1
+fi
+if [[ "${status}" -ne 0 ]]; then
+  exit "${status}"
+fi
 
 echo "=== test ==="
-(cd "${ROOT}" && npm test)
+npm run test:no-build
 
 echo ""
 echo "=== ALL VERIFY-ALL CHECKS PASSED ==="

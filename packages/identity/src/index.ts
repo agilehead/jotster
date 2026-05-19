@@ -19,6 +19,7 @@ import type { long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { SHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export interface CreateRequestContextInput {
   workspaceId: string;
@@ -101,14 +102,14 @@ function parseScopesJson(scopesJson: string): string[] {
   if (scopesJson.trim().length === 0) {
     return [];
   }
-  const parsed = JSON.parse(scopesJson) as unknown;
-  if (!Array.isArray(parsed)) {
+  const parsed = JsonSerializer.Deserialize<string[]>(scopesJson);
+  if (parsed === null) {
     return [];
   }
   const scopes: string[] = [];
   for (let index = 0; index < parsed.length; index++) {
     const scope = parsed[index];
-    if (typeof scope === "string" && scope.trim().length > 0) {
+    if (scope.trim().length > 0) {
       scopes.push(scope);
     }
   }
@@ -133,14 +134,14 @@ async function createAuthenticatedContext(
   const participant = await input.db.Participants.Where(
     (entry) => entry.Id === input.participantId && entry.State === "active",
   ).FirstOrDefaultAsync();
-  if (participant === undefined) {
+  if (participant === null) {
     return undefined;
   }
 
   const workspaceMember = await input.db.WorkspaceMembers.Where(
     (entry) => entry.Id === participant.WorkspaceMemberId && entry.State === "active",
   ).FirstOrDefaultAsync();
-  if (workspaceMember === undefined) {
+  if (workspaceMember === null) {
     return undefined;
   }
 
@@ -173,7 +174,7 @@ export async function authenticateSession(
       entry.ExpiresAt > nowMs &&
       entry.RevokedAt === undefined,
   ).FirstOrDefaultAsync();
-  if (session === undefined) {
+  if (session === null) {
     return undefined;
   }
 
@@ -204,7 +205,7 @@ export async function authenticateApiCredential(
       entry.RevokedAt === undefined &&
       (entry.ExpiresAt === undefined || entry.ExpiresAt > nowMs),
   ).FirstOrDefaultAsync();
-  if (credential === undefined) {
+  if (credential === null) {
     return undefined;
   }
 
@@ -235,7 +236,7 @@ export async function authenticateSessionHash(
       entry.ExpiresAt > nowMs &&
       entry.RevokedAt === undefined,
   ).FirstOrDefaultAsync();
-  return session !== undefined;
+  return session !== null;
 }
 
 export async function authenticateApiCredentialHash(
@@ -252,7 +253,7 @@ export async function authenticateApiCredentialHash(
       entry.RevokedAt === undefined &&
       (entry.ExpiresAt === undefined || entry.ExpiresAt > nowMs),
   ).FirstOrDefaultAsync();
-  return credential !== undefined;
+  return credential !== null;
 }
 
 export function createWorkspaceDomainRecord(

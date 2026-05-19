@@ -7,8 +7,10 @@
   ],
   "scripts": {
     "restore": "${TSONIC_BIN:-tsonic} restore",
-    "build": "${TSONIC_BIN:-tsonic} restore && npm run -w @jotster/core build && npm run -w @jotster/identity build && npm run -w @jotster/authorization build && npm run -w @jotster/collaboration build && npm run -w @jotster/notifications build && npm run -w @jotster/api-native build && npm run -w @jotster/api-agent build && npm run -w @jotster/api-zulip build && npm run -w @jotster/server build",
-    "typecheck": "npm --workspaces --if-present run typecheck",
+    "build": "node scripts/build-all.mjs",
+    "build:no-restore": "node scripts/build-all.mjs --skip-restore",
+    "typecheck": "node scripts/typecheck-all.mjs",
+    "typecheck:no-restore": "node scripts/typecheck-all.mjs --skip-restore",
     "pretest": "npm run build",
     "migrate": "npx knex --knexfile knexfile.jotster.js migrate:latest",
     "migrate:rollback": "npx knex --knexfile knexfile.jotster.js migrate:rollback",
@@ -16,7 +18,8 @@
     "migrate:status": "npx knex --knexfile knexfile.jotster.js migrate:status",
     "report:api-compat": "node scripts/generate-api-compat-report.mjs",
     "verify-all": "bash ./scripts/verify-all.sh",
-    "test": "NODE_OPTIONS='--import tsx' mocha tests/index.ts --timeout 60000"
+    "test": "node --import tsx scripts/run-tests.mjs",
+    "test:no-build": "node --import tsx scripts/run-tests.mjs"
   },
   "devDependencies": {
     "@tsonic/aspnetcore": "10.0.40",

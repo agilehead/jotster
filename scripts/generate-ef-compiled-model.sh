@@ -11,6 +11,8 @@ DIST_DIR="${ROOT}/packages/core/dist/net10.0"
 CREATE_DB_OPTIONS_FILE="${PROJECT_DIR}/db/create-db-options.cs"
 DB_CONTEXT_FILE="${PROJECT_DIR}/db/jotster-db-context.cs"
 CONFIGURATION="Release"
+COMPILED_CONTEXT="JotsterBootstrapDbContext"
+COMPILED_MODEL="JotsterBootstrapDbContextModel"
 
 if [ ! -f "${PROJECT}" ]; then
   echo "error: missing ${PROJECT}"
@@ -63,45 +65,29 @@ dotnet ef dbcontext optimize \
   --precompile-queries \
   --nativeaot \
   --namespace "Jotster.Core.db" \
-  --context "JotsterDbContext"
-
-if ! grep -q 'UseModel(global::Jotster.Core.db.JotsterDbContextModel.Instance);' "${CREATE_DB_OPTIONS_FILE}"; then
-  python3 - "${CREATE_DB_OPTIONS_FILE}" <<'PY'
-from pathlib import Path
-import sys
-
-path = Path(sys.argv[1])
-text = path.read_text()
-needle = "            global::Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite(optionsBuilder, connectionString);\n"
-replacement = needle + "            optionsBuilder.UseModel(global::Jotster.Core.db.JotsterDbContextModel.Instance);\n"
-if needle not in text:
-    raise SystemExit(f"error: expected UseSqlite call not found in {path}")
-path.write_text(text.replace(needle, replacement, 1))
-PY
-fi
-
-if ! grep -q 'UseModel(global::Jotster.Core.db.JotsterDbContextModel.Instance);' "${CREATE_DB_OPTIONS_FILE}"; then
-  echo "error: failed to inject compiled model usage into ${CREATE_DB_OPTIONS_FILE}" >&2
-  exit 1
-fi
+  --context "${COMPILED_CONTEXT}"
 
 if ! grep -q 'protected override void OnConfiguring' "${DB_CONTEXT_FILE}"; then
-  python3 - "${DB_CONTEXT_FILE}" <<'PY'
+  python3 - "${DB_CONTEXT_FILE}" "${COMPILED_CONTEXT}" "${COMPILED_MODEL}" <<'PY'
 from pathlib import Path
 import sys
 
 path = Path(sys.argv[1])
+context_name = sys.argv[2]
+model_name = sys.argv[3]
 text = path.read_text()
-needle = """        public JotsterDbContext(global::Microsoft.EntityFrameworkCore.DbContextOptions options) : base(options)\n        {\n\n        }\n"""
-replacement = needle + """
+needle = """        public JotsterBootstrapDbContext(global::Microsoft.EntityFrameworkCore.DbContextOptions options, global::Jotster.Core.types.BootstrapContext? bootstrapContext = default) : base(options)\n        {\n            this.Bootstrap = bootstrapContext ?? new global::Jotster.Core.types.BootstrapContext();\n        }\n"""
+if needle not in text:
+    needle = """        public JotsterBootstrapDbContext(global::Microsoft.EntityFrameworkCore.DbContextOptions options, global::Jotster.Core.types.BootstrapContext? bootstrapContext = default) : base(options)\n        {\n            this.Bootstrap = bootstrapContext;\n        }\n"""
+replacement = needle + f"""
         protected override void OnConfiguring(global::Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseModel(global::Jotster.Core.db.JotsterDbContextModel.Instance);
+        {{
+            optionsBuilder.UseModel(global::Jotster.Core.db.{model_name}.Instance);
             base.OnConfiguring(optionsBuilder);
-        }
+        }}
 """
 if needle not in text:
-    raise SystemExit(f"error: expected constructor block not found in {path}")
+    raise SystemExit(f"error: expected {context_name} constructor block not found in {path}")
 path.write_text(text.replace(needle, replacement, 1))
 PY
 fi
