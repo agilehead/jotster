@@ -1,5 +1,7 @@
 import type { int } from "@tsonic/core/types.js";
 import { express } from "@tsonic/express/index.js";
+import type { ErrorRequestHandler } from "@tsonic/express/index.js";
+import { Convert } from "@tsonic/dotnet/System.js";
 import { createAgentServerInfo, getAgentApiSurface } from "@jotster/api-agent";
 import { createNativeServerInfo, getNativeApiSurface } from "@jotster/api-native";
 import { createZulipServerSettings, getZulipApiSurface } from "@jotster/api-zulip";
@@ -43,15 +45,16 @@ export function main(): void {
     res.json(createZulipServerSettings());
   });
 
-  app.useError(async (err, _req, res, _next) => {
+  const errorHandler: ErrorRequestHandler = async (err, _req, res, _next) => {
     const response = createPublicErrorResponse(err, config.production);
     const statusCode = getPublicErrorStatusCode(err);
-    res.status(statusCode as int).json(response);
-  });
+    res.status(statusCode).json(response);
+  };
+  app.use(errorHandler);
 
   const urlParts = config.listenUrl.split(":");
   const lastPart = urlParts[urlParts.length - 1];
   const parsedPort = Number.parseInt(lastPart, 10);
-  const port = Number.isNaN(parsedPort) ? (8080 as int) : (parsedPort as int);
+  const port = Number.isNaN(parsedPort) ? (8080 as int) : Convert.ToInt32(parsedPort);
   app.listen(port);
 }

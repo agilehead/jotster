@@ -8,9 +8,9 @@ import {
 import type { RequestContext } from "@jotster/core";
 import type { int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
-import { List } from "@tsonic/dotnet/System.Collections.Generic.js";
 import { HMACSHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
+import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export const ENDPOINT_KIND_WEBSOCKET = "websocket";
 export const ENDPOINT_KIND_EMAIL = "email";
@@ -43,13 +43,18 @@ export interface EventQueue {
   workspaceId: string;
   participantId: string;
   lastEventId: int;
-  events: List<QueueEvent>;
+  events: QueueEvent[];
   lastAccessTime: long;
 }
 
 export interface WebhookEndpointConfig {
   url: string;
   signingKeyId: string;
+}
+
+interface WebhookEndpointConfigJson {
+  url?: string;
+  signingKeyId?: string;
 }
 
 export interface WebhookSignatureHeaders {
@@ -59,27 +64,23 @@ export interface WebhookSignatureHeaders {
   keyId: string;
 }
 
-const queues: Record<string, EventQueue> = {};
+const queues = new Map<string, EventQueue>();
 
 export function initNotificationRegistry(): void {}
 
-function parseConfigJson(configJson: string): Record<string, unknown> {
+function parseWebhookEndpointConfig(configJson: string): WebhookEndpointConfigJson {
   if (configJson.trim().length === 0) {
     return {};
   }
-  const parsed = JSON.parse(configJson) as unknown;
-  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+  const parsed = JsonSerializer.Deserialize<WebhookEndpointConfigJson>(configJson);
+  if (parsed === null) {
     throw new Error("Notification endpoint config must be an object");
   }
-  return parsed as Record<string, unknown>;
+  return parsed;
 }
 
-function getRequiredStringConfig(
-  config: Record<string, unknown>,
-  key: string,
-): string {
-  const value = config[key];
-  if (typeof value !== "string" || value.trim().length === 0) {
+function requireConfigString(value: string | undefined, key: string): string {
+  if (value === undefined || value.trim().length === 0) {
     throw new Error("Notification endpoint config missing " + key);
   }
   return value.trim();
@@ -150,7 +151,6 @@ export function validateNotificationEndpointConfig(
   kind: string,
   configJson: string,
 ): void {
-  const config = parseConfigJson(configJson);
   if (
     kind !== ENDPOINT_KIND_WEBSOCKET &&
     kind !== ENDPOINT_KIND_EMAIL &&
@@ -161,32 +161,36 @@ export function validateNotificationEndpointConfig(
     throw new Error("Unsupported notification endpoint kind");
   }
   if (kind === ENDPOINT_KIND_AGENT_WEBHOOK) {
-    const url = getRequiredStringConfig(config, "url");
-    getRequiredStringConfig(config, "signingKeyId");
+    const config = parseWebhookEndpointConfig(configJson);
+    const url = requireConfigString(config.url, "url");
+    requireConfigString(config.signingKeyId, "signingKeyId");
     assertSafeWebhookUrl(url);
   }
 }
 
 export function registerQueue(context: RequestContext, nowMs: long): string {
   const queueId = generateId("queue");
-  queues[queueId] = {
+  queues.set(queueId, {
     queueId,
     workspaceId: context.WorkspaceId,
     participantId: context.ParticipantId,
     lastEventId: 0 as int,
-    events: new List<QueueEvent>(),
+    events: [],
     lastAccessTime: nowMs,
-  };
+  });
   return queueId;
 }
 
 export function cleanupExpiredQueues(nowMs: long): int {
   let removed = 0;
-  const keys = Object.keys(queues);
-  for (let index = 0; index < keys.length; index++) {
-    const queue = queues[keys[index]];
-    if (queue !== undefined && nowMs - queue.lastAccessTime > MAX_QUEUE_IDLE_MS) {
-      delete queues[keys[index]];
+  const expiredQueueIds: string[] = [];
+  for (const [queueId, queue] of queues) {
+    if (nowMs - queue.lastAccessTime > MAX_QUEUE_IDLE_MS) {
+      expiredQueueIds.push(queueId);
+    }
+  }
+  for (const queueId of expiredQueueIds) {
+    if (queues.delete(queueId)) {
       removed++;
     }
   }
@@ -197,22 +201,21 @@ export function dispatchEvent(event: DomainEvent): void {
   if (event.participantId === undefined) {
     throw new Error("Notification dispatch requires participant filtering");
   }
-  const keys = Object.keys(queues);
-  for (let index = 0; index < keys.length; index++) {
-    const queue = queues[keys[index]];
-    if (queue === undefined || queue.workspaceId !== event.workspaceId) {
+  for (const queue of queues.values()) {
+    if (queue.workspaceId !== event.workspaceId) {
       continue;
     }
     if (event.participantId !== undefined && queue.participantId !== event.participantId) {
       continue;
     }
     queue.lastEventId = (queue.lastEventId + 1) as int;
-    queue.events.Add({ id: queue.lastEventId, event });
+    const queueEvent: QueueEvent = { id: queue.lastEventId, event };
+    queue.events.push(queueEvent);
   }
 }
 
 function getAuthorizedQueue(context: RequestContext, queueId: string): EventQueue | undefined {
-  const queue = queues[queueId];
+  const queue = queues.get(queueId);
   if (queue === undefined) {
     return undefined;
   }
@@ -235,8 +238,8 @@ export function getEventsFromQueue(
     return [];
   }
   queue.lastAccessTime = nowMs;
-  const events = queue.events.ToArray();
-  queue.events.Clear();
+  const events = queue.events;
+  queue.events = [];
   return events;
 }
 
@@ -245,12 +248,11 @@ export function deleteQueueById(context: RequestContext, queueId: string): boole
   if (queue === undefined) {
     return false;
   }
-  delete queues[queueId];
-  return true;
+  return queues.delete(queueId);
 }
 
 export function getActiveQueueCount(): int {
-  return Object.keys(queues).length as int;
+  return queues.size as int;
 }
 
 export function createNotificationRecord(

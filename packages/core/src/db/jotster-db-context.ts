@@ -61,7 +61,7 @@ import type { Notification } from "./entities/notification.ts";
 import type { NotificationEndpoint } from "./entities/notification-endpoint.ts";
 import type { NotificationDelivery } from "./entities/notification-delivery.ts";
 
-type DbSetQuery<T> = Ef<Linq<DbSet<T>>>;
+type DbSetQuery<T extends object | null> = Ef<Linq<DbSet<T>>>;
 type RelationalEntityTypeBuilder = Ef<EntityTypeBuilder>;
 type RelationalPropertyBuilder = Ef<PropertyBuilder>;
 
@@ -106,7 +106,7 @@ function configureRelationalNames(builder: EntityTypeBuilder): void {
   }
 }
 
-function configureWorkspaceFilter<T extends WorkspaceOwnedEntity>(
+function configureWorkspaceFilter<T extends object & WorkspaceOwnedEntity>(
   modelBuilder: ModelBuilder,
   workspaceId: string,
 ): void {

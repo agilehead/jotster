@@ -15,7 +15,7 @@ import {
   hashAuthenticatorSecret,
   resolveWorkspaceIdByDomain,
 } from "@jotster/identity";
-import type { long } from "@tsonic/core/types.js";
+import type { int, long } from "@tsonic/core/types.js";
 
 export const AUTH_KIND_SESSION = "session";
 export const AUTH_KIND_API_CREDENTIAL = "api_credential";
@@ -51,10 +51,10 @@ export interface RequestSecurityContext {
 }
 
 export class PublicHttpError extends Error {
-  StatusCode: number;
+  StatusCode: int;
   Code: string;
 
-  constructor(statusCode: number, code: string, message: string) {
+  constructor(statusCode: int, code: string, message: string) {
     super(message);
     this.StatusCode = statusCode;
     this.Code = code;
@@ -294,7 +294,7 @@ export function createPublicErrorResponse(error: unknown, production: boolean): 
   };
 }
 
-export function getPublicErrorStatusCode(error: unknown): number {
+export function getPublicErrorStatusCode(error: unknown): int {
   if (error instanceof PublicHttpError) {
     return error.StatusCode;
   }
