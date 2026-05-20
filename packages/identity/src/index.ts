@@ -19,7 +19,6 @@ import type { long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { SHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
-import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export interface CreateRequestContextInput {
   workspaceId: string;
@@ -102,7 +101,7 @@ function parseScopesJson(scopesJson: string): string[] {
   if (scopesJson.trim().length === 0) {
     return [];
   }
-  const parsed = JsonSerializer.Deserialize<string[]>(scopesJson);
+  const parsed: string[] = JSON.parse(scopesJson);
   if (parsed === null) {
     return [];
   }

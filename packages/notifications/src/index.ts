@@ -10,7 +10,6 @@ import type { int, long } from "@tsonic/core/types.js";
 import { Convert } from "@tsonic/dotnet/System.js";
 import { HMACSHA256 } from "@tsonic/dotnet/System.Security.Cryptography.js";
 import { Encoding } from "@tsonic/dotnet/System.Text.js";
-import { JsonSerializer } from "@tsonic/dotnet/System.Text.Json.js";
 
 export const ENDPOINT_KIND_WEBSOCKET = "websocket";
 export const ENDPOINT_KIND_EMAIL = "email";
@@ -72,7 +71,7 @@ function parseWebhookEndpointConfig(configJson: string): WebhookEndpointConfigJs
   if (configJson.trim().length === 0) {
     return {};
   }
-  const parsed = JsonSerializer.Deserialize<WebhookEndpointConfigJson>(configJson);
+  const parsed: WebhookEndpointConfigJson = JSON.parse(configJson);
   if (parsed === null) {
     throw new Error("Notification endpoint config must be an object");
   }
